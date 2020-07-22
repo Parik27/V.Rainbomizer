@@ -15,6 +15,7 @@ class ColoursRandomizer
 public:
     ColoursRandomizer ()
     {
+        return;
         //FILE* logging = fopen("log.txt", "w");
         InitialiseAllComponents ();
         puts("Stuff");

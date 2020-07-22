@@ -1,6 +1,6 @@
 #include "Utils.hh"
-#include "common.hh"
-#include "logger.hh"
+#include "common/common.hh"
+#include "common/logger.hh"
 #include "CEntity.hh"
 #include "CPed.hh"
 #include "UtilsHooking.hh"
@@ -191,7 +191,7 @@ class WeaponRandomizer
         // NOP JZ instruction to ensure that a weapon is always equipped by the
         // ped (weapons given by script only)
         *hook::get_pattern<uint16_t> ("0f 84 ? ? ? ? 80 7c ? ? 00 74 ? 8b", 11)
-            = 0x9090;
+        = 0x9090;
     }
 
 public:

@@ -26,8 +26,8 @@ endif()
 set (CMAKE_CXX_STANDARD 17)
 
 # Sources
-include_directories(include lib)
-file(GLOB SOURCES src/*.cc src/*.cpp lib/*.cc lib/Patterns/*.cpp)
+include_directories(include lib src)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cc lib/*.cc lib/Patterns/*.cpp)
 
 add_library("rainbomizer" SHARED ${SOURCES})
 

@@ -67,12 +67,8 @@ Common::InitialiseHashes ()
                     }
 
                     case MODEL_INFO_VEHICLE: {
-                        auto vehInfo = static_cast<CVehicleModelInfo*>(info);
-
-                        if (vehInfo->GetVehicleType ()
-                            != "VEHICLE_TYPE_TRAIN"_joaat)
-                            mVehicleHashes.push_back (info->m_nHash);
-
+                        
+                        mVehicleHashes.push_back (info->m_nHash);
                         break;
                     }
 

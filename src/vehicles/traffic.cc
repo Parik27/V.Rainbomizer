@@ -1,10 +1,10 @@
 #include <Utils.hh>
-#include "logger.hh"
+#include "common/logger.hh"
 #include <CStreaming.hh>
 #include <rage.hh>
 #include <Natives.hh>
 #include <CMath.hh>
-#include "common.hh"
+#include "common/common.hh"
 #include <set>
 
 struct Vector3;
@@ -54,9 +54,13 @@ class TrafficRandomizer
         for (int i = 0; i < 16; i++)
             {
                 uint32_t vehicle = vehicles[RandomInt (vehicles.size () - 1)];
-                uint32_t vehicleIndex = CStreaming::GetModelIndex (vehicle);
+                uint32_t vehicleIndex;
+                auto     model
+                    = CStreaming::GetModelAndIndexByHash<CVehicleModelInfo> (
+                        vehicle, vehicleIndex);
 
-                if (CStreaming::HasModelLoaded (vehicleIndex))
+                if (CStreaming::HasModelLoaded (vehicleIndex)
+                    && model->GetVehicleType () != "VEHICLE_TYPE_TRAIN"_joaat)
                     continue;
 
                 return vehicleIndex;
