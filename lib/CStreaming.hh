@@ -97,7 +97,7 @@ public:
         return GetModelAndIndexByHash<T> (hash, index);
     }
     
-    template <typename T>
+    template <typename T = CBaseModelInfo>
     static inline T*
     GetModelByIndex (uint32_t index)
     {

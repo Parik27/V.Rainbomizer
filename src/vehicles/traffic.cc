@@ -6,6 +6,8 @@
 #include <CMath.hh>
 #include "common/common.hh"
 #include <set>
+#include "common/config.hh"
+#include "vehicle_common.hh"
 
 struct Vector3;
 
@@ -16,35 +18,8 @@ class TrafficRandomizer
     RandomizeCarToSpawn (uint32_t *modelId, uint32_t *spawnList, Vector3 *pos,
                          bool param_4)
     {
-        std::set<uint32_t> cars;
-        auto groups = CStreaming::sm_Instance;
-        
-        groups->mAppropriateCarsSet.for_each (
-            [&cars] (int val) { cars.insert (val); });
-        groups->mInappropriateCarsSet.for_each (
-            [&cars] (int val) { cars.insert (val); });
-        groups->mBoatsSet.for_each ([&cars] (int val) { cars.insert (val); });
-
-        groups->mSpecialVehiclesSet.for_each ([&cars] (int val) {
-            if (CStreaming::GetModelByIndex<CVehicleModelInfo> (val)
-                    ->GetVehicleType ()
-                != "VEHICLE_TYPE_TRAIN"_joaat)
-                cars.insert (val);
-        });
-
-        *modelId = 65535;
-        if (cars.size () < 1)
-            return false;
-
-        auto it = cars.begin ();
-        std::advance (it, RandomInt (cars.size () - 1));
-
-        // Vehicle should always be loaded if they're in the loaded groups, but
-        // just in case
-        if (CStreaming::HasModelLoaded(*it))
-            *modelId = *it;
-
-        return *modelId == 65535;
+        *modelId = GetRandomLoadedVehIndex ();
+        return ((*modelId & 65536) == 65535);
     }
 
     /*******************************************************/
@@ -72,6 +47,9 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
+        if (!ConfigManager::GetConfigs().traffic.enabled)
+            return;
+        
         InitialiseAllComponents ();
 
         // Actuall spawning of the vehicle

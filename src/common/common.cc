@@ -85,7 +85,7 @@ Common::InitialiseHashes ()
 }
 
 /*******************************************************/
-std::vector<int> &
+const std::vector<int> &
 Common::GetVehicleHashes ()
 {
     if (!mHashesInitialised)
@@ -165,7 +165,7 @@ Common::AddInitCallback (std::function<void ()> callback)
 }
     
 /*******************************************************/
-std::vector<int> &
+const std::vector<int> &
 Common::GetPedHashes ()
 {
     if (!mHashesInitialised)

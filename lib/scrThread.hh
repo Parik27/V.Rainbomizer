@@ -3,16 +3,27 @@
 
 #include <cstdint>
 
+enum class eScriptState : uint32_t
+{
+    RUNNING = 0,
+    WAITING,
+    KILLED,
+    STATE_3,
+    STATE_4
+};
+
 class scrThreadContext
 {
 public:
     uint32_t m_nThreadId;
     uint32_t m_nScriptHash;
-    uint32_t m_nState;
+    eScriptState m_nState;
     uint32_t m_nIp;
     uint32_t m_nFrameSP;
     uint32_t m_nSP;
-    uint8_t  field_0x18[56];
+    uint8_t  field_0x18[8];
+    float    m_fWaitTime;
+    uint8_t  field_0x24[44];
     uint32_t field_0x50;
     uint32_t field_0x54;
     uint32_t field_0x58;

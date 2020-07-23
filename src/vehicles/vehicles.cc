@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <scrThread.hh>
 #include "vehicle_patterns.hh"
+#include "vehicle_common.hh"
+#include "common/config.hh"
 
 CEntity *(*CPools__GetAtEntity) (int);
 
@@ -19,7 +21,7 @@ class ScriptVehicleRandomizer
 {
     static std::unordered_map<uint32_t, std::vector<ScriptVehiclePattern>>
         mPatterns;
-
+    
     /*******************************************************/
     static void
     InitialisePatterns ()
@@ -99,7 +101,7 @@ class ScriptVehicleRandomizer
     /*******************************************************/
     static uint32_t
     GetRandomHashForVehicle (uint32_t hash, Vector3 &coords)
-    {
+    {        
         uint32_t scrHash
             = scrThread::GetActiveThread ()->m_Context.m_nScriptHash;
 
@@ -115,42 +117,61 @@ class ScriptVehicleRandomizer
                     }
             }
 
-        // Return a truly random vehicle on no match
-        auto indices = Rainbomizer::Common::GetVehicleHashes ();
-        return indices[RandomInt (
-            Rainbomizer::Common::GetVehicleHashes ().size ())];
+        // Return a random vehicle
+        uint32_t numRandomLoaded = 0;
+        uint32_t randomLoaded
+            = GetRandomLoadedVehIndex (&numRandomLoaded, false);
+        if (numRandomLoaded < 30)
+            {
+                const auto &indices = Rainbomizer::Common::GetVehicleHashes ();
+                return indices[RandomInt (indices.size () - 1)];
+            }
+        
+        return CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
     }
 
     /*******************************************************/
-    static void
-    RandomizeScriptVehicle (uint32_t &hash, Vector3_native *coords,
+    static bool
+    RandomizeScriptVehicle (uint32_t& hash, Vector3_native *coords,
                             double heading, bool isNetwork,
                             bool thisScriptCheck)
     {
+        auto     thread       = scrThread::GetActiveThread ();
         uint32_t originalHash = hash;
+        Vector3  pos          = {coords->x, coords->y, coords->z};
 
-        // New vehicle
-        Vector3 pos = {coords->x, coords->y, coords->z};
-        hash        = GetRandomHashForVehicle (hash, pos);
-
-        uint32_t index = CStreaming::GetModelIndex (hash);
-        CStreaming::RequestModel (index, 0);
-
-        // TODO: Is there a way to just load the vehicle?
-        LOAD_ALL_OBJECTS_NOW ();
-
-        // Set hash back to original if the vehicle failed to load else update
-        // coords to alternative coords
-        if (!CStreaming::HasModelLoaded (index))
+        // Used for async loading of script vehicles. It's to ensure that the
+        // mod doesn't try to change the model it was supposed to load.
+        // Additional fail-safes are ideal, but aren't important
+        static std::unordered_map<uint32_t, uint32_t> mThreadWaits;
+        if (mThreadWaits.count (thread->m_Context.m_nScriptHash))
             {
-                hash = originalHash;
+                hash = mThreadWaits[thread->m_Context.m_nScriptHash];
+                mThreadWaits.erase (thread->m_Context.m_nScriptHash);
             }
         else
+            hash = GetRandomHashForVehicle (hash, pos);
+
+        uint32_t index = CStreaming::GetModelIndex (hash);
+
+        // Wait for the model to launch, inhibit the hooked function call, and
+        // set the script state to waiting. The game will keep executing this
+        // native until the state is set back to Running
+        if (!CStreaming::HasModelLoaded (index))
             {
-                coords->x = pos.x;
-                coords->y = pos.y;
-                coords->z = pos.z;
+                REQUEST_MODEL (hash);
+                thread->m_Context.m_nState = eScriptState::WAITING;
+                mThreadWaits[thread->m_Context.m_nScriptHash]
+                    = hash;
+                return false;
             }
+        
+        coords->x = pos.x;
+        coords->y = pos.y;
+        coords->z = pos.z;
+        
+        thread->m_Context.m_nState = eScriptState::RUNNING;
+        return true;
     }
 
     /*******************************************************/
@@ -161,7 +182,7 @@ class ScriptVehicleRandomizer
                                  double, bool, bool> (
             hook::get_pattern ("8b ec ? 83 ec 50 f3 0f 10 02 f3 0f 10 4a 08 ",
                                -17),
-            RandomizeScriptVehicle, CALLBACK_ORDER_BEFORE)
+            RandomizeScriptVehicle)
             .Activate ();
     }
 
@@ -169,6 +190,9 @@ public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
+        if (!ConfigManager::GetConfigs().scriptVehicle.enabled)
+            return;
+        
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
     }

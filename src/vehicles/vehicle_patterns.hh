@@ -33,6 +33,8 @@ class ScriptVehiclePattern
     {
         bool     Flying : 1;
         bool     CanTow : 1;
+        bool     NoRotors : 1;
+
         uint32_t AttachVehicle = 0; // hash
     } mFlags;
 
@@ -81,7 +83,7 @@ public:
     }
 
     uint32_t
-    GetOriginalVehicle ()
+    GetOriginalVehicle () const
     {
         return m_nOriginalVehicle;
     }
@@ -93,18 +95,18 @@ public:
         m_vecMovedCoords = moveCoords;
     }
     const Vector3 &
-    GetMovedCoordinates ()
+    GetMovedCoordinates () const
     {
         return m_vecMovedCoords;
     }
     uint32_t
-    GetNumVehicles ()
+    GetNumVehicles () const
     {
         return m_aCache.size ();
     }
 
-    bool DoesVehicleMatchPattern (uint32_t hash);
-    void Cache ();
+    bool     DoesVehicleMatchPattern (uint32_t hash);
+    void     Cache ();
     uint32_t GetRandom (Vector3 &pos);
 
     // Reads a flag string in the format "flag=value" or "flag" for just bools
@@ -114,10 +116,5 @@ public:
     void ParseFlags (const std::string &flags);
 
     /*******************************************************/
-    ScriptVehiclePattern ()
-    {
-        mFlags.Flying        = false;
-        mFlags.CanTow        = false;
-        mFlags.AttachVehicle = 0;
-    }
+    ScriptVehiclePattern () : mFlags{false, false, false, 0} {}
 };

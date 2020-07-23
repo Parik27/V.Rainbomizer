@@ -13,7 +13,7 @@ void
 VehicleModelInfoCacheMgr::GenerateCache ()
 {
     auto timestamp = clock ();
-    auto hashes    = Rainbomizer::Common::GetVehicleHashes ();
+    auto& hashes    = Rainbomizer::Common::GetVehicleHashes ();
 
     FILE *cacheFile
         = Rainbomizer::Common::GetRainbomizerDataFile ("VehInfo.cache", "wb");

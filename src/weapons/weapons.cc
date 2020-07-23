@@ -11,6 +11,7 @@
 #include <ctime>
 #include <scrThread.hh>
 #include <array>
+#include "common/config.hh"
 
 class WeaponRandomizer
 {
@@ -156,7 +157,7 @@ class WeaponRandomizer
     }
     
     /*******************************************************/
-    static void
+    static bool
     RandomizeWeapon (CPedInventory *weap, uint32_t &hash, uint32_t ammo)
     {
         static bool listPrinted = false;
@@ -165,6 +166,8 @@ class WeaponRandomizer
 
         InitialiseWeaponsArray ();
         hash = GetNewWeaponForWeapon (hash, weap);
+
+        return true;
     }
 
     /*******************************************************/
@@ -185,7 +188,7 @@ class WeaponRandomizer
     {
         ReplaceJmpHook__fastcall<0xcc2d8, CInventoryItem *, CPedInventory*,
                                  uint32_t, uint32_t> (
-            GetGiveWeaponFuncAddress (), RandomizeWeapon, CALLBACK_ORDER_BEFORE)
+            GetGiveWeaponFuncAddress (), RandomizeWeapon)
             .Activate ();
 
         // NOP JZ instruction to ensure that a weapon is always equipped by the
@@ -198,6 +201,9 @@ public:
     /*******************************************************/
     WeaponRandomizer ()
     {
+        if (!ConfigManager::GetConfigs().weapon.enabled)
+            return;
+        
         InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
     }

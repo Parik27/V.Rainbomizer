@@ -25,8 +25,7 @@ using _InstructionType = char[16];
 template <uint32_t Addr, typename Ret, typename... Args> class ReplaceJmpHook
 {
 protected:
-    static std::vector<std::function<void (Args &...)>> mAfterFunctions;
-
+    
     static bool        mInitialised;
     static _InstructionType mStoredValue;
     static _InstructionType mOriginalValue;
@@ -34,17 +33,17 @@ protected:
     static _InstructionType *mHookedAddress;
     static uint32_t     mThreadId;
 
-    inline static std::vector<std::function<void (Args &...)>> &
+    inline static std::vector<std::function<bool (Args &...)>> &
     GetBeforeFunctions ()
     {
-        static std::vector<std::function<void (Args & ...)>> mBeforeFunctions;
+        static std::vector<std::function<bool (Args & ...)>> mBeforeFunctions;
         return mBeforeFunctions;
     }
 
-    inline static std::vector<std::function<void (Args &...)>> &
+    inline static std::vector<std::function<void (Ret&, Args &...)>> &
     GetAfterFunctions ()
     {
-        static std::vector<std::function<void (Args & ...)>> mAfterFunctions;
+        static std::vector<std::function<void (Ret&, Args & ...)>> mAfterFunctions;
         return mAfterFunctions;
     }
 
@@ -63,21 +62,16 @@ public:
         std::swap (mOriginalValue, *mHookedAddress);
     }
 
-    ReplaceJmpHook (void *addr, std::function<void (Args &...)> callback,
-                    CallbackOrder order)
+    ReplaceJmpHook (void *addr, std::function<bool (Args &...)> callback)
     {
         mHookedAddress = (_InstructionType *) addr;
+        GetBeforeFunctions ().push_back (callback);
+    }
 
-        switch (order)
-            {
-            case CALLBACK_ORDER_BEFORE:
-                GetBeforeFunctions ().push_back (callback);
-                break;
-
-            case CALLBACK_ORDER_AFTER:
-                GetAfterFunctions ().push_back (callback);
-                break;
-            }
+    ReplaceJmpHook (void *addr, std::function<void (Ret&, Args &...)> callback)
+    {
+        mHookedAddress = (_InstructionType *) addr;
+        GetAfterFunctions ().push_back (callback);
     }
 };
 
@@ -96,17 +90,22 @@ public:
         base::mThreadId = GetCurrentThreadId ();
 #endif
 
+        bool inhibit = false;
+        Ret ret;
         for (const auto &i : base::GetBeforeFunctions ())
-            i (args...);
+            inhibit = !i (args...);
 
+        if (inhibit)
+            return ret;
+        
         base::SwapValues ();
-        Ret ret = injector::fastcall<Ret (Args...)>::call (
+        injector::fastcall<Ret (Args...)>::call (
             base::mHookedAddress, args...);
         
         base::SwapValues ();
 
         for (const auto &i : base::GetAfterFunctions ())
-            i (args...);
+            i (ret, args...);
 
 	return ret;
     }
@@ -134,7 +133,6 @@ public:
     template <uint32_t Addr, typename Ret, typename... Args>                   \
     type ReplaceJmpHook<Addr, Ret, Args...>::name = def;
 
-INIT_VARIABLE (std::vector<std::function<void (Args &...)>>, mAfterFunctions, 0)
 INIT_VARIABLE (bool, mInitialised, false)
 INIT_VARIABLE (_InstructionType, mStoredValue, {0})
 INIT_VARIABLE (_InstructionType, mOriginalValue, {0})

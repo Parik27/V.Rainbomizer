@@ -25,6 +25,9 @@ ScriptVehiclePattern::VehicleTypes::GetValue (uint32_t type)
         case "VEHICLE_TYPE_TRAILER"_joaat: return Trailers;
         case "VEHICLE_TYPE_TRAIN"_joaat: return Trains;
         case "VEHICLE_TYPE_QUADBIKE"_joaat: return Quadbikes;
+        case "VEHICLE_TYPE_AMPHIBIOUS_AUTOMOBILE"_joaat: return Cars || Boats;
+        case "VEHICLE_TYPE_AMPHIBIOUS_QUADBIKE"_joaat:
+            return Quadbikes || Boats;
         default: return Cars;
         }
 }
@@ -122,6 +125,9 @@ ScriptVehiclePattern::ReadFlag (const std::string &flag)
 
     else if (flag == "can_tow")
         mFlags.CanTow = true;
+
+    else if (flag == "no_rotors")
+        mFlags.NoRotors = true;
 
     else if (flag.find ("can_attach") == 0)
         mFlags.AttachVehicle = rage::atStringHashLowercase (

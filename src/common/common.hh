@@ -22,8 +22,8 @@ class Common
 
 public:
     
-    static std::vector<int> &GetVehicleHashes ();
-    static std::vector<int> &GetPedHashes ();
+    static const std::vector<int> &GetVehicleHashes ();
+    static const std::vector<int> &GetPedHashes ();
 
     static std::string GetRainbomizerFileName (const std::string &name,
                                                const std::string &subdirs = "");
