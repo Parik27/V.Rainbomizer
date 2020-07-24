@@ -73,7 +73,7 @@ GetRelativeReference (const std::string &pattern, int dataOffset,
                       int nextInstOffset)
 {
     uint8_t *addr   = hook::get_pattern<uint8_t> (pattern);
-    uint32_t offset = *(uint32_t *) (addr + dataOffset);
+    int32_t offset = *(int32_t *) (addr + dataOffset);
     return (T *) (addr + offset + nextInstOffset);
 }
 

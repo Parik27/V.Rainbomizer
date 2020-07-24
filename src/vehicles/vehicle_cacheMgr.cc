@@ -29,12 +29,20 @@ VehicleModelInfoCacheMgr::GenerateCache ()
             if (!modelInfo)
                 continue;
 
-            CStreaming::RequestModel (modelId, 4);
-            CStreaming::LoadAllObjects (true);
+            bool deleteModel = false;
+            if (!CStreaming::HasModelLoaded (modelId))
+                {
+                    CStreaming::RequestModel (modelId, 4);
+                    CStreaming::LoadAllObjects (true);
+                    deleteModel = true;
+                }
 
             mBoundsCache[hash] = modelInfo->m_vecMax - modelInfo->m_vecMin;
             fwrite (&hash, 4, 1, cacheFile);
             fwrite (&mBoundsCache[hash], sizeof (Vector3), 1, cacheFile);
+
+            if (deleteModel)
+                CStreaming::DeleteModel (modelId);
         }
 
     fclose (cacheFile);

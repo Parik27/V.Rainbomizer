@@ -133,7 +133,7 @@ class ScriptVehicleRandomizer
     /*******************************************************/
     static bool
     RandomizeScriptVehicle (uint32_t& hash, Vector3_native *coords,
-                            double heading, bool isNetwork,
+                            float heading, bool isNetwork,
                             bool thisScriptCheck)
     {
         auto     thread       = scrThread::GetActiveThread ();
@@ -178,8 +178,8 @@ class ScriptVehicleRandomizer
     static void
     InitialiseRandomVehiclesHook ()
     {
-        ReplaceJmpHook__fastcall<0x7c1c0, int, uint32_t, Vector3_native *,
-                                 double, bool, bool> (
+        ReplaceJmpHook__fastcall<0x7c1c0, uint32_t, uint32_t, Vector3_native *,
+                                 float, bool, bool> (
             hook::get_pattern ("8b ec ? 83 ec 50 f3 0f 10 02 f3 0f 10 4a 08 ",
                                -17),
             RandomizeScriptVehicle)

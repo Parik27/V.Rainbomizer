@@ -7,6 +7,7 @@
 #include "Natives.hh"
 #include "scrThread.hh"
 #include "CItemInfo.hh"
+#include "CutSceneManager.hh"
 
 #include "Utils.hh"
 
@@ -61,6 +62,7 @@ InitialiseAllComponents ()
     CPedInventory::InitialisePatterns ();
     CWeaponInfoManager::InitialisePatterns ();
     scrThread::InitialisePatterns ();
+    cutfCutsceneFile2::InitialisePatterns ();
 
     InitialiseNatives();
     

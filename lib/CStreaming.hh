@@ -71,6 +71,7 @@ public:
     static bool HasModelLoaded (uint32_t modelId);
     static void RequestModel (uint32_t modelId, uint32_t flags);
     static void LoadAllObjects (bool priorityOnly);
+    static void DeleteModel (uint32_t modelId);
     
     static CBaseModelInfo* GetModelAndIndexByHash (uint32_t hash, uint32_t& outIndex);
 

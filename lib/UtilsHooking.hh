@@ -93,13 +93,13 @@ public:
         bool inhibit = false;
         Ret ret;
         for (const auto &i : base::GetBeforeFunctions ())
-            inhibit = !i (args...);
+            inhibit = i (args...) ? inhibit : true;
 
         if (inhibit)
             return ret;
         
         base::SwapValues ();
-        injector::fastcall<Ret (Args...)>::call (
+        ret = injector::fastcall<Ret (Args...)>::call (
             base::mHookedAddress, args...);
         
         base::SwapValues ();

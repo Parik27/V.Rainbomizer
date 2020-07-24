@@ -6,12 +6,20 @@ CBaseModelInfo *(*CStreaming__GetModelAndIndexByHash) (uint32_t  hash,
 bool (*CStreaming__HasModelLoaded) (uint32_t *modelId);
 void (*CStreaming__RequestModel) (uint32_t* modelId, uint32_t flags);
 void (*CStreaming__LoadAllObjects) (bool priorityOnly);
+void (*CStreaming__DeleteModel) (uint32_t* modelId);
 
 /*******************************************************/
 bool
 CStreaming::HasModelLoaded(uint32_t modelId)
 {
     return CStreaming__HasModelLoaded (&modelId);
+}
+
+/*******************************************************/
+void
+CStreaming::DeleteModel(uint32_t modelId)
+{
+    return CStreaming__DeleteModel (&modelId);
 }
 
 /*******************************************************/
@@ -26,7 +34,6 @@ void
 CStreaming::LoadAllObjects (bool priorityOnly)
 {
     return  CStreaming__LoadAllObjects (priorityOnly);
-    //
 }
 
 /*******************************************************/
@@ -59,6 +66,10 @@ CStreaming::InitialisePatterns ()
                                  4),
               CStreaming__LoadAllObjects);
 
+    ReadCall (hook::get_pattern ("? 23 c4 89 44 ? ? e8 ? ? ? ? ff cb ",
+                                 7),
+              CStreaming__DeleteModel);
+    
     ms_aModelPointers = GetRelativeReference<modelInfoArray> (
         "33 d2 ? 8b d0 ? 2b 05 ? ? ? ? c1 e6 10", 8, 12);
 

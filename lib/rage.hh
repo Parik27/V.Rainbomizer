@@ -25,3 +25,20 @@ constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
 {
   return rage::atStringHash (s, len);
 }
+
+#pragma pack(push, 1)
+template<typename T = void>
+struct
+atArray
+{
+    T* Data;
+    uint16_t Size;
+    uint16_t Capacity;
+};
+
+struct atString {
+    char * m_szString;
+    short m_nLength;
+    short m_nCapacity;
+};
+#pragma pack(pop)
