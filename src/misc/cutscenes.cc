@@ -3,6 +3,7 @@
 #include <CutSceneManager.hh>
 #include "common/logger.hh"
 #include "common/common.hh"
+#include "common/config.hh"
 
 class parInstanceVisitor;
 
@@ -56,7 +57,7 @@ class CutSceneRandomizer
 
                 line[strcspn (line, "\n")] = 0;
                 GetModelsList ().back ().push_back (
-                    rage::atStringHashLowercase (line));
+                    rage::atStringHash (line));
             }
 
         return true;
@@ -65,19 +66,34 @@ class CutSceneRandomizer
     /*******************************************************/
     static void
     RandomizeCutScene (parInstanceVisitor *visitor, cutfCutsceneFile2 *file)
-    {
+    {       
         for (int i = 0; i < file->pCutsceneObjects.Size; i++)
             {
-                if (file->pCutsceneObjects.Data[i]->GetType ()
-                    == eCutfObjectType::MODEL)
+                switch (file->pCutsceneObjects.Data[i]->GetType ())
                     {
-                        auto obj = static_cast<cutfModelObject *> (
-                            file->pCutsceneObjects.Data[i]);
-                        obj->StreamingName
-                            = GetRandomModel (obj->StreamingName);
+                        // Cutscene Models
+                        case eCutfObjectType::MODEL: {
+                            auto obj = static_cast<cutfModelObject *> (
+                                file->pCutsceneObjects.Data[i]);
+                            obj->StreamingName
+                                = GetRandomModel (obj->StreamingName);
+                        }
+
+                        // Lights
+                    case eCutfObjectType::ANIMATED_LIGHT:
+                        case eCutfObjectType::LIGHT: {
+                            auto obj = static_cast<cutfLightObject *> (
+                                file->pCutsceneObjects.Data[i]);
+
+                            // Random Colour
+                            obj->vColour.x = RandomFloat(1.0);
+                            obj->vColour.y = RandomFloat(1.0);
+                            obj->vColour.z = RandomFloat(1.0);
+                        }
+
+                    default: continue;
                     }
             }
-
         VisitTopLevelStructure_37027e (visitor, file);
     }
 
@@ -85,6 +101,9 @@ public:
     /*******************************************************/
     CutSceneRandomizer ()
     {
+        if (!ConfigManager::GetConfigs().cutscenes.enabled)
+            return;
+        
         InitialiseAllComponents ();
 
         if (InitialiseModelData ())

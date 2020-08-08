@@ -25,6 +25,17 @@ BaseConfig::Read (std::shared_ptr<cpptoml::table> table)
 }
 
 /*******************************************************/
+void
+ScriptVehicleConfig::Read(std::shared_ptr<cpptoml::table> table)
+{
+    if (!table)
+        return;
+
+    CONFIG (table, enabled, "Enabled", bool);
+    CONFIG (table, printLog, "LogSpawnedVehicles", bool);
+}
+
+/*******************************************************/
 bool
 DoesFileExist (const std::string &file)
 {

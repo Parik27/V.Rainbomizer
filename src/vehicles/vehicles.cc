@@ -14,6 +14,7 @@
 #include "vehicle_patterns.hh"
 #include "vehicle_common.hh"
 #include "common/config.hh"
+#include <CPools.hh>
 
 CEntity *(*CPools__GetAtEntity) (int);
 
@@ -21,7 +22,7 @@ class ScriptVehicleRandomizer
 {
     static std::unordered_map<uint32_t, std::vector<ScriptVehiclePattern>>
         mPatterns;
-    
+
     /*******************************************************/
     static void
     InitialisePatterns ()
@@ -71,7 +72,7 @@ class ScriptVehicleRandomizer
 
                 ScriptVehiclePattern pattern;
                 pattern.SetOriginalVehicle (
-                    rage::atStringHashLowercase (vehicleName));
+                    rage::atStringHash (vehicleName));
                 pattern.SetSeatsCheck (seats);
 
                 pattern.SetAllowedTypes (
@@ -90,10 +91,7 @@ class ScriptVehicleRandomizer
                 pattern.ParseFlags (flags);
 
                 pattern.Cache ();
-                
-                Rainbomizer::Logger::LogMessage("%s => %d vehicles", line, pattern.GetNumVehicles());
-                
-                mPatterns[rage::atStringHashLowercase (threadName)].push_back (
+                mPatterns[rage::atStringHash (threadName)].push_back (
                     std::move (pattern));
             }
     }
@@ -101,33 +99,45 @@ class ScriptVehicleRandomizer
     /*******************************************************/
     static uint32_t
     GetRandomHashForVehicle (uint32_t hash, Vector3 &coords)
-    {        
+    {
+        const int MIN_FREE_SLOTS = 25;
+        
         uint32_t scrHash
             = scrThread::GetActiveThread ()->m_Context.m_nScriptHash;
 
         InitialisePatterns ();
 
+        // Check if VehicleStruct pool is almost full. Return a random loaded
+        // vehicle in that case.
+        bool returnLoaded
+            = CPools::GetVehicleStructPool ()->GetCount () + MIN_FREE_SLOTS
+              >= CPools::GetVehicleStructPool ()->m_nMaxElements;
+        
         // Return a truly random vehicle
         if (mPatterns.count (scrHash))
             {
                 for (auto &i : mPatterns[scrHash])
                     {
-                        if (i.GetOriginalVehicle () == hash)
-                            return i.GetRandom (coords);
+                        if (i.MatchVehicle (hash, coords))
+                            return (returnLoaded) ? i.GetRandomLoaded (coords)
+                                                  : i.GetRandom (coords);
                     }
             }
 
         // Return a random vehicle
-        uint32_t numRandomLoaded = 0;
-        uint32_t randomLoaded
-            = GetRandomLoadedVehIndex (&numRandomLoaded, false);
-        if (numRandomLoaded < 30)
-            {
-                const auto &indices = Rainbomizer::Common::GetVehicleHashes ();
-                return indices[RandomInt (indices.size () - 1)];
-            }
-        
-        return CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
+        {
+            uint32_t numRandomLoaded = 0;
+            uint32_t randomLoaded
+                = GetRandomLoadedVehIndex (&numRandomLoaded, false);
+            if (!returnLoaded && numRandomLoaded < 30)
+                {
+                    const auto &indices
+                        = Rainbomizer::Common::GetVehicleHashes ();
+                    return indices[RandomInt (indices.size () - 1)];
+                }
+
+            return CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
+        }
     }
 
     /*******************************************************/
@@ -150,7 +160,23 @@ class ScriptVehicleRandomizer
                 mThreadWaits.erase (thread->m_Context.m_nScriptHash);
             }
         else
-            hash = GetRandomHashForVehicle (hash, pos);
+            {
+                hash = GetRandomHashForVehicle (hash, pos);
+                if (ConfigManager::GetConfigs().scriptVehicle.printLog)
+                    Rainbomizer::Logger::LogMessage (
+                        "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
+                        "%.2f "
+                        "%.2f",
+                        scrThread::GetActiveThread ()->m_szScriptName,
+                        scrThread::GetActiveThread ()->m_Context.m_nIp, hash,
+                        CStreaming::GetModelByHash<CVehicleModelInfo> (hash)
+                            ->GetGameName (),
+                        originalHash,
+                        CStreaming::GetModelByHash<CVehicleModelInfo> (
+                            originalHash)
+                            ->GetGameName (),
+                        coords->x, coords->y, coords->z);
+            }
 
         uint32_t index = CStreaming::GetModelIndex (hash);
 

@@ -38,8 +38,9 @@ class ScriptVehiclePattern
         uint32_t AttachVehicle = 0; // hash
     } mFlags;
 
-    Vector3 m_vecBounds      = {0.0, 0.0, 0.0};
-    Vector3 m_vecMovedCoords = {0.0, 0.0, 0.0};
+    Vector3        m_vecBounds      = {0.0, 0.0, 0.0};
+    Vector3        m_vecMovedCoords = {0.0, 0.0, 0.0};
+    Vector3_t<int> m_vecCoordsCheck = {0, 0, 0};
 
     uint32_t m_nSeatCheck       = 0;
     uint32_t m_nOriginalVehicle = 0;
@@ -107,7 +108,9 @@ public:
 
     bool     DoesVehicleMatchPattern (uint32_t hash);
     void     Cache ();
+
     uint32_t GetRandom (Vector3 &pos);
+    uint32_t GetRandomLoaded (Vector3 &pos);
 
     // Reads a flag string in the format "flag=value" or "flag" for just bools
     void ReadFlag (const std::string &flag);
@@ -115,6 +118,7 @@ public:
     // Reads a list of flags delimited by a '+'
     void ParseFlags (const std::string &flags);
 
-    /*******************************************************/
+    bool MatchVehicle (uint32_t hash, const Vector3& coords);
+        
     ScriptVehiclePattern () : mFlags{false, false, false, 0} {}
 };

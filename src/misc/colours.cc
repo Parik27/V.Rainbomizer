@@ -21,7 +21,6 @@ public:
             return;
         
         InitialiseAllComponents ();
-        puts("Stuff");
 
         RegisterHook (
             "8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,

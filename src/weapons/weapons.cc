@@ -12,11 +12,17 @@
 #include <scrThread.hh>
 #include <array>
 #include "common/config.hh"
+#include "weapons_equipMgr.hh"
+#include "exceptions/exceptions_Mgr.hh"
+
+//?? 8b ?? ?? ?? ?? ?? ?? 85 c9 0f 84 ?? ?? ?? ?? ?? 83 c1 18 8b d7  (-37)
 
 class WeaponRandomizer
 {
-    static std::vector<uint32_t> mValidWeapons;
+    static std::vector<uint32_t>           mValidWeapons;
     static std::discrete_distribution<int> mDistribution;
+    static bool                            mSkipNextWeaponRandomization;
+    static WeaponEquipMgr                  mEquipMgr;
 
     /*******************************************************/
     static void
@@ -42,7 +48,7 @@ class WeaponRandomizer
                         double probability = 0.0;
                         if (sscanf (line, "%s = %lf", model, &probability) == 2)
                             {
-                                probabilities[rage::atStringHashLowercase (
+                                probabilities[rage::atStringHash (
                                     model)]
                                     = probability;
                                 sum_probability += probability;
@@ -70,26 +76,26 @@ class WeaponRandomizer
     static void
     InitialiseWeaponsArray ()
     {
-        if (mValidWeapons.size())
+        if (mValidWeapons.size ())
             return;
 
-        mValidWeapons.clear();
+        mValidWeapons.clear ();
 
         // These models are exempt from randomization
         const std::vector<uint32_t> mExceptions = {};
 
         for (int i = 0; i < CWeaponInfoManager::sm_Instance->m_nInfosCount; i++)
             {
-                auto info = CWeaponInfoManager::GetInfoFromIndex (i);
-                uint32_t  modelHash = info->GetModelHash ();
+                auto     info      = CWeaponInfoManager::GetInfoFromIndex (i);
+                uint32_t modelHash = info->GetModelHash ();
 
-                static_assert("cweaponinfo"_joaat == 0x861905b4);
-                
+                static_assert ("cweaponinfo"_joaat == 0x861905b4);
+
                 if (modelHash
                     && std::find (mExceptions.begin (), mExceptions.end (),
                                   info->Name)
-                           == mExceptions.end () &&
-                    info->GetClassId() == "cweaponinfo"_joaat)
+                           == mExceptions.end ()
+                    && info->GetClassId () == "cweaponinfo"_joaat)
                     mValidWeapons.push_back (info->Name);
             }
 
@@ -97,7 +103,7 @@ class WeaponRandomizer
         Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons",
                                          mValidWeapons.size ());
     }
-    
+
     /*******************************************************/
     static void
     PrintWeaponList ()
@@ -116,57 +122,63 @@ class WeaponRandomizer
     static bool
     DoesWeaponMatchPattern (uint32_t weapon)
     {
-        // TODO: (If required) Weapon Patterns
+        Rainbomizer::Logger::LogMessage (
+            "{%s}: %x", scrThread::GetActiveThread ()->m_szScriptName, weapon);
         return false;
     }
 
     /*******************************************************/
-    static int
-    GetNewWeaponForWeapon (uint32_t weapon, bool player, std::mt19937 &engine)
-    {
-        if (scrThread::GetActiveThread () && player
-            && DoesWeaponMatchPattern (weapon))
-            return weapon;
-        
-        return mValidWeapons[mDistribution (engine)];
-    }
-
-    /*******************************************************/
     static uint32_t
-    GetNewWeaponForWeapon (uint32_t weapon, CPedInventory* weapons)
+    GetNewWeaponForWeapon (uint32_t weapon, CPedInventory *weapons)
     {
         thread_local static std::mt19937 engine{(unsigned int) time (NULL)};
 
         // CPed Constructor AddWeapon?
         if (!weapons->m_pPed->m_pModelInfo || weapon == 0)
             return weapon;
-        
+
         bool isPlayer = ((CPedModelInfo *) weapons->m_pPed->m_pModelInfo)
                             ->m_bIsPlayerType;
 
-        // Don't randomize the weapon if it's the player's weapon and it wasn't
-        // a thread that gave it to the player
-        if (!scrThread::GetActiveThread () && isPlayer)
+        // Don't randomize the weapon if it's given to the player
+        if (isPlayer)
             return weapon;
 
         if (std::find (mValidWeapons.begin (), mValidWeapons.end (), weapon)
             != mValidWeapons.end ())
-            return GetNewWeaponForWeapon (weapon, isPlayer, engine);
+            return mValidWeapons[mDistribution (engine)];
 
         return weapon;
     }
-    
+
     /*******************************************************/
     static bool
     RandomizeWeapon (CPedInventory *weap, uint32_t &hash, uint32_t ammo)
     {
-        static bool listPrinted = false;
-        if (!std::exchange(listPrinted, true))
-            PrintWeaponList();
+        if (std::exchange (mSkipNextWeaponRandomization, false))
+            return true;
 
         InitialiseWeaponsArray ();
-        hash = GetNewWeaponForWeapon (hash, weap);
 
+        uint32_t originalHash = hash;
+
+        hash = GetNewWeaponForWeapon (hash, weap);
+        mEquipMgr.AddWeaponToEquip (hash, originalHash);
+        return true;
+    }
+
+    /*******************************************************/
+
+    /*******************************************************/
+    static bool
+    CorrectSetCurrentWeapon (uint32_t ped, uint32_t &weaponHash, bool &equipNow)
+    {
+        Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
+
+        uint32_t oriHash = weaponHash;
+        weaponHash       = mEquipMgr.GetWeaponToEquip (weaponHash);
+
+        equipNow = true;
         return true;
     }
 
@@ -186,24 +198,33 @@ class WeaponRandomizer
     static void
     InitialiseRandomWeaponsHook ()
     {
-        ReplaceJmpHook__fastcall<0xcc2d8, CInventoryItem *, CPedInventory*,
+        // Hook to actually replace the weapons
+        ReplaceJmpHook__fastcall<0xcc2d8, CInventoryItem *, CPedInventory *,
                                  uint32_t, uint32_t> (
             GetGiveWeaponFuncAddress (), RandomizeWeapon)
             .Activate ();
 
+        // Hook to make the game make the ped equip the correct weapon.
+        ReplaceJmpHook__fastcall<0xff8a784, void, uint32_t, uint32_t, bool> (
+            hook::get_pattern (
+                "? 8b ? ? ? ? ? ? 85 c9 0f 84 ? ? ? ? ? 83 c1 18 8b d7", -37),
+            CorrectSetCurrentWeapon)
+            .Activate ();
+
         // NOP JZ instruction to ensure that a weapon is always equipped by the
         // ped (weapons given by script only)
-        *hook::get_pattern<uint16_t> ("0f 84 ? ? ? ? 80 7c ? ? 00 74 ? 8b", 11)
-        = 0x9090;
+        injector::WriteMemory<uint16_t> (
+            hook::get_pattern ("0f 84 ? ? ? ? 80 7c ? ? 00 74 ? 8b", 11),
+            0x9090, true);
     }
 
 public:
     /*******************************************************/
     WeaponRandomizer ()
     {
-        if (!ConfigManager::GetConfigs().weapon.enabled)
+        if (!ConfigManager::GetConfigs ().weapon.enabled)
             return;
-        
+
         InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
     }
@@ -211,3 +232,5 @@ public:
 
 std::vector<uint32_t>           WeaponRandomizer::mValidWeapons;
 std::discrete_distribution<int> WeaponRandomizer::mDistribution;
+bool           WeaponRandomizer::mSkipNextWeaponRandomization = false;
+WeaponEquipMgr WeaponRandomizer::mEquipMgr;

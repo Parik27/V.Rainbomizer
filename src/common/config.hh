@@ -49,6 +49,9 @@ struct SoundsConfig : public BaseConfig
 /*******************************************************/
 struct ScriptVehicleConfig : public BaseConfig
 {
+    bool printLog = false;
+
+    void Read (std::shared_ptr<cpptoml::table> table);
 };
 
 /*******************************************************/

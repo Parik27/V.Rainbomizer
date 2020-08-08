@@ -7,18 +7,18 @@
 #include <rage.hh>
 #include <Natives.hh>
 
-void (*InitialiseModelIndices_34431a) ();
+void (*gameSkeleton__Init) (gameSkeleton*, uint32_t);
 
 namespace Rainbomizer {
 
 /*******************************************************/
 void
-Common::ProcessInitCallbacks ()
+Common::ProcessInitCallbacks (gameSkeleton* skelly, uint32_t mode)
 {
-    InitialiseModelIndices_34431a ();
+    gameSkeleton__Init (skelly, mode);
     
     for (const auto& i : GetCallbacks())
-        i ();
+        i (mode != 4);
 }
 
 /*******************************************************/
@@ -29,16 +29,18 @@ Common::InitialiseInitCallbackHook ()
     if (std::exchange (isInitialised, true))
         return;
 
-    RegisterHook (
-        "e8 ? ? ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ba 04 00 00 00", 5,
-        InitialiseModelIndices_34431a, ProcessInitCallbacks);
+    RegisterHook ("e8 ? ? ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ba 04 00 00 00", 22,
+                  gameSkeleton__Init, ProcessInitCallbacks);
+
+    RegisterHook ("? 8d 0d ? ? ? ? ba 08 00 00 00 e8 ? ? ? ? c6 05 ? ? ? ? 01 ",
+                  12, gameSkeleton__Init, ProcessInitCallbacks);
 }
 
 /*******************************************************/
-std::vector<std::function<void ()>> &
+std::vector<std::function<void (bool)>> &
 Common::GetCallbacks ()
 {
-    static std::vector<std::function<void ()>> callbacks;
+    static std::vector<std::function<void (bool)>> callbacks;
 
     InitialiseInitCallbackHook ();
     return callbacks;
@@ -159,7 +161,7 @@ Common::GetRainbomizerDataFile (const std::string &name,
 
 /*******************************************************/
 void
-Common::AddInitCallback (std::function<void ()> callback)
+Common::AddInitCallback (std::function<void (bool)> callback)
 {
     GetCallbacks().push_back(callback);
 }

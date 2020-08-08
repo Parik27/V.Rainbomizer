@@ -86,10 +86,6 @@ VehicleModelInfoCacheMgr::InitCache ()
 
     if (!cacheFile || !ReadCacheFile (cacheFile))
         return GenerateCache ();
-
-    for (const auto &i : mBoundsCache)
-        Rainbomizer::Logger::LogMessage ("%x: %f %f %f", i.first, i.second.x,
-                                         i.second.y, i.second.z);
 }
 
 /*******************************************************/

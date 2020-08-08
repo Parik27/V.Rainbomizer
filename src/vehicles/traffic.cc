@@ -9,8 +9,6 @@
 #include "common/config.hh"
 #include "vehicle_common.hh"
 
-struct Vector3;
-
 class TrafficRandomizer
 {
     /*******************************************************/
@@ -19,6 +17,9 @@ class TrafficRandomizer
                          bool param_4)
     {
         *modelId = GetRandomLoadedVehIndex ();
+        if (*modelId == -1)
+            *modelId = 65535;
+        
         return ((*modelId & 65536) == 65535);
     }
 

@@ -94,6 +94,41 @@ ScriptVehiclePattern::Cache ()
 
 /*******************************************************/
 uint32_t
+ScriptVehiclePattern::GetRandomLoaded (Vector3 &pos)
+{
+    if (!m_bCached)
+        Cache ();
+
+    std::vector<uint32_t> LoadedMatches;
+    
+    for (auto i : m_aCache)
+        if (CStreaming::HasModelLoaded(CStreaming::GetModelIndex(i)))
+            LoadedMatches.push_back (i);
+
+    // If no matching vehicles are loaded, return the original vehicle if that's
+    // valid, otherwise return a truly random vehicle
+    if (LoadedMatches.size () < 1)
+        {
+            auto &indices = Rainbomizer::Common::GetVehicleHashes ();
+            if (std::find (std::begin (indices), std::end (indices),
+                           GetOriginalVehicle ())
+                != std::end (indices))
+                return GetOriginalVehicle ();
+
+            return GetRandom (pos);
+        }
+
+    uint32_t modelHash = LoadedMatches[RandomInt (LoadedMatches.size () - 1)];
+    auto modelInfo = CStreaming::GetModelByHash<CVehicleModelInfo> (modelHash);
+
+    if (mMovedTypes.GetValue (modelInfo->GetVehicleType ()))
+        pos += GetMovedCoordinates ();
+
+    return modelHash;
+}
+
+/*******************************************************/
+uint32_t
 ScriptVehiclePattern::GetRandom (Vector3 &pos)
 {
     if (!m_bCached)
@@ -106,6 +141,25 @@ ScriptVehiclePattern::GetRandom (Vector3 &pos)
         pos += GetMovedCoordinates ();
 
     return modelHash;
+}
+
+/*******************************************************/
+bool
+ScriptVehiclePattern::MatchVehicle (uint32_t hash, const Vector3& coords)
+{
+    if (hash != GetOriginalVehicle ()
+        && GetOriginalVehicle () != "allvehicles"_joaat)
+        return false;
+
+    // Coordinates check
+    if (m_vecCoordsCheck.x && m_vecCoordsCheck.x != int(coords.x))
+        return false;
+    if (m_vecCoordsCheck.y && m_vecCoordsCheck.y != int(coords.y))
+        return false;
+    if (m_vecCoordsCheck.z && m_vecCoordsCheck.z != int(coords.z))
+        return false;
+
+    return true;
 }
 
 /*******************************************************/
@@ -130,16 +184,24 @@ ScriptVehiclePattern::ReadFlag (const std::string &flag)
         mFlags.NoRotors = true;
 
     else if (flag.find ("can_attach") == 0)
-        mFlags.AttachVehicle = rage::atStringHashLowercase (
+        mFlags.AttachVehicle = rage::atStringHash (
             flag.substr (sizeof ("can_attach")).c_str ());
 
     // Bounds
-    else if (flag.find ("x=") == 0)
+    else if (flag.find ("w=") == 0)
         m_vecBounds.x = std::stof (flag.substr (2));
-    else if (flag.find ("y=") == 0)
+    else if (flag.find ("l=") == 0)
         m_vecBounds.y = std::stof (flag.substr (2));
-    else if (flag.find ("z=") == 0)
+    else if (flag.find ("h=") == 0)
         m_vecBounds.z = std::stof (flag.substr (2));
+
+    // Coordinates
+    else if (flag.find ("x=") == 0)
+        m_vecCoordsCheck.x = std::stoi (flag.substr (2));
+    else if (flag.find ("y=") == 0)
+        m_vecCoordsCheck.y = std::stoi (flag.substr (2));
+    else if (flag.find ("z=") == 0)
+        m_vecCoordsCheck.z = std::stoi (flag.substr (2));
 }
 
 /*******************************************************/

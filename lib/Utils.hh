@@ -21,30 +21,42 @@ ConvertCall (Addr address, Func &func)
 
 int  RandomInt (int max);
 int  RandomInt (int min, int max);
+float RandomFloat (float min, float max);
+float RandomFloat (float max);
 void InitialiseAllComponents ();
 
 /*******************************************************/
-template <typename F, typename O>
+template <bool Jmp = false, typename F, typename O>
 void
 RegisterHook (const std::string &pattern, int offset, O &originalFunc,
               F hookedFunc)
 {
     void *addr = hook::get_pattern (pattern, offset);
     ReadCall (addr, originalFunc);
-    injector::MakeCALL (addr,
-                        Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
-                            ->Jump (hookedFunc));
+    if constexpr (Jmp)
+        injector::MakeJMP (addr, Trampoline::MakeTrampoline (
+                                      GetModuleHandle (nullptr))
+                                      ->Jump (hookedFunc));
+    else
+        injector::MakeCALL (addr, Trampoline::MakeTrampoline (
+                                     GetModuleHandle (nullptr))
+                                     ->Jump (hookedFunc));
 }
 
 /*******************************************************/
-template <typename F>
+template <bool Jmp = false, typename F>
 void
 RegisterHook (const std::string &pattern, int offset, F hookedFunc)
 {
     void *addr = hook::get_pattern (pattern, offset);
-    injector::MakeCALL (addr,
-                        Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
-                            ->Jump (hookedFunc));
+    if constexpr (Jmp)
+        injector::MakeJMP (addr, Trampoline::MakeTrampoline (
+                                      GetModuleHandle (nullptr))
+                                      ->Jump (hookedFunc));
+    else
+        injector::MakeCALL (addr, Trampoline::MakeTrampoline (
+                                     GetModuleHandle (nullptr))
+                                     ->Jump (hookedFunc));
 }
 
 /*******************************************************/

@@ -14,6 +14,8 @@ struct CInventoryItemRepository
     uint8_t            field_0xa[6];
     CPedWeaponManager *m_pManagers[2];
     int                m_nNumManagers;
+
+    CInventoryItem* FindWeapon (uint32_t hash);
 };
 
 struct CPedInventory
@@ -45,4 +47,7 @@ public:
 class CPed : public CEntity
 {
 public:
+    static CPed* GetFromHandle (uint32_t handle);
+
+    CPedInventory* GetInventory ();
 };

@@ -8,6 +8,10 @@
 #include "scrThread.hh"
 #include "CItemInfo.hh"
 #include "CutSceneManager.hh"
+#include "CPools.hh"
+#include "CTheScripts.hh"
+#include "CText.hh"
+#include "audEngine.hh"
 
 #include "Utils.hh"
 
@@ -33,6 +37,21 @@ int
 RandomInt (int max)
 {
     return RandomInt (0, max);
+}
+
+/*******************************************************/
+float
+RandomFloat (float min, float max)
+{
+    std::uniform_real_distribution<float> dist{min, max};
+    return dist (RandEngine ());
+}
+
+/*******************************************************/
+float
+RandomFloat (float max)
+{
+    return RandomFloat (0, max);
 }
 
 /*******************************************************/
@@ -63,6 +82,10 @@ InitialiseAllComponents ()
     CWeaponInfoManager::InitialisePatterns ();
     scrThread::InitialisePatterns ();
     cutfCutsceneFile2::InitialisePatterns ();
+    CPools::InitialisePatterns ();
+    CTheScripts::InitialisePatterns ();
+    CText::InitialisePatterns ();
+    audEngine::InitialisePatterns ();
 
     InitialiseNatives();
     

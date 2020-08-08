@@ -101,6 +101,42 @@ struct cutfNamedObject : public cutfObject
     uint8_t  field_0x47;
 };
 
+struct cutfLightObject : public cutfNamedObject {
+    uint8_t field_0x48[24];
+    Vector4 vDirection;
+    Vector4 vColour;
+    Vector4 vPosition;
+    float fIntensity;
+    float fFallOff;
+    float fConeAngle;
+    float fVolumeIntensity;
+    float fVolumeSizeScale;
+    float fCoronaSize;
+    float fCoronaIntensity;
+    float fCoronaZBias;
+    float fInnerConeAngle;
+    float fExponentialFallOff;
+    float fShadowBlur;
+    int32_t iLightType;
+    int32_t iLightProperty;
+    int32_t TextureDictID;
+    int32_t TextureKey;
+    uint8_t field_0xcc;
+    uint8_t field_0xcd;
+    uint8_t field_0xce;
+    uint8_t field_0xcf;
+    uint32_t uLightFlags;
+    uint32_t uHourFlags;
+    uint8_t field_0xd8;
+    uint8_t field_0xd9;
+    bool bStatic;
+    uint8_t field_0xdb;
+    uint8_t field_0xdc;
+    uint8_t field_0xdd;
+    uint8_t field_0xde;
+    uint8_t field_0xdf;
+};
+
 struct cutfNamedStreamedObject : public cutfNamedObject
 {
     uint32_t StreamingName;

@@ -5,6 +5,7 @@
 #include <cstdio>
 
 class CPed;
+class gameSkeleton;
 
 namespace Rainbomizer {
 class Common
@@ -15,10 +16,10 @@ class Common
     static std::vector<int> mPedHashes;
 
     static void  InitialiseHashes ();
-    static void ProcessInitCallbacks ();
+    static void ProcessInitCallbacks (gameSkeleton*, uint32_t);
 
     static void InitialiseInitCallbackHook ();
-    static std::vector<std::function<void ()>> &GetCallbacks ();
+    static std::vector<std::function<void (bool)>> &GetCallbacks ();
 
 public:
     
@@ -35,7 +36,7 @@ public:
     static FILE *GetRainbomizerDataFile (const std::string &name,
                                          const std::string &mode     = "r");
 
-    // Called after indices are initialised, so that's pretty late? :thinking:
-    static void AddInitCallback (std::function<void ()> callback);
+    // callback = void (bool Session)
+    static void AddInitCallback (std::function<void (bool)> callback);
 };
 }; // namespace Rainbomizer

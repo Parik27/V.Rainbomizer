@@ -54,4 +54,6 @@ Enabled = true
 
 Enabled = true
 
+LogSpawnedVehicles = false # Logs all the spawned script vehicles
+
 )";

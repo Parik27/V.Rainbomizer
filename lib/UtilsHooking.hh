@@ -40,11 +40,21 @@ protected:
         return mBeforeFunctions;
     }
 
-    inline static std::vector<std::function<void (Ret&, Args &...)>> &
+    inline static auto&
     GetAfterFunctions ()
     {
-        static std::vector<std::function<void (Ret&, Args & ...)>> mAfterFunctions;
-        return mAfterFunctions;
+        if constexpr (std::is_same_v<Ret, void>)
+            {
+                static std::vector<std::function<void (Args & ...)>>
+                    mAfterFunctions;
+                return mAfterFunctions;   
+            }
+        else
+            {
+                static std::vector<std::function<void (Ret &, Args & ...)>>
+                    mAfterFunctions;
+                return mAfterFunctions;
+            }
     }
 
 public:
@@ -68,7 +78,7 @@ public:
         GetBeforeFunctions ().push_back (callback);
     }
 
-    ReplaceJmpHook (void *addr, std::function<void (Ret&, Args &...)> callback)
+    ReplaceJmpHook (void *addr, decltype(GetAfterFunctions()) callback)
     {
         mHookedAddress = (_InstructionType *) addr;
         GetAfterFunctions ().push_back (callback);
@@ -91,23 +101,41 @@ public:
 #endif
 
         bool inhibit = false;
-        Ret ret;
+
         for (const auto &i : base::GetBeforeFunctions ())
             inhibit = i (args...) ? inhibit : true;
 
         if (inhibit)
-            return ret;
-        
-        base::SwapValues ();
-        ret = injector::fastcall<Ret (Args...)>::call (
-            base::mHookedAddress, args...);
-        
+            {
+                if constexpr (std::is_same_v<Ret, void>)
+                    return;
+                else
+                    return Ret();
+            }
+
         base::SwapValues ();
 
-        for (const auto &i : base::GetAfterFunctions ())
-            i (ret, args...);
+        if constexpr (!std::is_same_v<Ret, void>)
+            {
+                Ret ret = injector::fastcall<Ret (Args...)>::call (
+                    base::mHookedAddress, args...);
+                for (const auto &i : base::GetAfterFunctions ())
+                    if constexpr (!std::is_same_v<Ret, void>)
+                        i (ret, args...);
 
-	return ret;
+                base::SwapValues ();
+                return ret;
+            }
+        else
+            {
+                injector::fastcall<Ret (Args...)>::call (base::mHookedAddress,
+                                                         args...);
+                for (const auto &i : base::GetAfterFunctions ())
+                    if constexpr (!std::is_same_v<Ret, void>)
+                        i (args...);
+            }
+
+        base::SwapValues ();
     }
 
     virtual void
