@@ -26,6 +26,28 @@ float RandomFloat (float max);
 void InitialiseAllComponents ();
 
 /*******************************************************/
+/* Returns a random element from a container           */
+/*******************************************************/
+template<typename T>
+auto&
+GetRandomElement (const T& container)
+{
+    auto it = std::begin(container);
+    std::advance (it, RandomInt (std::size(container) - 1));
+
+    return *it;
+}
+
+/*******************************************************/
+template <typename T, typename V>
+bool
+DoesElementExist (const T &container, const V val)
+{
+    return std::find (std::begin (container), std::end (container), val)
+           != std::end (container);
+}
+
+/*******************************************************/
 template <bool Jmp = false, typename F, typename O>
 void
 RegisterHook (const std::string &pattern, int offset, O &originalFunc,

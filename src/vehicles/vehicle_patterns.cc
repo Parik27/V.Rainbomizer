@@ -110,15 +110,13 @@ ScriptVehiclePattern::GetRandomLoaded (Vector3 &pos)
     if (LoadedMatches.size () < 1)
         {
             auto &indices = Rainbomizer::Common::GetVehicleHashes ();
-            if (std::find (std::begin (indices), std::end (indices),
-                           GetOriginalVehicle ())
-                != std::end (indices))
+            if (DoesElementExist (indices, GetOriginalVehicle ()))
                 return GetOriginalVehicle ();
 
             return GetRandom (pos);
         }
 
-    uint32_t modelHash = LoadedMatches[RandomInt (LoadedMatches.size () - 1)];
+    uint32_t modelHash = GetRandomElement (LoadedMatches);
     auto modelInfo = CStreaming::GetModelByHash<CVehicleModelInfo> (modelHash);
 
     if (mMovedTypes.GetValue (modelInfo->GetVehicleType ()))
@@ -134,7 +132,7 @@ ScriptVehiclePattern::GetRandom (Vector3 &pos)
     if (!m_bCached)
         Cache ();
 
-    uint32_t modelHash = m_aCache[RandomInt (m_aCache.size () - 1)];
+    uint32_t modelHash = GetRandomElement (m_aCache);
     auto modelInfo = CStreaming::GetModelByHash<CVehicleModelInfo> (modelHash);
 
     if (mMovedTypes.GetValue (modelInfo->GetVehicleType ()))

@@ -29,7 +29,7 @@ class TrafficRandomizer
         auto &vehicles = Rainbomizer::Common::GetVehicleHashes ();
         for (int i = 0; i < 16; i++)
             {
-                uint32_t vehicle = vehicles[RandomInt (vehicles.size () - 1)];
+                uint32_t vehicle = GetRandomElement (vehicles);
                 uint32_t vehicleIndex;
                 auto     model
                     = CStreaming::GetModelAndIndexByHash<CVehicleModelInfo> (
@@ -52,6 +52,7 @@ public:
             return;
         
         InitialiseAllComponents ();
+        InitialiseDLCDespawnFix ();
 
         // Actuall spawning of the vehicle
         MakeJMP64 (hook::get_pattern (

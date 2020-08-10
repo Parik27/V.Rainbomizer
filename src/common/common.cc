@@ -16,8 +16,12 @@ void
 Common::ProcessInitCallbacks (gameSkeleton* skelly, uint32_t mode)
 {
     gameSkeleton__Init (skelly, mode);
-    
-    for (const auto& i : GetCallbacks())
+
+    Rainbomizer::Logger::LogMessage ("rage::gameSkeleton::Init(%s)",
+                                     mode == 4 ? "AFTER_MAP_LOAD"
+                                               : "INIT_SESSION");
+
+    for (const auto &i : GetCallbacks ())
         i (mode != 4);
 }
 

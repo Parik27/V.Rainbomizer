@@ -15,8 +15,6 @@
 #include "weapons_equipMgr.hh"
 #include "exceptions/exceptions_Mgr.hh"
 
-//?? 8b ?? ?? ?? ?? ?? ?? 85 c9 0f 84 ?? ?? ?? ?? ?? 83 c1 18 8b d7  (-37)
-
 class WeaponRandomizer
 {
     static std::vector<uint32_t>           mValidWeapons;
@@ -91,10 +89,7 @@ class WeaponRandomizer
 
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
 
-                if (modelHash
-                    && std::find (mExceptions.begin (), mExceptions.end (),
-                                  info->Name)
-                           == mExceptions.end ()
+                if (modelHash && !DoesElementExist (mExceptions, info->Name)
                     && info->GetClassId () == "cweaponinfo"_joaat)
                     mValidWeapons.push_back (info->Name);
             }
@@ -144,8 +139,7 @@ class WeaponRandomizer
         if (isPlayer)
             return weapon;
 
-        if (std::find (mValidWeapons.begin (), mValidWeapons.end (), weapon)
-            != mValidWeapons.end ())
+        if (DoesElementExist (mValidWeapons, weapon))
             return mValidWeapons[mDistribution (engine)];
 
         return weapon;
@@ -166,8 +160,6 @@ class WeaponRandomizer
         mEquipMgr.AddWeaponToEquip (hash, originalHash);
         return true;
     }
-
-    /*******************************************************/
 
     /*******************************************************/
     static bool

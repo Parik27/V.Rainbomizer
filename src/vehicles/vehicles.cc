@@ -133,7 +133,7 @@ class ScriptVehicleRandomizer
                 {
                     const auto &indices
                         = Rainbomizer::Common::GetVehicleHashes ();
-                    return indices[RandomInt (indices.size () - 1)];
+                    return GetRandomElement (indices);
                 }
 
             return CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
@@ -221,6 +221,7 @@ public:
         
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
+        InitialiseDLCDespawnFix ();
     }
 };
 

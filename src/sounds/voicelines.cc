@@ -33,9 +33,9 @@ struct SoundPair
 
 class VoiceLineRandomizer
 {
-    static std::unordered_map<uint32_t, SoundPair *> mAudioPairs;
-    static std::unordered_map<uint32_t, std::string> mSubtitles;
-    static std::vector<SoundPair>                    mSounds;
+    static std::unordered_map<uint32_t, const SoundPair *> mAudioPairs;
+    static std::unordered_map<uint32_t, std::string>       mSubtitles;
+    static std::vector<SoundPair>                          mSounds;
 
     /*******************************************************/
     static bool
@@ -54,7 +54,7 @@ class VoiceLineRandomizer
         if (mSounds.size () > 0
             && ShouldRandomizeVoiceLine (rage::atStringHash (subtitle)))
             {
-                auto &newSound = mSounds[RandomInt (mSounds.size () - 1)];
+                auto &newSound = GetRandomElement (mSounds);
                 if (strstr (sound, "SFX_") == sound)
                     return true;
 
@@ -175,7 +175,7 @@ class VoiceLineRandomizer
 
         uint32_t subtitle_pH = rage::atPartialStringHash (subtitleLabel);
         if (!CText::TheText->HasThisAdditionalTextLoaded (gxt, SLOT))
-            CText::TheText->RequestAdditionalText (SLOT, gxt, true, 1);
+            CText::TheText->RequestAdditionalText (SLOT, gxt, true, 2);
 
         if (!CText::TheText->HasThisAdditionalTextLoaded (gxt, SLOT))
             return false;
@@ -207,6 +207,9 @@ class VoiceLineRandomizer
     static void
     InitialiseSoundsList ()
     {
+        if (mSounds.size ())
+            return;
+
         FILE *soundsFile
             = Rainbomizer::Common::GetRainbomizerDataFile ("VoiceLines.txt");
 
@@ -240,12 +243,13 @@ public:
         InitialiseHooks ();
 
         Rainbomizer::Common::AddInitCallback ([] (bool session) {
-            if (!session)
+            if (session)
                 InitialiseSoundsList ();
         });
     }
 } voices;
 
-std::unordered_map<uint32_t, SoundPair *> VoiceLineRandomizer::mAudioPairs;
+std::unordered_map<uint32_t, const SoundPair *>
+                                          VoiceLineRandomizer::mAudioPairs;
 std::vector<SoundPair>                    VoiceLineRandomizer::mSounds;
 std::unordered_map<uint32_t, std::string> VoiceLineRandomizer::mSubtitles;

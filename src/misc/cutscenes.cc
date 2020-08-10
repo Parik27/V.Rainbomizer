@@ -26,9 +26,8 @@ class CutSceneRandomizer
     {
         for (const auto &i : GetModelsList ())
             {
-                if (std::find (std::begin (i), std::end (i), model)
-                    != std::end (i))
-                    return i[RandomInt (i.size () - 1)];
+                if (DoesElementExist (i, model))
+                    return GetRandomElement (i);
             }
 
         return model;
