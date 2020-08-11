@@ -7,7 +7,7 @@ namespace Rainbomizer {
 
 class Logger
 {
-    static FILE *mFile;
+    static inline FILE *mFile = nullptr;
     static FILE *GetLogFile ();
 
 public:

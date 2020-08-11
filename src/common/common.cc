@@ -179,8 +179,4 @@ Common::GetPedHashes ()
 
     return mPedHashes;
 }
-
-bool             Common::mHashesInitialised = false;
-std::vector<int> Common::mVehicleHashes;
-std::vector<int> Common::mPedHashes;
 }; // namespace Rainbomizer

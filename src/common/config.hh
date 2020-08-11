@@ -92,7 +92,7 @@ struct Configs
 /*******************************************************/
 class ConfigManager
 {
-    static ConfigManager *mInstance;
+    static inline ConfigManager *mInstance = nullptr;
 
     Configs mConfigs;
 

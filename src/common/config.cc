@@ -9,8 +9,6 @@
 #include "configDefault.hh"
 #include <sstream>
 
-ConfigManager *ConfigManager::mInstance = nullptr;
-
 #define CONFIG(table, member, key, type)                                       \
     this->member = table->get_as<type> (key).value_or (this->member);
 

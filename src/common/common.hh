@@ -10,10 +10,10 @@ class gameSkeleton;
 namespace Rainbomizer {
 class Common
 {
-    static bool mHashesInitialised;
+    static inline bool mHashesInitialised = false;
 
-    static std::vector<int> mVehicleHashes;
-    static std::vector<int> mPedHashes;
+    static inline std::vector<int> mVehicleHashes;
+    static inline std::vector<int> mPedHashes;
 
     static void  InitialiseHashes ();
     static void ProcessInitCallbacks (gameSkeleton*, uint32_t);

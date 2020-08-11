@@ -68,6 +68,4 @@ Logger::LogMessage (const char *format, ...)
     fflush (file);
 }
 
-FILE *Logger::mFile = nullptr;
-
 } // namespace Rainbomizer

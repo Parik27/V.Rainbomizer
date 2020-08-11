@@ -33,9 +33,9 @@ struct SoundPair
 
 class VoiceLineRandomizer
 {
-    static std::unordered_map<uint32_t, const SoundPair *> mAudioPairs;
-    static std::unordered_map<uint32_t, std::string>       mSubtitles;
-    static std::vector<SoundPair>                          mSounds;
+    inline static std::unordered_map<uint32_t, const SoundPair *> mAudioPairs;
+    inline static std::unordered_map<uint32_t, std::string>       mSubtitles;
+    inline static std::vector<SoundPair>                          mSounds;
 
     /*******************************************************/
     static bool
@@ -248,8 +248,3 @@ public:
         });
     }
 } voices;
-
-std::unordered_map<uint32_t, const SoundPair *>
-                                          VoiceLineRandomizer::mAudioPairs;
-std::vector<SoundPair>                    VoiceLineRandomizer::mSounds;
-std::unordered_map<uint32_t, std::string> VoiceLineRandomizer::mSubtitles;

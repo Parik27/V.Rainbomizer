@@ -20,7 +20,8 @@ CEntity *(*CPools__GetAtEntity) (int);
 
 class ScriptVehicleRandomizer
 {
-    static std::unordered_map<uint32_t, std::vector<ScriptVehiclePattern>>
+    static inline std::unordered_map<uint32_t,
+                                     std::vector<ScriptVehiclePattern>>
         mPatterns;
 
     /*******************************************************/
@@ -71,8 +72,7 @@ class ScriptVehicleRandomizer
                     &altCoords.x, &altCoords.y, &altCoords.z);
 
                 ScriptVehiclePattern pattern;
-                pattern.SetOriginalVehicle (
-                    rage::atStringHash (vehicleName));
+                pattern.SetOriginalVehicle (rage::atStringHash (vehicleName));
                 pattern.SetSeatsCheck (seats);
 
                 pattern.SetAllowedTypes (
@@ -101,7 +101,7 @@ class ScriptVehicleRandomizer
     GetRandomHashForVehicle (uint32_t hash, Vector3 &coords)
     {
         const int MIN_FREE_SLOTS = 25;
-        
+
         uint32_t scrHash
             = scrThread::GetActiveThread ()->m_Context.m_nScriptHash;
 
@@ -112,7 +112,7 @@ class ScriptVehicleRandomizer
         bool returnLoaded
             = CPools::GetVehicleStructPool ()->GetCount () + MIN_FREE_SLOTS
               >= CPools::GetVehicleStructPool ()->m_nMaxElements;
-        
+
         // Return a truly random vehicle
         if (mPatterns.count (scrHash))
             {
@@ -142,9 +142,8 @@ class ScriptVehicleRandomizer
 
     /*******************************************************/
     static bool
-    RandomizeScriptVehicle (uint32_t& hash, Vector3_native *coords,
-                            float heading, bool isNetwork,
-                            bool thisScriptCheck)
+    RandomizeScriptVehicle (uint32_t &hash, Vector3_native *coords,
+                            float heading, bool isNetwork, bool thisScriptCheck)
     {
         auto     thread       = scrThread::GetActiveThread ();
         uint32_t originalHash = hash;
@@ -162,7 +161,7 @@ class ScriptVehicleRandomizer
         else
             {
                 hash = GetRandomHashForVehicle (hash, pos);
-                if (ConfigManager::GetConfigs().scriptVehicle.printLog)
+                if (ConfigManager::GetConfigs ().scriptVehicle.printLog)
                     Rainbomizer::Logger::LogMessage (
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "
@@ -187,15 +186,14 @@ class ScriptVehicleRandomizer
             {
                 REQUEST_MODEL (hash);
                 thread->m_Context.m_nState = eScriptState::WAITING;
-                mThreadWaits[thread->m_Context.m_nScriptHash]
-                    = hash;
+                mThreadWaits[thread->m_Context.m_nScriptHash] = hash;
                 return false;
             }
-        
+
         coords->x = pos.x;
         coords->y = pos.y;
         coords->z = pos.z;
-        
+
         thread->m_Context.m_nState = eScriptState::RUNNING;
         return true;
     }
@@ -216,16 +214,13 @@ public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
-        if (!ConfigManager::GetConfigs().scriptVehicle.enabled)
+        if (!ConfigManager::GetConfigs ().scriptVehicle.enabled)
             return;
-        
+
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
         InitialiseDLCDespawnFix ();
     }
 };
-
-std::unordered_map<uint32_t, std::vector<ScriptVehiclePattern>>
-    ScriptVehicleRandomizer::mPatterns;
 
 ScriptVehicleRandomizer _scr;

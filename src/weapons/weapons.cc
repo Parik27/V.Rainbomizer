@@ -17,10 +17,10 @@
 
 class WeaponRandomizer
 {
-    static std::vector<uint32_t>           mValidWeapons;
-    static std::discrete_distribution<int> mDistribution;
-    static bool                            mSkipNextWeaponRandomization;
-    static WeaponEquipMgr                  mEquipMgr;
+    static inline std::vector<uint32_t>           mValidWeapons;
+    static inline std::discrete_distribution<int> mDistribution;
+    static inline bool                            mSkipNextWeaponRandomization;
+    static inline WeaponEquipMgr                  mEquipMgr;
 
     /*******************************************************/
     static void
@@ -221,8 +221,3 @@ public:
         InitialiseRandomWeaponsHook ();
     }
 } _weap;
-
-std::vector<uint32_t>           WeaponRandomizer::mValidWeapons;
-std::discrete_distribution<int> WeaponRandomizer::mDistribution;
-bool           WeaponRandomizer::mSkipNextWeaponRandomization = false;
-WeaponEquipMgr WeaponRandomizer::mEquipMgr;

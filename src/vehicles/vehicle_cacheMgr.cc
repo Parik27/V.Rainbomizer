@@ -101,5 +101,3 @@ VehicleModelInfoCacheMgr::GetVehicleBounds (uint32_t vehicle)
     GenerateCache ();
     return GetVehicleBounds (vehicle);
 }
-
-std::unique_ptr<VehicleModelInfoCacheMgr> VehicleModelInfoCacheMgr::sm_Instance;
