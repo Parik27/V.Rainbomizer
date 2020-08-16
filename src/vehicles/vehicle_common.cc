@@ -6,7 +6,7 @@
 #include <scrThread.hh>
 #include "common/logger.hh"
 
-bool (*scrProgram_InitNativeTablese188) (scrProgram *);
+inline bool (*scrProgram_InitNativeTablese188) (scrProgram *);
 
 /*******************************************************/
 uint32_t

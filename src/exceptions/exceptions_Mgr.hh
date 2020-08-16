@@ -35,6 +35,8 @@ public:
     ExceptionHandlerMgr (const ExceptionHandlerMgr &) = delete;
 
     void Init ();
+
+    static void RunThread ();
     
     static ExceptionHandlerMgr &GetInstance ();
 

@@ -35,30 +35,30 @@ struct scrProgram
 {
     static const uint32_t PAGE_SIZE = 0x4000;
 
-    using scrCodeBlock = uint8_t[PAGE_SIZE];
+    using scrPage = uint8_t[PAGE_SIZE];
 
-    void *         vft;
-    void *         m_pPageMap;
-    scrCodeBlock **m_pCodeBlocks;
-    uint32_t       m_nGlobalsSignature;
-    uint32_t       m_nCodeSize;
-    uint32_t       m_nParameterCount;
-    uint32_t       m_nStaticCount;
-    uint32_t       m_nGlobalCount;
-    uint32_t       m_nNativesCount;
-    void *         m_pStaticsPointer;
-    void *         m_pGlobalsPointer;
-    void *         m_pNativesPointer;
-    uint64_t       field_0x48;
-    uint64_t       field_0x50;
-    uint32_t       m_nScriptHash;
-    int32_t        field_0x5c;
-    void *         m_pScriptNamePointer;
-    void *         m_pStringBlocksBasePointer;
-    uint32_t       m_nStringSize;
-    int32_t        field_0x74;
-    int32_t        field_0x78;
-    int32_t        field_0x7c;
+    void *    vft;
+    void *    m_pPageMap;
+    scrPage **m_pCodeBlocks;
+    uint32_t  m_nGlobalsSignature;
+    uint32_t  m_nCodeSize;
+    uint32_t  m_nParameterCount;
+    uint32_t  m_nStaticCount;
+    uint32_t  m_nGlobalCount;
+    uint32_t  m_nNativesCount;
+    void *    m_pStaticsPointer;
+    void *    m_pGlobalsPointer;
+    void *    m_pNativesPointer;
+    uint64_t  field_0x48;
+    uint64_t  field_0x50;
+    uint32_t  m_nScriptHash;
+    int32_t   field_0x5c;
+    void *    m_pScriptNamePointer;
+    scrPage **m_pStringBlocks;
+    uint32_t  m_nStringSize;
+    int32_t   field_0x74;
+    int32_t   field_0x78;
+    int32_t   field_0x7c;
 
     template <typename T>
     T &
@@ -68,18 +68,18 @@ struct scrProgram
     }
 
     inline int
-    GetTotalCodePages ()
+    GetTotalPages (uint32_t size)
     {
-        return m_nCodeSize / PAGE_SIZE + 1;
+        return size / PAGE_SIZE + 1;
     }
 
     inline int
-    GetCodePageSize (int page)
+    GetPageSize (int page, uint32_t size)
     {
-        if (page >= GetTotalCodePages ())
+        if (page >= GetTotalPages (size))
             return 0;
-        if (page >= GetTotalCodePages () - 1)
-            return m_nCodeSize % PAGE_SIZE;
+        if (page >= GetTotalPages (size) - 1)
+            return size % PAGE_SIZE;
 
         return PAGE_SIZE;
     }
@@ -88,10 +88,22 @@ struct scrProgram
     void
     ForEachCodePage (F func)
     {
-        for (int i = 0; i < GetTotalCodePages (); i++)
-            func (i, (uint8_t*) m_pCodeBlocks[i], GetCodePageSize (i));
+        for (int i = 0; i < GetTotalPages (m_nCodeSize); i++)
+            func (i, (uint8_t *) m_pCodeBlocks[i],
+                  GetPageSize (i, m_nCodeSize));
     }
 
+    
+    template <typename F>
+    void
+    ForEachStringPage (F func)
+    {
+        for (int i = 0; i < GetTotalPages (m_nStringSize); i++)
+            func (i, (uint8_t *) m_pStringBlocks[i],
+                  GetPageSize (i, m_nStringSize));
+    }
+
+    
     static scrProgram* FindProgramByHash (uint32_t hash);
     
 };
@@ -117,7 +129,7 @@ public:
 
     static uint16_t FindInstSize (scrProgram *program, uint32_t offset);
     static char *DisassemblInsn (char *out, scrProgram *program,
-                                 uint32_t offset);
+                                 uint32_t offset, uint32_t bufferLimit = 1024);
 
     static void InitialisePatterns ();
 };

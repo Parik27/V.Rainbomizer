@@ -164,9 +164,9 @@ class WeaponRandomizer
     /*******************************************************/
     static bool
     CorrectSetCurrentWeapon (uint32_t ped, uint32_t &weaponHash, bool &equipNow)
-    {
+    {        
         Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
-
+        
         uint32_t oriHash = weaponHash;
         weaponHash       = mEquipMgr.GetWeaponToEquip (weaponHash);
 

@@ -186,17 +186,18 @@ scrThread::FindInstSize (scrProgram *program, uint32_t offset)
 
 /*******************************************************/
 char *
-scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset)
+scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
+                           uint32_t bufferLimit)
 {
     // Helper functions to get values to facilitate disassembly
     auto getByteAt = [program] (uint32_t offset) -> uint8_t & {
-        return program->GetCodeByte<uint8_t>(offset);
+        return program->GetCodeByte<uint8_t> (offset);
     };
     auto getWordAt = [program] (uint32_t offset) -> uint16_t & {
-        return program->GetCodeByte<uint16_t>(offset);
+        return program->GetCodeByte<uint16_t> (offset);
     };
     auto getDwordAt = [program] (uint32_t offset) -> uint32_t & {
-        return program->GetCodeByte<uint32_t>(offset);
+        return program->GetCodeByte<uint32_t> (offset);
     };
     auto getFloatAt = [program] (uint32_t offset) -> float & {
         return program->GetCodeByte<float> (offset);
@@ -208,94 +209,97 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset)
     auto params = mOpcodes[opcode].second;
     for (int i = 0; i < strlen (params); i++)
         {
+            if (strlen (out) > bufferLimit - 24)
+                break;
+            
             offset += 1;
             switch (params[i])
                 {
                     // String
-                case '$': {
-                    uint8_t strSize = getByteAt (offset++);
-                    sprintf (out + strlen (out), " %s", &getByteAt (offset));
+                    case '$': {
+                        uint8_t strSize = getByteAt (offset++);
+                        offset += strSize;
+                        break;
+                    }
 
-                    offset += strSize;
-                    break;
-                }
+                    // Relative
+                    case 'R': {
+                        int16_t jOffset = getWordAt (offset);
+                        offset += 2;
 
-                // Relative
-                case 'R': {
-                    int16_t jOffset = getWordAt (offset);
-                    offset += 2;
+                        sprintf (out + strlen (out), " %06d (%+d)",
+                                 offset + jOffset, jOffset);
+                        break;
+                    }
+                    // Switch
+                    case 'S': {
+                        uint8_t numBranches = getByteAt (offset++);
+                        sprintf (out + strlen (out), " [%d]", numBranches);
 
-                    sprintf (out + strlen (out), " %06d (%+d)",
-                             offset + jOffset, jOffset);
-                    break;
-                }
-                // Switch
-                case 'S': {
-                    uint8_t numBranches = getByteAt (offset++);
-                    sprintf (out + strlen (out), " [%d]", numBranches);
+                        const int MAX_BRANCHES = 5;
+                        for (int i = 0; i < numBranches && i < MAX_BRANCHES; i++)
+                            {
+                                uint32_t id      = getDwordAt (offset);
+                                uint16_t jOffset = getWordAt (offset + 4);
 
-                    for (int i = 0; i < numBranches; i++)
-                        {
-                            uint32_t id      = getDwordAt (offset);
-                            uint16_t jOffset = getWordAt (offset + 4);
+                                sprintf (out + strlen (out), " %d:%06d", id,
+                                         jOffset);
 
-                            sprintf (out + strlen (out), " %d:%06d", id,
-                                     jOffset);
+                                offset += 6;
+                            }
+                        break;
+                    }
 
-                            offset += 6;
-                        }
-                    break;
-                }
+                    // Address?
+                    case 'a': {
+                        sprintf (out + strlen (out), " %06d",
+                                 getDwordAt (offset) & 0xFFFFFF);
+                        offset += 3;
+                        break;
+                    }
 
-                // Address?
-                case 'a': {
-                    sprintf (out + strlen (out), " %06d",
-                             getDwordAt (offset) & 0xFFFFFF);
-                    offset += 3;
-                    break;
-                }
+                    // Byte immediate
+                    case 'b': {
+                        sprintf (out + strlen (out), " %d",
+                                 getByteAt (offset++));
+                        break;
+                    }
 
-                // Byte immediate
-                case 'b': {
-                    sprintf (out + strlen (out), " %d", getByteAt (offset++));
-                    break;
-                }
+                    // Integer immediate
+                    case 'd': {
+                        uint32_t imm32 = getDwordAt (offset);
+                        offset += 4;
 
-                // Integer immediate
-                case 'd': {
-                    uint32_t imm32 = getDwordAt (offset);
-                    offset += 4;
+                        sprintf (out + strlen (out), " %d(0x%x)", imm32, imm32);
+                        break;
+                    }
 
-                    sprintf (out + strlen (out), " %d(0x%x)", imm32, imm32);
-                    break;
-                }
+                    // Float immediate
+                    case 'f': {
+                        float imm_f = getFloatAt (offset);
+                        offset += 4;
 
-                // Float immediate
-                case 'f': {
-                    float imm_f = getFloatAt (offset);
-                    offset += 4;
+                        sprintf (out + strlen (out), " %f", imm_f);
+                        break;
+                    }
 
-                    sprintf (out + strlen (out), " %f", imm_f);
-                    break;
-                }
+                    // Half (ushort)
+                    case 'h': {
+                        uint16_t imm16 = getWordAt (offset);
+                        offset += 2;
 
-                // Half (ushort)
-                case 'h': {
-                    uint16_t imm16 = getWordAt (offset);
-                    offset += 2;
+                        sprintf (out + strlen (out), " %d", imm16);
+                        break;
+                    }
 
-                    sprintf (out + strlen (out), " %d", imm16);
-                    break;
-                }
+                    // word
+                    case 'w': {
+                        int16_t imm16 = getWordAt (offset);
+                        offset += 2;
 
-                // word
-                case 'w': {
-                    int16_t imm16 = getWordAt (offset);
-                    offset += 2;
-
-                    sprintf (out + strlen (out), " %d", imm16);
-                    break;
-                }
+                        sprintf (out + strlen (out), " %d", imm16);
+                        break;
+                    }
                 }
         }
 

@@ -2,6 +2,7 @@
 #include "common/logger.hh"
 #include <CTheScripts.hh>
 #include <cstring>
+#include <algorithm>
 
 namespace Rainbomizer {
 class ExceptionHandler_Threads : public ExceptionHandler
@@ -53,47 +54,18 @@ class ExceptionHandler_Threads : public ExceptionHandler
                     thread->m_Context.m_nFrameSP,
                     GetStateName (thread->m_Context.m_nState));
 
-                // Disassemble bytes around it:
                 if (!program)
                     continue;
 
-                uint32_t instructionsPrinted = 0;
-                for (uint32_t offset = 0; offset < program->m_nCodeSize;
-                     offset += scrThread::FindInstSize (program, offset))
-                    {
-                        if (program->m_nScriptHash == "player_timetable_scene"_joaat)
-                            Rainbomizer::Logger::LogMessage("%d", offset);
+                char bytes[128] = {0};
 
-                        if (program->m_nScriptHash
-                                == "player_timetable_scene"_joaat
-                            || offset + 10 >= thread->m_Context.m_nIp)
-                            {
-                                char instruction[1024] = {0};
-                                scrThread::DisassemblInsn (instruction, program,
-                                                           offset);
-
-                                // Arrow for the current instruction
-                                Logger::LogMessage (
-                                    "%s %s",
-                                    offset == thread->m_Context.m_nIp ? "=>"
-                                                                      : "  ",
-                                    instruction);
-                                
-                                instructionsPrinted++;
-                            }
-
-                        if (instructionsPrinted > 5
-                            && program->m_nScriptHash
-                                   != "player_timetable_scene"_joaat)
-                            break;
-                    }
-
-                // Frame Stack (top of the stack frame contains local variables)
+                // Frame Stack (top of the stack frame contains local
+                // variables)
                 uint32_t *FSP = &thread->m_pStack[thread->m_Context.m_nFrameSP];
 
                 char stack[128] = {0};
                 for (int i = 0; i < 8; i++)
-                    sprintf (stack + strlen (stack), "%06x", *(FSP++));
+                    sprintf (stack + strlen (stack), "%06x ", *(FSP++));
 
                 Logger::LogMessage("%s\n", stack);
             }
@@ -107,6 +79,6 @@ class ExceptionHandler_Threads : public ExceptionHandler
     }
 };
 
-    //REGISTER_HANDLER (ExceptionHandler_Threads)
-
+REGISTER_HANDLER (ExceptionHandler_Threads)
+    
 }; // namespace Rainbomizer

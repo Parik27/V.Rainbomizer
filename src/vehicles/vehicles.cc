@@ -15,8 +15,10 @@
 #include "vehicle_common.hh"
 #include "common/config.hh"
 #include <CPools.hh>
+#include <windows.h>
 
 CEntity *(*CPools__GetAtEntity) (int);
+bool (*CVehicle__IsVehDriveable4137) (void *, bool, bool, bool);
 
 class ScriptVehicleRandomizer
 {
@@ -199,9 +201,22 @@ class ScriptVehicleRandomizer
     }
 
     /*******************************************************/
+    static bool
+    IsVehDriveableHook (void *p1, bool p2, bool p3, bool p4)
+    {
+        if (GetAsyncKeyState(VK_F7))
+            return true;
+
+        return CVehicle__IsVehDriveable4137 (p1, p2, p3, p4);
+    }
+
+    /*******************************************************/
     static void
     InitialiseRandomVehiclesHook ()
     {
+        RegisterHook ("? 8d ? ? ? ? ? ? 8a c1 ? 8a d1 e8 ? ? ? ? 84 c0 74 ?",
+                      13, CVehicle__IsVehDriveable4137, IsVehDriveableHook);
+
         ReplaceJmpHook__fastcall<0x7c1c0, uint32_t, uint32_t, Vector3_native *,
                                  float, bool, bool> (
             hook::get_pattern ("8b ec ? 83 ec 50 f3 0f 10 02 f3 0f 10 4a 08 ",

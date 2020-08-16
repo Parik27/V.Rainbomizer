@@ -48,13 +48,10 @@ DoesElementExist (const T &container, const V val)
 }
 
 /*******************************************************/
-template <bool Jmp = false, typename F, typename O>
+template <bool Jmp = false, typename F>
 void
-RegisterHook (const std::string &pattern, int offset, O &originalFunc,
-              F hookedFunc)
+RegisterHook (void *addr, F hookedFunc)
 {
-    void *addr = hook::get_pattern (pattern, offset);
-    ReadCall (addr, originalFunc);
     if constexpr (Jmp)
         injector::MakeJMP (addr, Trampoline::MakeTrampoline (
                                       GetModuleHandle (nullptr))
@@ -66,19 +63,23 @@ RegisterHook (const std::string &pattern, int offset, O &originalFunc,
 }
 
 /*******************************************************/
+template <bool Jmp = false, typename F, typename O>
+void
+RegisterHook (const std::string &pattern, int offset, O &originalFunc,
+              F hookedFunc)
+{
+    void *addr = hook::get_pattern (pattern, offset);
+    ReadCall (addr, originalFunc);
+    RegisterHook<Jmp> (addr, hookedFunc);
+}
+
+/*******************************************************/
 template <bool Jmp = false, typename F>
 void
 RegisterHook (const std::string &pattern, int offset, F hookedFunc)
 {
     void *addr = hook::get_pattern (pattern, offset);
-    if constexpr (Jmp)
-        injector::MakeJMP (addr, Trampoline::MakeTrampoline (
-                                      GetModuleHandle (nullptr))
-                                      ->Jump (hookedFunc));
-    else
-        injector::MakeCALL (addr, Trampoline::MakeTrampoline (
-                                     GetModuleHandle (nullptr))
-                                     ->Jump (hookedFunc));
+    RegisterHook<Jmp> (addr, hookedFunc);
 }
 
 /*******************************************************/

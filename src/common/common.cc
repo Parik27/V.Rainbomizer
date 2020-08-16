@@ -28,7 +28,7 @@ Common::ProcessInitCallbacks (gameSkeleton* skelly, uint32_t mode)
 /*******************************************************/
 void
 Common::InitialiseInitCallbackHook ()
-{
+{   
     static bool isInitialised = false;
     if (std::exchange (isInitialised, true))
         return;
