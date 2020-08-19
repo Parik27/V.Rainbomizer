@@ -38,6 +38,16 @@ GetRandomElement (const T& container)
     return *it;
 }
 
+template<typename T>
+auto&
+GetRandomElementMut (T& container)
+{
+    auto it = std::begin(container);
+    std::advance (it, RandomInt (std::size(container) - 1));
+
+    return *it;
+}
+
 /*******************************************************/
 template <typename T, typename V>
 bool

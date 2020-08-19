@@ -12,6 +12,8 @@
 #include "CTheScripts.hh"
 #include "CText.hh"
 #include "audEngine.hh"
+#include "CWeather.hh"
+#include "CTimecycle.hh"
 
 #include "Utils.hh"
 
@@ -86,6 +88,8 @@ InitialiseAllComponents ()
     CTheScripts::InitialisePatterns ();
     CText::InitialisePatterns ();
     audEngine::InitialisePatterns ();
+    CWeather::InitialisePatterns ();
+    tcManager::InitialisePatterns ();
 
     InitialiseNatives();
     

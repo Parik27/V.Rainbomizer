@@ -56,6 +56,41 @@ atStringHash (const char *s, std::uint32_t initialHash = 0)
 
     return hash;
 }
+
+// It isn't actually in the rage:: namespace, but I put it here to prevent
+// conflicts with other classes that might be called half.
+class half
+{
+public:
+    uint16_t value;
+
+    half () : value (0){};
+    half (uint16_t val) : value (val){};
+    half (const half &other) : value (other.value){};
+    half (float val) : value (from_float (val).value){};
+
+    float
+    to_float ()
+    {
+        uint32_t f = ((value & 0x8000) << 16)
+                     | (((value & 0x7c00) + 0x1C000) << 13)
+                     | ((value & 0x03FF) << 13);
+        return *(float *) &f;
+    }
+
+    inline static half
+    from_float (float f)
+    {
+        uint32_t x = *((uint32_t *) &f);
+        uint16_t h = ((x >> 16) & 0x8000)
+                     | ((((x & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
+                     | ((x >> 13) & 0x03ff);
+        return h;
+    }
+};
+
+static_assert (sizeof (half) == 2, "size of half not 2 bytes");
+
 } // namespace rage
 
 constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)

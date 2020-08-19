@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 
 /*******************************************************/
 /* Class to manage the equip-ing of the weapons randomized */

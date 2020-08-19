@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include <cstdio>
+#include <string>
 
 class CPed;
 class gameSkeleton;
