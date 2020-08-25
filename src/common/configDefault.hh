@@ -20,40 +20,41 @@ const char configDefault[] = R"(
 #######################################################
 
 # General Configuration
+[Randomizers]
 
-Enabled	  = true
-
-#######################################################
-# Traffic Randomizer - Randomizes cars that spawn in traffic
-
-[TrafficRandomizer]
-
-Enabled = true
-
-#######################################################
-# Colour Randomizer - Randomizes the colours of various in-game elements, including cars, the HUD, and the markers. 
-[ColourRandomizer]
-
-Enabled = true
+TrafficRandomizer = true
+ColourRandomizer = true
+WeaponRandomizer = true
+CutSceneRandomizer = true
+ScriptVehicleRandomizer = true
+VoiceLineRandomizer = true
+WeatherRandomizer = true
+MissionRandomizer = true
 
 #######################################################
-# Weapon Randomizer - Randomizes the weapons that are dropped/wielded by the player/enemies.
-[WeaponRandomizer]
-
-Enabled = true
-
-#######################################################
-# Cutscene Randomizer - Randomizes the models used in motion-captured cutscenes
-[CutsceneRandomizer]
-
-Enabled = true
-
-#######################################################
-# Script Vehicle Randomizer - Randomizes the vehicles you are given in missions.
 [ScriptVehicleRandomizer]
 
-Enabled = true
-
 LogSpawnedVehicles = false # Logs all the spawned script vehicles
+
+#######################################################
+[WeatherRandomizer]
+
+RandomizeWeather = false # Randomize the weather (properties like sun, rain, etc.)
+RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
+
+# CrazyMode = false # Not recommended, makes the game invisible.
+
+#######################################################
+[VoiceLineRandomizer]
+
+IncludeDLCLines = true # Includes DLC lines in randomization
+
+#######################################################
+[MissionRandomizer]
+
+Seed = ""
+ForceSeedOnSaves = false
+
+ForcedMission = "" # All missions will start this instead of a random mission.
 
 )";

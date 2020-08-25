@@ -2,6 +2,7 @@
 #include "common.hh"
 #include <ctime>
 #include <windows.h>
+#include <Utils.hh>
 
 #ifndef NDEBUG
 #define RAINBOMIZER_BUILD "Debug Build: " __DATE__ " " __TIME__
@@ -52,6 +53,9 @@ Logger::GetLogFile ()
     return mFile;
 }
 
+/*******************************************************/
+//?? 8d ?? ?? ?? ?? ?? ?? 8d ?? ?? 30 ?? 8b c0 e8 ?? ?? ?? ?? ?? 8d ?? ?? 30 b2 01     
+    
 /*******************************************************/
 void
 Logger::LogMessage (const char *format, ...)

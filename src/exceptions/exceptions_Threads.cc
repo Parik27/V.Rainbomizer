@@ -1,8 +1,10 @@
 #include "exceptions_Mgr.hh"
-#include "common/logger.hh"
+#include <common/logger.hh>
+#include <common/common.hh>
 #include <CTheScripts.hh>
 #include <cstring>
 #include <algorithm>
+#include <exceptions/exceptions_Mgr.hh>
 
 namespace Rainbomizer {
 class ExceptionHandler_Threads : public ExceptionHandler
@@ -21,6 +23,19 @@ class ExceptionHandler_Threads : public ExceptionHandler
             }
 
         return "Unknown";
+    }
+
+    /*******************************************************/
+    void
+    DumpStatics (scrThread *thread)
+    {
+        FILE *f
+            = Common::GetRainbomizerFile (thread->m_szScriptName
+                                              + std::string (".stack.bin"),
+                                          "w", "logs/threads");
+        
+        fwrite (thread->m_pStack, 8, thread->m_Context.m_nSP, f);
+        fclose (f);
     }
 
     /*******************************************************/
@@ -68,6 +83,7 @@ class ExceptionHandler_Threads : public ExceptionHandler
                     sprintf (stack + strlen (stack), "%06x ", *(FSP++));
 
                 Logger::LogMessage("%s\n", stack);
+                DumpStatics (thread);
             }
     }
 
@@ -80,5 +96,5 @@ class ExceptionHandler_Threads : public ExceptionHandler
 };
 
 REGISTER_HANDLER (ExceptionHandler_Threads)
-    
+
 }; // namespace Rainbomizer

@@ -26,6 +26,12 @@ class ScriptVehicleRandomizer
                                      std::vector<ScriptVehiclePattern>>
         mPatterns;
 
+    static inline struct Config
+    {
+        bool LogSpawnedVehicles = false;
+        Config (){};
+    } m_Config;
+
     /*******************************************************/
     static void
     InitialisePatterns ()
@@ -163,7 +169,7 @@ class ScriptVehicleRandomizer
         else
             {
                 hash = GetRandomHashForVehicle (hash, pos);
-                if (ConfigManager::GetConfigs ().scriptVehicle.printLog)
+                if (m_Config.LogSpawnedVehicles)
                     Rainbomizer::Logger::LogMessage (
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "
@@ -204,7 +210,7 @@ class ScriptVehicleRandomizer
     static bool
     IsVehDriveableHook (void *p1, bool p2, bool p3, bool p4)
     {
-        if (GetAsyncKeyState(VK_F7))
+        if (GetAsyncKeyState (VK_F7))
             return true;
 
         return CVehicle__IsVehDriveable4137 (p1, p2, p3, p4);
@@ -229,7 +235,9 @@ public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
-        if (!ConfigManager::GetConfigs ().scriptVehicle.enabled)
+        if (!ConfigManager::ReadConfig (
+                "ScriptVehicleRandomizer",
+                std::pair ("LogSpawnedVehicles", &m_Config.LogSpawnedVehicles)))
             return;
 
         InitialiseAllComponents ();

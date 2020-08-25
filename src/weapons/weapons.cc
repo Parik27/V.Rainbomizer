@@ -158,6 +158,24 @@ class WeaponRandomizer
 
         hash = GetNewWeaponForWeapon (hash, weap);
         mEquipMgr.AddWeaponToEquip (hash, originalHash);
+
+        // To prevent peds from fleeing
+        if (weap->m_pPed->GetIntelligence ())
+            {
+                auto &behaviourFlags = weap->m_pPed->GetIntelligence ()
+                                           ->GetCombatBehaviourFlags ();
+
+                behaviourFlags.Set (BF_CanFightArmedPedsWhenNotArmed, true);
+                behaviourFlags.Set (BF_AlwaysFight, true);
+                behaviourFlags.Set (BF_CanThrowSmokeGrenade, true);
+
+                for (int i = 0; i < BF_TOTAL_FLAGS; i++)
+                    {
+                        if (i != BF_AlwaysFlee)
+                            behaviourFlags.Set(i, true);
+                    }
+            }
+
         return true;
     }
 
@@ -214,7 +232,7 @@ public:
     /*******************************************************/
     WeaponRandomizer ()
     {
-        if (!ConfigManager::GetConfigs ().weapon.enabled)
+        if (!ConfigManager::ReadConfig ("WeaponRandomizer"))
             return;
 
         InitialiseAllComponents ();

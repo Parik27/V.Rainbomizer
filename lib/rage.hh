@@ -91,6 +91,28 @@ public:
 
 static_assert (sizeof (half) == 2, "size of half not 2 bytes");
 
+template <int size>
+class bitset
+{
+    uint32_t m_nBits[size / 32];
+
+public:
+    bool
+    operator[] (size_t pos) const
+    {
+        return m_nBits[pos / 32] & (1 << (pos % 32));
+    }
+
+    inline void Set (size_t pos, bool value)
+    {
+        uint32_t& bits = m_nBits[pos / 32];
+        if (value)
+            bits = bits | (1 << (pos % 32));
+        else
+            bits = bits & ~(1 << (pos % 32));
+    }
+};
+
 } // namespace rage
 
 constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)

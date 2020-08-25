@@ -8,30 +8,7 @@
 #include "common.hh"
 #include "configDefault.hh"
 #include <sstream>
-
-#define CONFIG(table, member, key, type)                                       \
-    this->member = table->get_as<type> (key).value_or (this->member);
-
-/*******************************************************/
-void
-BaseConfig::Read (std::shared_ptr<cpptoml::table> table)
-{
-    if (!table)
-        return;
-
-    CONFIG (table, enabled, "Enabled", bool);
-}
-
-/*******************************************************/
-void
-ScriptVehicleConfig::Read(std::shared_ptr<cpptoml::table> table)
-{
-    if (!table)
-        return;
-
-    CONFIG (table, enabled, "Enabled", bool);
-    CONFIG (table, printLog, "LogSpawnedVehicles", bool);
-}
+#include <string>
 
 /*******************************************************/
 bool
@@ -72,11 +49,10 @@ ConfigManager::ParseDefaultConfig ()
 /*******************************************************/
 ConfigManager::ConfigManager (const std::string &file)
 {
-    std::shared_ptr<cpptoml::table> config;
-    config = ParseDefaultConfig ();
+    m_pConfig = ParseDefaultConfig ();
     try
         {
-            config = cpptoml::parse_file (
+            m_pConfig = cpptoml::parse_file (
                 Rainbomizer::Common::GetRainbomizerFileName (file));
         }
     catch (const std::exception &e)
@@ -86,43 +62,65 @@ ConfigManager::ConfigManager (const std::string &file)
             if (!DoesFileExist (file))
                 WriteDefaultConfig (file);
         }
-
-    mConfigs.traffic.Read (config->get_table ("TrafficRandomizer"));
-    mConfigs.colours.Read (config->get_table ("ColourRandomizer"));
-    mConfigs.cheat.Read (config->get_table ("CheatRandomizer"));
-    mConfigs.weapon.Read (config->get_table ("WeaponRandomizer"));
-    mConfigs.parkedCar.Read (config->get_table ("ParkedCarRandomizer"));
-    mConfigs.sounds.Read (config->get_table ("SoundsRandomizer"));
-    mConfigs.scriptVehicle.Read (config->get_table ("ScriptVehicleRandomizer"));
-    mConfigs.missions.Read (config->get_table ("MissionRandomizer"));
-    mConfigs.cutscenes.Read (config->get_table ("CutsceneRandomizer"));
-    mConfigs.weaponStats.Read (config->get_table ("WeaponStatsRandomizer"));
-    mConfigs.objects.Read (config->get_table ("ObjectRandomizer"));
 }
 
 /*******************************************************/
 void
 ConfigManager::DestroyInstance ()
 {
-    if (ConfigManager::mInstance)
-        delete ConfigManager::mInstance;
+    if (ConfigManager::sm_Instance)
+        delete ConfigManager::sm_Instance;
 }
 
 /*******************************************************/
 ConfigManager *
 ConfigManager::GetInstance ()
 {
-    if (!ConfigManager::mInstance)
+    if (!ConfigManager::sm_Instance)
         {
-            ConfigManager::mInstance = new ConfigManager ("config.toml");
+            ConfigManager::sm_Instance = new ConfigManager ("config.toml");
             atexit (&ConfigManager::DestroyInstance);
         }
-    return ConfigManager::mInstance;
+    return ConfigManager::sm_Instance;
 }
 
 /*******************************************************/
-const Configs &
-ConfigManager::GetConfigs ()
+bool
+ConfigManager::GetEnabledState (const std::string &name)
 {
-    return GetInstance ()->mConfigs;
+    // Finds "name" key in the main table. Also allows an "Enabled" key in the
+    // table for the randomizer/whatever.
+
+    // Example:
+    // TrafficRandomizer = true
+    // ColourRandomizer = false
+    // [ColourRandomizer]
+    // Enabled = true
+
+    // Will be parsed as TrafficRandomizer and ColourRandomizer enabled.
+    // Enabled key takes precedence over main table key.
+
+    bool enabled = true;
+    ReadValue ("Randomizers", name, enabled);
+    ReadValue (name, "Enabled", enabled);
+
+    return enabled;
 }
+
+template <typename T>
+void
+ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
+                          T &out)
+{
+    auto table = m_pConfig->get_table (tableName);
+    if (table)
+        out = table->get_as<T> (key).value_or (out);
+}
+
+#define READ_VALUE_ADD_TYPE(type)                                              \
+    template void ConfigManager::ReadValue<type> (                             \
+        const std::string &tableName, const std::string &key, type &out);
+
+READ_VALUE_ADD_TYPE (bool)
+READ_VALUE_ADD_TYPE (int)
+READ_VALUE_ADD_TYPE (std::string)

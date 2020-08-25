@@ -9,98 +9,22 @@ class table;
 } // namespace cpptoml
 
 /*******************************************************/
-struct BaseConfig
-{
-    bool enabled = true;
-
-    void Read (std::shared_ptr<cpptoml::table> table);
-};
-
-/*******************************************************/
-struct TrafficConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct ColourConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct CheatConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct WeaponConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct ParkedCarConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct SoundsConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct ScriptVehicleConfig : public BaseConfig
-{
-    bool printLog = false;
-
-    void Read (std::shared_ptr<cpptoml::table> table);
-};
-
-/*******************************************************/
-struct MissionConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct CutsceneConfig : public BaseConfig
-{
-};
-
-/******************************************************/
-struct WeaponStatsConfig : public BaseConfig
-{
-};
-
-struct ObjectsConfig : public BaseConfig
-{
-};
-
-/*******************************************************/
-struct Configs
-{
-    TrafficConfig       traffic;
-    ColourConfig        colours;
-    CheatConfig         cheat;
-    WeaponConfig        weapon;
-    ParkedCarConfig     parkedCar;
-    SoundsConfig        sounds;
-    ScriptVehicleConfig scriptVehicle;
-    MissionConfig       missions;
-    CutsceneConfig      cutscenes;
-    WeaponStatsConfig   weaponStats;
-    ObjectsConfig       objects;
-};
-
-/*******************************************************/
 class ConfigManager
 {
-    static inline ConfigManager *mInstance = nullptr;
-
-    Configs mConfigs;
-
+    static inline ConfigManager *sm_Instance = nullptr;
+    std::shared_ptr<cpptoml::table> m_pConfig;
+    
     ConfigManager (){};
     static void DestroyInstance ();
 
     void WriteDefaultConfig (const std::string &file);
     std::shared_ptr<cpptoml::table> ParseDefaultConfig ();
+
+    template <typename T>
+    void ReadValue (const std::string &tableName, const std::string &key,
+                    T &out);
+
+    bool GetEnabledState (const std::string &name);
 
 public:
     /// Returns the static instance for ConfigManager.
@@ -109,6 +33,14 @@ public:
     /// Initialises
     ConfigManager (const std::string &file = "config.toml");
 
-    /// Gets the config
-    static const Configs &GetConfigs ();
+    template <typename... Args>
+    static bool
+    ReadConfig (const std::string &table, Args... params)
+    {
+        if (!GetInstance ()->GetEnabledState (table))
+            return false;
+        
+        (GetInstance ()->ReadValue (table, params.first, *params.second), ...);
+        return true;
+    }
 };

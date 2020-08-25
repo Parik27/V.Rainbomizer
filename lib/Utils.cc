@@ -14,6 +14,7 @@
 #include "audEngine.hh"
 #include "CWeather.hh"
 #include "CTimecycle.hh"
+#include "sysMemoryAllocator.hh"
 
 #include "Utils.hh"
 
@@ -90,6 +91,7 @@ InitialiseAllComponents ()
     audEngine::InitialisePatterns ();
     CWeather::InitialisePatterns ();
     tcManager::InitialisePatterns ();
+    sysUseAllocator::InitialisePatterns ();
 
     InitialiseNatives();
     

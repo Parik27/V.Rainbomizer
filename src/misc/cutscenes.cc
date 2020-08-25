@@ -100,7 +100,7 @@ public:
     /*******************************************************/
     CutSceneRandomizer ()
     {
-        if (!ConfigManager::GetConfigs().cutscenes.enabled)
+        if (!ConfigManager::ReadConfig("CutSceneRandomizer"))
             return;
         
         InitialiseAllComponents ();

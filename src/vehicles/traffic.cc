@@ -48,7 +48,7 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
-        if (!ConfigManager::GetConfigs().traffic.enabled)
+        if (!ConfigManager::ReadConfig ("TrafficRandomizer"))
             return;
         
         InitialiseAllComponents ();

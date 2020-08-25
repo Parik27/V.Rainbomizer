@@ -20,7 +20,31 @@ CPed::GetInventory ()
     static uint32_t nInvenOffset = *hook::get_pattern<uint32_t> (
         "8b ? ? ? ? ? ? 85 c9 74 ? ? 83 c1 18 8b d5", 2);
 
-    return *(injector::raw_ptr (this) + nInvenOffset).get<CPedInventory*> ();
+    return *(injector::raw_ptr (this) + nInvenOffset).get<CPedInventory *> ();
+}
+
+/*******************************************************/
+CPedIntelligence *
+CPed::GetIntelligence ()
+{
+    static uint32_t nIntelOffset
+        = *hook::get_pattern<uint32_t> ("8b ? ? ? ? ? 0f ba ? ? ? ? ? 09 8b 05",
+                                        2);
+
+    return *(injector::raw_ptr (this) + nIntelOffset)
+                .get<CPedIntelligence *> ();
+}
+
+/*******************************************************/
+rage::bitset<BF_TOTAL_FLAGS> &
+CPedIntelligence::GetCombatBehaviourFlags ()
+{
+    static uint32_t nBehaviourOffset
+        = *hook::get_pattern<uint32_t> ("8b ? ? ? ? ? 0f ba ? ? ? ? ? 09 8b 05",
+                                        9);
+
+    return *(injector::raw_ptr (this) + nBehaviourOffset)
+                .get<rage::bitset<BF_TOTAL_FLAGS>> ();
 }
 
 /*******************************************************/

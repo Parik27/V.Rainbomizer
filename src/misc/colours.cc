@@ -17,7 +17,7 @@ public:
     /*******************************************************/
     ColoursRandomizer ()
     {
-        if (!ConfigManager::GetConfigs().colours.enabled)
+        if (!ConfigManager::ReadConfig("ColourRandomizer"))
             return;
         
         InitialiseAllComponents ();

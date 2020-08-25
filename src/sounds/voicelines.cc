@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <audEngine.hh>
 #include <thread>
+#include <common/config.hh>
 
 class audScriptAudioEntity;
 class audSpeechSound;
@@ -36,6 +37,14 @@ class VoiceLineRandomizer
     inline static std::unordered_map<uint32_t, const SoundPair *> mAudioPairs;
     inline static std::unordered_map<uint32_t, std::string>       mSubtitles;
     inline static std::vector<SoundPair>                          mSounds;
+
+    static inline struct Config
+    {
+        bool IncludeDLCLines = true;
+
+        Config (){};
+
+    } m_Config;
 
     /*******************************************************/
     static bool
@@ -173,9 +182,11 @@ class VoiceLineRandomizer
     {
         const uint32_t SLOT = 18; // Slot to load the gxt in
 
+        int dlc = m_Config.IncludeDLCLines ? 2 : 0;
+
         uint32_t subtitle_pH = rage::atPartialStringHash (subtitleLabel);
         if (!CText::TheText->HasThisAdditionalTextLoaded (gxt, SLOT))
-            CText::TheText->RequestAdditionalText (SLOT, gxt, true, 2);
+            CText::TheText->RequestAdditionalText (SLOT, gxt, true, dlc);
 
         if (!CText::TheText->HasThisAdditionalTextLoaded (gxt, SLOT))
             return false;
@@ -239,6 +250,11 @@ public:
     /*******************************************************/
     VoiceLineRandomizer ()
     {
+        if (!ConfigManager::ReadConfig (
+                "VoiceLineRandomizer", // ----------------------------------
+                std::pair ("IncludeDLCLines", &m_Config.IncludeDLCLines)))
+            return;
+
         InitialiseAllComponents ();
         InitialiseHooks ();
 

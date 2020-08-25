@@ -5,9 +5,21 @@
 #include <array>
 #include <common/logger.hh>
 #include "CTimecycle.hh"
+#include <common/config.hh>
 
 class WeatherRandomizer
 {
+
+    // Config
+    static inline struct Config
+    {
+        bool RandomizeWeather   = false;
+        bool RandomizeTimecycle = true;
+        bool CrazyMode          = false;
+
+        Config (){};
+
+    } m_Config;
 
     /*******************************************************/
     static void
@@ -111,7 +123,8 @@ class WeatherRandomizer
         char *varName = tcConfig::GetVarInfos ()[index].sAttributeName;
         // all colour variables end with _r, _g, or _b - so
         // comparing with last 2 characters.
-        Rainbomizer::Logger::LogMessage("%s : %s", varName, varName + strlen (varName) - 2);
+        Rainbomizer::Logger::LogMessage ("%s : %s", varName,
+                                         varName + strlen (varName) - 2);
         varName += strlen (varName) - 2;
 
         return strcmp (varName, "_r") == 0 || strcmp (varName, "_g") == 0
@@ -119,7 +132,7 @@ class WeatherRandomizer
     }
 
     /*******************************************************/
-    static rage::half&
+    static rage::half &
     GetRandomTimecycleVariable (uint32_t variableIndex)
     {
         uint32_t totalTimecycles = tcConfig::ms_cycleInfo->Size;
@@ -168,23 +181,31 @@ class WeatherRandomizer
         if (!tcManager::g_timeCycle->pTimecycles)
             return;
 
-        for (int i = 0; i < tcConfig::ms_cycleInfo->Size ; i++)
+        for (int i = 0; i < tcConfig::ms_cycleInfo->Size; i++)
             RandomizeTimecycle (tcManager::g_timeCycle->pTimecycles[i]);
     }
 
 public:
-
     /*******************************************************/
     WeatherRandomizer ()
     {
-        InitialiseAllComponents ();
-        //Rainbomizer::Common::AddInitCallback (RandomizeWeather);
-        Rainbomizer::Common::AddInitCallback (RandomizeTimecycles);
+        if (!ConfigManager::ReadConfig (
+                "WeatherRandomizer",
+                std::pair ("RandomizeWeather", &m_Config.RandomizeWeather),
+                std::pair ("RandomizeTimecycle", &m_Config.RandomizeTimecycle),
+                std::pair ("CrazyMode", &m_Config.CrazyMode)))
+            return;
 
-        // _if (crazyMode)
-        // {
-        //     RegisterHook ("? 03 de e8 ? ? ? ? b9 00 00 00 38 0f 57 c9 f2 0f 5a c8",
-        //3, RandomizeTimecycleComponent);
-        // }
+        InitialiseAllComponents ();
+
+        if (m_Config.RandomizeWeather)
+            Rainbomizer::Common::AddInitCallback (RandomizeWeather);
+
+        if (!m_Config.CrazyMode)
+            Rainbomizer::Common::AddInitCallback (RandomizeTimecycles);
+        else
+            RegisterHook (
+                "? 03 de e8 ? ? ? ? b9 00 00 00 38 0f 57 c9 f2 0f 5a c8", 3,
+                RandomizeTimecycleComponent);
     }
 } _weather;

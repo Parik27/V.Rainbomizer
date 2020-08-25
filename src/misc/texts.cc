@@ -3,6 +3,7 @@
 #include <cctype>
 #include <common/logger.hh>
 #include <exceptions/exceptions_Mgr.hh>
+#include <common/config.hh>
 
 struct pgRequestInitParams
 {
@@ -42,6 +43,11 @@ class TextCaseRandomizer
         }
     };
 
+    static inline struct
+    {
+        int Odds;
+    } m_Config;
+    
     /*******************************************************/
     static void
     RandomizeTextCase (void* data)
@@ -68,8 +74,6 @@ class TextCaseRandomizer
                         char *Str = reinterpret_cast<char *> (file)
                                     + file->Keys[i].DataOffset;
 
-                        Rainbomizer::Logger::LogMessage ("%x",
-                                                         file->Keys[i].KeyHash);
                         for (int j = 0; Str[j] != 0; j++)
                             {
                                 char &c = Str[j];
@@ -128,9 +132,15 @@ class TextCaseRandomizer
 public:
     TextCaseRandomizer ()
     {
+        m_Config.Odds = 100;
+
+        if (!ConfigManager::ReadConfig ("TextCaseRandomizer",
+                                        std::pair ("Odds", &m_Config.Odds)))
+            return;
+
         InitialiseAllComponents ();
 
-        if (RandomInt (100) != 0)
+        if (RandomInt (m_Config.Odds) != 0)
             return;
         
         CB_sysIpcSignalSema = (pgRequestCallback) GetRelativeReference (

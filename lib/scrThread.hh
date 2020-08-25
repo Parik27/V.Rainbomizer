@@ -67,13 +67,13 @@ struct scrProgram
         return *(T *) &(*m_pCodeBlocks)[offset / 0x4000][offset % PAGE_SIZE];
     }
 
-    inline int
+    static inline int
     GetTotalPages (uint32_t size)
     {
         return size / PAGE_SIZE + 1;
     }
 
-    inline int
+    static inline int
     GetPageSize (int page, uint32_t size)
     {
         if (page >= GetTotalPages (size))
@@ -93,7 +93,6 @@ struct scrProgram
                   GetPageSize (i, m_nCodeSize));
     }
 
-    
     template <typename F>
     void
     ForEachStringPage (F func)
@@ -103,9 +102,7 @@ struct scrProgram
                   GetPageSize (i, m_nStringSize));
     }
 
-    
-    static scrProgram* FindProgramByHash (uint32_t hash);
-    
+    static scrProgram *FindProgramByHash (uint32_t hash);
 };
 
 class scrThread
@@ -115,9 +112,23 @@ public:
     scrThreadContext m_Context;
     uint32_t *       m_pStack;
     uint8_t          field_0xb8[24];
-    char             m_szScriptName[64]; //TODO: Move to GtaThread
+    char             m_szScriptName[64]; // TODO: Move to GtaThread
 
-    static scrThread** sm_pActiveThread;
+    static scrThread **      sm_pActiveThread;
+    static inline uint64_t **sm_pGlobals;
+
+    static inline uint64_t *&
+    GetGlobals ()
+    {
+        return *sm_pGlobals;
+    }
+
+    template <typename T>
+    static inline T &
+    GetGlobal (uint32_t index)
+    {
+        return *(T *) (&GetGlobals()[index]);
+    }
 
     static inline scrThread *&
     GetActiveThread ()
