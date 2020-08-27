@@ -103,14 +103,20 @@ public:
         bool inhibit = false;
 
         for (const auto &i : base::GetBeforeFunctions ())
-            inhibit = i (args...) ? inhibit : true;
+            {
+                inhibit = i (args...) ? inhibit : true;
+            }
 
         if (inhibit)
             {
                 if constexpr (std::is_same_v<Ret, void>)
-                    return;
+                    {
+                        return;
+                    }
                 else
-                    return Ret();
+                    {
+                        return Ret ();
+                    }
             }
 
         base::SwapValues ();
@@ -120,8 +126,12 @@ public:
                 Ret ret = injector::fastcall<Ret (Args...)>::call (
                     base::mHookedAddress, args...);
                 for (const auto &i : base::GetAfterFunctions ())
-                    if constexpr (!std::is_same_v<Ret, void>)
-                        i (ret, args...);
+                    {
+                        if constexpr (!std::is_same_v<Ret, void>)
+                            {
+                                i (ret, args...);
+                            }
+                    }
 
                 base::SwapValues ();
                 return ret;
@@ -131,8 +141,12 @@ public:
                 injector::fastcall<Ret (Args...)>::call (base::mHookedAddress,
                                                          args...);
                 for (const auto &i : base::GetAfterFunctions ())
-                    if constexpr (!std::is_same_v<Ret, void>)
-                        i (args...);
+                    {
+                        if constexpr (!std::is_same_v<Ret, void>)
+                            {
+                                i (args...);
+                            }
+                    }
             }
 
         base::SwapValues ();
