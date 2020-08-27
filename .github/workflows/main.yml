@@ -1,0 +1,33 @@
+name: Build
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup
+      uses: ilammy/msvc-dev-cmd@v1.0.0
+      with:
+        arch: x64
+        
+    - name: Compile
+      run: |
+        mkdir bin
+        cd bin
+        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ../
+        nmake
+        mkdir output
+        mkdir output/rainbomizer
+        cp rainbomizer.asi output/V.Rainbomizer.asi
+        cp -r ../data output/rainbomizer/data/
+        
+    - name: Upload
+      uses: actions/upload-artifact@v1
+      with:
+        name: "V.Rainbomizer"
+        path: bin/output
+        

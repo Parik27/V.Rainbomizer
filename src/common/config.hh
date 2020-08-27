@@ -24,7 +24,7 @@ class ConfigManager
     void ReadValue (const std::string &tableName, const std::string &key,
                     T &out);
 
-    bool GetEnabledState (const std::string &name);
+    bool GetIsEnabled (const std::string &name);
 
 public:
     /// Returns the static instance for ConfigManager.
@@ -37,7 +37,7 @@ public:
     static bool
     ReadConfig (const std::string &table, Args... params)
     {
-        if (!GetInstance ()->GetEnabledState (table))
+        if (!GetInstance ()->GetIsEnabled (table))
             return false;
         
         (GetInstance ()->ReadValue (table, params.first, *params.second), ...);

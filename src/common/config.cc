@@ -86,7 +86,7 @@ ConfigManager::GetInstance ()
 
 /*******************************************************/
 bool
-ConfigManager::GetEnabledState (const std::string &name)
+ConfigManager::GetIsEnabled (const std::string &name)
 {
     // Finds "name" key in the main table. Also allows an "Enabled" key in the
     // table for the randomizer/whatever.

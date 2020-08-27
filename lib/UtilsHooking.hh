@@ -45,13 +45,13 @@ protected:
     {
         if constexpr (std::is_same_v<Ret, void>)
             {
-                static std::vector<std::function<void (Args & ...)>>
+                static std::vector<std::function<void (Args ...)>>
                     mAfterFunctions;
                 return mAfterFunctions;   
             }
         else
             {
-                static std::vector<std::function<void (Ret &, Args & ...)>>
+                static std::vector<std::function<void (Ret &, Args...)>>
                     mAfterFunctions;
                 return mAfterFunctions;
             }
@@ -78,7 +78,7 @@ public:
         GetBeforeFunctions ().push_back (callback);
     }
 
-    ReplaceJmpHook (void *addr, decltype(GetAfterFunctions()) callback)
+    ReplaceJmpHook (void *addr, std::decay_t<decltype(GetAfterFunctions()[0])> callback)
     {
         mHookedAddress = (_InstructionType *) addr;
         GetAfterFunctions ().push_back (callback);
