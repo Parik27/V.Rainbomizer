@@ -15,6 +15,10 @@
 #include "weapons_equipMgr.hh"
 #include "exceptions/exceptions_Mgr.hh"
 
+CInventoryItem *(*CPedInventory_GiveWeapon2d8) (CPedInventory *, uint32_t,
+                                                uint32_t);
+void (*SET_CURRENT_PED_WEAPON784) (uint32_t, uint32_t, bool);
+
 class WeaponRandomizer
 {
     static inline std::vector<uint32_t>           mValidWeapons;
@@ -46,8 +50,7 @@ class WeaponRandomizer
                         double probability = 0.0;
                         if (sscanf (line, "%s = %lf", model, &probability) == 2)
                             {
-                                probabilities[rage::atStringHash (
-                                    model)]
+                                probabilities[rage::atStringHash (model)]
                                     = probability;
                                 sum_probability += probability;
                                 total_probabilities++;
@@ -115,11 +118,16 @@ class WeaponRandomizer
 
     /*******************************************************/
     static bool
-    DoesWeaponMatchPattern (uint32_t weapon)
+    ShouldRandomizeWeapon (uint32_t weapon)
     {
-        Rainbomizer::Logger::LogMessage (
-            "{%s}: %x", scrThread::GetActiveThread ()->m_szScriptName, weapon);
-        return false;
+        static const std::array Patterns
+            = {std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat)};
+
+        return scrThread::GetActiveThread ()
+               && !DoesElementExist (Patterns,
+                                     std::tuple (scrThread::GetActiveThread ()
+                                                     ->m_Context.m_nScriptHash,
+                                                 weapon));
     }
 
     /*******************************************************/
@@ -139,18 +147,20 @@ class WeaponRandomizer
         if (isPlayer)
             return weapon;
 
-        if (DoesElementExist (mValidWeapons, weapon))
+        if (DoesElementExist (mValidWeapons, weapon)
+            && ShouldRandomizeWeapon (weapon))
             return mValidWeapons[mDistribution (engine)];
 
         return weapon;
     }
 
     /*******************************************************/
-    static bool
-    RandomizeWeapon (CPedInventory *weap, uint32_t &hash, uint32_t ammo)
+    static CInventoryItem *
+    RandomizeWeapon (CPedInventory *weap, uint32_t hash, uint32_t ammo)
     {
+        Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
         if (std::exchange (mSkipNextWeaponRandomization, false))
-            return true;
+            return CPedInventory_GiveWeapon2d8 (weap, hash, ammo);
 
         InitialiseWeaponsArray ();
 
@@ -168,28 +178,18 @@ class WeaponRandomizer
                 behaviourFlags.Set (BF_CanFightArmedPedsWhenNotArmed, true);
                 behaviourFlags.Set (BF_AlwaysFight, true);
                 behaviourFlags.Set (BF_CanThrowSmokeGrenade, true);
-
-                for (int i = 0; i < BF_TOTAL_FLAGS; i++)
-                    {
-                        if (i != BF_AlwaysFlee)
-                            behaviourFlags.Set(i, true);
-                    }
             }
 
-        return true;
+        return CPedInventory_GiveWeapon2d8 (weap, hash, ammo);
     }
 
     /*******************************************************/
-    static bool
-    CorrectSetCurrentWeapon (uint32_t ped, uint32_t &weaponHash, bool &equipNow)
-    {        
-        Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
-        
-        uint32_t oriHash = weaponHash;
-        weaponHash       = mEquipMgr.GetWeaponToEquip (weaponHash);
+    static void
+    CorrectSetCurrentWeapon (uint32_t ped, uint32_t weaponHash, bool equipNow)
+    {
 
-        equipNow = true;
-        return true;
+        SET_CURRENT_PED_WEAPON784 (ped, mEquipMgr.GetWeaponToEquip (weaponHash),
+                                   true);
     }
 
     /*******************************************************/
@@ -209,17 +209,13 @@ class WeaponRandomizer
     InitialiseRandomWeaponsHook ()
     {
         // Hook to actually replace the weapons
-        ReplaceJmpHook__fastcall<0xcc2d8, CInventoryItem *, CPedInventory *,
-                                 uint32_t, uint32_t> (
-            GetGiveWeaponFuncAddress (), RandomizeWeapon)
-            .Activate ();
+        RegisterJmpHook<15> (GetGiveWeaponFuncAddress (),
+                             CPedInventory_GiveWeapon2d8, RandomizeWeapon);
 
         // Hook to make the game make the ped equip the correct weapon.
-        ReplaceJmpHook__fastcall<0xff8a784, void, uint32_t, uint32_t, bool> (
-            hook::get_pattern (
-                "? 8b ? ? ? ? ? ? 85 c9 0f 84 ? ? ? ? ? 83 c1 18 8b d7", -37),
-            CorrectSetCurrentWeapon)
-            .Activate ();
+        RegisterJmpHook<15> (
+            "? 8b ? ? ? ? ? ? 85 c9 0f 84 ? ? ? ? ? 83 c1 18 8b d7", -37,
+            SET_CURRENT_PED_WEAPON784, CorrectSetCurrentWeapon);
 
         // NOP JZ instruction to ensure that a weapon is always equipped by the
         // ped (weapons given by script only)
@@ -234,7 +230,7 @@ public:
     {
         if (!ConfigManager::ReadConfig ("WeaponRandomizer"))
             return;
-
+        
         InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
     }

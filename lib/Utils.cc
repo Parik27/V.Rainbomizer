@@ -71,6 +71,19 @@ MakeJMP64 (injector::memory_pointer_tr at, injector::memory_pointer_raw dest)
 
 /*******************************************************/
 void
+RegisterJmpHook (void *addr, void *dst, void **outOrignal, int size)
+{
+    LPVOID mem = VirtualAlloc (0, size + 12, MEM_COMMIT | MEM_RESERVE,
+                               PAGE_EXECUTE_READWRITE);
+    memcpy (mem, addr, size);
+    MakeJMP64 (uintptr_t (mem) + size, uintptr_t (addr) + size);
+    MakeJMP64 (addr, dst);
+
+    *outOrignal = mem;
+}
+
+/*******************************************************/
+void
 InitialiseAllComponents ()
 {
 

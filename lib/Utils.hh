@@ -4,6 +4,8 @@
 #include "injector/hooking.hpp"
 #include "ModUtils/Trampoline.h"
 #include <cstdint>
+#include <vector>
+#include <utility>
 
 template <typename Func, typename Addr>
 void
@@ -49,6 +51,44 @@ GetRandomElementMut (T& container)
 }
 
 /*******************************************************/
+template<typename T, typename C>
+inline T*
+GetAtOffset (C* classInst, int offset)
+{
+    return (T*) (reinterpret_cast<char*>(classInst) + offset);
+}
+
+/*******************************************************/
+template <typename T>
+std::pair<void *, const T &>
+GetPatternsAndData (
+    std::vector<std::tuple<std::string, uint32_t, const T &>> patterns)
+{
+    for (auto &[pattern, offset, data] : patterns)
+        {
+            hook::pattern p (pattern);
+            if (p.size ())
+                return std::pair (p.get_first (offset), data);
+        }
+    
+    return std::pair (nullptr, T());
+}
+
+/*******************************************************/
+inline void *
+GetPatterns (std::vector<std::pair<std::string, uint32_t>> patterns)
+{
+    for (auto &[pattern, offset] : patterns)
+        {
+            hook::pattern p (pattern);
+            if (p.size ())
+                return p.get_first (offset);
+        }
+    
+    return nullptr;
+}
+
+/*******************************************************/
 template <typename T, typename V>
 bool
 DoesElementExist (const T &container, const V val)
@@ -90,6 +130,30 @@ RegisterHook (const std::string &pattern, int offset, F hookedFunc)
 {
     void *addr = hook::get_pattern (pattern, offset);
     RegisterHook<Jmp> (addr, hookedFunc);
+}
+
+/*******************************************************/
+void RegisterJmpHook (void* addr, void* dst, void** outOrignal, int size);
+
+template <int size, typename F, typename O>
+inline void
+RegisterJmpHook (void* addr, O &originalFunc,
+                 F hookedFunc)
+{
+    static_assert (
+        size >= 12,
+        "Size should be greater than the JMP instruction (12 bytes)");
+
+    RegisterJmpHook (addr, (void *) hookedFunc, (void **) &originalFunc, size);
+}
+
+template <int size, typename F, typename O>
+inline void
+RegisterJmpHook (const std::string &pattern, int offset, O &originalFunc,
+                 F hookedFunc)
+{
+    RegisterJmpHook<size> (hook::get_pattern (pattern, offset), originalFunc,
+                           hookedFunc);
 }
 
 /*******************************************************/

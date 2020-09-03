@@ -32,6 +32,12 @@ WeatherRandomizer = true
 MissionRandomizer = true
 
 #######################################################
+[ColourRandomizer]
+
+RandomizeHudColours = true
+RandomizeCarColours = true
+
+#######################################################
 [ScriptVehicleRandomizer]
 
 LogSpawnedVehicles = false # Logs all the spawned script vehicles

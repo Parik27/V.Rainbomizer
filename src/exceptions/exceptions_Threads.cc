@@ -32,7 +32,7 @@ class ExceptionHandler_Threads : public ExceptionHandler
         FILE *f
             = Common::GetRainbomizerFile (thread->m_szScriptName
                                               + std::string (".stack.bin"),
-                                          "w", "logs/threads");
+                                          "w", "logs/threads/");
         
         fwrite (thread->m_pStack, 8, thread->m_Context.m_nSP, f);
         fclose (f);

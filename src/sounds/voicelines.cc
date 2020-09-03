@@ -38,13 +38,16 @@ class VoiceLineRandomizer
     inline static std::unordered_map<uint32_t, std::string>       mSubtitles;
     inline static std::vector<SoundPair>                          mSounds;
 
-    static inline struct Config
+    static auto &
+    Config ()
     {
-        bool IncludeDLCLines = true;
+        static struct Config
+        {
+            bool IncludeDLCLines = true;
+        } m_Config;
 
-        Config (){};
-
-    } m_Config;
+        return m_Config;
+    }
 
     /*******************************************************/
     static bool
@@ -182,7 +185,7 @@ class VoiceLineRandomizer
     {
         const uint32_t SLOT = 18; // Slot to load the gxt in
 
-        int dlc = m_Config.IncludeDLCLines ? 2 : 0;
+        int dlc = Config ().IncludeDLCLines ? 2 : 0;
 
         uint32_t subtitle_pH = rage::atPartialStringHash (subtitleLabel);
         if (!CText::TheText->HasThisAdditionalTextLoaded (gxt, SLOT))
@@ -252,7 +255,7 @@ public:
     {
         if (!ConfigManager::ReadConfig (
                 "VoiceLineRandomizer", // ----------------------------------
-                std::pair ("IncludeDLCLines", &m_Config.IncludeDLCLines)))
+                std::pair ("IncludeDLCLines", &Config ().IncludeDLCLines)))
             return;
 
         InitialiseAllComponents ();

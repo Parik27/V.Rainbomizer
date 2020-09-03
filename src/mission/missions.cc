@@ -43,16 +43,21 @@ static_assert(sizeof(MissionDefinition) == 0x22 * 8);
 
 class MissionRandomizer
 {
-
-    inline static struct Config
+    static auto &
+    Config ()
     {
-        std::string Seed;
-        bool ForceSeedOnSaves;
+        static struct Config
+        {
+            std::string Seed;
+            bool        ForceSeedOnSaves;
 
-        std::string ForcedMission;
-        
-    } m_Config;
-    
+            std::string ForcedMission;
+
+        } m_Config;
+
+        return m_Config;
+    }
+
     /*******************************************************/
     static void
     MakeMissionThinkItsAReplay (scrProgram *program)
@@ -114,18 +119,18 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
-    RandomizeMissions (MissionDefinition* missions, int totalMissions)
+    RandomizeMissions (MissionDefinition *missions, int totalMissions)
     {
         for (int i = 0; i < totalMissions; i++)
             {
                 // Forced Mission Enabled
-                if (m_Config.ForcedMission.size () > 0)
+                if (Config ().ForcedMission.size () > 0)
                     {
                         strncpy (missions[i].sMissionThread,
-                                 m_Config.ForcedMission.c_str (), 24);
-                        
+                                 Config ().ForcedMission.c_str (), 24);
+
                         missions[i].nThreadHash = rage::atStringHash (
-                            m_Config.ForcedMission.c_str ());
+                            Config ().ForcedMission.c_str ());
 
                         continue;
                     }
@@ -196,9 +201,10 @@ class MissionRandomizer
     }
 
     /*******************************************************/
-    static void
+    static bool
     ProcessMissionFlow (scrProgram *program, scrThreadContext *ctx)
     {
+        return true;
     }
 
     /*******************************************************/
@@ -259,9 +265,9 @@ public:
     MissionRandomizer ()
     {
         if (!ConfigManager::ReadConfig (
-                "MissionRandomizer", std::pair ("Seed", &m_Config.Seed),
-                std::pair ("ForceSeedOnSaves", &m_Config.ForceSeedOnSaves),
-                std::pair ("ForcedMission", &m_Config.ForcedMission)))
+                "MissionRandomizer", std::pair ("Seed", &Config ().Seed),
+                std::pair ("ForceSeedOnSaves", &Config ().ForceSeedOnSaves),
+                std::pair ("ForcedMission", &Config ().ForcedMission)))
             return;
 
         InitialiseAllComponents ();

@@ -123,8 +123,6 @@ class WeatherRandomizer
         char *varName = tcConfig::GetVarInfos ()[index].sAttributeName;
         // all colour variables end with _r, _g, or _b - so
         // comparing with last 2 characters.
-        Rainbomizer::Logger::LogMessage ("%s : %s", varName,
-                                         varName + strlen (varName) - 2);
         varName += strlen (varName) - 2;
 
         return strcmp (varName, "_r") == 0 || strcmp (varName, "_g") == 0
