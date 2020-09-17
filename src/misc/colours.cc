@@ -3,6 +3,8 @@
 #include "common/config.hh"
 #include "HSL.hh"
 #include <CVehicle.hh>
+#include <map>
+#include <stdexcept>
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
 uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
@@ -10,6 +12,13 @@ uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
 
 class ColoursRandomizer
 {
+    struct VehicleColourData
+    {
+        CARGB Colours[4];
+    };
+
+    inline static std::map<CVehicle *, VehicleColourData> mColourData;
+
     /*******************************************************/
     static void
     SetNewHudColour (int index, int r, int g, int b, int a)
@@ -28,18 +37,57 @@ class ColoursRandomizer
     }
 
     /*******************************************************/
+    static void
+    RestoreVehicleColourData (CCustomShaderEffectVehicle *shader, CVehicle *veh)
+    {
+        try
+            {
+                auto & data    = mColourData.at (veh);
+                CARGB *colours = shader->GetColours ();
+
+                for (int i = 0; i < 4; i++)
+                    colours[i] = data.Colours[i];
+            }
+        catch (std::out_of_range &e)
+            {
+            }
+    }
+
+    /*******************************************************/
+    static bool
+    StoreVehicleColourData (CCustomShaderEffectVehicle *shader, CVehicle *veh)
+    {
+        auto & data    = mColourData[veh];
+        CARGB *colours = shader->GetColours ();
+
+        bool changed = false;
+        for (int i = 0; i < 4; i++)
+            if (std::exchange (data.Colours[i], colours[i]) != colours[i])
+                changed = true;
+
+        return changed;
+    }
+
+    /*******************************************************/
     static uint32_t
     RandomizeVehicleColour (CCustomShaderEffectVehicle *shader, CVehicle *veh)
     {
-        uint32_t ret = CCustomShaderEffectVehicle_SetForVehicle_134 (shader, veh);
-        CARGB *  colours = shader->GetColours ();
+        RestoreVehicleColourData (shader, veh);
 
-        for (int i = 0; i < 4; i++)
+        uint32_t ret
+            = CCustomShaderEffectVehicle_SetForVehicle_134 (shader, veh);
+        CARGB *colours = shader->GetColours ();
+
+        if (StoreVehicleColourData (shader, veh))
             {
-                using Rainbomizer::HSL;
-                
-                colours[i]
-                    = HSL (RandomFloat (360), 1.0, RandomFloat (1.0)).ToARGB ();
+                for (int i = 0; i < 4; i++)
+                    {
+                        using Rainbomizer::HSL;
+
+                        colours[i]
+                            = HSL (RandomFloat (360), 1.0, RandomFloat (1.0))
+                                  .ToARGB ();
+                    }
             }
 
         return ret;
@@ -71,17 +119,14 @@ public:
         // ---------
         if (RandomizeCarColours)
             {
-                auto addr = GetPatterns (
-                    {{"08 55 53 56 57 ? 54 ? 55 ? 56 ? 57 ? 8b ec "
-                      "? 83 ec 58 ? 83 c8 ff",
-                      -4},
-                     {"40 55 53 56 57 ? 54 ? 55 ? 56 ? 57 ? 8b ec "
-                      "? 83 ec 58 ? 83 c8 ff",
-                      0}});
+                void *addr = hook::get_pattern (
+                    "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7);
 
                 RegisterJmpHook<13> (
-                    addr, CCustomShaderEffectVehicle_SetForVehicle_134,
+                    injector::GetBranchDestination (addr).get<void> (),
+                    CCustomShaderEffectVehicle_SetForVehicle_134,
                     RandomizeVehicleColour);
+                //RegisterHook (addr, RandomizeVehicleColour);
             }
     }
 } _cols;

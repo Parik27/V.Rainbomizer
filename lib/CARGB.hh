@@ -21,4 +21,17 @@ struct CARGB
         this->g = g;
         this->b = b;
     }
+
+    CARGB () = default;
+
+    bool
+    operator== (const CARGB &rhs) const
+    {
+        return rhs.colour == this->colour;
+    }
+    bool
+    operator!= (const CARGB &rhs) const
+    {
+        return !(rhs == *this);
+    }
 };

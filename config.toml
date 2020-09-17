@@ -1,4 +1,3 @@
-const char configDefault[] = R"(
 ########################################################
 
 # Rainbomizer for V
@@ -64,4 +63,3 @@ ForceSeedOnSaves = false
 
 ForcedMission = "" # All missions will start this instead of a random mission.
 
-)";

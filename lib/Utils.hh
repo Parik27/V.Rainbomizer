@@ -62,7 +62,7 @@ GetAtOffset (C* classInst, int offset)
 template <typename T>
 std::pair<void *, const T &>
 GetPatternsAndData (
-    std::vector<std::tuple<std::string, uint32_t, const T &>> patterns)
+    std::vector<std::tuple<std::string, int, const T &>> patterns)
 {
     for (auto &[pattern, offset, data] : patterns)
         {
@@ -70,13 +70,13 @@ GetPatternsAndData (
             if (p.size ())
                 return std::pair (p.get_first (offset), data);
         }
-    
-    return std::pair (nullptr, T());
+
+    return std::pair (nullptr, T ());
 }
 
 /*******************************************************/
 inline void *
-GetPatterns (std::vector<std::pair<std::string, uint32_t>> patterns)
+GetPatterns (std::vector<std::pair<std::string, int>> patterns)
 {
     for (auto &[pattern, offset] : patterns)
         {
@@ -84,7 +84,7 @@ GetPatterns (std::vector<std::pair<std::string, uint32_t>> patterns)
             if (p.size ())
                 return p.get_first (offset);
         }
-    
+
     return nullptr;
 }
 

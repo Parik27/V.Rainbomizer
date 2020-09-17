@@ -10,6 +10,12 @@ struct audMetadataObjectMapItem
     uint32_t m_nObjectName;
 };
 
+struct audMetadataRef
+{
+    uint32_t Offset;
+};
+static_assert (sizeof (audMetadataRef) == 4, "audMetadataRef size incorrect");
+
 struct audMetadataChunk
 {
     uint32_t                  m_nHash;
@@ -31,7 +37,7 @@ struct audMetadataChunk
     // For iterating over the chunk
     template <typename T, typename F>
     void
-    for_each (F func)
+    ForEach (F func)
     {
         for (size_t i = 0; i < m_nObjectMapSize; i++)
             func ((T *) ((char *) m_pObjectData
@@ -97,10 +103,10 @@ struct audMetadataMgr
     // For iterating over all the metadatas
     template <typename T, typename F>
     void
-    for_each (F func)
+    ForEach (F func)
     {
         for (size_t i = 0; i < Chunks.Size; i++)
-            Chunks.Data[i].for_each<T> (func);
+            Chunks.Data[i].ForEach<T> (func);
     }
 
     bool
@@ -126,6 +132,15 @@ struct audMetadataMgr
             }
 
         return ret;
+    }
+
+    void *FindObjectPtr (audMetadataRef ref);
+
+    template <typename T>
+    T *
+    FindObjectPtr (audMetadataRef ref)
+    {
+        return (T *) FindObjectPtr (ref);
     }
 
     // CRITICAL_SECTION m_Mutex;
