@@ -93,7 +93,7 @@ public:
     uint8_t field_0x178[4];
     uint32_t m_nPedVoiceGroup;
     uint32_t m_nAnimalAudioObject;
-    uint8_t field_0x184[4];
+    uint32_t m_nCombatInfo; // Confirmed
     uint32_t m_nSexiness;
     uint8_t field_0x18c[4];
     uint8_t m_bAge;
@@ -114,25 +114,37 @@ public:
     uint64_t field_0x220[6];
     uint32_t m_nAmbientClipsForFlee;
     uint8_t field_0x234[12];
-    uint32_t m_nMotionTaskDataSetName;
-    uint32_t m_nDefaultTaskDataSetName;
-    uint32_t m_nPedCapsuleName;
-    uint32_t m_nPedLayoutName;
-    uint32_t m_nPedComponentSetName;
-    uint32_t m_nPedComponentClothName;
-    uint32_t m_nPedIKSettingsName;
-    uint32_t m_nTaskDataName;
-    uint32_t m_nDecisionMakerName;
-    uint32_t m_nRelationshipGroup;
-    uint32_t m_nNewCapabilitiesName;
-    uint32_t m_nPerceptionInfo;
-    uint32_t m_nDefaultBrawlingStyle;
-    uint32_t m_nDefaultUnarmedWeapon;
+
+    // This struct is obviously not in the original game, but it's just to make
+    // it easier to increase patch compatibility without getting a pattern for
+    // each one of these type. It's unlikely that any field will be added in the
+    // middle of these fields.
+    
+    struct InitInfo
+    {
+        uint32_t m_nMotionTaskDataSetName;
+        uint32_t m_nDefaultTaskDataSetName;
+        uint32_t m_nPedCapsuleName;
+        uint32_t m_nPedLayoutName;
+        uint32_t m_nPedComponentSetName;
+        uint32_t m_nPedComponentClothName;
+        uint32_t m_nPedIKSettingsName;
+        uint32_t m_nTaskDataName;
+        uint32_t m_nDecisionMakerName;
+        uint32_t m_nRelationshipGroup;
+        uint32_t m_nNavCapabilitiesName;
+        uint32_t m_nPerceptionInfo;
+        uint32_t m_nDefaultBrawlingStyle;
+        uint32_t m_nDefaultUnarmedWeapon;
+    } _info;
+    
     uint8_t field_0x278[6];
     uint8_t m_nFlags;
     uint8_t field_0x27f;
     uint8_t m_nFlags2;
     uint8_t field_0x281[15];
+
+    InitInfo& GetInitInfo ();
 };
 
 static_assert (sizeof (CBaseModelInfo) == 176, "Incorect BaseModelInfo size");

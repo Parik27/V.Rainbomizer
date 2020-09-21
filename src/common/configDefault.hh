@@ -31,6 +31,7 @@ VoiceLineRandomizer = true
 SfxRandomizer = true
 WeatherRandomizer = true
 MissionRandomizer = true
+PedRandomizer = true
 
 #######################################################
 [ColourRandomizer]
@@ -64,4 +65,8 @@ ForceSeedOnSaves = false
 
 ForcedMission = "" # All missions will start this instead of a random mission.
 
+#######################################################
+[PedRandomizer]
+
+ForcedPed = ""
 )";

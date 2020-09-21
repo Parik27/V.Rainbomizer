@@ -57,6 +57,21 @@ CVehicleModelInfo::GetVehicleType ()
 }
 
 /*******************************************************/
+CPedModelInfo::InitInfo &
+CPedModelInfo::GetInitInfo ()
+{
+    static uint32_t nPedCapsuleNameIndex = *hook::get_pattern<uint32_t> (
+        "8b ? ? ? ? ? ? 85 d2 74 ? 0f b7 05 ? ? ? ? 8b d6", 2);
+
+    return *GetAtOffset<InitInfo> (this, nPedCapsuleNameIndex
+                                             - offsetof (InitInfo,
+                                                         m_nPedCapsuleName));
+
+    static_assert (offsetof (InitInfo, m_nPedCapsuleName) == 8,
+                   "PedCapsuleName at wrong offset");
+}
+
+/*******************************************************/
 char*
 CVehicleModelInfo::GetGameName()
 {
