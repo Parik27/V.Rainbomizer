@@ -181,7 +181,7 @@ public:
     {
 
         std::string ForcedPed;
-        if (!ConfigManager::ReadConfig ("PedRandomized",
+        if (!ConfigManager::ReadConfig ("PedRandomizer",
                                         std::pair ("ForcedPed", &ForcedPed)))
             return;
 

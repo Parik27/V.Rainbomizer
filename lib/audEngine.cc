@@ -2,11 +2,18 @@
 #include "Utils.hh"
 
 void *(*audMetadataManager_GetObjectByRef) (audMetadataMgr *, audMetadataRef);
+void *(*audSound_DecompressMetadata_Untyped) (rage::Sound *, rage::Sound *);
 
 void *
 audMetadataMgr::FindObjectPtr (audMetadataRef ref)
 {
     return audMetadataManager_GetObjectByRef (this, ref);
+}
+
+void *
+audSound::DecompressMetadata_Untyped (rage::Sound *inp, rage::Sound *out)
+{
+    return audSound_DecompressMetadata_Untyped (inp, out);
 }
 
 void
@@ -18,6 +25,10 @@ audEngine::InitialisePatterns ()
     ConvertCall (hook::get_pattern (
                      "8d 42 01 ? 8b c9 a9 fe ff ff ff 75 ? 33 c0"),
                  audMetadataManager_GetObjectByRef);
+
+    ConvertCall (hook::get_pattern (
+                     "33 c0 ? 8b c9 ? 8d 41 05 88 42 3c 66 89 42 09"),
+                 audSound_DecompressMetadata_Untyped);
 }
 
 audMetadataMgr *audSpeechManager::sm_MetadataMgr;

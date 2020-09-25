@@ -4,6 +4,87 @@
 #include <cstdint>
 #include <cstddef>
 
+enum class audSoundType : uint8_t
+{
+    audLoopingSound               = 1,
+    audEnvelopeSound              = 2,
+    audTwinLoopSound              = 3,
+    audSpeechSound                = 4,
+    audOnStopSound                = 5,
+    audWrapperSound               = 6,
+    audSequentialSound            = 7,
+    audStreamingSound             = 8,
+    audRetriggeredOverlappedSound = 9,
+    audCrossfadeSound             = 10,
+    audCollapsingStereoSound      = 11,
+    audSimpleSound                = 12,
+    audMultitrackSound            = 13,
+    audRandomizedSound            = 14,
+    audEnvironmentSound           = 15,
+    audDynamicEntitySound         = 16,
+    audSequentialOverlapSound     = 17,
+    audModularSynthSound          = 18,
+    audGranularSound              = 19,
+    audDirectionalSound           = 20,
+    audKineticSound               = 21,
+    audSwitchSound                = 22,
+    audVariableCurveSound         = 23,
+    audVariablePrintValueSound    = 24,
+    audVariableBlockSound         = 25,
+    audIfSound                    = 26,
+    audMathOperationSound         = 27,
+    audParameterTransformSound    = 28,
+    audFluctuatorSound            = 29,
+    audAutomationSound            = 30,
+    audExternalStreamSound        = 31,
+    audSoundSet                   = 32,
+};
+
+namespace rage {
+struct Sound
+{
+    audSoundType Type;
+    uint32_t     DataFlags;
+    uint32_t     Flags = 0xaaaaaaaa;
+    uint16_t     field_0x9;
+    int16_t      Volume;
+    uint16_t     VolumeVariance;
+    int16_t      Pitch;
+    uint16_t     PitchVariance;
+    int16_t      Pan;
+    uint16_t     PanVariance;
+    uint16_t     Predelay;
+    uint16_t     PredelayVariance;
+    int32_t      StartOffset;
+    int32_t      StartOffsetVariance;
+    uint16_t     AttackTime;
+    int16_t      HoldTime;
+    int16_t      ReleaseTime;
+    uint32_t     Category;
+    uint16_t     field_0x2d;
+    uint16_t     field_0x2f;
+    uint16_t     field_0x31;
+    uint16_t     field_0x33;
+    uint32_t     VolumeCurve;
+    int16_t      VolumeCurveScale;
+    uint8_t      field_0x3b;
+    uint8_t      SpeakerMask;
+    uint8_t      field_0x3d;
+    int32_t      VolumeVariable;
+    int32_t      PitchVariable;
+    int16_t      field_0x46;
+    int16_t      field_0x48;
+    uint8_t      field_0x4a;
+};
+}; // namespace rage
+
+class audSound
+{
+public:
+    static void *DecompressMetadata_Untyped (rage::Sound *inp,
+                                             rage::Sound *out);
+};
+
 struct audMetadataObjectMapItem
 {
     uint32_t m_nObjectOffset;

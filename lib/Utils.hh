@@ -194,3 +194,22 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     uint32_t offset = *hook::get_pattern<uint32_t> (pattern, dataOffset);
     return (T *) (hook::getRVA (offset));
 }
+
+/*******************************************************/
+/* Macro to facilitate a hook
+   Define a function like this:
+
+   template<auto &O>
+   Ret HookedFunction (...)
+   {
+   }
+
+   Then register the hook like
+   REGISTER_HOOK (Pattern, Offset, HookedFunction, Signature);
+*/
+/*******************************************************/
+#define REGISTER_HOOK(pattern, offset, function, ret, ...)                     \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterHook (pattern, offset, F, function<F>);                        \
+    }

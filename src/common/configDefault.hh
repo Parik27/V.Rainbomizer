@@ -29,6 +29,7 @@ CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
+MusicRandomizer = true
 WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
