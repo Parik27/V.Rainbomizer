@@ -193,10 +193,10 @@ struct audMetadataMgr
     bool
     DoesObjectExist (uint32_t name)
     {
-        for (size_t i = 0; i < Chunks.Size; i++)
-            if (Chunks.Data[i].DoesObjectExist(name))
+        for (auto &i : Chunks)
+            if (i.DoesObjectExist (name))
                 return true;
-        
+
         return false;
     }
 

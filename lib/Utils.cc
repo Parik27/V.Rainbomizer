@@ -15,6 +15,8 @@
 #include "CWeather.hh"
 #include "CTimecycle.hh"
 #include "sysMemoryAllocator.hh"
+#include "ParserUtils.hh"
+#include "CHandlingDataMgr.hh"
 
 #include "Utils.hh"
 
@@ -105,6 +107,11 @@ InitialiseAllComponents ()
     CWeather::InitialisePatterns ();
     tcManager::InitialisePatterns ();
     sysUseAllocator::InitialisePatterns ();
+    CHandlingDataMgr::InitialisePatterns ();
+
+#ifndef NO_PARSER_UTILS
+    ParserUtils::Register ();
+#endif
 
     InitialiseNatives();
     

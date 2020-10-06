@@ -50,9 +50,8 @@ class ExceptionHandler_Threads : public ExceptionHandler
         if (!CTheScripts::aThreads || !CTheScripts::aThreads->Data)
             return;
 
-        for (int i = 0; i < CTheScripts::aThreads->Size; i++)
+        for (auto thread : *CTheScripts::aThreads)
             {
-                auto thread = CTheScripts::aThreads->Data[i];
                 if (thread->m_Context.m_nThreadId == 0
                     || thread->m_Context.m_nState == eScriptState::KILLED)
                     continue;

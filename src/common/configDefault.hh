@@ -33,6 +33,7 @@ MusicRandomizer = true
 WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
+HandlingRandomizer = true
 
 #######################################################
 [ColourRandomizer]
