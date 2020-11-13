@@ -75,11 +75,11 @@ class ExceptionHandler_Threads : public ExceptionHandler
 
                 // Frame Stack (top of the stack frame contains local
                 // variables)
-                uint32_t *FSP = &thread->m_pStack[thread->m_Context.m_nFrameSP];
+                uint64_t *FSP = &thread->m_pStack[thread->m_Context.m_nFrameSP];
 
                 char stack[128] = {0};
                 for (int i = 0; i < 8; i++)
-                    sprintf (stack + strlen (stack), "%06x ", *(FSP++));
+                    sprintf (stack + strlen (stack), "%06llx ", *(FSP++));
 
                 Logger::LogMessage("%s\n", stack);
                 DumpStatics (thread);

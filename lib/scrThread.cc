@@ -3,7 +3,10 @@
 #include <utility>
 #include <array>
 #include <sstream>
+
+#ifdef ENABLE_DEBUG_SERVER
 #include <fmt/core.h>
+#endif
 
 class gBaseScriptDirectory;
 

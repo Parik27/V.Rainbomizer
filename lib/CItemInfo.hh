@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "ParserUtils.hh"
 
 class CItemInfo;
 
@@ -42,33 +43,31 @@ public:
 };
 
 // Class not filled because of discrepencies between versions
-class CWeaponInfo : public CItemInfo
+class CWeaponInfo : public CItemInfo, public ParserWrapper<"CWeaponInfo"_joaat>
 {
 };
+
+using CWeaponInfoBlob = ParserWrapper<"CWeaponInfoBlob"_joaat>;
 
 class CWeaponInfoManager
 {
 public:
-    char                    field_0x0[16][4];
-    CWeaponInfo **          m_paInfos;
-    int16_t                 m_nInfosCount;
-    int16_t                 m_nInfosCapacity;
-    uint8_t                 field_0x4c[4];
-    struct CWeaponInfoBlob *m_paBlobs;
-    uint16_t                m_nBlobsCount;
-    int16_t                 m_nBlobsCapacity;
-    uint8_t                 field_0x5c[36];
-    uint32_t                field_0x80;
-    uint8_t                 field_0x84[4];
-    uint64_t                field_0x88;
-    uint32_t                field_0x90;
+    char                     field_0x0[16][4];
+    atArray<CWeaponInfo *>   aWeaponInfos;
+    uint8_t                  field_0x4c[4];
+    atArray<CWeaponInfoBlob> aBlobs;
+    uint8_t                  field_0x5c[36];
+    uint32_t                 field_0x80;
+    uint8_t                  field_0x84[4];
+    uint64_t                 field_0x88;
+    uint32_t                 field_0x90;
 
     static CWeaponInfoManager *sm_Instance;
 
     inline static CWeaponInfo *
     GetInfoFromIndex (int index)
     {
-        return sm_Instance->m_paInfos[index];
+        return sm_Instance->aWeaponInfos[index];
     }
 
     static void InitialisePatterns ();

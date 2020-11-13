@@ -4,6 +4,9 @@
 #include <type_traits>
 #include "rage.hh"
 #include "scrThread.hh"
+#include <unordered_map>
+#include <memory>
+#include <string>
 
 class CTheScripts
 {
@@ -16,11 +19,12 @@ public:
 class NativeManager
 {
     using NativeFunc = void(*)(scrThread::Info*);
-    
-    inline static struct
+
+    struct ScriptHookInfo
     {
         std::unordered_map<uint32_t, NativeFunc> mNatives;
-    } m_ScriptHookInfo;
+    };        
+    inline static ScriptHookInfo m_ScriptHookInfo;
 
     static int FindNativesTableWidth (uint64_t*);
     static int FindNativesVersionOffset (uint64_t*, uint32_t);

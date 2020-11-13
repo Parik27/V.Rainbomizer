@@ -1,13 +1,10 @@
 cmake_minimum_required(VERSION 3.1.5)
 project(rainbomizer_v)
 
+option(ENABLE_DEBUG_SERVER "Enables a webserver for debugging purposes")
+
 # C++20
 if (MSVC_VERSION GREATER_EQUAL "1900")
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
-  if (_cpp_latest_flag_supported)
-    add_compile_options("/std:c++latest")
-  endif()
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   # Because CMAKE_MSVC_RUNTIME_LIBRARY doesn't work for whatever reason
   set(CompilerFlags
@@ -27,9 +24,22 @@ set (CMAKE_CXX_STANDARD 17)
 
 # Sources
 include_directories(include lib src)
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cc lib/*.cc lib/Patterns/*.cpp)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+  src/common/*.cc
+  src/exceptions/*.cc
+  src/misc/*.cc
+  src/mission/*.cc
+  src/sounds/*.cc
+  src/vehicles/*.cc
+  src/weapons/*.cc
+  lib/*.cc
+  lib/Patterns/*.cpp)
 
-add_library("rainbomizer" SHARED ${SOURCES})
+add_library("rainbomizer" SHARED ${SOURCES} )
+
+if (ENABLE_DEBUG_SERVER)
+  include(cmake/DebugServer.cmake)
+endif()
 
 # Properties
 set_target_properties("rainbomizer" PROPERTIES SUFFIX ".asi")

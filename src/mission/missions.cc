@@ -233,11 +233,6 @@ class MissionRandomizer
     {
         switch (program->m_nScriptHash)
             {
-            case "martin1"_joaat:
-            case "carsteal1"_joaat:
-                MakeMissionThinkItsAReplay (program);
-                break;
-
             case "flow_controller"_joaat:
                 YscUtils utils (program);
                 utils.FindCodePattern ("5e ? ? ? 25 08 2c 08 ? ? 55 ? ? ",

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <cstdint>
 #include <type_traits>
 
@@ -112,9 +113,33 @@ public:
         else
             bits = bits & ~(1 << (pos % 32));
     }
-};
-
+};    
 } // namespace rage
+
+/* Not a part of rage */
+template <typename T, int capacity> class CyclicContainer
+{
+    std::deque<T> m_Internal{};
+    bool m_Full = false;
+
+public:
+    void
+    Push (const T &value)
+    {
+        if (m_Full)
+            {
+                m_Internal.pop_front ();
+            }
+        m_Internal.push_back (value);
+        m_Full = m_Internal.size () >= capacity;
+    }
+
+    inline const std::deque<T>
+    Get () const
+    {
+        return m_Internal;
+    }
+};
 
 constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
 {

@@ -85,9 +85,8 @@ class WeaponRandomizer
         // These models are exempt from randomization
         const std::vector<uint32_t> mExceptions = {};
 
-        for (int i = 0; i < CWeaponInfoManager::sm_Instance->m_nInfosCount; i++)
+        for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
             {
-                auto     info      = CWeaponInfoManager::GetInfoFromIndex (i);
                 uint32_t modelHash = info->GetModelHash ();
 
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
@@ -106,10 +105,8 @@ class WeaponRandomizer
     static void
     PrintWeaponList ()
     {
-        for (int i = 0; i < CWeaponInfoManager::sm_Instance->m_nInfosCount; i++)
+        for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
             {
-                auto info = CWeaponInfoManager::sm_Instance->m_paInfos[i];
-
                 Rainbomizer::Logger::LogMessage (
                     "classId => %x, modelId = %x, name = %x",
                     info->GetClassId (), info->GetModelHash (), info->Name);

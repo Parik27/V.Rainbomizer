@@ -16,6 +16,12 @@ constexpr int RAINBOMIZER_BUILD_NUMBER =
 
 char *(*rage__formatf6eb9) (char *, char const *, ...);
 
+#ifdef ENABLE_DEBUG_SERVER
+
+#include "debug/logger.hh"
+
+#endif
+
 namespace Rainbomizer {
 
 /*******************************************************/
@@ -67,13 +73,23 @@ Logger::LogMessage (const char *format, ...)
 
     va_list args;
     va_start (args, format);
-    vfprintf (file, format, args);
+    unsigned int size = vfprintf (file, format, args) + 1;
     va_end (args);
+
+#ifdef ENABLE_DEBUG_SERVER
+    std::unique_ptr<char[]> buf (new char[size]);
+    va_start (args, format);
+    vsnprintf (buf.get (), size, format, args);
+    va_end (args);
+
+    LoggerDebugInterface::PublishLogMessage (buf.get ());
+#endif
 
     fputc ('\n', file);
     fflush (file);
 }
 
+    /*******************************************************/
 class DisplayBuildVersion
 {
     static char *
@@ -87,7 +103,6 @@ class DisplayBuildVersion
 public:
     DisplayBuildVersion ()
     {
-        //? 8d ? ? ? ? ? ? 8d ? ? 30 ? 8b c0 e8 ? ? ? ? ? 8d ? ? 30 b2 01
         RegisterHook (
             "? 8d ? ? ? ? ? ? 8d ? ? 30 ? 8b c0 e8 ? ? ? ? ? 8d ? ? 30 b2 01",
             15, rage__formatf6eb9, AppendBuildVersion);
