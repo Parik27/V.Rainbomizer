@@ -1,5 +1,6 @@
 #include "Natives.hh"
 #include "Utils.hh"
+#include <CTheScripts.hh>
 
 int (*__CREATE_CAR) (uint32_t hash, Vector3_native *coords, double heading,
                      bool isNetwork, bool thisScriptCheck);

@@ -64,7 +64,7 @@ struct scrProgram
     T &
     GetCodeByte (uint32_t offset)
     {
-        return *(T *) &(*m_pCodeBlocks)[offset / 0x4000][offset % PAGE_SIZE];
+        return *(T *) &(*m_pCodeBlocks)[offset / PAGE_SIZE][offset % PAGE_SIZE];
     }
 
     static inline int
@@ -103,6 +103,7 @@ struct scrProgram
     }
 
     static scrProgram *FindProgramByHash (uint32_t hash);
+    bool InitNativesTable ();
 };
 
 class scrThread
@@ -110,12 +111,68 @@ class scrThread
 public:
     void *           vft;
     scrThreadContext m_Context;
-    uint32_t *       m_pStack;
+    uint64_t *       m_pStack;
     uint8_t          field_0xb8[24];
     char             m_szScriptName[64]; // TODO: Move to GtaThread
 
+    class Info
+    {
+        void **  m_Ret;
+        uint32_t m_Argc;
+        void **  m_Args;
+
+        alignas (uintptr_t) uint8_t m_VectorSpace[192];
+
+        // Custom Storage
+        inline static const uint32_t MAX_PARAMS = 24;
+
+        uint8_t m_StackSpace[MAX_PARAMS * sizeof (void *)] = {0};
+
+    public:
+        Info (Info const &) = delete;
+        Info &operator= (Info const &) = delete;
+
+        template <typename T = uint64_t>
+        inline T &
+        GetArg (std::uint8_t n)
+        {
+            return *(T *) &m_Args[n];
+        }
+
+        template <typename T = uint64_t>
+        inline T &
+        GetReturn (std::uint8_t n = 0)
+        {
+            return *(T *) &m_Args[n];
+        }
+
+        template <typename T> void PushArg (T arg)
+        {
+            GetArg<T> (m_Argc++) = arg;
+        }
+        
+        template <typename... Args> Info (Args... args)
+        {
+            m_Ret  = (void **) &m_StackSpace[MAX_PARAMS - 1];
+            m_Args = (void **) &m_StackSpace[0];
+            m_Argc = sizeof...(args);
+
+            uint32_t n = 0;
+            (..., PushArg (args));
+        }
+    };
+
     static scrThread **      sm_pActiveThread;
     static inline uint64_t **sm_pGlobals;
+
+    inline bool
+    IsYscScript ()
+    {
+        scrProgram *program = GetProgram ();
+        if (program)
+            return program->m_nCodeSize;
+        return false;
+    }
 
     static inline uint64_t *&
     GetGlobals ()
@@ -127,7 +184,7 @@ public:
     static inline T &
     GetGlobal (uint32_t index)
     {
-        return *(T *) (&GetGlobals()[index]);
+        return *(T *) (&GetGlobals ()[index]);
     }
 
     static inline scrThread *&
@@ -136,11 +193,14 @@ public:
         return *sm_pActiveThread;
     }
 
-    scrProgram* GetProgram ();
+    scrProgram *GetProgram ();
 
-    static uint16_t FindInstSize (scrProgram *program, uint32_t offset);
-    static char *DisassemblInsn (char *out, scrProgram *program,
-                                 uint32_t offset, uint32_t bufferLimit = 1024);
+    static uint16_t    FindInstSize (scrProgram *program, uint32_t offset);
+    static std::string DisassemblInsn (scrProgram *program, uint32_t offset,
+                                       uint32_t bufferLimit = 1024);
+
+    std::pair<uint32_t, uint32_t> FindCurrentFunctionBounds (scrProgram *program
+                                                             = nullptr);
 
     static void InitialisePatterns ();
 };

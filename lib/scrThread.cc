@@ -2,6 +2,8 @@
 #include "Utils.hh"
 #include <utility>
 #include <array>
+#include <sstream>
+#include <fmt/core.h>
 
 class gBaseScriptDirectory;
 
@@ -138,6 +140,7 @@ std::array<std::pair<const char *, const char *>, 127> mOpcodes
 gBaseScriptDirectory *scrProgramDirectory;
 scrProgram *(*scrProgramRegistry__FindProgramByHash) (gBaseScriptDirectory *,
                                                       uint32_t);
+bool (*scrProgram_InitNativesTable) (scrProgram *);
 
 /*******************************************************/
 scrProgram *
@@ -147,10 +150,45 @@ scrProgram::FindProgramByHash (uint32_t hash)
 }
 
 /*******************************************************/
+bool
+scrProgram::InitNativesTable()
+{
+    return scrProgram_InitNativesTable (this);
+}
+
+/*******************************************************/
 scrProgram *
 scrThread::GetProgram ()
 {
     return scrProgram::FindProgramByHash (this->m_Context.m_nScriptHash);
+}
+
+/*******************************************************/
+std::pair<uint32_t, uint32_t>
+scrThread::FindCurrentFunctionBounds (scrProgram *program)
+{
+    const int ENTER_OPCODE = 45;
+    const int LEAVE_OPCODE = 46;
+
+    uint32_t start = 0, end = program->m_nCodeSize;
+
+    for (int ip = 0; ip < program->m_nCodeSize;
+         ip += FindInstSize (program, ip))
+        {
+            uint8_t opcode = program->GetCodeByte<uint8_t> (ip);
+
+            if (opcode == ENTER_OPCODE)
+                start = ip;
+            
+            else if (opcode == LEAVE_OPCODE)
+                {
+                    end = ip;
+                    if (ip >= this->m_Context.m_nIp)
+                        break;
+                }
+        }
+
+    return {start, end};
 }
 
 /*******************************************************/
@@ -184,11 +222,14 @@ scrThread::FindInstSize (scrProgram *program, uint32_t offset)
     return size;
 }
 
+#ifdef ENABLE_DEBUG_SERVER
 /*******************************************************/
-char *
-scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
+std::string
+scrThread::DisassemblInsn (scrProgram *program, uint32_t offset,
                            uint32_t bufferLimit)
 {
+    std::string out;
+    
     // Helper functions to get values to facilitate disassembly
     auto getByteAt = [program] (uint32_t offset) -> uint8_t & {
         return program->GetCodeByte<uint8_t> (offset);
@@ -203,16 +244,12 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
         return program->GetCodeByte<float> (offset);
     };
 
-    uint8_t opcode = getByteAt (offset);
-    sprintf (out, "%06d : %s", offset, mOpcodes[opcode].first);
+    uint8_t opcode = getByteAt (offset++);
+    out += fmt::format("{:06} : {}", offset, mOpcodes[opcode].first);
 
     auto params = mOpcodes[opcode].second;
     for (int i = 0; i < strlen (params); i++)
         {
-            if (strlen (out) > bufferLimit - 24)
-                break;
-            
-            offset += 1;
             switch (params[i])
                 {
                     // String
@@ -227,23 +264,22 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
                         int16_t jOffset = getWordAt (offset);
                         offset += 2;
 
-                        sprintf (out + strlen (out), " %06d (%+d)",
-                                 offset + jOffset, jOffset);
+                        out += fmt::format (" {:06} (%{:+})", offset + jOffset,
+                                            jOffset);
                         break;
                     }
                     // Switch
                     case 'S': {
                         uint8_t numBranches = getByteAt (offset++);
-                        sprintf (out + strlen (out), " [%d]", numBranches);
+                        out += fmt::format (" [{}]", numBranches);
 
-                        const int MAX_BRANCHES = 5;
-                        for (int i = 0; i < numBranches && i < MAX_BRANCHES; i++)
+                        for (int i = 0; i < numBranches;
+                             i++)
                             {
                                 uint32_t id      = getDwordAt (offset);
                                 uint16_t jOffset = getWordAt (offset + 4);
 
-                                sprintf (out + strlen (out), " %d:%06d", id,
-                                         jOffset);
+                                out += fmt::format (" {}:{:06}", id, jOffset);
 
                                 offset += 6;
                             }
@@ -252,16 +288,15 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
 
                     // Address?
                     case 'a': {
-                        sprintf (out + strlen (out), " %06d",
-                                 getDwordAt (offset) & 0xFFFFFF);
+                        out += fmt::format (" {:06}",
+                                            getDwordAt (offset) & 0xFFFFFF);
                         offset += 3;
                         break;
                     }
 
                     // Byte immediate
                     case 'b': {
-                        sprintf (out + strlen (out), " %d",
-                                 getByteAt (offset++));
+                        out += fmt::format (" {}", getByteAt (offset++));
                         break;
                     }
 
@@ -270,7 +305,7 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
                         uint32_t imm32 = getDwordAt (offset);
                         offset += 4;
 
-                        sprintf (out + strlen (out), " %d(0x%x)", imm32, imm32);
+                        out += fmt::format (" {0}(0x{0:x})", imm32);
                         break;
                     }
 
@@ -279,7 +314,7 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
                         float imm_f = getFloatAt (offset);
                         offset += 4;
 
-                        sprintf (out + strlen (out), " %f", imm_f);
+                        out += fmt::format (" {}", imm_f);
                         break;
                     }
 
@@ -288,7 +323,7 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
                         uint16_t imm16 = getWordAt (offset);
                         offset += 2;
 
-                        sprintf (out + strlen (out), " %d", imm16);
+                        out += fmt::format (" {}", imm16);
                         break;
                     }
 
@@ -297,7 +332,7 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
                         int16_t imm16 = getWordAt (offset);
                         offset += 2;
 
-                        sprintf (out + strlen (out), " %d", imm16);
+                        out += fmt::format (" {}", imm16);
                         break;
                     }
                 }
@@ -305,6 +340,7 @@ scrThread::DisassemblInsn (char *out, scrProgram *program, uint32_t offset,
 
     return out;
 }
+#endif
 
 /*******************************************************/
 void
@@ -325,6 +361,10 @@ scrThread::InitialisePatterns ()
                                      "? ? 8b 8d b0 00 00 00",
                                      14),
                   scrProgramRegistry__FindProgramByHash);
+
+        ReadCall (hook::get_pattern (
+                      "8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2),
+                  scrProgram_InitNativesTable);
     }
 }
 
