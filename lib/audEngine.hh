@@ -107,6 +107,11 @@ struct audMetadataChunk
     audMetadataObjectMapItem *m_pObjectMap;
     void *                    field_0x28;
     char *                    m_apStringTable;
+
+    // These fields were added in v1.0.2189.0
+    atArray<>                 m_RadioMusicFiles;
+    uint32_t                  field_0x30;    
+    
     uint32_t                  m_nNumStringsInStringTable;
     char *                    m_pStringTableStart;
     char *                    m_pStringTableEnd;
@@ -169,17 +174,14 @@ struct audMetadataChunk
     {
         return FindObjectPtrFromHash<void> (name) != nullptr;
     }
-};
 
-static_assert (sizeof (audMetadataChunk) == 104,
-               "audMetadataChunk is wrong size check align.");
-static_assert (offsetof (audMetadataChunk, m_bInitialised) == 96,
-               "m_bInitialised at wrong offset, check align");
+    static uint32_t GetSize ();
+};
 
 struct audMetadataMgr
 {
-    atArray<audMetadataChunk> Chunks;
-    uint8_t                   field_0xc[52];
+    atArrayGetSizeWrapper<audMetadataChunk> Chunks;
+    uint8_t                                 field_0xc[52];
 
     // For iterating over all the metadatas
     template <typename T, typename F>
@@ -187,7 +189,7 @@ struct audMetadataMgr
     ForEach (F func)
     {
         for (size_t i = 0; i < Chunks.Size; i++)
-            Chunks.Data[i].ForEach<T> (func);
+            Chunks[i].ForEach<T> (func);
     }
 
     bool
@@ -207,7 +209,7 @@ struct audMetadataMgr
         T *ret = nullptr;
         for (size_t i = 0; i < Chunks.Size; i++)
             {
-                ret = Chunks.Data[i].FindObjectPtrFromHash<T> (name);
+                ret = Chunks[i].FindObjectPtrFromHash<T> (name);
                 if (ret)
                     break;
             }

@@ -25,10 +25,10 @@ public:
     uint8_t  field_0x18[8];
     float    m_fWaitTime;
     uint8_t  field_0x24[44];
-    uint32_t field_0x50;
-    uint32_t field_0x54;
-    uint32_t field_0x58;
-    uint32_t field_0x5c;
+    uint32_t m_nStackSize;
+    uint32_t m_nTimerA;
+    uint32_t m_nTimerB;
+    uint32_t m_nTimerC;
     uint8_t  field_0x60[72];
 };
 
@@ -121,7 +121,7 @@ public:
         void **  m_Ret;
         uint32_t m_Argc;
         void **  m_Args;
-
+        
         alignas (uintptr_t) uint8_t m_VectorSpace[192];
 
         // Custom Storage
@@ -144,7 +144,7 @@ public:
         inline T &
         GetReturn (std::uint8_t n = 0)
         {
-            return *(T *) &m_Args[n];
+            return *(T *) &m_Ret[n];
         }
 
         template <typename T> void PushArg (T arg)
@@ -156,13 +156,10 @@ public:
         {
             m_Ret  = (void **) &m_StackSpace[MAX_PARAMS - 1];
             m_Args = (void **) &m_StackSpace[0];
-            m_Argc = sizeof...(args);
-
-            uint32_t n = 0;
             (..., PushArg (args));
         }
     };
-
+    
     static scrThread **      sm_pActiveThread;
     static inline uint64_t **sm_pGlobals;
 
@@ -181,7 +178,7 @@ public:
         return *sm_pGlobals;
     }
 
-    template <typename T>
+    template <typename T = uint64_t>
     static inline T &
     GetGlobal (uint32_t index)
     {

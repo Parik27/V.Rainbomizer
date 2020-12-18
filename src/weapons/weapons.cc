@@ -87,12 +87,14 @@ class WeaponRandomizer
 
         for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
             {
-                uint32_t modelHash = info->GetModelHash ();
+                uint32_t modelHash = info->Model;
 
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
 
+                uint32_t outHash = 0;
+                
                 if (modelHash && !DoesElementExist (mExceptions, info->Name)
-                    && info->GetClassId () == "cweaponinfo"_joaat)
+                    && info->GetClassId (outHash) == "cweaponinfo"_joaat)
                     mValidWeapons.push_back (info->Name);
             }
 
@@ -105,12 +107,12 @@ class WeaponRandomizer
     static void
     PrintWeaponList ()
     {
-        for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
-            {
-                Rainbomizer::Logger::LogMessage (
-                    "classId => %x, modelId = %x, name = %x",
-                    info->GetClassId (), info->GetModelHash (), info->Name);
-            }
+        // for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
+        //     {
+        //         Rainbomizer::Logger::LogMessage (
+        //             "classId => %x, modelId = %x, name = %x",
+        //             info->GetClassId (), info->GetModelHash (), info->Name);
+        //     }
     }
 
     /*******************************************************/

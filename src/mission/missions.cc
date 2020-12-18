@@ -7,6 +7,10 @@
 #include <Natives.hh>
 #include <CutSceneManager.hh>
 #include <common/config.hh>
+#include <CTheScripts.hh>
+#include <CLoadingScreens.hh>
+#include <common/common.hh>
+#include <map>
 
 /*
   Relevant Globals:
@@ -18,6 +22,8 @@
   offset F = stack size
 
  */
+
+using namespace NativeLiterals;
 
 class fwAssetStore;
 class CutSceneManager;
@@ -39,7 +45,7 @@ struct MissionDefinition
     uint8_t  field_0x48[200];
 };
 
-static_assert(sizeof(MissionDefinition) == 0x22 * 8);
+static_assert (sizeof (MissionDefinition) == 0x22 * 8);
 
 class MissionRandomizer
 {
@@ -57,6 +63,20 @@ class MissionRandomizer
 
         return m_Config;
     }
+
+    struct MissionAssociation
+    {
+        uint32_t           RandomizedHash;
+        uint32_t           OriginalHash;
+        MissionDefinition *RandomizedDefinition;
+        MissionDefinition *OriginalDefinition;
+    };
+
+    inline static int32_t g_CurrentMission = 0;
+    inline static int64_t g_PreviousCurrentMission = 0;
+    
+    // contains information about the new mission
+    inline static std::map<uint32_t, MissionAssociation> m_MissionAssociations;
 
     /*******************************************************/
     static void
@@ -78,49 +98,34 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
-    AdjustMissionTriggerCode (scrProgram *program)
+    InitialiseAssociations (MissionDefinition *missions, int totalMissions,
+                            bool init)
     {
-        YscUtils util (program);
+        if (init)
+            m_MissionAssociations.clear ();
 
-        
-        util.FindCodePattern ("38 02 42 08 61 5d ae 08 38 02 42 09 55 60 06",
-                              [] (hook::pattern_match match) {
-                                  *match.get<uint32_t> (-4) = 0x08569e61;
-                              });
-
-        util.FindCodePattern ("61 89 b3 08 38 02 42 0a 61 75 b1 08 38 02",
-                              [] (hook::pattern_match match) {
-                                  *match.get<uint32_t> (-4) = 0x08586661;
-                              });
-
-        util.FindString ("ARMENIAN_2_INT", [] (char *str) {
-            memcpy (str, "ARMENIAN_3_INT", strlen ("ARMENIAN_3_INT"));
-        });
-
-        
-        static const uint8_t SetupCB[]
-            = {0x2d, 0x00, 0x02, 0x00, 0x00, 0x6f, 0x2e, 0x00, 0x01};
-
-        util.FindCodePattern (
-            "2d 00 03 00 ? 2c ? 00 74 2c ? 00 53 06 56 82 02 3b ef ",
-            [] (hook::pattern_match match) {
-                memcpy (match.get<void> (0), SetupCB, sizeof (SetupCB));
-            });
-
-        //61 3b b8 08 38 02 42 05 61 80 b7 08 38 02
-        // util.FindCodePattern ("61 3b b8 08 38 02 42 05 61 80 b7 08 38 02",
-        //                       [&] (hook::pattern_match match) {
-        //                           *match.get<uint32_t> (0)
-        //                               = util.GetCodeOffset ((uint8_t *) newPage)
-        //                                     >> 8
-        //                                 & 0x61;
-        //                       });
+        for (int i = 0; i < totalMissions; i++)
+            {
+                MissionAssociation &assc = m_MissionAssociations[i];
+                if (init)
+                    {
+                        assc.OriginalHash       = missions[i].nThreadHash;
+                        assc.OriginalDefinition = &missions[i];
+                    }
+                else
+                    {
+                        assc.RandomizedHash       = missions[i].nThreadHash;
+                        assc.RandomizedDefinition = &missions[i];
+                    }
+            }
     }
 
     /*******************************************************/
     static void
     RandomizeMissions (MissionDefinition *missions, int totalMissions)
     {
+        InitialiseAssociations(missions, totalMissions, true);
+        
         for (int i = 0; i < totalMissions; i++)
             {
                 // Forced Mission Enabled
@@ -143,6 +148,8 @@ class MissionRandomizer
                            newMission.sMissionThread);
                 std::swap (missions[i].nThreadHash, newMission.nThreadHash);
             }
+
+        InitialiseAssociations(missions, totalMissions, false);
     }
 
     /*******************************************************/
@@ -151,8 +158,6 @@ class MissionRandomizer
     {
         YscUtils utils (program);
         uint32_t globalOffset = 0;
-
-        Rainbomizer::Logger::LogMessage ("%x", program->m_nScriptHash);
 
         // Find offset to gMissions (Not original name)
         utils.FindCodePattern (
@@ -202,19 +207,106 @@ class MissionRandomizer
 
     /*******************************************************/
     static bool
-    ProcessMissionFlow (scrProgram *program, scrThreadContext *ctx)
+    HandleOnMissionStartCommands (uint32_t originalMission,
+                                  uint32_t randomizedMission)
     {
+        // Most missions need this to not get softlocked.
+        if ("IS_CUTSCENE_ACTIVE"_n())
+            {
+                "REMOVE_CUTSCENE"_n();
+                return false;
+            }
+
+        switch (originalMission)
+            {
+                // Prologue - to prevent infinite loading.
+                case "prologue1"_joaat: {
+                    "SHUTDOWN_LOADING_SCREEN"_n();
+                    "DO_SCREEN_FADE_IN"_n(0);
+                    
+                    break;
+                }
+
+                // Armenian1 - player frozen at the start
+                case "armenian1"_joaat: {
+                    "DO_SCREEN_FADE_IN"_n(500);
+                    break;
+                }
+            }
+
         return true;
     }
 
+    /*******************************************************/
+    static bool
+    ProcessMissionFlow (scrProgram *program, scrThreadContext *ctx)
+    {
+        if (g_CurrentMission)
+            {
+                if (GetCurrentMission () != g_PreviousCurrentMission)
+                    {
+                        Rainbomizer::Logger::LogMessage (
+                            "g_CurrentMission changed: %d to %d",
+                            g_PreviousCurrentMission, GetCurrentMission ());
+
+                        g_PreviousCurrentMission = GetCurrentMission ();
+                    }
+            }
+
+        if (ctx->m_nIp == 0 && g_CurrentMission && GetCurrentMission () != -1)
+            {
+                try
+                    {
+                        auto &assoc
+                            = m_MissionAssociations.at (GetCurrentMission ());
+                        if (ctx->m_nScriptHash == assoc.RandomizedHash)
+                            {
+                                return HandleOnMissionStartCommands (
+                                    assoc.OriginalHash, assoc.RandomizedHash);
+                            }
+                    }
+                catch (...)
+                    {
+                    }
+            }
+
+        return true;
+    }
+
+    /*******************************************************/
+    static int64_t
+    GetCurrentMission ()
+    {
+        if (scrThread::GetGlobals())
+            return scrThread::GetGlobal<uint64_t>(g_CurrentMission);
+
+        return -1;
+    }
+    
     /*******************************************************/
     static eScriptState
     RunThreadHook (uint64_t *stack, uint64_t *globals, scrProgram *program,
                    scrThreadContext *ctx)
     {
-        ProcessMissionFlow (program, ctx);
+        if (ctx->m_nIp == 0
+            && program->m_nScriptHash == "flow_controller"_joaat)
+            {
+                YscUtils utils (program);
 
-        eScriptState state = scrThread_Runff6 (stack, globals, program, ctx);
+                // Find offset to g_CurrentMission (Not original name)
+                utils.FindCodePattern ("2c 04 ? ? 38 02 60 ? ? ? 2e 05 00",
+                                       [&] (hook::pattern_match m) {
+                                           // GLOBAL_U24 <imm24>
+                                           g_CurrentMission
+                                               = *m.get<uint32_t> (7)
+                                                 & 0xFFFFFF;
+                                       });
+                Rainbomizer::Logger::LogMessage("g_CurrentMission = %d", g_CurrentMission);
+            }
+
+        eScriptState state = ctx->m_nState;
+        if (ProcessMissionFlow (program, ctx))
+            state = scrThread_Runff6 (stack, globals, program, ctx);
 
         // standard_global_init initialises the gMissions (not actual name)
         // structure that stores the thread name/gxt entry etc.
@@ -223,7 +315,6 @@ class MissionRandomizer
             {
                 RandomizeMissions (program);
             }
-
         return state;
     }
 
@@ -277,8 +368,8 @@ public:
 
         RegisterHook ("e8 ? ? ? ? ? 8b c7 ? 8b c8 8b d3 e8", 13,
                       CutSceneManager_StartCutscene, LogStartCutscene);
-
-        RegisterHook ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
-                      scrProgram_InitNativeTablese188_, ApplyCodeChanges);
+        
+        // RegisterHook ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
+        //               scrProgram_InitNativeTablese188_, ApplyCodeChanges);
     }
 } missions;

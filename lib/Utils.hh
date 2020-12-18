@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <utility>
+#include <optional>
 
 template <typename Func, typename Addr>
 void
@@ -48,6 +49,14 @@ GetRandomElementMut (T& container)
     std::advance (it, RandomInt (std::size(container) - 1));
 
     return *it;
+}
+
+template <typename Map, typename Key>
+auto
+LookupMap (Map &m, const Key &k)
+{
+    auto it = m.find (k);
+    return it != m.end () ? &it->second : nullptr;
 }
 
 /*******************************************************/

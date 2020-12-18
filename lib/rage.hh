@@ -148,8 +148,7 @@ constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
 
 #pragma pack(push, 1)
 
-template<typename T>
-struct atArrayBase
+template <typename T> struct atArrayBase
 {
     T Data;
 
@@ -177,6 +176,45 @@ struct atArrayBase
     begin () const
     {
         return &(*this)[0];
+    }
+};
+
+template <typename T> struct atArrayGetSizeWrapperObject
+{
+    T *Data;
+
+    T &
+    operator[] (size_t ix)
+    {
+        return *reinterpret_cast<T *> (reinterpret_cast<char *> (Data)
+                                       + T::GetSize () * ix);
+    }
+
+    const T &
+    operator[] (size_t ix) const
+    {
+        return *reinterpret_cast<T *> (reinterpret_cast<char *> (Data)
+                                       + T::GetSize () * ix);
+    }
+};
+
+template <typename T = void *>
+struct atArrayGetSizeWrapper
+    : public atArrayBase<atArrayGetSizeWrapperObject<T>>
+{
+    uint16_t Size;
+    uint16_t Capacity;
+
+    constexpr T *
+    end ()
+    {
+        return &(*this)[Size];
+    }
+
+    constexpr const T *
+    end () const
+    {
+        return &(*this)[Size];
     }
 };
 

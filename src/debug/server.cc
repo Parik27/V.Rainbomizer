@@ -1,14 +1,11 @@
 #include "server.hh"
 #include "html/dashboard.html"
 #include "common/logger.hh"
+#include "common/common.hh"
 
 // Interfaces
 #include "debug/logger.hh"
 #include "debug/scripts.hh"
-
-struct UserData
-{
-};
 
 /*******************************************************/
 void
@@ -41,8 +38,25 @@ RainbomizerDebugServer::HandleMessage (WebSocket *ws, std::string_view msg,
             return;
         }
 
+    if (j["Type"] == "Subscribe")
+        ws->subscribe (j["Data"].get<std::string> ());
+    else if (j["Type"] == "Unsubscribe")
+        ws->unsubscribe (j["Data"].get<std::string> ());
+
     for (auto &i : Get ().m_Handlers)
-        i (ws, j);
+        {
+            try
+                {
+                    i (ws, j);
+                }
+            catch (std::out_of_range &e)
+                {
+                    ws->send (nlohmann::json ({{"Type", "Error"},
+                                               {"Topic", "*"},
+                                               {"Data", e.what ()}})
+                                  .dump ());
+                }
+        }
 }
 
 /*******************************************************/
@@ -50,10 +64,18 @@ void
 RainbomizerDebugServer::InitialiseWebSockets (uWS::App &app)
 {
     uWS::App::WebSocketBehavior settings = {};
-    settings.open    = [] (auto *ws) { ws->subscribe ("logs"); };
+    settings.open                        = [] (auto *ws) {
+        auto userData = static_cast<WebsocketUserData *> (ws->getUserData ());
+        userData->bValid     = std::make_shared<bool> (true);
+        userData->pWebSocket = ws;
+    };
+    settings.close = [] (auto *ws, int code, std::string_view message) {
+        auto userData = static_cast<WebsocketUserData *> (ws->getUserData ());
+        *userData->bValid = false;
+    };
     settings.message = HandleMessage;
 
-    app.ws<UserData> ("/ws/*", std::move (settings));
+    app.ws<WebsocketUserData> ("/ws/*", std::move (settings));
 }
 
 /*******************************************************/
@@ -93,11 +115,19 @@ RainbomizerDebugServer::InitialiseServer ()
         std::bind (&RainbomizerDebugServer::Process, this, std::ref (app)));
 
     app.run ();
+    Rainbomizer::Logger::LogMessage("Failed to listen");
 }
 
 /*******************************************************/
 RainbomizerDebugServer::RainbomizerDebugServer ()
 {
-    m_ServerThread = std::thread (
-        std::bind (&RainbomizerDebugServer::InitialiseServer, this));
+    Rainbomizer::Common::AddInitCallback ([this] (bool test) {
+        static bool initialised = false;
+        if (!std::exchange (initialised, true))
+            {
+                m_ServerThread = std::thread (
+                    std::bind (&RainbomizerDebugServer::InitialiseServer,
+                               this));
+            }
+    });
 }

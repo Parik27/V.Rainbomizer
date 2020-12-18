@@ -64,6 +64,7 @@ NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
                                               uint32_t offset)
 {
     std::vector<uint64_t> tmpHashes;
+    std::vector<uint64_t> origHashes;
 
     const int TOTAL_NATIVES = 5253;
     for (int i = 0; i < TOTAL_NATIVES; i++)
@@ -71,20 +72,20 @@ NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
             if (!table[i * step])
                 continue;
             tmpHashes.push_back (table[i * step + offset]);
+            origHashes.push_back (table[i * step]);
         }
 
-    auto cmds = GetCmdsFromHashes (tmpHashes);
-    FILE* test = fopen("test.txt", "w");
+    auto  cmds = GetCmdsFromHashes (tmpHashes);
     for (int i = 0; i < tmpHashes.size (); i++)
         {
-            
-            if (NativeTranslationMap.count (table[i * step])) {
-                m_ScriptHookInfo
-                    .mNatives[GetJoaatHashFromCmdHash (table[i * step])]
-                    = cmds[i];
-            }
+
+            if (NativeTranslationMap.count (origHashes[i]))
+                {
+                    m_ScriptHookInfo
+                        .mNatives[GetJoaatHashFromCmdHash (origHashes[i])]
+                        = cmds[i];
+                }
         }
-    fclose(test);
 }
 
 /*******************************************************/
