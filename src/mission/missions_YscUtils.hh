@@ -29,7 +29,7 @@ public:
             = m_pProgram->GetTotalPages (m_pProgram->m_nCodeSize);
         ExtendCode (totalPages * scrProgram::PAGE_SIZE);
 
-        return m_pProgram->m_pCodeBlocks[totalPages];
+        return &m_pProgram->m_pCodeBlocks[totalPages];
     }
 
     uint32_t GetCodeOffset (uint8_t* code);

@@ -136,6 +136,99 @@ ScriptDebugInterface::HandleWebSocketRequests (
 
                 break;
             }
+
+            case "set_global"_joaat: {
+                uint32_t globalIndex = req.at ("Index");
+                if (req.at ("Value").at ("Type") == "float")
+                    scrThread::GetGlobal<float> (globalIndex)
+                        = req.at ("Value").at ("Data").get<float> ();
+                else
+                    scrThread::GetGlobal (globalIndex)
+                        = req.at ("Value").at ("Data");
+            }
+            case "global"_joaat: {
+
+                uint32_t globalIndex = req.at("Index");
+
+                std::string globalStr
+                    = fmt::format ("Global {} = {}/{}", globalIndex,
+                                   scrThread::GetGlobal (globalIndex),
+                                   scrThread::GetGlobal<float> (globalIndex));
+
+                userData->Send ({{"Type", "Response"},
+                                 {"Topic", "Scripts"},
+                                 {"Data", "Global"},
+                                 {"Response", globalStr}});
+                break;
+            }
+
+            case "set_static"_joaat: {
+                uint32_t index = req.at ("Index");
+                if (auto captThread = LookupMap (m_Threads, threadId))
+                    {
+                        auto thread = captThread->m_Thread;
+                        if (req.at ("Value").at ("Type") == "float")
+                            thread->GetStaticVariable<float> (index)
+                                = req.at ("Value").at ("Data").get<float> ();
+                        else
+                            thread->GetStaticVariable (index)
+                                = req.at ("Value").at ("Data");
+                    }
+            }
+            case "static"_joaat: {
+                uint32_t localIndex = req.at ("Index");
+
+                if (auto captThread = LookupMap (m_Threads, threadId))
+                    {
+                        auto thread = captThread->m_Thread;
+
+                        std::string str = fmt::format (
+                            "Static {} = {}/{}", localIndex,
+                            thread->GetStaticVariable (localIndex),
+                            thread->GetStaticVariable<float> (localIndex));
+
+                        userData->Send ({{"Type", "Response"},
+                                         {"Topic", "Scripts"},
+                                         {"Data", "Static"},
+                                         {"Response", str}});
+                    }
+
+                break;
+            }
+
+            case "set_local"_joaat: {
+                uint32_t index = req.at ("Index");
+                if (auto captThread = LookupMap (m_Threads, threadId))
+                    {
+                        auto thread = captThread->m_Thread;
+                        if (req.at ("Value").at ("Type") == "float")
+                            thread->GetLocalVariable<float> (index)
+                                = req.at ("Value").at ("Data").get<float> ();
+                        else
+                            thread->GetLocalVariable (index)
+                                = req.at ("Value").at ("Data");
+                    }
+            }
+            case "local"_joaat: {
+                uint32_t localIndex = req.at ("Index");
+
+                if (auto captThread = LookupMap (m_Threads, threadId))
+                    {
+                        auto thread = captThread->m_Thread;
+
+                        std::string str = fmt::format (
+                            "Local {} = {}/{}", localIndex,
+                            thread->GetLocalVariable (localIndex),
+                            thread->GetLocalVariable<float> (localIndex));
+
+                        userData->Send ({{"Type", "Response"},
+                                         {"Topic", "Scripts"},
+                                         {"Data", "Local"},
+                                         {"Response", str}});
+                    }
+                break;
+            }
+
             case "capturethread"_joaat: {
                 uint32_t hash = rage::atStringHash (
                     req.at ("ThreadName").get<std::string> ().c_str ());
@@ -214,13 +307,10 @@ ScriptDebugInterface::CallNativeNow (
                 response = std::to_string (info.GetReturn<float> ());
         }
 
-    nlohmann::json res = {{"Type", "Response"},
-                          {"Topic", "Scripts"},
-                          {"Data", "InvokeNative"},
-                          {"Response", response}};
-
-    if (*data.bValid)
-        data.pWebSocket->send (res.dump (), uWS::OpCode::TEXT);
+    data.Send ({{"Type", "Response"},
+                {"Topic", "Scripts"},
+                {"Data", "InvokeNative"},
+                {"Response", response}});
 }
 
 /*******************************************************/

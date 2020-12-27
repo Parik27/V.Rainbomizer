@@ -34,26 +34,26 @@ YscUtils::FindString (const char *str, void (*CB) (char *))
 void
 YscUtils::ExtendCode (uint32_t newSize)
 {
-    uint32_t newNumPages  = scrProgram::GetTotalPages (newSize);
-    uint32_t origNumPages = scrProgram::GetTotalPages (m_pProgram->m_nCodeSize);
+    // uint32_t newNumPages  = scrProgram::GetTotalPages (newSize);
+    // uint32_t origNumPages = scrProgram::GetTotalPages (m_pProgram->m_nCodeSize);
 
-    if (origNumPages >= newNumPages)
-        return;
+    // if (origNumPages >= newNumPages)
+    //     return;
 
-    m_pProgram->m_nCodeSize = newSize;
+    // m_pProgram->m_nCodeSize = newSize;
 
-    auto newCodePages = (scrProgram::scrPage**) operator new[] (sizeof (scrProgram::scrPage*) * newNumPages);
-    std::copy_n (m_pProgram->m_pCodeBlocks, origNumPages, newCodePages);
+    // auto newCodePages = (scrProgram::scrPage**) operator new[] (sizeof (scrProgram::scrPage*) * newNumPages);
+    // std::copy_n (m_pProgram->m_pCodeBlocks, origNumPages, newCodePages);
 
-    for (int i = origNumPages; i < newNumPages; i++)
-        {
-            newCodePages[i] = (scrProgram::scrPage *) operator new (
-                sizeof (scrProgram::scrPage));
-            memset (newCodePages, 0, sizeof (scrProgram::scrPage));
-        }
+    // for (int i = origNumPages; i < newNumPages; i++)
+    //     {
+    //         newCodePages[i] = (scrProgram::scrPage *) operator new (
+    //             sizeof (scrProgram::scrPage));
+    //         memset (newCodePages, 0, sizeof (scrProgram::scrPage));
+    //     }
 
-    operator delete[](m_pProgram->m_pCodeBlocks);
-    m_pProgram->m_pCodeBlocks = newCodePages;
+    // operator delete[](m_pProgram->m_pCodeBlocks);
+    // m_pProgram->m_pCodeBlocks = newCodePages;
 }
 
 /*******************************************************/

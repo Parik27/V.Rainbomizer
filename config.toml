@@ -63,8 +63,8 @@ IncludeDLCLines = true # Includes DLC lines in randomization
 
 Seed = ""
 ForceSeedOnSaves = false
-
 ForcedMission = "" # All missions will start this instead of a random mission.
+LogMissionOrder = true
 
 #######################################################
 [PedRandomizer]

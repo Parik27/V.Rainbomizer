@@ -36,11 +36,11 @@ struct scrProgram
 {
     static const uint32_t PAGE_SIZE = 0x4000;
 
-    using scrPage = uint8_t[PAGE_SIZE];
+    using scrPage = uint8_t*;
 
     void *    vft;
     void *    m_pPageMap;
-    scrPage **m_pCodeBlocks;
+    scrPage *m_pCodeBlocks;
     uint32_t  m_nGlobalsSignature;
     uint32_t  m_nCodeSize;
     uint32_t  m_nParameterCount;
@@ -49,13 +49,13 @@ struct scrProgram
     uint32_t  m_nNativesCount;
     void *    m_pStaticsPointer;
     void *    m_pGlobalsPointer;
-    void *    m_pNativesPointer;
+    void **    m_pNativesPointer;
     uint64_t  field_0x48;
     uint64_t  field_0x50;
     uint32_t  m_nScriptHash;
     int32_t   field_0x5c;
     void *    m_pScriptNamePointer;
-    scrPage **m_pStringBlocks;
+    scrPage *m_pStringBlocks;
     uint32_t  m_nStringSize;
     int32_t   field_0x74;
     int32_t   field_0x78;
@@ -65,7 +65,7 @@ struct scrProgram
     T &
     GetCodeByte (uint32_t offset)
     {
-        return *(T *) &(*m_pCodeBlocks)[offset / PAGE_SIZE][offset % PAGE_SIZE];
+        return *(T *) &(m_pCodeBlocks[offset / PAGE_SIZE][offset % PAGE_SIZE]);
     }
 
     static inline int
@@ -183,6 +183,20 @@ public:
     GetGlobal (uint32_t index)
     {
         return *(T *) (&GetGlobals ()[index]);
+    }
+
+    template <typename T = uint64_t>
+    inline T &
+    GetStaticVariable (uint32_t index)
+    {
+        return *(T *) (&m_pStack[index]);
+    }
+
+    template <typename T = uint64_t>
+    inline T &
+    GetLocalVariable (uint32_t index)
+    {
+        return *(T *) (&m_pStack[m_Context.m_nFrameSP + index]);
     }
 
     static inline scrThread *&

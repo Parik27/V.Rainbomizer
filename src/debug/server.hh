@@ -18,6 +18,15 @@ public:
     {
         std::shared_ptr<bool> bValid;
         WebSocket* pWebSocket;
+
+        void
+        Send (const nlohmann::json &j)
+        {
+            if (bValid && *bValid)
+                {
+                    pWebSocket->send (j.dump (), uWS::OpCode::TEXT);
+                }
+        }
     };
 
 private:

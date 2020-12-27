@@ -11,6 +11,7 @@
 #include <CLoadingScreens.hh>
 #include <common/common.hh>
 #include <map>
+#include <random>
 
 /*
   Relevant Globals:
@@ -42,7 +43,19 @@ struct MissionDefinition
     uint32_t nThreadHash;
     uint8_t  field_0x34[12];
     char     sMissionGxtEntry[8];
-    uint8_t  field_0x48[200];
+    uint64_t field_0x48[2];
+    union
+    {
+        uint32_t nTriggerFlags;
+        struct
+        {
+            bool Michael : 1;
+            bool Franklin : 1;
+            bool Trevor : 1;
+        } FLAG_TriggerFlags;
+    };
+    
+    uint8_t  field_0x50[180];
 };
 
 static_assert (sizeof (MissionDefinition) == 0x22 * 8);
@@ -56,6 +69,7 @@ class MissionRandomizer
         {
             std::string Seed;
             bool        ForceSeedOnSaves;
+            bool        LogMissionOrder;
 
             std::string ForcedMission;
 
@@ -68,6 +82,8 @@ class MissionRandomizer
     {
         uint32_t           RandomizedHash;
         uint32_t           OriginalHash;
+        std::string        RandomizedName;
+        std::string        OriginalName;
         MissionDefinition *RandomizedDefinition;
         MissionDefinition *OriginalDefinition;
     };
@@ -103,19 +119,31 @@ class MissionRandomizer
     {
         if (init)
             m_MissionAssociations.clear ();
-
+        
         for (int i = 0; i < totalMissions; i++)
             {
                 MissionAssociation &assc = m_MissionAssociations[i];
                 if (init)
                     {
                         assc.OriginalHash       = missions[i].nThreadHash;
+                        assc.OriginalName       = missions[i].sMissionThread;
                         assc.OriginalDefinition = &missions[i];
                     }
                 else
                     {
                         assc.RandomizedHash       = missions[i].nThreadHash;
+                        assc.RandomizedName       = missions[i].sMissionThread;
                         assc.RandomizedDefinition = &missions[i];
+
+                        if (Config ().LogMissionOrder)
+                            {
+                                Rainbomizer::Logger::LogMessage (
+                                    "%s (%x) -> %s (%x)",
+                                    assc.OriginalName.c_str (),
+                                    assc.OriginalHash,
+                                    assc.RandomizedName.c_str (),
+                                    assc.RandomizedHash);
+                            }
                     }
             }
     }
@@ -124,8 +152,12 @@ class MissionRandomizer
     static void
     RandomizeMissions (MissionDefinition *missions, int totalMissions)
     {
-        InitialiseAssociations(missions, totalMissions, true);
-        
+        InitialiseAssociations (missions, totalMissions, true);
+        uint32_t seed = std::hash<std::string>{}(Config ().Seed);
+
+        std::mt19937                                engine{seed};
+        std::uniform_int_distribution<unsigned int> dist (0, totalMissions - 1);
+
         for (int i = 0; i < totalMissions; i++)
             {
                 // Forced Mission Enabled
@@ -141,15 +173,14 @@ class MissionRandomizer
                     }
 
                 // Forced Mission Disabled
-                MissionDefinition &newMission
-                    = missions[RandomInt (totalMissions - 1)];
+                MissionDefinition &newMission = missions[dist (engine)];
 
                 std::swap (missions[i].sMissionThread,
                            newMission.sMissionThread);
                 std::swap (missions[i].nThreadHash, newMission.nThreadHash);
             }
 
-        InitialiseAssociations(missions, totalMissions, false);
+        InitialiseAssociations (missions, totalMissions, false);
     }
 
     /*******************************************************/
@@ -206,9 +237,25 @@ class MissionRandomizer
     }
 
     /*******************************************************/
+    static void
+    DisablePrologueStrandActiveCheck (scrProgram* program)
+    {
+        //25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c ? ? ?
+        // Note: Can be called more than once on the same program.
+
+        YscUtils utils (program);
+        utils.FindCodePattern ("25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c",
+                               [] (hook::pattern_match m) {
+                                   memset (m.get<void> (), 0, 18);
+                                   *m.get<uint8_t> () = 0x6e; // PUSH_CONST_0
+                               });
+    }
+
+    /*******************************************************/
     static bool
     HandleOnMissionStartCommands (uint32_t originalMission,
-                                  uint32_t randomizedMission)
+                                  uint32_t randomizedMission,
+                                  scrProgram* program)
     {
         // Most missions need this to not get softlocked.
         if ("IS_CUTSCENE_ACTIVE"_n())
@@ -231,6 +278,13 @@ class MissionRandomizer
                 case "armenian1"_joaat: {
                     "DO_SCREEN_FADE_IN"_n(500);
                     break;
+                }
+            }
+
+        switch (randomizedMission)
+            {
+                case "franklin0"_joaat: {
+                    DisablePrologueStrandActiveCheck (program);
                 }
             }
 
@@ -262,7 +316,8 @@ class MissionRandomizer
                         if (ctx->m_nScriptHash == assoc.RandomizedHash)
                             {
                                 return HandleOnMissionStartCommands (
-                                    assoc.OriginalHash, assoc.RandomizedHash);
+                                    assoc.OriginalHash, assoc.RandomizedHash,
+                                    program);
                             }
                     }
                 catch (...)
@@ -353,7 +408,8 @@ public:
         if (!ConfigManager::ReadConfig (
                 "MissionRandomizer", std::pair ("Seed", &Config ().Seed),
                 std::pair ("ForceSeedOnSaves", &Config ().ForceSeedOnSaves),
-                std::pair ("ForcedMission", &Config ().ForcedMission)))
+                std::pair ("ForcedMission", &Config ().ForcedMission),
+                std::pair ("LogMissionOrder", &Config ().LogMissionOrder)))
             return;
 
         InitialiseAllComponents ();

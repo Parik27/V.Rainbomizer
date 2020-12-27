@@ -15,7 +15,7 @@ NativeManager::GetCmdsFromHashes (const std::vector<uint64_t>& hashes)
 
     scrProgram program;
     program.m_nNativesCount = hashes.size ();
-    program.m_pNativesPointer = cmds.get();
+    program.m_pNativesPointer = (void**) cmds.get();
     program.InitNativesTable ();
 
     return cmds;
@@ -65,6 +65,7 @@ NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
 {
     std::vector<uint64_t> tmpHashes;
     std::vector<uint64_t> origHashes;
+    std::vector<uint64_t> newHashes;
 
     const int TOTAL_NATIVES = 5253;
     for (int i = 0; i < TOTAL_NATIVES; i++)
@@ -72,6 +73,7 @@ NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
             if (!table[i * step])
                 continue;
             tmpHashes.push_back (table[i * step + offset]);
+            newHashes.push_back (table[i * step + offset]);
             origHashes.push_back (table[i * step]);
         }
 
@@ -83,9 +85,50 @@ NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
                 {
                     m_ScriptHookInfo
                         .mNatives[GetJoaatHashFromCmdHash (origHashes[i])]
-                        = cmds[i];
+                        = {cmds[i], newHashes[i], origHashes[i]};
                 }
         }
+}
+
+template <auto &O>
+bool
+NativeManager::ProcessNativeHooks (scrProgram *program)
+{
+    std::vector<std::pair<NativeFunc *, NativeFunc>> m_Operations;
+    if (program->m_pCodeBlocks)
+        {
+            for (auto [hash, hooked] : GetHookedNativesList ())
+                {
+                    auto orig = m_ScriptHookInfo.mNatives.at (hash);
+
+                    for (int i = 0; i < program->m_nNativesCount; i++)
+                        {
+                            uint64_t funcHash = reinterpret_cast<uint64_t &> (
+                                program->m_pNativesPointer[i]);
+
+                            if (funcHash == orig.newHash)
+                                m_Operations.push_back (
+                                    {reinterpret_cast<NativeFunc *> (
+                                         &program->m_pNativesPointer[i]),
+                                     hooked});
+                        }
+                }
+        }
+
+    bool ret = O (program);
+
+    for (const auto& operation : m_Operations)
+        *operation.first = operation.second;
+            
+    return ret;
+}
+
+/*******************************************************/
+void
+NativeManager::InitialiseNativeHooks ()
+{
+    REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
+                   ProcessNativeHooks, bool, scrProgram *);
 }
 
 /*******************************************************/
@@ -108,6 +151,8 @@ NativeManager::Initialise ()
 
             InitialiseNativeCmdsFromTable (table, numVersions, verOffset);
             FreeLibrary (scriptHook);
+
+            InitialiseNativeHooks ();
         }
 }
 
