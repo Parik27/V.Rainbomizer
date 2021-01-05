@@ -1,6 +1,67 @@
 #pragma once
 
 #include "Parser.hh"
+#include "rage.hh"
+#include <cstdint>
+#include <string_view>
+
+/*******************************************************/
+template <typename T = uint32_t> class ParserEnumEquate
+{
+    T* pData;
+
+    struct TranslationTable
+    {
+        uint32_t nHash;
+        T        nEquatedValue;
+    } * Table;
+
+public:
+    ParserEnumEquate (void *Table, void *data)
+    {
+        pData       = reinterpret_cast<T *> (data);
+        this->Table = reinterpret_cast<TranslationTable *> (Table);
+    }
+
+    uint32_t
+    ToHash ()
+    {
+        TranslationTable *t = Table;
+        while (t->nHash != 0 && t->nEquatedValue != -1)
+            {
+                if (*pData == t->nEquatedValue)
+                    return t->nHash;
+
+                t++;
+            }
+        return -1;
+    }
+
+    T &
+    GetValue ()
+    {
+        return *pData;
+    }
+
+    void
+    operator= (uint32_t hash)
+    {
+        TranslationTable *t = Table;
+        while (t->nHash != 0 && t->nEquatedValue != -1)
+            {
+                if (hash == t->nHash)
+                    *pData = t->nEquatedValue;
+
+                t++;
+            }
+    }
+
+    bool
+    operator== (uint32_t hash)
+    {
+        return hash == ToHash ();
+    }
+};
 
 /*******************************************************/
 class ParserUtils
@@ -35,25 +96,67 @@ public:
     static void *FindFieldPtr (parStructureStaticData *data, void *ptr,
                                uint32_t hash);
 
+    static ParserEnumEquate<> FindFieldEnum (parStructureStaticData *data,
+                                             void *ptr, uint32_t hash);
+
+    template <typename P>
+    inline static ParserEnumEquate<>
+    FindFieldEnum (parStructureStaticData *data, P *ptr, uint32_t hash)
+    {
+        return FindFieldEnum (data, (void *) ptr, hash);
+    }
+
     template <typename T, typename P>
-    static T &
+    inline static T &
     FindFieldPtr (parStructureStaticData *data, P *ptr, uint32_t hash)
     {
         return *reinterpret_cast<T *> (FindFieldPtr (data, (void*) ptr, hash));
     }
 };
 
+template <typename T>
+constexpr auto
+type_name () noexcept
+{
+    std::string_view name = "Error: unsupported compiler", prefix, suffix;
+#ifdef __clang__
+    name   = __PRETTY_FUNCTION__;
+    prefix = "auto type_name() [T = ";
+    suffix = "]";
+#elif defined(__GNUC__)
+    name   = __PRETTY_FUNCTION__;
+    prefix = "constexpr auto type_name() [with T = ";
+    suffix = "]";
+#elif defined(_MSC_VER)
+    name   = __FUNCSIG__;
+    prefix = "auto __cdecl type_name<";
+    suffix = ">(void) noexcept";
+#endif
+    name.remove_prefix (prefix.size ());
+    name.remove_suffix (suffix.size ());
+    return name;
+}
+
 /*******************************************************/
-template <uint32_t Hash> class ParserWrapper
+template <typename Class> class ParserWrapper
 {
 protected:
     inline static parStructureStaticData *pStaticData = nullptr;
 
 public:
-    static uint32_t
+    inline static constexpr uint32_t
     GetHash ()
     {
-        return Hash;
+        return rage::atLiteralStringHash (type_name<Class> ());
+    }
+
+    ParserEnumEquate<>
+    Equate (uint32_t fieldHash)
+    {
+        if (!pStaticData)
+            pStaticData = ParserUtils::FindStaticData (GetHash());
+
+        return ParserUtils::FindFieldEnum (pStaticData, static_cast<Class*>(this), fieldHash);
     }
 
     template <typename T>
@@ -69,9 +172,11 @@ public:
     Get (uint32_t fieldHash) const
     {
         if (!pStaticData)
-            pStaticData = ParserUtils::FindStaticData (Hash);
+            pStaticData = ParserUtils::FindStaticData (GetHash ());
 
-        return ParserUtils::FindFieldPtr<T> (pStaticData, this, fieldHash);
+        return ParserUtils::FindFieldPtr<T> (pStaticData,
+                                             static_cast<const Class *> (this),
+                                             fieldHash);
     }
 
     template <typename T>

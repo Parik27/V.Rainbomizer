@@ -13,8 +13,7 @@ public:
 };
 
 #define DEFINE_SUB_HANDLING_CLASS(name)                                        \
-    class name : public ParserWrapper<#name##_joaat>,                          \
-                 public CBaseSubHandlingData                                   \
+    class name : public ParserWrapper<name>, public CBaseSubHandlingData       \
     {                                                                          \
     }
 
@@ -31,7 +30,7 @@ DEFINE_SUB_HANDLING_CLASS (CSpecialFlightHandlingData);
 #undef DEFINE_SUB_HANDLING_CLASS
 
 /*******************************************************/
-class CHandlingData : public ParserWrapper<"CHandlingData"_joaat>
+class CHandlingData : public ParserWrapper<CHandlingData>
 {
 public:
     void InitValues ();

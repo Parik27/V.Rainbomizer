@@ -153,8 +153,8 @@ class SaveDataStructGenerator
                     << ", Offset: " << field.nFieldOffset << "\n";
             }
 #endif
-        
-        out << "\n}\n";
+
+        out << "};\n";
     }
 
     template <bool stop>

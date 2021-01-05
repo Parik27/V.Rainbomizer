@@ -23,7 +23,7 @@ public:
         m_History += j["Data"];
 
         while (m_History.size () > 20'000)
-            m_History = m_History.substr (m_History.find ('\n'));
+            m_History = m_History.substr (m_History.find ('\n') + 1);
     }
 
     /*******************************************************/

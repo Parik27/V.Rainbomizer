@@ -8,7 +8,7 @@
 class parMemberType
 {
 public:
-    enum Enum
+    enum Enum : uint8_t
     {
         BOOL      = 0,
         CHAR      = 1,
@@ -48,14 +48,31 @@ public:
 };
 
 /*******************************************************/
+#pragma pack(push, 1)
 struct parMemberCommonData
 {
-    uint32_t      nHash;
-    uint32_t      field_0x4;
-    uint64_t      nOffset;
-    parMemberType eType;
+    uint32_t            nHash;
+    uint32_t            field_0x4;
+    uint64_t            nOffset;
+    parMemberType::Enum eType;
 };
 
+struct parMemberEnumData : parMemberCommonData
+{
+
+    enum parMemberEnum_eTypes : uint8_t
+    {
+        BYTE  = 2,
+        INT   = 0,
+        SHORT = 1
+    } eType;
+
+    uint32_t field_0x12;
+    uint16_t m_nStringNamespace;
+    uint8_t  field_0x18[16];
+    void **  m_pTranslationTable;
+};
+#pragma pack(pop)
 
 /*******************************************************/
 struct parStructure

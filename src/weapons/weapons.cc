@@ -6,6 +6,7 @@
 #include "UtilsHooking.hh"
 #include "rage.hh"
 #include "CItemInfo.hh"
+#include <cstdint>
 #include <random>
 #include <algorithm>
 #include <ctime>
@@ -74,6 +75,22 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
+    static bool
+    IsValidWeapon (CWeaponInfo &info)
+    {
+        switch (info.Equate ("FireType"_joaat).ToHash ())
+            {
+            case "PROJECTILE"_joaat:
+            case "NONE"_joaat: return false;
+            }
+
+        if (info.Get<uint32_t> ("HumanNameHash"_joaat) == "wt_invalid"_joaat)
+            return false;
+
+        return true;
+    }
+
+    /*******************************************************/
     static void
     InitialiseWeaponsArray ()
     {
@@ -88,13 +105,13 @@ class WeaponRandomizer
         for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
             {
                 uint32_t modelHash = info->Model;
-
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
 
                 uint32_t outHash = 0;
-                
+
                 if (modelHash && !DoesElementExist (mExceptions, info->Name)
-                    && info->GetClassId (outHash) == "cweaponinfo"_joaat)
+                    && info->GetClassId (outHash) == "cweaponinfo"_joaat
+                    && IsValidWeapon (*info))
                     mValidWeapons.push_back (info->Name);
             }
 

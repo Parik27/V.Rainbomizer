@@ -33,11 +33,16 @@ public:
 };
 
 // Class not filled because of discrepencies between versions
-class CWeaponInfo : public CItemInfo, public ParserWrapper<"CWeaponInfo"_joaat>
+class CWeaponInfo : public ParserWrapper<CWeaponInfo>, public CItemInfo
 {
 };
 
-using CWeaponInfoBlob = ParserWrapper<"CWeaponInfoBlob"_joaat>;
+static_assert (CWeaponInfo::GetHash () == "CWeaponInfo"_joaat,
+               "CWeaponInfo has wrong hash (compiler not supported?)");
+
+class CWeaponInfoBlob : public ParserWrapper<CWeaponInfoBlob>
+{
+};
 
 class CWeaponInfoManager
 {

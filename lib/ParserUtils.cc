@@ -1,5 +1,9 @@
 #include "ParserUtils.hh"
+#include "Parser.hh"
 #include "Utils.hh"
+#include "common/logger.hh"
+#include <stdexcept>
+#include <string>
 
 /*******************************************************/
 template <auto &O>
@@ -60,3 +64,25 @@ ParserUtils::FindFieldPtr (parStructureStaticData *data, void *ptr,
 
     return reinterpret_cast<uint8_t *> (ptr) + field->nOffset + initialOffset;
 }
+
+/*******************************************************/
+ParserEnumEquate<>
+ParserUtils::FindFieldEnum (parStructureStaticData *data, void *ptr,
+                            uint32_t hash)
+{
+    uint64_t             initialOffset = 0;
+    parMemberCommonData *field         = FindFieldData (data->Params, hash);
+
+    if (!field)
+        throw std::runtime_error ("Failed to find enum field for parser"
+                                  + std::to_string (hash));
+
+    if (field->eType != parMemberType::ENUM)
+        throw std::runtime_error ("Enum field for parser is not of enum type"
+                                  + std::to_string (hash));
+
+    parMemberEnumData *enumField = static_cast<parMemberEnumData *> (field);
+
+    return ParserEnumEquate<> (*enumField->m_pTranslationTable,
+                               FindFieldPtr (data, ptr, hash));
+};

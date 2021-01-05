@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <cstdint>
+#include <string_view>
 #include <type_traits>
 
 namespace rage {
@@ -19,12 +20,12 @@ NormaliseChar (const char c)
 }
 
 constexpr std::uint32_t
-atPartialStringHash (char const *key, std::uint32_t initialHash = 0)
+atPartialStringHash (std::string_view key, std::uint32_t initialHash = 0)
 {
     uint32_t hash = initialHash;
-    while (*key)
+    for (auto c : key)
         {
-            hash += NormaliseChar (*key++);
+            hash += NormaliseChar (c);
             hash += hash << 10;
             hash ^= hash >> 6;
         }
@@ -32,13 +33,12 @@ atPartialStringHash (char const *key, std::uint32_t initialHash = 0)
 }
 
 constexpr std::uint32_t
-atLiteralStringHash (char const *s, size_t len)
+atLiteralStringHash (std::string_view key, std::uint32_t initialHash = 0)
 {
-    size_t   i    = 0;
-    uint32_t hash = 0;
-    while (i != len)
+    uint32_t hash = initialHash;
+    for (auto c : key)
         {
-            hash += s[i++];
+            hash += c;
             hash += hash << 10;
             hash ^= hash >> 6;
         }
@@ -49,9 +49,9 @@ atLiteralStringHash (char const *s, size_t len)
 }
 
 constexpr std::uint32_t
-atStringHash (const char *s, std::uint32_t initialHash = 0)
+atStringHash (std::string_view key, std::uint32_t initialHash = 0)
 {
-    std::uint32_t hash = atPartialStringHash (s, initialHash);
+    std::uint32_t hash = atPartialStringHash (key, initialHash);
     hash += hash << 3;
     hash ^= hash >> 11;
     hash += hash << 15;
@@ -143,7 +143,7 @@ public:
 
 constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
 {
-    return rage::atLiteralStringHash (s, len);
+    return rage::atLiteralStringHash (std::string_view (s, len), 0);
 }
 
 #pragma pack(push, 1)
