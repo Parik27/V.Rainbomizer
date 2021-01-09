@@ -8,6 +8,8 @@
 /* A randomizer to randomize a field between its min/max value */
 template <typename T> class RangedRandomizer
 {
+    bool bInitialised = false;
+    
     T Min;
     T Max;
 
@@ -24,6 +26,9 @@ public:
     void
     AddValue (const T value)
     {
+        if (!std::exchange (bInitialised, true))
+            Min = Max = value;
+
         Min = std::min (value, Min);
         Max = std::max (value, Max);
     }
@@ -178,7 +183,7 @@ template <typename... Types> class ParserRandomHelperContainer
     CompareHash (const T &randomizer, uint32_t hash)
     {
         using ElemType = typename std::decay_t<T>::Type;
-        return ElemType::GetHash () == hash;
+        return ElemType::GetHash () == hash || ElemType::GetLowercaseHash () == hash;
     }
 
     template <typename T, typename B>

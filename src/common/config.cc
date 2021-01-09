@@ -104,6 +104,9 @@ ConfigManager::GetIsEnabled (const std::string &name)
     ReadValue ("Randomizers", name, enabled);
     ReadValue (name, "Enabled", enabled);
 
+    Rainbomizer::Logger::LogMessage ("%s: %s", name.c_str (),
+                                     (enabled) ? "Yes" : "No");
+
     return enabled;
 }
 

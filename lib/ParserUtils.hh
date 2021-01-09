@@ -129,7 +129,7 @@ type_name () noexcept
     suffix = "]";
 #elif defined(_MSC_VER)
     name   = __FUNCSIG__;
-    prefix = "auto __cdecl type_name<";
+    prefix = "auto __cdecl type_name<class ";
     suffix = ">(void) noexcept";
 #endif
     name.remove_prefix (prefix.size ());
@@ -150,6 +150,13 @@ public:
         return rage::atLiteralStringHash (type_name<Class> ());
     }
 
+    inline static constexpr uint32_t
+    GetLowercaseHash ()
+    {
+        return rage::atStringHash (type_name<Class> ());
+    }
+
+    
     ParserEnumEquate<>
     Equate (uint32_t fieldHash)
     {

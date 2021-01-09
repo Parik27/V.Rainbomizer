@@ -32,7 +32,10 @@ public:
     //*******************************************************
 };
 
-// Class not filled because of discrepencies between versions
+class CAmmoInfo : public ParserWrapper<CAmmoInfo>, public CItemInfo
+{
+};
+
 class CWeaponInfo : public ParserWrapper<CWeaponInfo>, public CItemInfo
 {
 };
@@ -48,7 +51,7 @@ class CWeaponInfoManager
 {
 public:
     char                     field_0x0[16][4];
-    atArray<CWeaponInfo *>   aWeaponInfos;
+    atArray<CItemInfo *>     aItemInfos;
     uint8_t                  field_0x4c[4];
     atArray<CWeaponInfoBlob> aBlobs;
     uint8_t                  field_0x5c[36];
@@ -59,10 +62,10 @@ public:
 
     static CWeaponInfoManager *sm_Instance;
 
-    inline static CWeaponInfo *
+    inline static CItemInfo *
     GetInfoFromIndex (int index)
     {
-        return sm_Instance->aWeaponInfos[index];
+        return sm_Instance->aItemInfos[index];
     }
 
     static void InitialisePatterns ();

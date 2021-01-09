@@ -102,7 +102,7 @@ class WeaponRandomizer
         // These models are exempt from randomization
         const std::vector<uint32_t> mExceptions = {};
 
-        for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
+        for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
             {
                 uint32_t modelHash = info->Model;
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
@@ -111,7 +111,7 @@ class WeaponRandomizer
 
                 if (modelHash && !DoesElementExist (mExceptions, info->Name)
                     && info->GetClassId (outHash) == "cweaponinfo"_joaat
-                    && IsValidWeapon (*info))
+                    && IsValidWeapon (*static_cast<CWeaponInfo*>(info)))
                     mValidWeapons.push_back (info->Name);
             }
 
