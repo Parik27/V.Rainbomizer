@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ParserUtils.hh"
+#include <cstdint>
+#include <map>
 #include <type_traits>
 #include <tuple>
 #include <array>
@@ -18,13 +20,13 @@ public:
     using Type = T;
     
     void
-    Randomize (T& out) const
+    RandomizeObject (T& out) const
     {
         out = RandomFloat (Min, Max);
     }
 
     void
-    AddValue (const T value)
+    AddSample (const T value)
     {
         if (!std::exchange (bInitialised, true))
             Min = Max = value;
@@ -44,13 +46,13 @@ public:
     using Type = T;
     
     void
-    Randomize (T& out) const
+    RandomizeObject (T& out) const
     {
         out = GetRandomElement (Values);
     }
 
     void
-    AddValue (const T value)
+    AddSample (const T value)
     {
         Values.push_back (value);
     }
@@ -91,17 +93,17 @@ public:
     }
 
     void
-    Randomize (Type &out) const
+    RandomizeObject (Type &out) const
     {
         if (IsValueAllowed (out))
-            randomizer.Randomize (out);
+            randomizer.RandomizeObject (out);
     }
 
     void
-    AddValue (const Type value)
+    AddSample (const Type value)
     {
         if (IsValueAllowed (value))
-            randomizer.AddValue (value);
+            randomizer.AddSample (value);
     }
 };
 
@@ -116,17 +118,17 @@ public:
     using Type = T;
 
     void
-    AddValue (const T &value)
+    AddSample (const T &value)
     {
         for (const auto &elem : value)
-            randomizer.AddValue (elem);
+            randomizer.AddSample (elem);
     }
 
     void
-    Randomize (T &out) const
+    RandomizeObject (T &out) const
     {
         for (auto &elem : out)
-            randomizer.Randomize (elem);
+            randomizer.RandomizeObject (elem);
     }
 };
 
@@ -137,19 +139,19 @@ template <typename Randomizer, uint32_t... Fields> class RandomizedFieldsWrapper
 public:
     template <typename T>
     void
-    AddValue (const T &data)
+    AddSample (const T &data)
     {
         int i = 0;
-        (..., randomizers[i++].AddValue (
+        (..., randomizers[i++].AddSample (
                   data.template Get<typename Randomizer::Type> (Fields)));
     }
 
     template <typename T>
     void
-    Randomize (T &data) const
+    RandomizeObject (T &data) const
     {
         int i = 0;
-        (..., randomizers[i++].Randomize (
+        (..., randomizers[i++].RandomizeObject (
                   data.template Get<typename Randomizer::Type> (Fields)));
     }
 };
@@ -164,13 +166,13 @@ public:
     void
     AddSample (const T &sample)
     {
-        (..., std::get<RandomizedFields> (fields).AddValue (sample));
+        (..., std::get<RandomizedFields> (fields).AddSample (sample));
     }
 
     void
     RandomizeObject (T &object) const
     {
-        (..., std::get<RandomizedFields> (fields).Randomize (object));
+        (..., std::get<RandomizedFields> (fields).RandomizeObject (object));
     }
 };
 
@@ -198,7 +200,7 @@ template <typename... Types> class ParserRandomHelperContainer
 
     template <typename T, typename B>
     inline static void
-    RandomizeObject (const T &randomizer, B *base, uint32_t hash)
+    RandomizeObject (T &randomizer, B *base, uint32_t hash)
     {
         using ElemType = typename std::decay_t<T>::Type;
 
@@ -225,5 +227,33 @@ public:
                 (..., RandomizeObject (x, base, hash));
             },
             randomizers);
+    }
+};
+
+template <typename T, uint32_t FieldHash, typename FieldType = uint32_t>
+class ParserRandomHelperContainerForEachFieldValue
+{
+    std::map<FieldType, T> Randomizers;
+
+public:
+
+    using Type = typename T::Type;
+    
+    T &
+    GetRandomizerForObject (const Type &sample)
+    {
+        return Randomizers[sample.template Get<FieldType> (FieldHash)];
+    }
+
+    void
+    AddSample (const Type &sample)
+    {
+        GetRandomizerForObject (sample).AddSample (sample);
+    }
+
+    void
+    RandomizeObject (Type &object)
+    {
+        GetRandomizerForObject (object).RandomizeObject (object);
     }
 };
