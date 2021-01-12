@@ -4,8 +4,8 @@
 
 struct modelInfoArray
 {
-    CBaseModelInfo** m_pData;
-    uint64_t m_nAllocated;
+    CBaseModelInfo **m_pData;
+    uint64_t         m_nAllocated;
 };
 
 /* Struct representing loaded? models in CStreaming::sm_Instance (not actual
@@ -20,14 +20,14 @@ struct CStreaming_LoadedModel
     uint8_t  field_0x14;
     bool     m_bIsPedModel;
     uint8_t  field_0x16;
-    uint8_t field_0x17;
+    uint8_t  field_0x17;
 };
 
 class CModelList
 {
 public:
     uint32_t m_aMembers[256];
-    
+
     template <class Functor>
     void
     for_each (Functor f)
@@ -35,8 +35,10 @@ public:
         const uint32_t TOTAL_MODEL_POINTERS = 0xF230; // From game exe
         for (auto i : m_aMembers)
             {
-                if (i == 65535) break;
-                if (i >= TOTAL_MODEL_POINTERS) break;
+                if (i == 65535)
+                    break;
+                if (i >= TOTAL_MODEL_POINTERS)
+                    break;
 
                 f (i);
             }
@@ -72,13 +74,15 @@ public:
     static void RequestModel (uint32_t modelId, uint32_t flags);
     static void LoadAllObjects (bool priorityOnly);
     static void DeleteModel (uint32_t modelId);
-    
-    static CBaseModelInfo* GetModelAndIndexByHash (uint32_t hash, uint32_t& outIndex);
 
-    static inline uint32_t GetModelIndex (uint32_t hash)
+    static CBaseModelInfo *GetModelAndIndexByHash (uint32_t  hash,
+                                                   uint32_t &outIndex);
+
+    static inline uint32_t
+    GetModelIndex (uint32_t hash)
     {
         uint32_t index = -1;
-        GetModelAndIndexByHash(hash, index);
+        GetModelAndIndexByHash (hash, index);
 
         return index;
     }
@@ -97,14 +101,14 @@ public:
         uint32_t index = 0;
         return GetModelAndIndexByHash<T> (hash, index);
     }
-    
+
     template <typename T = CBaseModelInfo>
-    static inline T*
+    static inline T *
     GetModelByIndex (uint32_t index)
     {
-        return static_cast<T *>(ms_aModelPointers->m_pData[index]);
+        return static_cast<T *> (ms_aModelPointers->m_pData[index]);
     }
-    
-    static modelInfoArray* ms_aModelPointers;
-    static CStreaming* sm_Instance;
+
+    static modelInfoArray *ms_aModelPointers;
+    static CStreaming *    sm_Instance;
 };

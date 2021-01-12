@@ -5,12 +5,11 @@
 #include <CModelInfo.hh>
 
 class CEntity
-{    
+{
 public:
-    
-    void* vft;
+    void *  vft;
     uint8_t __pad00[24];
-    
+
     CBaseModelInfo *m_pModelInfo;
 };
 

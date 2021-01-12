@@ -12,8 +12,8 @@ const uint32_t CacheVersion = 1;
 void
 VehicleModelInfoCacheMgr::GenerateCache ()
 {
-    auto timestamp = clock ();
-    auto& hashes    = Rainbomizer::Common::GetVehicleHashes ();
+    auto  timestamp = clock ();
+    auto &hashes    = Rainbomizer::Common::GetVehicleHashes ();
 
     FILE *cacheFile
         = Rainbomizer::Common::GetRainbomizerDataFile ("VehInfo.cache", "wb");
@@ -47,9 +47,9 @@ VehicleModelInfoCacheMgr::GenerateCache ()
 
     fclose (cacheFile);
 
-    Rainbomizer::Logger::LogMessage ("Cached model info in %.2f seconds",
-                                     1.0f * (clock () - timestamp)
-                                         / CLOCKS_PER_SEC);
+    Rainbomizer::Logger::LogMessage (
+        "Cached model info in %.2f seconds",
+        1.0f * (static_cast<float> (clock () - timestamp) / CLOCKS_PER_SEC));
 }
 
 /*******************************************************/

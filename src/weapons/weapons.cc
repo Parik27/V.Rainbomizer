@@ -111,7 +111,7 @@ class WeaponRandomizer
 
                 if (modelHash && !DoesElementExist (mExceptions, info->Name)
                     && info->GetClassId (outHash) == "cweaponinfo"_joaat
-                    && IsValidWeapon (*static_cast<CWeaponInfo*>(info)))
+                    && IsValidWeapon (*static_cast<CWeaponInfo *> (info)))
                     mValidWeapons.push_back (info->Name);
             }
 
@@ -246,7 +246,7 @@ public:
     {
         if (!ConfigManager::ReadConfig ("WeaponRandomizer"))
             return;
-        
+
         InitialiseAllComponents ();
         InitialiseRandomWeaponsHook ();
     }

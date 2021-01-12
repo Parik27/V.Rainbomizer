@@ -30,7 +30,7 @@ GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
     });
 
     if (outNum)
-        *outNum = cars.size ();
+        *outNum = static_cast<uint32_t> (cars.size ());
 
     if (cars.size () < 1)
         return -1;
@@ -51,7 +51,6 @@ ApplyDLCDespawnFix (scrProgram *program)
 {
     bool ret = scrProgram_InitNativeTablese188 (program);
 
-    bool applied = false;
     if (program->m_nScriptHash == "shop_controller"_joaat)
         {
             // This script handles despawning of DLC vehicles. This finds the

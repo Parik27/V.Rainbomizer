@@ -17,7 +17,7 @@ audSound::DecompressMetadata_Untyped (rage::Sound *inp, rage::Sound *out)
 }
 
 uint32_t
-audMetadataChunk::GetSize()
+audMetadataChunk::GetSize ()
 {
     static uint32_t size
         = *hook::get_pattern<uint8_t> ("8b 44 ? ? ? 6b d2 ? ? 03 44 0a 10", 7);

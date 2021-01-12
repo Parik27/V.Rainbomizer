@@ -25,7 +25,7 @@ ExceptionHandlerMgr::RunThread ()
                     ExceptionHandlerMgr::GetInstance ().RunExitHandler ();
                     abort ();
                 }
-            
+
             using namespace std::chrono_literals;
             std::this_thread::sleep_for (1s);
         }
@@ -44,7 +44,7 @@ ExceptionHandlerMgr::Init ()
 ExceptionHandlerMgr::ExceptionHandlerMgr ()
 {
     Logger::LogMessage ("Registering ExceptionHandlerMgr");
-    
+
     atexit (RunExitHandler);
     SetUnhandledExceptionFilter (RunExceptionHandler);
 }
@@ -54,10 +54,10 @@ LONG CALLBACK
 ExceptionHandlerMgr::RunExceptionHandler (_EXCEPTION_POINTERS *ep)
 {
     RunExitHandler ();
-    
-    for (const auto &i : GetInstance().mExceptionHandlers)
-        i->OnException(ep);
-    
+
+    for (const auto &i : GetInstance ().mExceptionHandlers)
+        i->OnException (ep);
+
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
@@ -69,4 +69,4 @@ ExceptionHandlerMgr::RunExitHandler ()
         i->OnExit ();
 }
 
-}; // namespace Rainbomizer
+} // namespace Rainbomizer

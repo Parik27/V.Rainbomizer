@@ -6,7 +6,7 @@
 
 class LoggerDebugInterface
 {
-    static constexpr int MAX_LOG_HISTORY = 20;
+    static constexpr int      MAX_LOG_HISTORY = 20;
     inline static std::string m_History;
 
 public:

@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <injector/calling.hpp>
+#include <injector/hooking.hpp>
 
 #include "Utils.hh"
 
@@ -25,13 +26,12 @@ using _InstructionType = char[16];
 template <uint32_t Addr, typename Ret, typename... Args> class ReplaceJmpHook
 {
 protected:
-    
-    static bool        mInitialised;
+    static bool             mInitialised;
     static _InstructionType mStoredValue;
     static _InstructionType mOriginalValue;
 
     static _InstructionType *mHookedAddress;
-    static uint32_t     mThreadId;
+    static uint32_t          mThreadId;
 
     inline static std::vector<std::function<bool (Args &...)>> &
     GetBeforeFunctions ()
@@ -40,14 +40,14 @@ protected:
         return mBeforeFunctions;
     }
 
-    inline static auto&
+    inline static auto &
     GetAfterFunctions ()
     {
         if constexpr (std::is_same_v<Ret, void>)
             {
-                static std::vector<std::function<void (Args ...)>>
+                static std::vector<std::function<void (Args...)>>
                     mAfterFunctions;
-                return mAfterFunctions;   
+                return mAfterFunctions;
             }
         else
             {
@@ -78,7 +78,8 @@ public:
         GetBeforeFunctions ().push_back (callback);
     }
 
-    ReplaceJmpHook (void *addr, std::decay_t<decltype(GetAfterFunctions()[0])> callback)
+    ReplaceJmpHook (void *                                           addr,
+                    std::decay_t<decltype (GetAfterFunctions ()[0])> callback)
     {
         mHookedAddress = (_InstructionType *) addr;
         GetAfterFunctions ().push_back (callback);
@@ -86,13 +87,13 @@ public:
 };
 
 template <uint32_t Addr, typename Ret, typename... Args>
-class ReplaceJmpHook__fastcall
-    : public ReplaceJmpHook<Addr, Ret, Args...>
+class ReplaceJmpHook__fastcall : public ReplaceJmpHook<Addr, Ret, Args...>
 {
     using base = ReplaceJmpHook<Addr, Ret, Args...>;
 
 public:
-    static Ret HookedFunction (Args... args)
+    static Ret
+    HookedFunction (Args... args)
     {
 #ifndef NDEBUG
         assert (base::mThreadId == 0
@@ -158,8 +159,10 @@ public:
         if (base::mInitialised)
             return;
 
-	memcpy (base::mOriginalValue, *base::mHookedAddress, sizeof (_InstructionType));
-	memcpy (base::mStoredValue, base::mOriginalValue, sizeof (_InstructionType));
+        memcpy (base::mOriginalValue, *base::mHookedAddress,
+                sizeof (_InstructionType));
+        memcpy (base::mStoredValue, base::mOriginalValue,
+                sizeof (_InstructionType));
 
         DWORD oldProtect = 0;
         injector::UnprotectMemory (base::mHookedAddress, 8, oldProtect);

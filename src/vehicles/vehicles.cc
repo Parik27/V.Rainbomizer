@@ -26,7 +26,7 @@ class ScriptVehicleRandomizer
                                      std::vector<ScriptVehiclePattern>>
         mPatterns;
 
-    static auto&
+    static auto &
     Config ()
     {
         static struct Config
@@ -174,7 +174,7 @@ class ScriptVehicleRandomizer
         else
             {
                 hash = GetRandomHashForVehicle (hash, pos);
-                if (Config().LogSpawnedVehicles)
+                if (Config ().LogSpawnedVehicles)
                     Rainbomizer::Logger::LogMessage (
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "

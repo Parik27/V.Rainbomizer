@@ -100,9 +100,9 @@ ScriptVehiclePattern::GetRandomLoaded (Vector3 &pos)
         Cache ();
 
     std::vector<uint32_t> LoadedMatches;
-    
+
     for (auto i : m_aCache)
-        if (CStreaming::HasModelLoaded(CStreaming::GetModelIndex(i)))
+        if (CStreaming::HasModelLoaded (CStreaming::GetModelIndex (i)))
             LoadedMatches.push_back (i);
 
     // If no matching vehicles are loaded, return the original vehicle if that's
@@ -143,18 +143,18 @@ ScriptVehiclePattern::GetRandom (Vector3 &pos)
 
 /*******************************************************/
 bool
-ScriptVehiclePattern::MatchVehicle (uint32_t hash, const Vector3& coords)
+ScriptVehiclePattern::MatchVehicle (uint32_t hash, const Vector3 &coords)
 {
     if (hash != GetOriginalVehicle ()
         && GetOriginalVehicle () != "allvehicles"_joaat)
         return false;
 
     // Coordinates check
-    if (m_vecCoordsCheck.x && m_vecCoordsCheck.x != int(coords.x))
+    if (m_vecCoordsCheck.x && m_vecCoordsCheck.x != int (coords.x))
         return false;
-    if (m_vecCoordsCheck.y && m_vecCoordsCheck.y != int(coords.y))
+    if (m_vecCoordsCheck.y && m_vecCoordsCheck.y != int (coords.y))
         return false;
-    if (m_vecCoordsCheck.z && m_vecCoordsCheck.z != int(coords.z))
+    if (m_vecCoordsCheck.z && m_vecCoordsCheck.z != int (coords.z))
         return false;
 
     return true;
@@ -182,8 +182,8 @@ ScriptVehiclePattern::ReadFlag (const std::string &flag)
         mFlags.NoRotors = true;
 
     else if (flag.find ("can_attach") == 0)
-        mFlags.AttachVehicle = rage::atStringHash (
-            flag.substr (sizeof ("can_attach")).c_str ());
+        mFlags.AttachVehicle
+            = rage::atStringHash (flag.substr (sizeof ("can_attach")).c_str ());
 
     // Bounds
     else if (flag.find ("w=") == 0)

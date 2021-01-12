@@ -3,17 +3,16 @@
 #include <windows.h>
 #include <tuple>
 
-namespace Rainbomizer
-{
+namespace Rainbomizer {
 
 /* Prints stack dump at exception                      */
 /*******************************************************/
 class ExceptionHandler_Stack : public ExceptionHandler
 {
 
-    uint8_t m_nCurrentCol = 0;
-    char m_sLineBuffer[1024] = {0};
-    
+    uint8_t m_nCurrentCol       = 0;
+    char    m_sLineBuffer[1024] = {0};
+
     /*******************************************************/
     MEMORY_BASIC_INFORMATION
     VirtualQueryWrapper (uintptr_t lpAddress)
@@ -47,7 +46,7 @@ class ExceptionHandler_Stack : public ExceptionHandler
                                    + mbi.RegionSize);
 
         bottom = uintptr_t (mbi.BaseAddress) + mbi.RegionSize;
-        return std::make_tuple(base, top, bottom);
+        return std::make_tuple (base, top, bottom);
     }
 
     /*******************************************************/
@@ -62,7 +61,7 @@ class ExceptionHandler_Stack : public ExceptionHandler
 
     /*******************************************************/
     bool
-    PrintStackWord (uintptr_t top, uint32_t& offset, uintptr_t bottom)
+    PrintStackWord (uintptr_t top, uint32_t &offset, uintptr_t bottom)
     {
         const uint8_t TOTAL_COLS = 4;
 
@@ -93,22 +92,22 @@ class ExceptionHandler_Stack : public ExceptionHandler
     bool
     CheckIsPointerValid (uintptr_t ptr)
     {
-        auto mbi = VirtualQueryWrapper(ptr);
+        auto mbi = VirtualQueryWrapper (ptr);
         return (mbi.State & MEM_COMMIT)
                && (mbi.Protect
                    & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE
                       | PAGE_READWRITE | PAGE_READONLY));
     }
-    
+
     /*******************************************************/
     void
     OnException (_EXCEPTION_POINTERS *ep) override
     {
-        Logger::LogMessage ("%s", GetHandlerName());
-        
+        Logger::LogMessage ("%s", GetHandlerName ());
+
         // Validate RSP and check permissions
-        if (!(ep->ContextRecord->ContextFlags & CONTEXT_CONTROL) ||
-            !CheckIsPointerValid(ep->ContextRecord->Rsp))
+        if (!(ep->ContextRecord->ContextFlags & CONTEXT_CONTROL)
+            || !CheckIsPointerValid (ep->ContextRecord->Rsp))
             return;
 
         auto [base, top, bottom] = GetStackBounds (ep->ContextRecord->Rsp);
@@ -116,7 +115,7 @@ class ExceptionHandler_Stack : public ExceptionHandler
         uint32_t offset = 0;
         while (PrintStackWord (top, offset, bottom))
             ;
-        
+
         Rainbomizer::Logger::LogMessage (
             "Base: %016llx, Top: %016llx, Bottom: %016llx", base, top, bottom);
     }
@@ -129,5 +128,5 @@ class ExceptionHandler_Stack : public ExceptionHandler
     }
 };
 
-REGISTER_HANDLER (ExceptionHandler_Stack);
-}; // namespace Rainbomizer
+REGISTER_HANDLER (ExceptionHandler_Stack)
+} // namespace Rainbomizer

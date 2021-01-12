@@ -23,10 +23,10 @@ class TrafficRandomizer
                          bool param_4)
     {
         *modelId = GetRandomLoadedVehIndex ();
-        if (*modelId == -1)
+        if (*modelId == -1u)
             *modelId = 65535;
 
-        return ((*modelId & 65536) == 65535);
+        return ((*modelId & 65535) == 65535);
     }
 
     /*******************************************************/

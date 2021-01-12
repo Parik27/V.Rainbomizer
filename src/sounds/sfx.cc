@@ -3,7 +3,7 @@
 #include <audEngine.hh>
 #include <array>
 
-audMetadataMgr* audMetadataMgr_GameObjects;
+audMetadataMgr *audMetadataMgr_GameObjects;
 
 class SfxRandomizer
 {
@@ -99,7 +99,8 @@ public:
 
         MakeJMP64 (injector::GetBranchDestination (
                        hook::get_pattern (
-                           "8d 0d ? ? ? ? ? b8 11 00 00 00 8b 54 c7 10 e8 ", 16))
+                           "8d 0d ? ? ? ? ? b8 11 00 00 00 8b 54 c7 10 e8 ",
+                           16))
                        .get<void> (),
                    RandomizeSfx<audMetadataRef>);
     }

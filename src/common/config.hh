@@ -11,9 +11,9 @@ class table;
 /*******************************************************/
 class ConfigManager
 {
-    static inline ConfigManager *sm_Instance = nullptr;
+    static inline ConfigManager *   sm_Instance = nullptr;
     std::shared_ptr<cpptoml::table> m_pConfig;
-    
+
     ConfigManager (){};
     static void DestroyInstance ();
 
@@ -39,7 +39,7 @@ public:
     {
         if (!GetInstance ()->GetIsEnabled (table))
             return false;
-        
+
         (GetInstance ()->ReadValue (table, params.first, *params.second), ...);
         return true;
     }

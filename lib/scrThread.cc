@@ -154,7 +154,7 @@ scrProgram::FindProgramByHash (uint32_t hash)
 
 /*******************************************************/
 bool
-scrProgram::InitNativesTable()
+scrProgram::InitNativesTable ()
 {
     return scrProgram_InitNativesTable (this);
 }
@@ -175,14 +175,14 @@ scrThread::FindCurrentFunctionBounds (scrProgram *program)
 
     uint32_t start = 0, end = program->m_nCodeSize;
 
-    for (int ip = 0; ip < program->m_nCodeSize;
+    for (uint32_t ip = 0; ip < program->m_nCodeSize;
          ip += FindInstSize (program, ip))
         {
             uint8_t opcode = program->GetCodeByte<uint8_t> (ip);
 
             if (opcode == ENTER_OPCODE)
                 start = ip;
-            
+
             else if (opcode == LEAVE_OPCODE)
                 {
                     end = ip;
@@ -204,9 +204,9 @@ scrThread::FindInstSize (scrProgram *program, uint32_t offset)
 
     uint8_t  opcode = getByteAt (offset);
     uint16_t size   = 1;
-    
+
     auto params = mOpcodes[opcode].second;
-    for (int i = 0; i < strlen (params); ++i)
+    for (size_t i = 0; i < strlen (params); ++i)
         {
             switch (params[i])
                 {
@@ -228,11 +228,10 @@ scrThread::FindInstSize (scrProgram *program, uint32_t offset)
 #ifdef ENABLE_DEBUG_SERVER
 /*******************************************************/
 std::string
-scrThread::DisassemblInsn (scrProgram *program, uint32_t offset,
-                           uint32_t bufferLimit)
+scrThread::DisassemblInsn (scrProgram *program, uint32_t offset)
 {
     std::string out;
-    
+
     // Helper functions to get values to facilitate disassembly
     auto getByteAt = [program] (uint32_t offset) -> uint8_t & {
         return program->GetCodeByte<uint8_t> (offset);
@@ -248,10 +247,10 @@ scrThread::DisassemblInsn (scrProgram *program, uint32_t offset,
     };
 
     uint8_t opcode = getByteAt (offset++);
-    out += fmt::format("{:06} : {}", offset, mOpcodes[opcode].first);
+    out += fmt::format ("{:06} : {}", offset, mOpcodes[opcode].first);
 
     auto params = mOpcodes[opcode].second;
-    for (int i = 0; i < strlen (params); i++)
+    for (size_t i = 0; i < strlen (params); i++)
         {
             switch (params[i])
                 {
@@ -276,8 +275,7 @@ scrThread::DisassemblInsn (scrProgram *program, uint32_t offset,
                         uint8_t numBranches = getByteAt (offset++);
                         out += fmt::format (" [{}]", numBranches);
 
-                        for (int i = 0; i < numBranches;
-                             i++)
+                        for (int i = 0; i < numBranches; i++)
                             {
                                 uint32_t id      = getDwordAt (offset);
                                 uint16_t jOffset = getWordAt (offset + 4);
@@ -358,7 +356,8 @@ scrThread::InitialisePatterns ()
     // scrProgram related
     {
         scrProgramDirectory = GetRelativeReference<gBaseScriptDirectory> (
-            "? 8d 0d ? ? ? ? ? 89 2d ? ? ? ? e8 ? ? ? ? ? 8b 8d b0 00 00 00 ", 3, 7);
+            "? 8d 0d ? ? ? ? ? 89 2d ? ? ? ? e8 ? ? ? ? ? 8b 8d b0 00 00 00 ",
+            3, 7);
 
         ReadCall (hook::get_pattern ("? 8d 0d ? ? ? ? ? 89 2d ? ? ? ? e8 ? ? ? "
                                      "? ? 8b 8d b0 00 00 00",

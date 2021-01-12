@@ -59,17 +59,15 @@ atStringHash (std::string_view key, std::uint32_t initialHash = 0)
     return hash;
 }
 
-// It isn't actually in the rage:: namespace, but I put it here to prevent
-// conflicts with other classes that might be called half.
-class half
+class float16
 {
 public:
     uint16_t value;
 
-    half () : value (0){};
-    half (uint16_t val) : value (val){};
-    half (const half &other) : value (other.value){};
-    half (float val) : value (from_float (val).value){};
+    float16 () : value (0){};
+    float16 (uint16_t val) : value (val){};
+    float16 (const float16 &other) : value (other.value){};
+    float16 (float val) : value (from_float (val).value){};
 
     float
     to_float ()
@@ -77,21 +75,22 @@ public:
         uint32_t f = ((value & 0x8000) << 16)
                      | (((value & 0x7c00) + 0x1C000) << 13)
                      | ((value & 0x03FF) << 13);
-        return *(float *) &f;
+        return *reinterpret_cast<float *> (&f);
     }
 
-    inline static half
+    inline static float16
     from_float (float f)
     {
-        uint32_t x = *((uint32_t *) &f);
-        uint16_t h = ((x >> 16) & 0x8000)
-                     | ((((x & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
-                     | ((x >> 13) & 0x03ff);
+        uint32_t x = *reinterpret_cast<uint32_t *> (&f);
+        uint16_t h = static_cast<uint16_t> (
+            ((x >> 16) & 0x8000)
+            | ((((x & 0x7f800000) - 0x38000000) >> 13) & 0x7c00)
+            | ((x >> 13) & 0x03ff));
         return h;
     }
 };
 
-static_assert (sizeof (half) == 2, "size of half not 2 bytes");
+static_assert (sizeof (float16) == 2, "size of half not 2 bytes");
 
 template <int size> class bitset
 {
@@ -113,14 +112,78 @@ public:
         else
             bits = bits & ~(1 << (pos % 32));
     }
-};    
+};
+
+class Vec2f
+{
+public:
+    float x;
+    float y;
+};
+
+class Vec2V
+{
+public:
+    float x;
+    float y;
+
+private:
+    float __pad[2];
+};
+
+class Vec3V
+{
+public:
+    float x;
+    float y;
+    float z;
+
+private:
+    float __pad;
+};
+
+class Vec4V
+{
+public:
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
+class Mat33V
+{
+public:
+    Vec3V right;
+    Vec3V up;
+    Vec3V at;
+};
+
+class Mat34V
+{
+public:
+    Vec3V right;
+    Vec3V up;
+    Vec3V at;
+    Vec3V pos;
+};
+
+class Mat44V
+{
+public:
+    Vec4V right;
+    Vec4V up;
+    Vec4V at;
+    Vec4V pos;
+};
+
 } // namespace rage
 
 /* Not a part of rage */
 template <typename T, int capacity> class CyclicContainer
 {
     std::deque<T> m_Internal{};
-    bool m_Full = false;
+    bool          m_Full = false;
 
 public:
     void

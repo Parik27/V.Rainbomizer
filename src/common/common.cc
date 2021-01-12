@@ -7,13 +7,13 @@
 #include <rage.hh>
 #include <Natives.hh>
 
-void (*gameSkeleton__Init) (gameSkeleton*, uint32_t);
+void (*gameSkeleton__Init) (gameSkeleton *, uint32_t);
 
 namespace Rainbomizer {
 
 /*******************************************************/
 void
-Common::ProcessInitCallbacks (gameSkeleton* skelly, uint32_t mode)
+Common::ProcessInitCallbacks (gameSkeleton *skelly, uint32_t mode)
 {
     gameSkeleton__Init (skelly, mode);
 
@@ -28,7 +28,7 @@ Common::ProcessInitCallbacks (gameSkeleton* skelly, uint32_t mode)
 /*******************************************************/
 void
 Common::InitialiseInitCallbackHook ()
-{   
+{
     static bool isInitialised = false;
     if (std::exchange (isInitialised, true))
         return;
@@ -54,14 +54,12 @@ Common::GetCallbacks ()
 void
 Common::InitialiseHashes ()
 {
-    auto timestamp = clock ();
-
     for (size_t i = 0; i < CStreaming::ms_aModelPointers->m_nAllocated; i++)
         {
             auto info = CStreaming::ms_aModelPointers->m_pData[i];
-            if(!info)
+            if (!info)
                 continue;
-            
+
             auto type = info->GetType ();
 
             switch (type)
@@ -73,7 +71,7 @@ Common::InitialiseHashes ()
                     }
 
                     case MODEL_INFO_VEHICLE: {
-                        
+
                         mVehicleHashes.push_back (info->m_nHash);
                         break;
                     }
@@ -82,7 +80,6 @@ Common::InitialiseHashes ()
                 }
         }
 
-       
     Logger::LogMessage ("Initialised model hashes");
     Logger::LogMessage ("Ped models: %d, Vehicle models: %d",
                         mPedHashes.size (), mVehicleHashes.size ());
@@ -155,7 +152,7 @@ Common::GetRainbomizerDataFile (const std::string &name,
                                 const std::string &mode)
 {
     FILE *f = GetRainbomizerFile (name, mode, "data/");
-    
+
     if (!f)
         Logger::LogMessage ("Failed to read Rainbomizer data file: data/%s",
                             name.c_str ());
@@ -167,9 +164,9 @@ Common::GetRainbomizerDataFile (const std::string &name,
 void
 Common::AddInitCallback (std::function<void (bool)> callback)
 {
-    GetCallbacks().push_back(callback);
+    GetCallbacks ().push_back (callback);
 }
-    
+
 /*******************************************************/
 const std::vector<int> &
 Common::GetPedHashes ()
@@ -179,4 +176,4 @@ Common::GetPedHashes ()
 
     return mPedHashes;
 }
-}; // namespace Rainbomizer
+} // namespace Rainbomizer

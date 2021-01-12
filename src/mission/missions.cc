@@ -54,8 +54,8 @@ struct MissionDefinition
             bool Trevor : 1;
         } FLAG_TriggerFlags;
     };
-    
-    uint8_t  field_0x50[180];
+
+    uint8_t field_0x50[180];
 };
 
 static_assert (sizeof (MissionDefinition) == 0x22 * 8);
@@ -88,9 +88,9 @@ class MissionRandomizer
         MissionDefinition *OriginalDefinition;
     };
 
-    inline static int32_t g_CurrentMission = 0;
-    inline static int64_t g_PreviousCurrentMission = 0;
-    
+    inline static uint32_t g_CurrentMission         = 0;
+    inline static uint64_t g_PreviousCurrentMission = 0;
+
     // contains information about the new mission
     inline static std::map<uint32_t, MissionAssociation> m_MissionAssociations;
 
@@ -119,7 +119,7 @@ class MissionRandomizer
     {
         if (init)
             m_MissionAssociations.clear ();
-        
+
         for (int i = 0; i < totalMissions; i++)
             {
                 MissionAssociation &assc = m_MissionAssociations[i];
@@ -150,15 +150,16 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
-    RandomizeMissions (MissionDefinition *missions, int totalMissions)
+    RandomizeMissions (MissionDefinition *missions, uint32_t totalMissions)
     {
         InitialiseAssociations (missions, totalMissions, true);
-        uint32_t seed = std::hash<std::string>{}(Config ().Seed);
+        uint32_t seed
+            = static_cast<uint32_t> (std::hash<std::string>{}(Config ().Seed));
 
         std::mt19937                                engine{seed};
         std::uniform_int_distribution<unsigned int> dist (0, totalMissions - 1);
 
-        for (int i = 0; i < totalMissions; i++)
+        for (uint32_t i = 0; i < totalMissions; i++)
             {
                 // Forced Mission Enabled
                 if (Config ().ForcedMission.size () > 0)
@@ -209,7 +210,7 @@ class MissionRandomizer
 
         RandomizeMissions (&scrThread::GetGlobal<MissionDefinition> (
                                globalOffset + 1),
-                           scrThread::GetGlobal<uint64_t> (globalOffset));
+                           scrThread::GetGlobal<uint32_t> (globalOffset));
     }
 
     /*******************************************************/
@@ -238,9 +239,9 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
-    DisablePrologueStrandActiveCheck (scrProgram* program)
+    DisablePrologueStrandActiveCheck (scrProgram *program)
     {
-        //25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c ? ? ?
+        // 25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c ? ? ?
         // Note: Can be called more than once on the same program.
 
         YscUtils utils (program);
@@ -253,9 +254,9 @@ class MissionRandomizer
 
     /*******************************************************/
     static bool
-    HandleOnMissionStartCommands (uint32_t originalMission,
-                                  uint32_t randomizedMission,
-                                  scrProgram* program)
+    HandleOnMissionStartCommands (uint32_t    originalMission,
+                                  uint32_t    randomizedMission,
+                                  scrProgram *program)
     {
         // Most missions need this to not get softlocked.
         if ("IS_CUTSCENE_ACTIVE"_n())
@@ -270,7 +271,7 @@ class MissionRandomizer
                 case "prologue1"_joaat: {
                     "SHUTDOWN_LOADING_SCREEN"_n();
                     "DO_SCREEN_FADE_IN"_n(0);
-                    
+
                     break;
                 }
 
@@ -300,14 +301,14 @@ class MissionRandomizer
                 if (GetCurrentMission () != g_PreviousCurrentMission)
                     {
                         Rainbomizer::Logger::LogMessage (
-                            "g_CurrentMission changed: %d to %d",
+                            "g_CurrentMission changed: %u to %u",
                             g_PreviousCurrentMission, GetCurrentMission ());
 
                         g_PreviousCurrentMission = GetCurrentMission ();
                     }
             }
 
-        if (ctx->m_nIp == 0 && g_CurrentMission && GetCurrentMission () != -1)
+        if (ctx->m_nIp == 0 && g_CurrentMission && GetCurrentMission () != -1u)
             {
                 try
                     {
@@ -329,15 +330,15 @@ class MissionRandomizer
     }
 
     /*******************************************************/
-    static int64_t
+    static uint64_t
     GetCurrentMission ()
     {
-        if (scrThread::GetGlobals())
-            return scrThread::GetGlobal<uint64_t>(g_CurrentMission);
+        if (scrThread::GetGlobals ())
+            return scrThread::GetGlobal<uint64_t> (g_CurrentMission);
 
-        return -1;
+        return -1u;
     }
-    
+
     /*******************************************************/
     static eScriptState
     RunThreadHook (uint64_t *stack, uint64_t *globals, scrProgram *program,
@@ -356,7 +357,8 @@ class MissionRandomizer
                                                = *m.get<uint32_t> (7)
                                                  & 0xFFFFFF;
                                        });
-                Rainbomizer::Logger::LogMessage("g_CurrentMission = %d", g_CurrentMission);
+                Rainbomizer::Logger::LogMessage ("g_CurrentMission = %d",
+                                                 g_CurrentMission);
             }
 
         eScriptState state = ctx->m_nState;
@@ -397,7 +399,7 @@ class MissionRandomizer
                                        });
                 break;
             }
-        
+
         return scrProgram_InitNativeTablese188_ (program);
     }
 
@@ -417,14 +419,15 @@ public:
         RegisterHook ("8d ? ? 98 00 00 00 e8 ? ? ? ? 83 38 ff 0f 84", 7,
                       fwAssetStore__GetIndexByNamede5b, LogRequestCutscene);
 
-        RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9, scrThread_Runff6, RunThreadHook);
-        
+        RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
+                      scrThread_Runff6, RunThreadHook);
+
         RegisterHook<true> ("8b c8 8b d3 ? 8b 5c ? ? ? 83 c4 20 5f e9", 14,
                             CutSceneManager_StartCutscene, LogStartCutscene);
 
         RegisterHook ("e8 ? ? ? ? ? 8b c7 ? 8b c8 8b d3 e8", 13,
                       CutSceneManager_StartCutscene, LogStartCutscene);
-        
+
         // RegisterHook ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
         //               scrProgram_InitNativeTablese188_, ApplyCodeChanges);
     }

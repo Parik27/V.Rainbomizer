@@ -29,11 +29,10 @@ class ExceptionHandler_Threads : public ExceptionHandler
     void
     DumpStatics (scrThread *thread)
     {
-        FILE *f
-            = Common::GetRainbomizerFile (thread->m_szScriptName
-                                              + std::string (".stack.bin"),
-                                          "w", "logs/threads/");
-        
+        FILE *f = Common::GetRainbomizerFile (thread->m_szScriptName
+                                                  + std::string (".stack.bin"),
+                                              "w", "logs/threads/");
+
         fwrite (thread->m_pStack, 8, thread->m_Context.m_nSP, f);
         fclose (f);
     }
@@ -44,9 +43,9 @@ class ExceptionHandler_Threads : public ExceptionHandler
     {
         static bool printed = false;
 
-        if (std::exchange(printed, true))
+        if (std::exchange (printed, true))
             return;
-        
+
         if (!CTheScripts::aThreads || !CTheScripts::aThreads->Data)
             return;
 
@@ -71,8 +70,6 @@ class ExceptionHandler_Threads : public ExceptionHandler
                 if (!program)
                     continue;
 
-                char bytes[128] = {0};
-
                 // Frame Stack (top of the stack frame contains local
                 // variables)
                 uint64_t *FSP = &thread->m_pStack[thread->m_Context.m_nFrameSP];
@@ -81,7 +78,7 @@ class ExceptionHandler_Threads : public ExceptionHandler
                 for (int i = 0; i < 8; i++)
                     sprintf (stack + strlen (stack), "%06llx ", *(FSP++));
 
-                Logger::LogMessage("%s\n", stack);
+                Logger::LogMessage ("%s\n", stack);
                 DumpStatics (thread);
             }
     }
@@ -96,4 +93,4 @@ class ExceptionHandler_Threads : public ExceptionHandler
 
 REGISTER_HANDLER (ExceptionHandler_Threads)
 
-}; // namespace Rainbomizer
+} // namespace Rainbomizer

@@ -14,13 +14,12 @@ class WeaponEquipMgr
         uint32_t weaponHash;
         uint32_t scrThread;
     };
-    
+
     std::array<WeaponToEquip, 64> mRandomizedWeapons;
 
 public:
-
-    WeaponEquipMgr () = default;
-    WeaponEquipMgr (const WeaponEquipMgr& ) = delete;
+    WeaponEquipMgr ()                       = default;
+    WeaponEquipMgr (const WeaponEquipMgr &) = delete;
 
     void     AddWeaponToEquip (uint32_t weaponHash, uint32_t originalHash);
     uint32_t GetWeaponToEquip (uint32_t weaponHash);

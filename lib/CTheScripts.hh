@@ -12,50 +12,48 @@ class CTheScripts
 {
 public:
     static atArray<scrThread *> *aThreads;
-    static void InitialisePatterns ();
+    static void                  InitialisePatterns ();
 };
 
 /* Utility Classes */
 class NativeManager
 {
 public:
-    using NativeFunc = void(*)(scrThread::Info*);
+    using NativeFunc = void (*) (scrThread::Info *);
 
 private:
-
     struct NativeInfo
     {
         NativeFunc func;
-        uint64_t newHash;
-        uint64_t originalHash;
+        uint64_t   newHash;
+        uint64_t   originalHash;
     };
-    
+
     struct ScriptHookInfo
     {
         std::unordered_map<uint32_t, NativeInfo> mNatives;
-    };        
+    };
     inline static ScriptHookInfo m_ScriptHookInfo;
 
-    template<auto &O>
-    static bool ProcessNativeHooks (scrProgram* program);
-    
+    template <auto &O> static bool ProcessNativeHooks (scrProgram *program);
+
     static auto &
     GetHookedNativesList ()
     {
         static std::unordered_map<uint32_t, NativeFunc> List;
         return List;
     }
-    
-    static int FindNativesTableWidth (uint64_t*);
-    static int FindNativesVersionOffset (uint64_t*, uint32_t);
-    static void InitialiseNativeCmdsFromTable (uint64_t *table, uint32_t step,
-                                               uint32_t offset);
+
+    static size_t FindNativesTableWidth (uint64_t *);
+    static size_t FindNativesVersionOffset (uint64_t *, size_t);
+    static void   InitialiseNativeCmdsFromTable (uint64_t *table, size_t step,
+                                                 size_t offset);
 
     static std::unique_ptr<NativeFunc[]>
-    GetCmdsFromHashes (const std::vector<uint64_t>& hashes);
+    GetCmdsFromHashes (const std::vector<uint64_t> &hashes);
 
     static void InitialiseNativeHooks ();
-    
+
 public:
     static uint32_t GetJoaatHashFromCmdHash (uint64_t hash);
 
@@ -152,6 +150,7 @@ public:
 
 inline NativeWrapper operator"" _n (char const *s, size_t len)
 {
-    return NativeWrapper (rage::atLiteralStringHash (s, len));
+    return NativeWrapper (
+        rage::atLiteralStringHash (std::string_view (s, len)));
 }
-}; // namespace NativeLiterals
+} // namespace NativeLiterals

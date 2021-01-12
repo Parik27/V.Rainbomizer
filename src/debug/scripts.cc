@@ -22,8 +22,6 @@ to_json (nlohmann::json &j, const scrThread &thread)
 void
 to_json (nlohmann::json &j, const scrProgram &program)
 {
-    scrProgram *sProgram = const_cast<scrProgram *> (&program);
-
     j["ParameterCount"] = program.m_nParameterCount;
     j["CodeSize"]       = program.m_nCodeSize;
     j["StaticCount"]    = program.m_nStaticCount;
@@ -93,7 +91,7 @@ ScriptDebugInterface::SendThread (uWS::HttpResponse<false> *res,
 /*******************************************************/
 void
 ScriptDebugInterface::SendThreadStack (uWS::HttpResponse<false> *res,
-                                  uWS::HttpRequest *        req)
+                                       uWS::HttpRequest *        req)
 {
     int threadId = std::stoi (std::string (req->getParameter (0)));
 
@@ -111,17 +109,17 @@ bool
 ScriptDebugInterface::HandleWebSocketRequests (
     RainbomizerDebugServer::WebSocket *socket, nlohmann::json &req)
 {
-    if (req.at("Type").get<std::string> () != "Request"
-        || req.at("Topic").get<std::string> () != "Scripts")
+    if (req.at ("Type").get<std::string> () != "Request"
+        || req.at ("Topic").get<std::string> () != "Scripts")
         return false;
 
     uint32_t DataHash
         = rage::atStringHash (req.at ("Data").get<std::string> ().c_str ());
 
     uint32_t threadId = 0;
-    if (req.count("CapturedThread"))
+    if (req.count ("CapturedThread"))
         threadId = req.at ("CapturedThread");
-    
+
     auto userData = static_cast<RainbomizerDebugServer::WebsocketUserData *> (
         socket->getUserData ());
 
@@ -145,10 +143,12 @@ ScriptDebugInterface::HandleWebSocketRequests (
                 else
                     scrThread::GetGlobal (globalIndex)
                         = req.at ("Value").at ("Data");
+
+                [[fallthrough]];
             }
             case "global"_joaat: {
 
-                uint32_t globalIndex = req.at("Index");
+                uint32_t globalIndex = req.at ("Index");
 
                 std::string globalStr
                     = fmt::format ("Global {} = {}/{}", globalIndex,
@@ -174,6 +174,7 @@ ScriptDebugInterface::HandleWebSocketRequests (
                             thread->GetStaticVariable (index)
                                 = req.at ("Value").at ("Data");
                     }
+                [[fallthrough]];
             }
             case "static"_joaat: {
                 uint32_t localIndex = req.at ("Index");
@@ -208,6 +209,7 @@ ScriptDebugInterface::HandleWebSocketRequests (
                             thread->GetLocalVariable (index)
                                 = req.at ("Value").at ("Data");
                     }
+                [[fallthrough]];
             }
             case "local"_joaat: {
                 uint32_t localIndex = req.at ("Index");
@@ -232,10 +234,9 @@ ScriptDebugInterface::HandleWebSocketRequests (
             case "capturethread"_joaat: {
                 uint32_t hash = rage::atStringHash (
                     req.at ("ThreadName").get<std::string> ().c_str ());
-                
+
                 m_CaptureRequests.push_back (hash);
-                socket->subscribe (
-                    fmt::format ("scripts/capture/{:x}", hash));
+                socket->subscribe (fmt::format ("scripts/capture/{:x}", hash));
                 break;
             }
             case "setbreakpoint"_joaat: {
@@ -273,35 +274,34 @@ void
 ScriptDebugInterface::CallNativeNow (
     nlohmann::json &req, RainbomizerDebugServer::WebsocketUserData data)
 {
-    std::string native = req.at("Native");
+    std::string native   = req.at ("Native");
     std::string response = "";
-    
-    uint32_t    nativeHash
-        = rage::atLiteralStringHash (native.c_str (), native.size ());
 
-    if (!NativeManager::DoesNativeExist(nativeHash))
+    uint32_t nativeHash = rage::atLiteralStringHash (native);
+
+    if (!NativeManager::DoesNativeExist (nativeHash))
         response = "Native not found - " + native;
 
     else
         {
             scrThread::Info info;
-            for (const auto &i : req.at("NativeArgs"))
+            for (const auto &i : req.at ("NativeArgs"))
                 {
-                    switch (i.at("Type").get<int> ())
+                    switch (i.at ("Type").get<int> ())
                         {
                             // INT32
                         case 0:
-                            info.PushArg<int> (i.at("Data"));
+                            info.PushArg<int> (i.at ("Data"));
                             break;
 
                             // FLOAT
-                        case 1: info.PushArg<float> (i.at("Data"));
+                        case 1: info.PushArg<float> (i.at ("Data"));
                         }
                 }
 
             NativeManager::InvokeNative (nativeHash, &info);
 
-            if (req.at("ReturnType").get<int> () == 0)
+            if (req.at ("ReturnType").get<int> () == 0)
                 response = std::to_string (info.GetReturn ());
             else
                 response = std::to_string (info.GetReturn<float> ());
@@ -345,18 +345,18 @@ ScriptDebugInterface::CapturedThread::UpdateBreakpoints (scrThreadContext *ctx)
 void
 ScriptDebugInterface::CapturedThread::RemoveBreakpoint (uint64_t offset)
 {
-    if (auto breakPoint = LookupMap(m_Breakpoints, offset))
+    if (auto breakPoint = LookupMap (m_Breakpoints, offset))
         {
             if (!m_Program)
                 return;
 
-            m_Program->GetCodeByte<uint8_t>(offset) = *breakPoint;
+            m_Program->GetCodeByte<uint8_t> (offset) = *breakPoint;
         }
 }
 
 /*******************************************************/
 void
-ScriptDebugInterface::CapturedThread::BreakNow (scrThread* thread)
+ScriptDebugInterface::CapturedThread::BreakNow (scrThread *thread)
 {
     nlohmann::json j;
     j["Type"]   = "Update";
@@ -364,7 +364,7 @@ ScriptDebugInterface::CapturedThread::BreakNow (scrThread* thread)
     j["Data"]   = "ThreadBreak";
     j["Thread"] = *thread;
 
-    for (int i = 0; i < thread->m_Context.m_nStackSize / 8; i++)
+    for (uint32_t i = 0; i < thread->m_Context.m_nStackSize / 8; i++)
         {
             if (m_Stack[i] != thread->m_pStack[i])
                 {
@@ -393,9 +393,9 @@ ScriptDebugInterface::CapturedThread::CapturedThread (scrThread *thread)
     m_nStackSize = thread->m_Context.m_nStackSize;
 
     nlohmann::json j;
-    j["Type"] = "Update";
-    j["Topic"] = "Scripts";
-    j["Data"] = "ScriptCaptured";
+    j["Type"]   = "Update";
+    j["Topic"]  = "Scripts";
+    j["Data"]   = "ScriptCaptured";
     j["Thread"] = *thread;
 
     RainbomizerDebugServer::Get ().Broadcast (
@@ -430,18 +430,17 @@ ScriptDebugInterface::RunThreadHook (uint64_t *stack, uint64_t *globals,
     eScriptState state = eScriptState::WAITING;
 
     HandleCaptureRequests ();
-    
+
     if ((m_CapturedThread = LookupMap (m_Threads, ctx->m_nThreadId)))
         {
             m_CapturedThread->m_Program = program;
             m_CapturedThread->m_Thread  = scrThread::GetActiveThread ();
 
             m_CapturedThread->UpdateBreakpoints (ctx);
-            for (auto& [wsData, js]  : m_CapturedThread->m_NativeRequests)
+            for (auto &[wsData, js] : m_CapturedThread->m_NativeRequests)
                 CallNativeNow (js, wsData);
-            m_CapturedThread->m_NativeRequests.clear();
-            
-            
+            m_CapturedThread->m_NativeRequests.clear ();
+
             if (m_CapturedThread->m_eState != CapturedThread::STOPPED)
                 state = O (stack, globals, program, ctx);
 
@@ -499,9 +498,8 @@ ScriptDebugInterface::InitialisePerOpcodeHook ()
         0x4d, 0x89, 0xd8,             // MOV     R8, R11
         0xe8, 0x00, 0x00, 0x00, 0x00, // CALL    0x0
         0x4c, 0x8b, 0x45, 0x6f,       // MOV     R8, qword ptr [RBP + 0x10]
-        0x4c, 0x8b, 0x4d, 0x67,
-        0x4c, 0x8b, 0x5d, 0x7f,
-        0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
+        0x4c, 0x8b, 0x4d, 0x67, 0x4c, 0x8b, 0x5d,
+        0x7f, 0xe9, 0x00, 0x00, 0x00, 0x00 // JMP     0x0
     };
 
     void *addr       = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 7e 0f 87");
@@ -515,8 +513,7 @@ ScriptDebugInterface::InitialisePerOpcodeHook ()
     injector::MakeJMP (addr, trampoline);
     injector::MakeJMP (&trampoline[0][JMP_OFFSET], (uint8_t *) addr + 5);
 
-    RegisterHook (&trampoline[0][CALL_OFFSET],
-                  PerOpcodeHook);
+    RegisterHook (&trampoline[0][CALL_OFFSET], PerOpcodeHook);
 
     printf ("Address: %p\nTrampoline: %p", addr, trampoline);
 }

@@ -12,9 +12,6 @@
 #include <string>
 #include <string_view>
 
-#pragma warning(push)
-#pragma warning(disable:4201)
-
 namespace hook
 {
 	extern ptrdiff_t baseAddressDifference;
@@ -204,5 +201,3 @@ namespace hook
 		return pattern(std::move(pattern_string)).get_first<T>(offset);
 	}
 }
-
-#pragma warning(pop)

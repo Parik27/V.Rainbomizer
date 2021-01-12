@@ -17,7 +17,7 @@ public:
 
     virtual const char *GetHandlerName () = 0;
 
-    virtual ~ExceptionHandler() = default;
+    virtual ~ExceptionHandler () = default;
 };
 
 /*******************************************************/
@@ -37,7 +37,7 @@ public:
     void Init ();
 
     static void RunThread ();
-    
+
     static ExceptionHandlerMgr &GetInstance ();
 
     template <typename T, typename... Args>

@@ -25,17 +25,18 @@ class ScriptDebugInterface
         {
             STOPPED,
             RUNNING
-        } m_eState = STOPPED;
+        } m_eState
+            = STOPPED;
 
         scrProgram *m_Program;
         scrThread * m_Thread;
 
-        std::map<uint64_t, uint8_t>            m_Breakpoints;
-        std::unique_ptr<uint64_t[]>            m_Stack;
-        uint32_t                               m_nStackSize;
+        std::map<uint64_t, uint8_t> m_Breakpoints;
+        std::unique_ptr<uint64_t[]> m_Stack;
+        uint32_t                    m_nStackSize;
 
         uint8_t m_OverrideNextOpcode = 0xFF;
-        int32_t m_NumOpsUntilBreak = -1;
+        int32_t m_NumOpsUntilBreak   = -1;
 
         std::optional<eScriptState> m_NextScriptState;
         std::vector<std::pair<RainbomizerDebugServer::WebsocketUserData,
@@ -67,8 +68,8 @@ class ScriptDebugInterface
         void
         NextInstruction ()
         {
-            m_eState                  = RUNNING;
-            m_NumOpsUntilBreak        = 1;
+            m_eState           = RUNNING;
+            m_NumOpsUntilBreak = 1;
         }
 
         inline uint8_t
@@ -79,7 +80,7 @@ class ScriptDebugInterface
 
             if (m_OverrideNextOpcode != 0xFF)
                 return std::exchange (m_OverrideNextOpcode, 0xFF);
-        
+
             return defaultOpcode;
         }
 
@@ -88,13 +89,13 @@ class ScriptDebugInterface
     };
 
     inline static std::map<uint32_t, CapturedThread> m_Threads;
-    inline static std::vector<uint32_t> m_CaptureRequests;
+    inline static std::vector<uint32_t>              m_CaptureRequests;
 
-    inline static CapturedThread* m_CapturedThread = nullptr;
-    
+    inline static CapturedThread *m_CapturedThread = nullptr;
+
     static void SendThreadsList (uWS::HttpResponse<false> *res,
                                  uWS::HttpRequest *        req);
-    
+
     static void SendThread (uWS::HttpResponse<false> *res,
                             uWS::HttpRequest *        req);
 
@@ -102,22 +103,21 @@ class ScriptDebugInterface
                                  uWS::HttpRequest *        req);
 
     static bool HandleWebSocketRequests (RainbomizerDebugServer::WebSocket *,
-                                     nlohmann::json &req);
+                                         nlohmann::json &req);
 
-    static void CallNativeNow (nlohmann::json &                           req,
+    static void CallNativeNow (nlohmann::json &                          req,
                                RainbomizerDebugServer::WebsocketUserData data);
 
-    static uint32_t PerOpcodeHook (uint8_t* ip, uint64_t* SP, uint64_t* FSP);
-    static void InitialisePerOpcodeHook ();
-    static void HandleCaptureRequests ();
-    
-    template<auto& O>
-    static eScriptState RunThreadHook (uint64_t *        stack,
-                                       uint64_t *        globals,
+    static uint32_t PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP);
+    static void     InitialisePerOpcodeHook ();
+    static void     HandleCaptureRequests ();
+
+    template <auto &O>
+    static eScriptState RunThreadHook (uint64_t *stack, uint64_t *globals,
                                        scrProgram *      program,
                                        scrThreadContext *ctx);
 
-    static void HitBreakPoint (uint32_t, scrThread* thread);
+    static void HitBreakPoint (uint32_t, scrThread *thread);
 
 public:
     ScriptDebugInterface ();

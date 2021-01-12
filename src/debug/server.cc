@@ -31,7 +31,7 @@ RainbomizerDebugServer::HandleMessage (WebSocket *ws, std::string_view msg,
     nlohmann::json j;
     try
         {
-            j = nlohmann::json::parse(msg);
+            j = nlohmann::json::parse (msg);
         }
     catch (...)
         {
@@ -115,13 +115,13 @@ RainbomizerDebugServer::InitialiseServer ()
         std::bind (&RainbomizerDebugServer::Process, this, std::ref (app)));
 
     app.run ();
-    Rainbomizer::Logger::LogMessage("Failed to listen");
+    Rainbomizer::Logger::LogMessage ("Failed to listen");
 }
 
 /*******************************************************/
 RainbomizerDebugServer::RainbomizerDebugServer ()
 {
-    Rainbomizer::Common::AddInitCallback ([this] (bool test) {
+    Rainbomizer::Common::AddInitCallback ([this] (bool) {
         static bool initialised = false;
         if (!std::exchange (initialised, true))
             {

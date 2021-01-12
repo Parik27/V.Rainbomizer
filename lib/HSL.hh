@@ -12,13 +12,13 @@ struct HSL
 
     HSL () = default;
 
-    HSL (float h, float s, float l) : h(h), s(s), l(l) {};
-    
+    HSL (float h, float s, float l) : h (h), s (s), l (l){};
+
     HSL (CARGB input)
     {
-        float R = input.r / 255.0;
-        float G = input.g / 255.0;
-        float B = input.b / 255.0;
+        float R = input.r / 255.0f;
+        float G = input.g / 255.0f;
+        float B = input.b / 255.0f;
 
         float Xmax = std::max ({R, G, B});
         float Xmin = std::min ({R, G, B});
@@ -46,13 +46,15 @@ struct HSL
         auto f = [this] (float n) {
             float k = fmod ((n + (this->h / 30)), 12);
             float a = this->s * std::min (this->l, 1 - this->l);
-            return this->l
-                   - a
-                         * std::max (-1.0f,
-                                     std::min (k - 3, std::min (9 - k, 1.0f)));
+            float f
+                = this->l
+                  - a
+                        * std::max (-1.0f,
+                                    std::min (k - 3, std::min (9 - k, 1.0f)));
+            return static_cast<unsigned char> (f * 255);
         };
 
-        return CARGB (255, f (0) * 255, f (8) * 255, f (4) * 255);
+        return CARGB (255, f (0), f (8), f (4));
     }
 };
 } // namespace Rainbomizer

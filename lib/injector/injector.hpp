@@ -436,9 +436,9 @@ inline memory_pointer_raw GetAbsoluteOffset(int rel_value, memory_pointer_tr end
  *  GetRelativeOffset
  *      Gets relative offset based on absolute address @abs_value for instruction that ends at @end_of_instruction
  */
-inline int GetRelativeOffset(memory_pointer_tr abs_value, memory_pointer_tr end_of_instruction)
+inline auto GetRelativeOffset(memory_pointer_tr abs_value, memory_pointer_tr end_of_instruction)
 {
-    return uintptr_t(abs_value.get<char>() - end_of_instruction.get<char>());
+    return abs_value.get<char>() - end_of_instruction.get<char>();
 }
 
 /*
@@ -464,9 +464,9 @@ inline void MakeRelativeOffset(memory_pointer_tr at, memory_pointer_tr dest, siz
 {
     switch(sizeof_addr)
     {
-        case 1: WriteMemory<int8_t> (at, static_cast<int8_t> (GetRelativeOffset(dest, at+sizeof_addr)), vp);
-        case 2: WriteMemory<int16_t>(at, static_cast<int16_t>(GetRelativeOffset(dest, at+sizeof_addr)), vp);
-        case 4: WriteMemory<int32_t>(at, static_cast<int32_t>(GetRelativeOffset(dest, at+sizeof_addr)), vp);
+        case 1: return WriteMemory<int8_t> (at, static_cast<int8_t> (GetRelativeOffset(dest, at+sizeof_addr)), vp);
+        case 2: return WriteMemory<int16_t>(at, static_cast<int16_t>(GetRelativeOffset(dest, at+sizeof_addr)), vp);
+        case 4: return WriteMemory<int32_t>(at, static_cast<int32_t>(GetRelativeOffset(dest, at+sizeof_addr)), vp);
     }
 }
 
@@ -584,7 +584,7 @@ inline void MakeRET(memory_pointer_tr at, uint16_t pop = 0, bool vp = true)
          template<class T>
          static T* get()
          {
-             return get().get<T>();
+             return get().template get<T>();
          }
 
     private:

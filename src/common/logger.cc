@@ -89,7 +89,7 @@ Logger::LogMessage (const char *format, ...)
     fflush (file);
 }
 
-    /*******************************************************/
+/*******************************************************/
 class DisplayBuildVersion
 {
     static char *

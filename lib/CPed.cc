@@ -2,13 +2,12 @@
 #include <CPed.hh>
 
 void *(*CPedInventory__GiveWeapon) (CPedInventory *, uint32_t, uint32_t);
-CInventoryItem *(* CInventoryItemRepository__FindWeapon) (
+CInventoryItem *(*CInventoryItemRepository__FindWeapon) (
     CInventoryItemRepository *, uint32_t);
 CPed *(*fwScriptGuidPool__GetPed) (uint32_t handle);
 
 /*******************************************************/
-CInventoryItem *__cdecl
-CInventoryItemRepository::FindWeapon (uint32_t hash)
+CInventoryItem *__cdecl CInventoryItemRepository::FindWeapon (uint32_t hash)
 {
     return CInventoryItemRepository__FindWeapon (this, hash);
 }

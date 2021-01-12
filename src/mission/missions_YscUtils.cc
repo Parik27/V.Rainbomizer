@@ -35,15 +35,17 @@ void
 YscUtils::ExtendCode (uint32_t newSize)
 {
     // uint32_t newNumPages  = scrProgram::GetTotalPages (newSize);
-    // uint32_t origNumPages = scrProgram::GetTotalPages (m_pProgram->m_nCodeSize);
+    // uint32_t origNumPages = scrProgram::GetTotalPages
+    // (m_pProgram->m_nCodeSize);
 
     // if (origNumPages >= newNumPages)
     //     return;
 
     // m_pProgram->m_nCodeSize = newSize;
 
-    // auto newCodePages = (scrProgram::scrPage**) operator new[] (sizeof (scrProgram::scrPage*) * newNumPages);
-    // std::copy_n (m_pProgram->m_pCodeBlocks, origNumPages, newCodePages);
+    // auto newCodePages = (scrProgram::scrPage**) operator new[] (sizeof
+    // (scrProgram::scrPage*) * newNumPages); std::copy_n
+    // (m_pProgram->m_pCodeBlocks, origNumPages, newCodePages);
 
     // for (int i = origNumPages; i < newNumPages; i++)
     //     {

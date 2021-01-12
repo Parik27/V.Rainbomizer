@@ -15,7 +15,7 @@ class YscUtils : sysUseAllocator
 public:
     YscUtils (scrProgram *program) : m_pProgram (program){};
 
-    void FindCodePattern (const std::string &pattern,
+    void FindCodePattern (const std::string &                       pattern,
                           std::function<void (hook::pattern_match)> CB);
 
     void FindString (const char *str, void (*CB) (char *));
@@ -32,8 +32,8 @@ public:
         return &m_pProgram->m_pCodeBlocks[totalPages];
     }
 
-    uint32_t GetCodeOffset (uint8_t* code);
-    
+    uint32_t GetCodeOffset (uint8_t *code);
+
     inline scrProgram *
     GetProgram ()
     {

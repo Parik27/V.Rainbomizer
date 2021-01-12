@@ -76,7 +76,7 @@ struct Sound
     int16_t      field_0x48;
     uint8_t      field_0x4a;
 };
-}; // namespace rage
+} // namespace rage
 
 class audSound
 {
@@ -109,23 +109,23 @@ struct audMetadataChunk
     char *                    m_apStringTable;
 
     // These fields were added in v1.0.2189.0
-    atArray<>                 m_RadioMusicFiles;
-    uint32_t                  field_0x30;    
-    
-    uint32_t                  m_nNumStringsInStringTable;
-    char *                    m_pStringTableStart;
-    char *                    m_pStringTableEnd;
-    uint64_t                  field_0x50;
-    uint32_t                  field_0x58;
-    int32_t                   m_nStringTableSize;
-    bool                      m_bInitialised;
+    atArray<> m_RadioMusicFiles;
+    uint32_t  field_0x30;
+
+    uint32_t m_nNumStringsInStringTable;
+    char *   m_pStringTableStart;
+    char *   m_pStringTableEnd;
+    uint64_t field_0x50;
+    uint32_t field_0x58;
+    int32_t  m_nStringTableSize;
+    bool     m_bInitialised;
 
     // For iterating over the chunk
     template <typename T, typename F>
     void
     ForEach (F func)
     {
-        for (size_t i = 0; i < m_nObjectMapSize; i++)
+        for (uint32_t i = 0; i < m_nObjectMapSize; i++)
             func ((T *) ((char *) m_pObjectData
                          + m_pObjectMap[i].m_nObjectOffset),
                   m_pObjectMap[i].m_nObjectName, i);
@@ -134,14 +134,15 @@ struct audMetadataChunk
     uint32_t
     SearchForTypedObjectIndexFromHash (uint32_t name)
     {
-        for (size_t i = 0; i < m_nObjectMapSize; i++)
+        for (uint32_t i = 0; i < m_nObjectMapSize; i++)
             if (m_pObjectMap[i].m_nObjectName == name)
                 return i;
         return -1;
-        
+
+#ifdef BINARY_SEARCH
         if (m_nObjectMapSize == 0 || !m_pObjectMap || !m_pObjectData)
             return -1;
-        
+
         size_t L = 0;
         size_t R = m_nObjectMapSize - 1;
 
@@ -156,6 +157,7 @@ struct audMetadataChunk
                     return m;
             }
         return -1;
+#endif
     }
 
     template <typename T>
@@ -163,7 +165,7 @@ struct audMetadataChunk
     FindObjectPtrFromHash (uint32_t name)
     {
         uint32_t index = SearchForTypedObjectIndexFromHash (name);
-        if (index == -1)
+        if (index == -1u)
             return nullptr;
         return (T *) ((char *) m_pObjectData
                       + m_pObjectMap[index].m_nObjectOffset);

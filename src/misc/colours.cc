@@ -28,8 +28,8 @@ class ColoursRandomizer
         HSL colour (CARGB (a, r, g, b));
         colour.h = RandomFloat (360);
         colour.s = RandomFloat (0.5, 1);
-        colour.l = RandomFloat (std::max (0.0, colour.l - 0.25),
-                                std::min (1.0, colour.l + 0.25));
+        colour.l = RandomFloat (std::max (0.0f, colour.l - 0.25f),
+                                std::min (1.0f, colour.l + 0.25f));
 
         CARGB newColour = colour.ToARGB ();
 
@@ -114,7 +114,6 @@ public:
             RegisterHook ("8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,
                           CHud__SetHudColour, SetNewHudColour);
 
-
         // Car Colours
         // ---------
         if (RandomizeCarColours)
@@ -126,7 +125,7 @@ public:
                     injector::GetBranchDestination (addr).get<void> (),
                     CCustomShaderEffectVehicle_SetForVehicle_134,
                     RandomizeVehicleColour);
-                //RegisterHook (addr, RandomizeVehicleColour);
+                // RegisterHook (addr, RandomizeVehicleColour);
             }
     }
 } _cols;

@@ -9,9 +9,10 @@
 // Ammo Info Randomizer
 // *******************************************************
 using CAmmoInfoRandomizer = ParserRandomHelper<
-    CAmmoInfo,
-    RandomizedFieldsWrapper<SelectiveRandomizer<ShuffleRandomizer<uint32_t>, SelectionType::EXCLUDING, 0>, "AmmoMax"_joaat,
-                            "AmmoMax50"_joaat, "AmmoMax100"_joaat>>;
+    CAmmoInfo, RandomizedFieldsWrapper<
+                   SelectiveRandomizer<ShuffleRandomizer<uint32_t>,
+                                       SelectionType::EXCLUDING, 0>,
+                   "AmmoMax"_joaat, "AmmoMax50"_joaat, "AmmoMax100"_joaat>>;
 
 // Weapon Info Randomizer
 // *******************************************************
@@ -78,8 +79,8 @@ using CWeaponInfoRandomizerBase = ParserRandomHelper<
         "IkRecoilDisplacementScope"_joaat,
         "IkRecoilDisplacementScaleBackward"_joaat,
         "IkRecoilDisplacementScaleVertical"_joaat, "AimProbeLengthMin"_joaat,
-        "AimProbeLengthMax"_joaat,
-        "KillshotImpulseScale"_joaat, "AimingBreathingAdditiveWeight"_joaat,
+        "AimProbeLengthMax"_joaat, "KillshotImpulseScale"_joaat,
+        "AimingBreathingAdditiveWeight"_joaat,
         "FiringBreathingAdditiveWeight"_joaat,
         "StealthAimingBreathingAdditiveWeight"_joaat,
         "StealthFiringBreathingAdditiveWeight"_joaat,
@@ -125,7 +126,6 @@ public:
 
         // Randomize on game load
         Rainbomizer::Common::AddInitCallback ([] (bool session) {
-
             if (!session)
                 return;
 
@@ -133,7 +133,7 @@ public:
 
             if (std::exchange (toSample, false))
                 HandleItemInfoRandomization (true);
-            
+
             HandleItemInfoRandomization (false);
         });
 

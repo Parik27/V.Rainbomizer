@@ -23,18 +23,18 @@ pgRequestCallback CB_sysIpcSignalSema;
 /* Text Case Randomizer - randomizes the case of each letter for all texts
    in-game. It's possible that it randomizes some important non-displayed data
    (such as audio related subtitles that are used to generate speech, but
-   hopefully the game treats them as case-sensitive so we don't have to worry
+   hopefully the game treats them as case-insensitive so we don't have to worry
    about them :P
 */
 /*******************************************************/
 class TextCaseRandomizer
-{    
+{
     // Used to store pointer to where the file is read in addition to the
     // original data, which is stored in pOriginalData.
     struct CallbackData
     {
-        void *pOutData;
-        void *pOriginalData;
+        void *            pOutData;
+        void *            pOriginalData;
         pgRequestCallback pOriginalCb;
 
         CallbackData (void *data, void *origData, pgRequestCallback cb)
@@ -47,17 +47,17 @@ class TextCaseRandomizer
     {
         int Odds;
     } m_Config;
-    
+
     /*******************************************************/
     static void
-    RandomizeTextCase (void* data)
+    RandomizeTextCase (void *data)
     {
-        CallbackData* cbData = static_cast<CallbackData*> (data);
-        
+        CallbackData *cbData = static_cast<CallbackData *> (data);
+
         // Check .gxt2 structure here - https://gtamods.com/wiki/.gxt2
         struct CTextFile_Data
         {
-            char Signature[4];
+            char     Signature[4];
             uint32_t NumKeys;
             struct KeyEntry
             {
@@ -65,11 +65,11 @@ class TextCaseRandomizer
                 uint32_t DataOffset;
             } Keys[1];
         };
-        
+
         CTextFile_Data *file = static_cast<CTextFile_Data *> (cbData->pOutData);
         if (strncmp ("2TXG", file->Signature, 4) == 0)
             {
-                for (int i = 0; i < file->NumKeys; i++)
+                for (uint32_t i = 0; i < file->NumKeys; i++)
                     {
                         char *Str = reinterpret_cast<char *> (file)
                                     + file->Keys[i].DataOffset;
@@ -81,8 +81,9 @@ class TextCaseRandomizer
                                     || (c >= 'A' && c <= 'Z'))
                                     {
                                         bool upperCase = RandomInt (1);
-                                        c = (upperCase) ? std::toupper (c)
-                                                        : std::tolower (c);
+                                        c              = static_cast<char> (
+                                            (upperCase) ? std::toupper (c)
+                                                                     : std::tolower (c));
                                     }
                             }
                     }
@@ -91,7 +92,7 @@ class TextCaseRandomizer
         cbData->pOriginalCb (cbData->pOriginalData); // call original cb
         delete cbData;
     }
-    
+
     /*******************************************************/
     static uint64_t
     TextOnRequestAsyncHook (uint32_t collectionId, pgRequestInitParams *request,
@@ -99,19 +100,21 @@ class TextCaseRandomizer
                             pgRequestCallback Cb, void *CbData, uint32_t p7,
                             uint32_t p8, uint64_t p9, uint32_t p10)
     {
-        Rainbomizer::ExceptionHandlerMgr::GetInstance().Init();
-        
+        Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
+
         // Called by the game to request the gxt2 file to be read.
         // Cb (CbData) is called after the request is finished. If the streamer
         // has too many requests, it returns 0. So we make sure we don't leak
         // memory by freeing the temporary callback data pointer.
 
-        CallbackData* data = new CallbackData(request->pData, CbData, Cb);
+        CallbackData *data = new CallbackData (request->pData, CbData, Cb);
 
-        uint64_t id = pgStreamer_Request (collectionId, request, numBuffers, p4,
-                                          RandomizeTextCase, data, p7, p8, p9, p10);
-        
-        // Free data in case the call failed. If it didn't, it'll be freed in the callback.
+        uint64_t id
+            = pgStreamer_Request (collectionId, request, numBuffers, p4,
+                                  RandomizeTextCase, data, p7, p8, p9, p10);
+
+        // Free data in case the call failed. If it didn't, it'll be freed in
+        // the callback.
         if (id == 0)
             delete data;
 
@@ -142,7 +145,7 @@ public:
 
         if (RandomInt (m_Config.Odds) != 0)
             return;
-        
+
         CB_sysIpcSignalSema = (pgRequestCallback) GetRelativeReference (
             "? 89 44 ? ? ? 8d 05 ? ? ? ? ? 89 ? ? ? e8 ? ? ? ? ? 83 c4 58", 8,
             12);

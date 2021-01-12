@@ -13,7 +13,7 @@ void (*VisitTopLevelStructure_37027e) (parInstanceVisitor *,
 class CutSceneRandomizer
 {
     /*******************************************************/
-    static std::vector<std::vector<uint32_t>>&
+    static std::vector<std::vector<uint32_t>> &
     GetModelsList ()
     {
         static std::vector<std::vector<uint32_t>> mModels;
@@ -55,8 +55,7 @@ class CutSceneRandomizer
                     }
 
                 line[strcspn (line, "\n")] = 0;
-                GetModelsList ().back ().push_back (
-                    rage::atStringHash (line));
+                GetModelsList ().back ().push_back (rage::atStringHash (line));
             }
 
         return true;
@@ -65,7 +64,7 @@ class CutSceneRandomizer
     /*******************************************************/
     static void
     RandomizeCutScene (parInstanceVisitor *visitor, cutfCutsceneFile2 *file)
-    {       
+    {
         for (int i = 0; i < file->pCutsceneObjects.Size; i++)
             {
                 switch (file->pCutsceneObjects.Data[i]->GetType ())
@@ -76,6 +75,8 @@ class CutSceneRandomizer
                                 file->pCutsceneObjects.Data[i]);
                             obj->StreamingName
                                 = GetRandomModel (obj->StreamingName);
+
+                            break;
                         }
 
                         // Lights
@@ -85,9 +86,11 @@ class CutSceneRandomizer
                                 file->pCutsceneObjects.Data[i]);
 
                             // Random Colour
-                            obj->vColour.x = RandomFloat(1.0);
-                            obj->vColour.y = RandomFloat(1.0);
-                            obj->vColour.z = RandomFloat(1.0);
+                            obj->vColour.x = RandomFloat (1.0);
+                            obj->vColour.y = RandomFloat (1.0);
+                            obj->vColour.z = RandomFloat (1.0);
+
+                            break;
                         }
 
                     default: continue;
@@ -100,9 +103,9 @@ public:
     /*******************************************************/
     CutSceneRandomizer ()
     {
-        if (!ConfigManager::ReadConfig("CutSceneRandomizer"))
+        if (!ConfigManager::ReadConfig ("CutSceneRandomizer"))
             return;
-        
+
         InitialiseAllComponents ();
 
         if (InitialiseModelData ())

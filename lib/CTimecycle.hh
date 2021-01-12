@@ -42,7 +42,7 @@ struct tcCycleInfo
     {
         struct
         {
-            rage::half Variables[432]; // these are half-precision floats
+            rage::float16 Variables[432]; // these are half-precision floats
         } TimeSamples[13];
     } Regions[2];
     uint32_t Hash;

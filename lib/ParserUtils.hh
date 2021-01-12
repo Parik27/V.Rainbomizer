@@ -8,7 +8,7 @@
 /*******************************************************/
 template <typename T = uint32_t> class ParserEnumEquate
 {
-    T* pData;
+    T *pData;
 
     struct TranslationTable
     {
@@ -27,7 +27,7 @@ public:
     ToHash ()
     {
         TranslationTable *t = Table;
-        while (t->nHash != 0 && t->nEquatedValue != -1)
+        while (t->nHash != 0 && t->nEquatedValue != -1u)
             {
                 if (*pData == t->nEquatedValue)
                     return t->nHash;
@@ -110,7 +110,7 @@ public:
     inline static T &
     FindFieldPtr (parStructureStaticData *data, P *ptr, uint32_t hash)
     {
-        return *reinterpret_cast<T *> (FindFieldPtr (data, (void*) ptr, hash));
+        return *reinterpret_cast<T *> (FindFieldPtr (data, (void *) ptr, hash));
     }
 };
 
@@ -144,6 +144,8 @@ protected:
     inline static parStructureStaticData *pStaticData = nullptr;
 
 public:
+    using Type = Class;
+
     inline static constexpr uint32_t
     GetHash ()
     {
@@ -156,14 +158,27 @@ public:
         return rage::atStringHash (type_name<Class> ());
     }
 
-    
+    void *
+    GetPtr ()
+    {
+        return reinterpret_cast<void *> (static_cast<Class *> (this));
+    }
+
+    parStructureStaticData *
+    GetStaticData () const
+    {
+        if (!pStaticData)
+            pStaticData = ParserUtils::FindStaticData (GetHash ());
+
+        return pStaticData;
+    }
+
     ParserEnumEquate<>
     Equate (uint32_t fieldHash)
     {
-        if (!pStaticData)
-            pStaticData = ParserUtils::FindStaticData (GetHash());
-
-        return ParserUtils::FindFieldEnum (pStaticData, static_cast<Class*>(this), fieldHash);
+        return ParserUtils::FindFieldEnum (GetStaticData (),
+                                           static_cast<Class *> (this),
+                                           fieldHash);
     }
 
     template <typename T>
@@ -178,10 +193,7 @@ public:
     const T &
     Get (uint32_t fieldHash) const
     {
-        if (!pStaticData)
-            pStaticData = ParserUtils::FindStaticData (GetHash ());
-
-        return ParserUtils::FindFieldPtr<T> (pStaticData,
+        return ParserUtils::FindFieldPtr<T> (GetStaticData (),
                                              static_cast<const Class *> (this),
                                              fieldHash);
     }

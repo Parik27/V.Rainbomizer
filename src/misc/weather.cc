@@ -107,10 +107,10 @@ class WeatherRandomizer
         // This code is like -
         // If original is in range 0 - 1, return random between that range,
         // repeat for 0 - 5 and so on.
-        std::array Ranges = {1.0, 5.0, 10.0, 50.0};
+        std::array Ranges = {1.0f, 5.0f, 10.0f, 50.0f};
 
         for (auto i : Ranges)
-            if (RandomRanged (0.0, i) || RandomRanged (-i, 0.0))
+            if (RandomRanged (0.0f, i) || RandomRanged (-i, 0.0f))
                 break;
 
         return flVal;
@@ -130,7 +130,7 @@ class WeatherRandomizer
     }
 
     /*******************************************************/
-    static rage::half &
+    static rage::float16 &
     GetRandomTimecycleVariable (uint32_t variableIndex)
     {
         uint32_t totalTimecycles = tcConfig::ms_cycleInfo->Size;

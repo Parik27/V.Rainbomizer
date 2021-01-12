@@ -48,18 +48,18 @@ class CVehicleModelInfo : public CBaseModelInfo
 {
 public:
     uint32_t GetVehicleType ();
-    char* GetGameName ();
+    char *   GetGameName ();
 };
 
 class CPedModelInfo : public CBaseModelInfo
 {
 public:
-    uint8_t field_0xb0[54];
+    uint8_t  field_0xb0[54];
     uint32_t m_nMovementClipSet;
-    uint8_t field_0xf4[4];
+    uint8_t  field_0xf4[4];
     uint64_t field_0xf8;
     uint32_t field_0x100;
-    uint8_t field_0x104[4];
+    uint8_t  field_0x104[4];
     uint32_t m_nStrafeClipSet;
     uint32_t m_nMovementToStrafeClipSet;
     uint32_t m_nInjuredStrafeClipSet;
@@ -71,55 +71,55 @@ public:
     uint32_t m_nExperssionSetName;
     uint32_t m_nFacialClipsetGroupName;
     uint32_t GetupSetHash;
-    bool m_bIsPlayerType; // confirmed
-    uint8_t field_0x135[3];
+    bool     m_bIsPlayerType; // confirmed
+    uint8_t  field_0x135[3];
     uint32_t m_nPedType; // confirmed
-    float m_nMinActivationImpulse;
-    float m_fStubble;
-    uint8_t field_0x144[6];
-    short field_0x14a;
-    uint8_t field_0x14c[16];
-    uint8_t Radio1;
-    uint8_t Radio2;
-    uint8_t field_0x15e[2];
-    float m_fFUpOffset;
-    float m_fFFrontOffset;
-    float m_fRUpOffset;
-    float m_fRFrontOffset;
-    uint8_t field_0x170[2];
-    short field_0x172;
-    short field_0x174;
-    short field_0x176;
-    uint8_t field_0x178[4];
+    float    m_nMinActivationImpulse;
+    float    m_fStubble;
+    uint8_t  field_0x144[6];
+    short    field_0x14a;
+    uint8_t  field_0x14c[16];
+    uint8_t  Radio1;
+    uint8_t  Radio2;
+    uint8_t  field_0x15e[2];
+    float    m_fFUpOffset;
+    float    m_fFFrontOffset;
+    float    m_fRUpOffset;
+    float    m_fRFrontOffset;
+    uint8_t  field_0x170[2];
+    short    field_0x172;
+    short    field_0x174;
+    short    field_0x176;
+    uint8_t  field_0x178[4];
     uint32_t m_nPedVoiceGroup;
     uint32_t m_nAnimalAudioObject;
     uint32_t m_nCombatInfo; // Confirmed
     uint32_t m_nSexiness;
-    uint8_t field_0x18c[4];
-    uint8_t m_bAge;
-    uint8_t m_nMaxPassengersInCar;
-    uint8_t m_bExternallyDrivenDOFs;
-    uint8_t field_0x193[57];
+    uint8_t  field_0x18c[4];
+    uint8_t  m_bAge;
+    uint8_t  m_nMaxPassengersInCar;
+    uint8_t  m_bExternallyDrivenDOFs;
+    uint8_t  field_0x193[57];
     uint32_t m_nScenarioPopStreamingSlot;
     uint32_t m_nDefaultSpawningPreference;
-    float m_fDefaultRemoveRangeMultiplier;
-    bool m_bAllowCloseSpawning;
-    uint8_t field_0x1ed[11];
-    char * m_pVfxInfoName;
-    uint8_t field_0x200[8];
-    float m_fHDDist;
-    uint8_t field_0x20c[5];
-    float m_fTargetingThreadModifier;
-    float m_fKilledPerceptionRangeModifier;
+    float    m_fDefaultRemoveRangeMultiplier;
+    bool     m_bAllowCloseSpawning;
+    uint8_t  field_0x1ed[11];
+    char *   m_pVfxInfoName;
+    uint8_t  field_0x200[8];
+    float    m_fHDDist;
+    uint8_t  field_0x20c[5];
+    float    m_fTargetingThreadModifier;
+    float    m_fKilledPerceptionRangeModifier;
     uint64_t field_0x220[6];
     uint32_t m_nAmbientClipsForFlee;
-    uint8_t field_0x234[12];
+    uint8_t  field_0x234[12];
 
     // This struct is obviously not in the original game, but it's just to make
     // it easier to increase patch compatibility without getting a pattern for
     // each one of these type. It's unlikely that any field will be added in the
     // middle of these fields.
-    
+
     struct InitInfo
     {
         uint32_t m_nMotionTaskDataSetName;
@@ -137,14 +137,14 @@ public:
         uint32_t m_nDefaultBrawlingStyle;
         uint32_t m_nDefaultUnarmedWeapon;
     } _info;
-    
+
     uint8_t field_0x278[6];
     uint8_t m_nFlags;
     uint8_t field_0x27f;
     uint8_t m_nFlags2;
     uint8_t field_0x281[15];
 
-    InitInfo& GetInitInfo ();
+    InitInfo &GetInitInfo ();
 };
 
 static_assert (sizeof (CBaseModelInfo) == 176, "Incorect BaseModelInfo size");

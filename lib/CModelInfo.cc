@@ -9,12 +9,13 @@ static_assert ("VEHICLE_TYPE_NONE"_joaat == 0x02f2b9bc);
 uint32_t *
 InitialiseTypeTranslationMap ()
 {
-    const int MAX_IDS = 32;
+    const int       MAX_IDS = 32;
     static uint32_t translationMap[MAX_IDS]; // doubt they'll add more
 
-    struct parEnumTranslationMap {
+    struct parEnumTranslationMap
+    {
         uint32_t hash;
-        int32_t value;
+        int32_t  value;
     } *typeEnumMap
         = hook::get_pattern<parEnumTranslationMap> ("bc b9 f2 02 ff ff ff ff");
 
@@ -22,11 +23,11 @@ InitialiseTypeTranslationMap ()
         {
             if (typeEnumMap[i].hash == 0)
                 break;
-            
+
             if (typeEnumMap[i].hash == "VEHICLE_TYPE_NONE"_joaat
                 || typeEnumMap[i].value == -1)
                 continue;
-            
+
 #ifndef NDEBUG
             if (i > MAX_IDS)
                 assert (!"Type ID greater than expected");
@@ -72,11 +73,11 @@ CPedModelInfo::GetInitInfo ()
 }
 
 /*******************************************************/
-char*
-CVehicleModelInfo::GetGameName()
+char *
+CVehicleModelInfo::GetGameName ()
 {
     static uint32_t nGameNameIndex = *hook::get_pattern<uint32_t> (
         "bb 0c 00 00 00 ? 8d ? ? ? ? ? ? 8d ? d0 ? 8d 05 ? ? ? ? 8b d3 ", 8);
 
-    return (reinterpret_cast<char*>(this) + nGameNameIndex);
+    return (reinterpret_cast<char *> (this) + nGameNameIndex);
 }

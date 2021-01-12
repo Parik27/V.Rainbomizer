@@ -19,9 +19,9 @@ WeaponEquipMgr::AddWeaponToEquip (uint32_t weaponHash, uint32_t originalHash)
 uint32_t
 WeaponEquipMgr::GetWeaponToEquip (uint32_t weaponHash)
 {
-    if (!scrThread::GetActiveThread())
+    if (!scrThread::GetActiveThread ())
         return weaponHash;
-    
+
     uint32_t threadHash
         = scrThread::GetActiveThread ()->m_Context.m_nScriptHash;
 

@@ -14,10 +14,10 @@ namespace Rainbomizer {
 class ExceptionHandler_BackTrace : public ExceptionHandler
 {
     STACKFRAME64 m_StackFrame;
-    CONTEXT m_Context;
-    bool m_bHasSymHandler;
-    DWORD m_OriginalSymOptions;
-    uint8_t m_SymBuffer[sizeof (SYMBOL_INFO) + MAX_SYMBOL_SIZE];
+    CONTEXT      m_Context;
+    bool         m_bHasSymHandler;
+    DWORD        m_OriginalSymOptions;
+    uint8_t      m_SymBuffer[sizeof (SYMBOL_INFO) + MAX_SYMBOL_SIZE];
 
     /*******************************************************/
     void
@@ -26,7 +26,7 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
         memset (&m_StackFrame, 0, sizeof (m_StackFrame));
         memset (&m_SymBuffer, 0, sizeof (m_SymBuffer));
         memcpy (&m_Context, ctx, sizeof (CONTEXT));
-        
+
         m_StackFrame.AddrPC.Offset    = ctx->Rip;
         m_StackFrame.AddrStack.Offset = ctx->Rsp;
         m_StackFrame.AddrFrame.Offset = ctx->Rbp;
@@ -39,12 +39,12 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
     void
     InitialiseSymbolHandler ()
     {
-        if (SymInitialize(GetCurrentProcess(), 0, TRUE))
+        if (SymInitialize (GetCurrentProcess (), 0, TRUE))
             {
                 m_OriginalSymOptions = SymSetOptions (
                     SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES
                     | SYMOPT_NO_PROMPTS | SYMOPT_FAIL_CRITICAL_ERRORS);
-                
+
                 m_bHasSymHandler = true;
                 return;
             }
@@ -58,13 +58,13 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
         if (m_bHasSymHandler)
             {
                 SymSetOptions (m_OriginalSymOptions);
-                SymCleanup(GetCurrentProcess());
+                SymCleanup (GetCurrentProcess ());
             }
     }
-    
+
     /*******************************************************/
     bool
-    WalkStack (CONTEXT* ctx)
+    WalkStack (CONTEXT *ctx)
     {
         return ::StackWalk64 (IMAGE_FILE_MACHINE_AMD64, GetCurrentProcess (),
                               GetCurrentThread (), &m_StackFrame, &m_Context,
@@ -120,7 +120,7 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
         std::string modName = moduleName;
 
         // Remove directory names and stuff
-        int fileStart = modName.rfind ('\\');
+        size_t fileStart = modName.rfind ('\\');
         fileStart
             = (fileStart == modName.npos) ? modName.rfind ('/') : fileStart;
 
@@ -135,7 +135,7 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
         return std::make_pair (FindModuleName (module),
                                PC - uintptr_t (module));
     }
-    
+
     /*******************************************************/
     MEMORY_BASIC_INFORMATION
     VirtualQueryWrapper (uintptr_t lpAddress)
@@ -145,22 +145,23 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
 
         return mbi;
     }
-    
+
     /*******************************************************/
     bool
     CheckIsPointerValid (uintptr_t ptr)
     {
-        auto mbi = VirtualQueryWrapper(ptr);
+        auto mbi = VirtualQueryWrapper (ptr);
         return (mbi.State & MEM_COMMIT);
     }
-    
+
     /*******************************************************/
     std::string
     GetPatternForAddress (uintptr_t Addr)
     {
-        if (!CheckIsPointerValid(Addr - 10) ||
-            !CheckIsPointerValid(Addr + 10))
-                return "?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ??";
+        if (!CheckIsPointerValid (Addr - 10)
+            || !CheckIsPointerValid (Addr + 10))
+            return "?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? ?? "
+                   "??";
 
         char buffer[64] = {0};
 
@@ -191,13 +192,14 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
     {
         uintptr_t addr = (uintptr_t) ep->ExceptionRecord->ExceptionAddress;
         auto      dwExceptionCode = ep->ExceptionRecord->ExceptionCode;
-        
+
         auto [modName, modOffset] = GetModule (addr);
 
         Logger::LogMessage ("Unhandled exception at 0x%016llx in %s (+0x%llx)",
                             addr, modName.c_str (), modOffset);
-        
-        if (dwExceptionCode == EXCEPTION_IN_PAGE_ERROR || dwExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+
+        if (dwExceptionCode == EXCEPTION_IN_PAGE_ERROR
+            || dwExceptionCode == EXCEPTION_ACCESS_VIOLATION)
             {
                 // From Ultimate ASI Loader
                 auto rw = (DWORD) ep->ExceptionRecord
@@ -206,13 +208,14 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
                                 ->ExceptionInformation[1]; // which address?
 
                 Logger::LogMessage ("%s 0x%016llx",
-                                    rw == 0 ? "reading location"
-                                            : rw == 1 ? "writing location"
-                                                      : rw == 8 ? "dep at" : "",
+                                    rw == 0   ? "reading location"
+                                    : rw == 1 ? "writing location"
+                                    : rw == 8 ? "dep at"
+                                              : "",
                                     addr);
             }
     }
-    
+
     /*******************************************************/
     void
     OnException (_EXCEPTION_POINTERS *ep) override
@@ -247,5 +250,5 @@ class ExceptionHandler_BackTrace : public ExceptionHandler
     }
 };
 
-REGISTER_HANDLER (ExceptionHandler_BackTrace);
-}; // namespace Rainbomizer
+REGISTER_HANDLER (ExceptionHandler_BackTrace)
+} // namespace Rainbomizer

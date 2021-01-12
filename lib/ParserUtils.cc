@@ -56,7 +56,11 @@ ParserUtils::FindFieldPtr (parStructureStaticData *data, void *ptr,
             data = FindStaticData (data->Structure->pBaseClass);
 
             if (!data)
-                return nullptr;
+                {
+                    Rainbomizer::Logger::LogMessage ("Failed to find field: %x",
+                                                     hash);
+                    return nullptr;
+                }
 
             initialOffset += data->Structure->nBaseOffset;
             field = FindFieldData (data->Params, hash);
@@ -70,8 +74,7 @@ ParserEnumEquate<>
 ParserUtils::FindFieldEnum (parStructureStaticData *data, void *ptr,
                             uint32_t hash)
 {
-    uint64_t             initialOffset = 0;
-    parMemberCommonData *field         = FindFieldData (data->Params, hash);
+    parMemberCommonData *field = FindFieldData (data->Params, hash);
 
     if (!field)
         throw std::runtime_error ("Failed to find enum field for parser"
@@ -85,4 +88,4 @@ ParserUtils::FindFieldEnum (parStructureStaticData *data, void *ptr,
 
     return ParserEnumEquate<> (*enumField->m_pTranslationTable,
                                FindFieldPtr (data, ptr, hash));
-};
+}

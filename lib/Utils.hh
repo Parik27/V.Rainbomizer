@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Patterns/Patterns.hh"
-#include "injector/hooking.hpp"
 #include "ModUtils/Trampoline.h"
+#include "injector/injector.hpp"
 #include <cstdint>
 #include <vector>
 #include <utility>
@@ -22,31 +22,32 @@ ConvertCall (Addr address, Func &func)
     func = Func (address);
 }
 
-int  RandomInt (int max);
-int  RandomInt (int min, int max);
-float RandomFloat (float min, float max);
-float RandomFloat (float max);
-void InitialiseAllComponents ();
+int    RandomInt (int max);
+int    RandomInt (int min, int max);
+size_t RandomSize (size_t max);
+float  RandomFloat (float min, float max);
+float  RandomFloat (float max);
+void   InitialiseAllComponents ();
 
 /*******************************************************/
 /* Returns a random element from a container           */
 /*******************************************************/
-template<typename T>
-auto&
-GetRandomElement (const T& container)
+template <typename T>
+auto &
+GetRandomElement (const T &container)
 {
-    auto it = std::begin(container);
-    std::advance (it, RandomInt (std::size(container) - 1));
+    auto it = std::begin (container);
+    std::advance (it, RandomSize (std::size (container) - 1));
 
     return *it;
 }
 
-template<typename T>
-auto&
-GetRandomElementMut (T& container)
+template <typename T>
+auto &
+GetRandomElementMut (T &container)
 {
-    auto it = std::begin(container);
-    std::advance (it, RandomInt (std::size(container) - 1));
+    auto it = std::begin (container);
+    std::advance (it, RandomSize (std::size (container) - 1));
 
     return *it;
 }
@@ -60,11 +61,11 @@ LookupMap (Map &m, const Key &k)
 }
 
 /*******************************************************/
-template<typename T, typename C>
-inline T*
-GetAtOffset (C* classInst, int offset)
+template <typename T, typename C, typename O>
+inline T *
+GetAtOffset (C *classInst, O offset)
 {
-    return (T*) (reinterpret_cast<char*>(classInst) + offset);
+    return (T *) (reinterpret_cast<char *> (classInst) + offset);
 }
 
 /*******************************************************/
@@ -113,12 +114,12 @@ RegisterHook (void *addr, F hookedFunc)
 {
     if constexpr (Jmp)
         injector::MakeJMP (addr, Trampoline::MakeTrampoline (
-                                      GetModuleHandle (nullptr))
-                                      ->Jump (hookedFunc));
-    else
-        injector::MakeCALL (addr, Trampoline::MakeTrampoline (
                                      GetModuleHandle (nullptr))
                                      ->Jump (hookedFunc));
+    else
+        injector::MakeCALL (addr, Trampoline::MakeTrampoline (
+                                      GetModuleHandle (nullptr))
+                                      ->Jump (hookedFunc));
 }
 
 /*******************************************************/
@@ -142,12 +143,11 @@ RegisterHook (const std::string &pattern, int offset, F hookedFunc)
 }
 
 /*******************************************************/
-void RegisterJmpHook (void* addr, void* dst, void** outOrignal, int size);
+void RegisterJmpHook (void *addr, void *dst, void **outOrignal, int size);
 
 template <int size, typename F, typename O>
 inline void
-RegisterJmpHook (void* addr, O &originalFunc,
-                 F hookedFunc)
+RegisterJmpHook (void *addr, O &originalFunc, F hookedFunc)
 {
     static_assert (
         size >= 12,
@@ -166,8 +166,8 @@ RegisterJmpHook (const std::string &pattern, int offset, O &originalFunc,
 }
 
 /*******************************************************/
-void
-MakeJMP64 (injector::memory_pointer_tr at, injector::memory_pointer_raw dest);
+void MakeJMP64 (injector::memory_pointer_tr  at,
+                injector::memory_pointer_raw dest);
 
 /*******************************************************/
 template <typename T = void>
@@ -191,7 +191,7 @@ GetRelativeReference (const std::string &pattern, int dataOffset,
                       int nextInstOffset)
 {
     uint8_t *addr   = hook::get_pattern<uint8_t> (pattern);
-    int32_t offset = *(int32_t *) (addr + dataOffset);
+    int32_t  offset = *(int32_t *) (addr + dataOffset);
     return (T *) (addr + offset + nextInstOffset);
 }
 

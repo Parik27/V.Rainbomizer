@@ -17,7 +17,7 @@ public:
     struct WebsocketUserData
     {
         std::shared_ptr<bool> bValid;
-        WebSocket* pWebSocket;
+        WebSocket *           pWebSocket;
 
         void
         Send (const nlohmann::json &j)
@@ -59,7 +59,8 @@ public:
     Broadcast (std::string path, const nlohmann::json &j)
     {
         DeferFunction ([path, j] (uWS::App &app) {
-            std::cout << "Broadcasting: " << path << ": " << j.dump() << std::endl;
+            std::cout << "Broadcasting: " << path << ": " << j.dump ()
+                      << std::endl;
             app.publish (path, j.dump (), uWS::OpCode::TEXT, true);
         });
     }
@@ -76,4 +77,3 @@ public:
         m_Handlers.push_back (handler);
     }
 };
-

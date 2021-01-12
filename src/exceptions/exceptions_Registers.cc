@@ -28,7 +28,7 @@ class ExceptionHandler_Registers : public ExceptionHandler
         PrintRegister ("RBP", ep->ContextRecord->Rbp);
         PrintRegister ("RSP", ep->ContextRecord->Rsp);
         PrintRegister ("RIP", ep->ContextRecord->Rip);
-        
+
         PrintRegister ("R8", ep->ContextRecord->R8);
         PrintRegister ("R9", ep->ContextRecord->R9);
         PrintRegister ("R10", ep->ContextRecord->R10);
@@ -37,7 +37,7 @@ class ExceptionHandler_Registers : public ExceptionHandler
         PrintRegister ("R13", ep->ContextRecord->R13);
         PrintRegister ("R14", ep->ContextRecord->R14);
         PrintRegister ("R15", ep->ContextRecord->R15);
-        
+
         Logger::LogMessage ("Segment Registers:");
 
         Logger::LogMessage ("CS: %04x", ep->ContextRecord->SegCs);

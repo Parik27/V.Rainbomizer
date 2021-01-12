@@ -38,7 +38,7 @@ class SaveDataStructGenerator
         std::string         sFieldName   = "";
         uint64_t            nFieldOffset = 0;
         eSaveType           eSaveType    = BOOL;
-        StructListReference pStruct;
+        StructListReference pStruct      = {};
 
         bool
         operator== (const SaveDataField &other) const
@@ -54,7 +54,7 @@ class SaveDataStructGenerator
         uint64_t nSize  = 0;
         bool     bArray = false;
 
-        std::vector<SaveDataField> aFields;
+        std::vector<SaveDataField> aFields = {};
 
         bool
         operator== (const SaveDataStruct &other) const
@@ -70,30 +70,26 @@ class SaveDataStructGenerator
         uint64_t       nOffset;
     };
 
-    inline static std::vector<SaveDataStruct>                      mStructList;
-    inline static std::vector<StructStackEntry>                    mStructStack;
+    inline static std::vector<SaveDataStruct>   mStructList;
+    inline static std::vector<StructStackEntry> mStructStack;
 
     static uint64_t
     GetFieldSize (const SaveDataField &field)
     {
-        if (field.eSaveType == STRUCT) {
-            return mStructList[field.pStruct.nIndex].nSize;
-        }
+        if (field.eSaveType == STRUCT)
+            {
+                return mStructList[field.pStruct.nIndex].nSize;
+            }
 
         return 1;
     }
 
     static std::string
-    GetFieldType (const SaveDataField& field)
+    GetFieldType (const SaveDataField &field)
     {
-        static const std::map<eSaveType, std::string> fieldNames = {
-            {BOOL, "bool"},
-            {INT, "int"},
-            {FLOAT, "float"},
-            {ENUM, "enum"},
-            {TEXT_LABEL, "string"},
-            {STRUCT, "struct_"}
-        };
+        static const std::map<eSaveType, std::string> fieldNames
+            = {{BOOL, "bool"}, {INT, "int"},           {FLOAT, "float"},
+               {ENUM, "enum"}, {TEXT_LABEL, "string"}, {STRUCT, "struct_"}};
 
         std::string typeStr = fieldNames.at (field.eSaveType);
         if (field.eSaveType == STRUCT)
@@ -104,7 +100,7 @@ class SaveDataStructGenerator
 
     static void
     PrintStruct (SaveDataStruct &st, std::ofstream &out, std::string name = "")
-    {        
+    {
         if (st.bArray)
             out << "/*Array*/\n";
         out << "/*Size: " << st.nSize << " */\n";
@@ -121,11 +117,9 @@ class SaveDataStructGenerator
                        return a.nFieldOffset < b.nFieldOffset;
                    });
 
-        
+#define PRINT_FIELDS
 
-        #define PRINT_FIELDS
-        
-        #ifdef PRINT_FIELDS
+#ifdef PRINT_FIELDS
         for (uint64_t i = 0, field = 0; i < st.nSize;)
             {
                 if (field < st.aFields.size ()
@@ -148,7 +142,8 @@ class SaveDataStructGenerator
 #else
         for (const auto &field : st.aFields)
             {
-                out << "\t" << GetFieldType (field) << " " << field.sFieldName << ";";
+                out << "\t" << GetFieldType (field) << " " << field.sFieldName
+                    << ";";
                 out << " // Size: " << GetFieldSize (field)
                     << ", Offset: " << field.nFieldOffset << "\n";
             }
@@ -260,9 +255,9 @@ class SaveDataStructGenerator
     {
         uint64_t offset = info->GetArg (0);
         char *   name   = info->GetArg<char *> (1);
-        
+
         auto &[parentStruct, parentOffset] = GetParentStructAndOffset (offset);
-        
+
         parentStruct.aFields.push_back (
             SaveDataField{name, offset - parentOffset, type});
     }
@@ -272,16 +267,16 @@ public:
     {
 #define HOOK(native, func)                                                     \
     NativeCallbackMgr::InitCallback<native##_joaat, func, true> ()
-        
+
         // Save Data
         HOOK ("START_SAVE_DATA", SaveDataHook<false>);
         HOOK ("STOP_SAVE_DATA", SaveDataHook<true>);
 
         // Struct
         HOOK ("_START_SAVE_STRUCT", StartSaveStructHook<false>);
-        //HOOK ("STOP_SAVE_STRUCT", StopSaveStructHook);
+        // HOOK ("STOP_SAVE_STRUCT", StopSaveStructHook);
         HOOK ("_START_SAVE_ARRAY", StartSaveStructHook<true>);
-        //HOOK ("STOP_SAVE_ARRAY", StopSaveStructHook);
+        // HOOK ("STOP_SAVE_ARRAY", StopSaveStructHook);
 
         // Fields
         HOOK ("REGISTER_INT_TO_SAVE", RegisterTypeToSaveHook<INT>);

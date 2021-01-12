@@ -111,7 +111,7 @@ class HandlingRandomizer
             {
                 if (!i)
                     continue;
-                
+
                 auto name = i->parser_GetStructure ()->nName;
 
                 if (!sample)
@@ -168,7 +168,6 @@ class HandlingRandomizer
     static void
     RandomizeHandling ()
     {
-        auto Handlings = CHandlingDataMgr::sm_Instance->pData;
         for (auto &i : CHandlingDataMgr::sm_Instance->pData)
             {
                 GetRandomizerForHandlingType (i).RandomizeObject (*i);

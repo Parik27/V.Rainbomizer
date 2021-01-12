@@ -16,7 +16,7 @@ struct CInventoryItemRepository
     CPedWeaponManager *m_pManagers[2];
     int                m_nNumManagers;
 
-    CInventoryItem* FindWeapon (uint32_t hash);
+    CInventoryItem *FindWeapon (uint32_t hash);
 };
 
 typedef enum eCombatBehaviourFlag
@@ -149,8 +149,8 @@ public:
 class CPed : public CEntity
 {
 public:
-    static CPed* GetFromHandle (uint32_t handle);
+    static CPed *GetFromHandle (uint32_t handle);
 
-    CPedInventory* GetInventory ();
-    CPedIntelligence* GetIntelligence ();
+    CPedInventory *   GetInventory ();
+    CPedIntelligence *GetIntelligence ();
 };

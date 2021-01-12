@@ -1,7 +1,7 @@
 #include "CHandlingDataMgr.hh"
 #include "Utils.hh"
 
-void (*CHandlingData_InitValues) (CHandlingData*);
+void (*CHandlingData_InitValues) (CHandlingData *);
 
 /*******************************************************/
 void

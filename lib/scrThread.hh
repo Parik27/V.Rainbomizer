@@ -16,50 +16,50 @@ enum class eScriptState : uint32_t
 class scrThreadContext
 {
 public:
-    uint32_t m_nThreadId;
-    uint32_t m_nScriptHash;
+    uint32_t     m_nThreadId;
+    uint32_t     m_nScriptHash;
     eScriptState m_nState;
-    uint32_t m_nIp;
-    uint32_t m_nFrameSP;
-    uint32_t m_nSP;
-    uint8_t  field_0x18[8];
-    float    m_fWaitTime;
-    uint8_t  field_0x24[44];
-    uint32_t m_nStackSize;
-    uint32_t m_nTimerA;
-    uint32_t m_nTimerB;
-    uint32_t m_nTimerC;
-    uint8_t  field_0x60[72];
+    uint32_t     m_nIp;
+    uint32_t     m_nFrameSP;
+    uint32_t     m_nSP;
+    uint8_t      field_0x18[8];
+    float        m_fWaitTime;
+    uint8_t      field_0x24[44];
+    uint32_t     m_nStackSize;
+    uint32_t     m_nTimerA;
+    uint32_t     m_nTimerB;
+    uint32_t     m_nTimerC;
+    uint8_t      field_0x60[72];
 };
 
 struct scrProgram
 {
     static const uint32_t PAGE_SIZE = 0x4000;
 
-    using scrPage = uint8_t*;
+    using scrPage = uint8_t *;
 
-    void *    vft;
-    void *    m_pPageMap;
+    void *   vft;
+    void *   m_pPageMap;
     scrPage *m_pCodeBlocks;
-    uint32_t  m_nGlobalsSignature;
-    uint32_t  m_nCodeSize;
-    uint32_t  m_nParameterCount;
-    uint32_t  m_nStaticCount;
-    uint32_t  m_nGlobalCount;
-    uint32_t  m_nNativesCount;
-    void *    m_pStaticsPointer;
-    void *    m_pGlobalsPointer;
-    void **    m_pNativesPointer;
-    uint64_t  field_0x48;
-    uint64_t  field_0x50;
-    uint32_t  m_nScriptHash;
-    int32_t   field_0x5c;
-    void *    m_pScriptNamePointer;
+    uint32_t m_nGlobalsSignature;
+    uint32_t m_nCodeSize;
+    uint32_t m_nParameterCount;
+    uint32_t m_nStaticCount;
+    uint32_t m_nGlobalCount;
+    uint32_t m_nNativesCount;
+    void *   m_pStaticsPointer;
+    void *   m_pGlobalsPointer;
+    void **  m_pNativesPointer;
+    uint64_t field_0x48;
+    uint64_t field_0x50;
+    uint32_t m_nScriptHash;
+    int32_t  field_0x5c;
+    void *   m_pScriptNamePointer;
     scrPage *m_pStringBlocks;
-    uint32_t  m_nStringSize;
-    int32_t   field_0x74;
-    int32_t   field_0x78;
-    int32_t   field_0x7c;
+    uint32_t m_nStringSize;
+    int32_t  field_0x74;
+    int32_t  field_0x78;
+    int32_t  field_0x7c;
 
     template <typename T>
     T &
@@ -104,7 +104,7 @@ struct scrProgram
     }
 
     static scrProgram *FindProgramByHash (uint32_t hash);
-    bool InitNativesTable ();
+    bool               InitNativesTable ();
 };
 
 class scrThread
@@ -121,7 +121,7 @@ public:
         void **  m_Ret;
         uint32_t m_Argc;
         void **  m_Args;
-        
+
         alignas (uintptr_t) uint8_t m_VectorSpace[192];
 
         // Custom Storage
@@ -147,11 +147,13 @@ public:
             return *(T *) &m_Ret[n];
         }
 
-        template <typename T> void PushArg (T arg)
+        template <typename T>
+        void
+        PushArg (T arg)
         {
             GetArg<T> (m_Argc++) = arg;
         }
-        
+
         template <typename... Args> Info (Args... args)
         {
             m_Ret  = (void **) &m_StackSpace[MAX_PARAMS - 1];
@@ -159,7 +161,7 @@ public:
             (..., PushArg (args));
         }
     };
-    
+
     static scrThread **      sm_pActiveThread;
     static inline uint64_t **sm_pGlobals;
 
@@ -208,8 +210,7 @@ public:
     scrProgram *GetProgram ();
 
     static uint16_t    FindInstSize (scrProgram *program, uint32_t offset);
-    static std::string DisassemblInsn (scrProgram *program, uint32_t offset,
-                                       uint32_t bufferLimit = 1024);
+    static std::string DisassemblInsn (scrProgram *program, uint32_t offset);
 
     std::pair<uint32_t, uint32_t> FindCurrentFunctionBounds (scrProgram *program
                                                              = nullptr);

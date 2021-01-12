@@ -7,39 +7,39 @@ struct cutfNamedObject;
 struct cutfModelObject;
 
 enum class eCutfObjectType : uint32_t
-    {
-        ASSETMGR = 0,
-        OVERLAY,
-        FADE,
-        SUBTITLE,
-        MODEL,
-        HIDDEN_MODEL,
-        FIXUP_MODEL,
-        PARTICLE_FX,
-        BLOCKING_BOUNDS,
-        LIGHT,
-        CAMERA,
-        AUDIO,
-        EVENT,
-        ANIMMGR,
-        ANIMATED_PARTICLEFX,
-        REMOVAL_BOUNDS,
-        RAY_FIRE,
-        DECAL,
-        ANIMATED_LIGHT
-    };
+{
+    ASSETMGR = 0,
+    OVERLAY,
+    FADE,
+    SUBTITLE,
+    MODEL,
+    HIDDEN_MODEL,
+    FIXUP_MODEL,
+    PARTICLE_FX,
+    BLOCKING_BOUNDS,
+    LIGHT,
+    CAMERA,
+    AUDIO,
+    EVENT,
+    ANIMMGR,
+    ANIMATED_PARTICLEFX,
+    REMOVAL_BOUNDS,
+    RAY_FIRE,
+    DECAL,
+    ANIMATED_LIGHT
+};
 
 #pragma pack(push, 1)
 struct cutfObject__vftable
 {
     void *destructor;
-    eCutfObjectType (*GetType) (cutfObject*);
-    bool (*IsThisType) (cutfObject*);
-    char *(*GetTypeName) (cutfObject*);
-    char *(*GetDisplayName) (cutfObject*);
+    eCutfObjectType (*GetType) (cutfObject *);
+    bool (*IsThisType) (cutfObject *);
+    char *(*GetTypeName) (cutfObject *);
+    char *(*GetDisplayName) (cutfObject *);
     void *Clone;
     void *SetName;
-    uint32_t (*GetAnimStreamingType) (cutfObject*);
+    uint32_t (*GetAnimStreamingType) (cutfObject *);
     void *MergeFrom;
     void *operator_eq;
     void *operator_neq;
@@ -55,35 +55,35 @@ struct cutfModelObject__vftable : public cutfNamedObject__vftable
 {
     void *SetStreamingName;
     void *OverrideStreamingName;
-    uint32_t (*GetModelType) (cutfModelObject*);
+    uint32_t (*GetModelType) (cutfModelObject *);
 };
 
 struct cutfObject
 {
     cutfObject__vftable *vft;
-    int32_t         iObjectId;
-    uint8_t         field_0xc;
-    uint8_t         field_0xd;
-    uint8_t         field_0xe;
-    uint8_t         field_0xf;
-    struct atString m_szName;
-    uint8_t         field_0x1c;
-    uint8_t         field_0x1d;
-    uint8_t         field_0x1e;
-    uint8_t         field_0x1f;
-    void *          attributeList;
-    uint32_t        field_0x28;
-    uint8_t         field_0x2c;
-    uint8_t         field_0x2d;
-    uint8_t         field_0x2e;
-    uint8_t         field_0x2f;
-    uint16_t        field_0x30;
-    uint16_t        field_0x32;
-    uint8_t         field_0x34;
-    uint8_t         field_0x35;
-    uint8_t         field_0x36;
-    uint8_t         field_0x37;
-    void *          cutfAttributes;
+    int32_t              iObjectId;
+    uint8_t              field_0xc;
+    uint8_t              field_0xd;
+    uint8_t              field_0xe;
+    uint8_t              field_0xf;
+    struct atString      m_szName;
+    uint8_t              field_0x1c;
+    uint8_t              field_0x1d;
+    uint8_t              field_0x1e;
+    uint8_t              field_0x1f;
+    void *               attributeList;
+    uint32_t             field_0x28;
+    uint8_t              field_0x2c;
+    uint8_t              field_0x2d;
+    uint8_t              field_0x2e;
+    uint8_t              field_0x2f;
+    uint16_t             field_0x30;
+    uint16_t             field_0x32;
+    uint8_t              field_0x34;
+    uint8_t              field_0x35;
+    uint8_t              field_0x36;
+    uint8_t              field_0x37;
+    void *               cutfAttributes;
 
     inline eCutfObjectType
     GetType ()
@@ -101,40 +101,41 @@ struct cutfNamedObject : public cutfObject
     uint8_t  field_0x47;
 };
 
-struct cutfLightObject : public cutfNamedObject {
-    uint8_t field_0x48[24];
-    Vector4 vDirection;
-    Vector4 vColour;
-    Vector4 vPosition;
-    float fIntensity;
-    float fFallOff;
-    float fConeAngle;
-    float fVolumeIntensity;
-    float fVolumeSizeScale;
-    float fCoronaSize;
-    float fCoronaIntensity;
-    float fCoronaZBias;
-    float fInnerConeAngle;
-    float fExponentialFallOff;
-    float fShadowBlur;
-    int32_t iLightType;
-    int32_t iLightProperty;
-    int32_t TextureDictID;
-    int32_t TextureKey;
-    uint8_t field_0xcc;
-    uint8_t field_0xcd;
-    uint8_t field_0xce;
-    uint8_t field_0xcf;
+struct cutfLightObject : public cutfNamedObject
+{
+    uint8_t  field_0x48[24];
+    Vector4  vDirection;
+    Vector4  vColour;
+    Vector4  vPosition;
+    float    fIntensity;
+    float    fFallOff;
+    float    fConeAngle;
+    float    fVolumeIntensity;
+    float    fVolumeSizeScale;
+    float    fCoronaSize;
+    float    fCoronaIntensity;
+    float    fCoronaZBias;
+    float    fInnerConeAngle;
+    float    fExponentialFallOff;
+    float    fShadowBlur;
+    int32_t  iLightType;
+    int32_t  iLightProperty;
+    int32_t  TextureDictID;
+    int32_t  TextureKey;
+    uint8_t  field_0xcc;
+    uint8_t  field_0xcd;
+    uint8_t  field_0xce;
+    uint8_t  field_0xcf;
     uint32_t uLightFlags;
     uint32_t uHourFlags;
-    uint8_t field_0xd8;
-    uint8_t field_0xd9;
-    bool bStatic;
-    uint8_t field_0xdb;
-    uint8_t field_0xdc;
-    uint8_t field_0xdd;
-    uint8_t field_0xde;
-    uint8_t field_0xdf;
+    uint8_t  field_0xd8;
+    uint8_t  field_0xd9;
+    bool     bStatic;
+    uint8_t  field_0xdb;
+    uint8_t  field_0xdc;
+    uint8_t  field_0xdd;
+    uint8_t  field_0xde;
+    uint8_t  field_0xdf;
 };
 
 struct cutfNamedStreamedObject : public cutfNamedObject
@@ -175,7 +176,8 @@ struct cutfModelObject : public cutfNamedAnimatedStreamedObject
     uint8_t  field_0x76;
     uint8_t  field_0x77;
 
-    uint8_t GetModelType ()
+    uint32_t
+    GetModelType ()
     {
         return static_cast<cutfModelObject__vftable *> (vft)->GetModelType (
             this);
@@ -245,7 +247,7 @@ struct cutfCutsceneFile2
     uint8_t               field_0xd3c[4];
 
     static cutfCutsceneFile2 **sm_pCurrentFile;
-    static void         InitialisePatterns ();
+    static void                InitialisePatterns ();
 
     static cutfCutsceneFile2 *&
     GetCurrentFile ()

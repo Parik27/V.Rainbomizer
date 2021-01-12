@@ -1,14 +1,12 @@
 #pragma once
 
-template<typename T>
-struct Vector2_t
+template <typename T> struct Vector2_t
 {
     T x;
     T y;
 };
 
-template<typename T>
-struct Vector3_t : public Vector2_t<T>
+template <typename T> struct Vector3_t : public Vector2_t<T>
 {
     T z;
 
@@ -50,11 +48,11 @@ struct Vector3_t : public Vector2_t<T>
 struct Vector3_native
 {
     float x;
-    int _pad08;
+    int   _pad08;
     float y;
-    int _pad02;
+    int   _pad02;
     float z;
-    int _pad00;
+    int   _pad00;
 };
 
 typedef Vector3_t<float> Vector3;

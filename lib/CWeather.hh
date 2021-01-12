@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-// 
+//
 struct CWeatherType
 {
     uint32_t nHash;
@@ -16,9 +16,9 @@ struct CWeatherType
     float    Fog;
     bool     Lightning;
     bool     Sandstorm;
-    uint32_t  DropSettingIndex;
-    uint32_t  MistSettingIndex;
-    uint32_t  GroundSettingsIndex;
+    uint32_t DropSettingIndex;
+    uint32_t MistSettingIndex;
+    uint32_t GroundSettingsIndex;
     float    RippleBumpiness;
     float    RippleMinBumpiness;
     float    RippleMaxBumpiness;
@@ -42,7 +42,7 @@ struct CWeatherType
     uint32_t field_0xc0;
 };
 
-static_assert(sizeof(CWeatherType) == 196, "Check align for CWeatherType");
+static_assert (sizeof (CWeatherType) == 196, "Check align for CWeatherType");
 
 class CWeather
 {
@@ -51,7 +51,7 @@ public:
     struct CWeatherType aWeatherTypes[14];
     // Has a lot more elements, but that's all I need for now.
 
-    inline static CWeather* g_Weather;
+    inline static CWeather *g_Weather;
 
     static void InitialisePatterns ();
 };

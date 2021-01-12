@@ -11,16 +11,15 @@
 template <typename T> class RangedRandomizer
 {
     bool bInitialised = false;
-    
+
     T Min;
     T Max;
 
 public:
-
     using Type = T;
-    
+
     void
-    RandomizeObject (T& out) const
+    RandomizeObject (T &out) const
     {
         out = RandomFloat (Min, Max);
     }
@@ -42,11 +41,10 @@ template <typename T> class ShuffleRandomizer
     std::vector<T> Values;
 
 public:
-
     using Type = T;
-    
+
     void
-    RandomizeObject (T& out) const
+    RandomizeObject (T &out) const
     {
         out = GetRandomElement (Values);
     }
@@ -59,13 +57,14 @@ public:
 };
 
 enum class SelectionType
-    {
-        EXCLUDING,
-        INCLUDING
-    };
+{
+    EXCLUDING,
+    INCLUDING
+};
 
 /* A randomizer to only allow certain values through */
-template <typename Randomizer, SelectionType type, typename Randomizer::Type... Values>
+template <typename Randomizer, SelectionType type,
+          typename Randomizer::Type... Values>
 class SelectiveRandomizer
 {
     Randomizer randomizer;
@@ -108,8 +107,7 @@ public:
 };
 
 /* Randomizer for atArray<T> */
-template <typename Randomizer,
-          typename T = atArray<typename Randomizer::Type>>
+template <typename Randomizer, typename T = atArray<typename Randomizer::Type>>
 class ArrayRandomizer
 {
     Randomizer randomizer;
@@ -184,8 +182,11 @@ template <typename... Types> class ParserRandomHelperContainer
     inline static bool
     CompareHash (const T &randomizer, uint32_t hash)
     {
+        (void) randomizer;
+
         using ElemType = typename std::decay_t<T>::Type;
-        return ElemType::GetHash () == hash || ElemType::GetLowercaseHash () == hash;
+        return ElemType::GetHash () == hash
+               || ElemType::GetLowercaseHash () == hash;
     }
 
     template <typename T, typename B>
@@ -214,7 +215,7 @@ public:
     AddSample (T *base, uint32_t hash)
     {
         std::apply ([base,
-                     hash] (auto &... x) { (..., AddSample (x, base, hash)); },
+                     hash] (auto &...x) { (..., AddSample (x, base, hash)); },
                     randomizers);
     }
 
@@ -222,11 +223,9 @@ public:
     void
     RandomizeObject (T *base, uint32_t hash)
     {
-        std::apply (
-            [base, hash] (auto &... x) {
-                (..., RandomizeObject (x, base, hash));
-            },
-            randomizers);
+        std::apply ([base, hash] (
+                        auto &...x) { (..., RandomizeObject (x, base, hash)); },
+                    randomizers);
     }
 };
 
@@ -236,9 +235,8 @@ class ParserRandomHelperContainerForEachFieldValue
     std::map<FieldType, T> Randomizers;
 
 public:
-
     using Type = typename T::Type;
-    
+
     T &
     GetRandomizerForObject (const Type &sample)
     {

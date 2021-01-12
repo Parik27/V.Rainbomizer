@@ -16,11 +16,12 @@ public:
     uint32_t m_nUnk2;
 
     /* Returns number of elements in the pool */
-    uint32_t GetCount ()
+    uint32_t
+    GetCount ()
     {
         return m_nCount & 0x3fffffff;
     }
-    
+
     // Because why not, right? :P
     class CPoolIterator
     {
@@ -134,7 +135,7 @@ public:
     }
 };
 
-static_assert(sizeof(CPool<void*>) == 40);
+static_assert (sizeof (CPool<void *>) == 40);
 
 struct CVehicleStruct;
 

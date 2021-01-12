@@ -28,11 +28,10 @@ class MusicRandomizer
             {
                 std::vector<rage::Sound *> mStreamingSounds;
 
-                mgr->ForEach<rage::Sound> (
-                    [&] (auto data, uint32_t name, uint32_t) {
-                        if (data->Type == sound->Type)
-                            mStreamingSounds.push_back (data);
-                    });
+                mgr->ForEach<rage::Sound> ([&] (auto data, uint32_t, uint32_t) {
+                    if (data->Type == sound->Type)
+                        mStreamingSounds.push_back (data);
+                });
 
                 return GetRandomElement (mStreamingSounds);
             }

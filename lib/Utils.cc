@@ -46,6 +46,14 @@ RandomInt (int max)
 }
 
 /*******************************************************/
+size_t
+RandomSize (size_t max)
+{
+    std::uniform_int_distribution<size_t> dist{0, max};
+    return dist (RandEngine ());
+}
+
+/*******************************************************/
 float
 RandomFloat (float min, float max)
 {
@@ -115,7 +123,7 @@ InitialiseAllComponents ()
     ParserUtils::Register ();
 #endif
 
-    InitialiseNatives();
-    
+    InitialiseNatives ();
+
     initialised = true;
 }

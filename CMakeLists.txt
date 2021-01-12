@@ -18,6 +18,8 @@ if (MSVC_VERSION GREATER_EQUAL "1900")
   foreach(CompilerFlag ${CompilerFlags})
     string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
   endforeach()
+
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 set (CMAKE_CXX_STANDARD 17)

@@ -31,9 +31,9 @@ class ScriptVehiclePattern
 
     struct
     {
-        bool     Flying : 1;
-        bool     CanTow : 1;
-        bool     NoRotors : 1;
+        bool Flying : 1;
+        bool CanTow : 1;
+        bool NoRotors : 1;
 
         uint32_t AttachVehicle = 0; // hash
     } mFlags;
@@ -103,11 +103,11 @@ public:
     uint32_t
     GetNumVehicles () const
     {
-        return m_aCache.size ();
+        return static_cast<uint32_t> (m_aCache.size ());
     }
 
-    bool     DoesVehicleMatchPattern (uint32_t hash);
-    void     Cache ();
+    bool DoesVehicleMatchPattern (uint32_t hash);
+    void Cache ();
 
     uint32_t GetRandom (Vector3 &pos);
     uint32_t GetRandomLoaded (Vector3 &pos);
@@ -118,7 +118,7 @@ public:
     // Reads a list of flags delimited by a '+'
     void ParseFlags (const std::string &flags);
 
-    bool MatchVehicle (uint32_t hash, const Vector3& coords);
-        
+    bool MatchVehicle (uint32_t hash, const Vector3 &coords);
+
     ScriptVehiclePattern () : mFlags{false, false, false, 0} {}
 };

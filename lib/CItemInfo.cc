@@ -7,8 +7,7 @@ CWeaponInfoManager::InitialisePatterns ()
     // 72 is the offset
     sm_Instance = reinterpret_cast<CWeaponInfoManager *> (
         GetRelativeReference<uint8_t> (
-            "0f b7 15 ? ? ? ? ? 33 d2 2b d3 78 ? ? 8b 1d ? ? ? ?", 3,
-            7)
+            "0f b7 15 ? ? ? ? ? 33 d2 2b d3 78 ? ? 8b 1d ? ? ? ?", 3, 7)
         - 72);
 }
 

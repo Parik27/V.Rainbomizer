@@ -108,8 +108,8 @@ class PedRandomizer
     static void
     ProcessPedStreaming ()
     {
-        const int       TIMEOUT   = 5;
-        static uint32_t timestamp = time (NULL);
+        const int     TIMEOUT   = 5;
+        static size_t timestamp = time (NULL);
 
         if (time (NULL) - timestamp > TIMEOUT)
             {
@@ -130,7 +130,7 @@ class PedRandomizer
             return model;
 
         // Forced Ped
-        if (Config ().ForcedPedHash != -1)
+        if (Config ().ForcedPedHash != -1u)
             {
                 uint32_t id
                     = CStreaming::GetModelIndex (Config ().ForcedPedHash);
@@ -159,7 +159,7 @@ class PedRandomizer
     }
 
     /*******************************************************/
-    template <auto& OrigFunc>
+    template <auto &OrigFunc>
     static CPed *
     RandomizePed (CPedFactory *fac, uint8_t *p2, uint32_t model, uint64_t p4,
                   uint8_t p5)
@@ -171,7 +171,6 @@ class PedRandomizer
         uint32_t           newModel = GetRandomPedModel (model);
         const ModelSwapper swap (model, newModel);
 
-        
         return OrigFunc (fac, p2, newModel, p4, p5);
     }
 
@@ -185,10 +184,9 @@ public:
                                         std::pair ("ForcedPed", &ForcedPed)))
             return;
 
-        
-        if (ForcedPed.size())
+        if (ForcedPed.size ())
             Config ().ForcedPedHash = rage::atStringHash (ForcedPed.c_str ());
-        
+
         InitialiseAllComponents ();
 
         // Hooks
