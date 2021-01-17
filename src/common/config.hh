@@ -11,11 +11,9 @@ class table;
 /*******************************************************/
 class ConfigManager
 {
-    static inline ConfigManager *   sm_Instance = nullptr;
     std::shared_ptr<cpptoml::table> m_pConfig;
 
-    ConfigManager (){};
-    static void DestroyInstance ();
+    ConfigManager () = default;
 
     void WriteDefaultConfig (const std::string &file);
     std::shared_ptr<cpptoml::table> ParseDefaultConfig ();

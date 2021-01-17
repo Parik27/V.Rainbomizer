@@ -1,7 +1,7 @@
 ########################################################
 
 # Rainbomizer for V
-# Copyright (C) 2020 - Parik
+# Copyright (C) 2020-2021 - Parik
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 TrafficRandomizer = true
 ColourRandomizer = true
 WeaponRandomizer = true
+WeaponStatsRandomizer = true
 CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
@@ -63,10 +64,11 @@ IncludeDLCLines = true # Includes DLC lines in randomization
 
 Seed = ""
 ForceSeedOnSaves = false
+
 ForcedMission = "" # All missions will start this instead of a random mission.
-LogMissionOrder = true
 
 #######################################################
 [PedRandomizer]
 
 ForcedPed = ""
+EnableNSFWModels = false

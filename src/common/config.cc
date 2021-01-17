@@ -65,23 +65,11 @@ ConfigManager::ConfigManager (const std::string &file)
 }
 
 /*******************************************************/
-void
-ConfigManager::DestroyInstance ()
-{
-    if (ConfigManager::sm_Instance)
-        delete ConfigManager::sm_Instance;
-}
-
-/*******************************************************/
 ConfigManager *
 ConfigManager::GetInstance ()
 {
-    if (!ConfigManager::sm_Instance)
-        {
-            ConfigManager::sm_Instance = new ConfigManager ("config.toml");
-            atexit (&ConfigManager::DestroyInstance);
-        }
-    return ConfigManager::sm_Instance;
+    static ConfigManager mgr("config.toml");
+    return &mgr;
 }
 
 /*******************************************************/

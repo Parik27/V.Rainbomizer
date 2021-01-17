@@ -3,12 +3,16 @@
 #include "CStreaming.hh"
 #include "CTheScripts.hh"
 
+#include <cstdint>
 #include <mutex>
 #include <set>
+#include <stdio.h>
+#include <vector>
 
 #include "common/common.hh"
 #include "common/config.hh"
 #include "common/logger.hh"
+#include "rage.hh"
 
 class CPedFactory;
 
@@ -18,13 +22,15 @@ CPed *(*CPedFactory_CreateNonCopPed_5c6) (CPedFactory *, uint8_t *, uint32_t,
 class PedRandomizer
 {
     inline static std::mutex CreatePedMutex;
-
+    inline static std::vector<uint32_t> m_NsfwModels;
+    
     static auto &
     Config ()
     {
         static struct Config
         {
             uint32_t ForcedPedHash = -1;
+            bool EnableNSFWModels = false;
         } m_Config;
 
         return m_Config;
@@ -123,6 +129,35 @@ class PedRandomizer
     }
 
     /*******************************************************/
+    static bool
+    ReadNsfwModelsList ()
+    {
+        FILE *f
+            = Rainbomizer::Common::GetRainbomizerDataFile ("NSFW_Models.txt");
+
+        if (!f)
+            return false;
+
+        char line[256] = {0};
+        while (fgets (line, 256, f))
+            m_NsfwModels.push_back (rage::atStringHash (line));
+
+        return true;
+    }
+
+    /*******************************************************/
+    static void
+    RemoveNsfwModels (std::set<uint32_t> &set)
+    {
+        static bool hasNsfwModelsList = ReadNsfwModelsList ();
+        if (hasNsfwModelsList)
+            {
+                for (auto i : m_NsfwModels)
+                    set.erase (i);
+            }
+    }
+
+    /*******************************************************/
     static uint32_t
     GetRandomPedModel (uint32_t model)
     {
@@ -150,7 +185,9 @@ class PedRandomizer
             [&peds] (int val) { peds.insert (val); });
         groups->mInAppropriatePedsSet.for_each (
             [&peds] (int val) { peds.insert (val); });
-        groups->mCopsSet.for_each ([&peds] (int val) { peds.insert (val); });
+
+        if (!Config ().EnableNSFWModels)
+            RemoveNsfwModels (peds);
 
         if (peds.size () < 1)
             return model;

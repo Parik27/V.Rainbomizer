@@ -25,6 +25,7 @@ const char configDefault[] = R"(
 TrafficRandomizer = true
 ColourRandomizer = true
 WeaponRandomizer = true
+WeaponStatsRandomizer = true
 CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
@@ -71,4 +72,5 @@ ForcedMission = "" # All missions will start this instead of a random mission.
 [PedRandomizer]
 
 ForcedPed = ""
+EnableNSFWModels = false
 )";
