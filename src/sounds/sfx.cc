@@ -18,7 +18,6 @@ class SfxRandomizer
             4,   // Vehicle Engine
             8,   // Helicopter
             16,  // Boat
-            17,  // Weapon
             47,  // Door
             53,  // Train
             56,  // Bicycle

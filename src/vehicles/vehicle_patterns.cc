@@ -183,7 +183,7 @@ ScriptVehiclePattern::ReadFlag (const std::string &flag)
 
     else if (flag.find ("can_attach") == 0)
         mFlags.AttachVehicle
-            = rage::atStringHash (flag.substr (sizeof ("can_attach")).c_str ());
+            = rage::atStringHash (flag.substr (sizeof ("can_attach")));
 
     // Bounds
     else if (flag.find ("w=") == 0)

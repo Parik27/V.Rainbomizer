@@ -104,7 +104,7 @@ class WeaponStatsRandomizer
 
 public:
     /*******************************************************/
-    static void
+    static bool
     HandleItemInfoRandomization (bool sample)
     {
         for (CItemInfo *i : CWeaponInfoManager::sm_Instance->aItemInfos)
@@ -116,6 +116,8 @@ public:
                     sm_ItemInfoRandomizer.RandomizeObject (i, i->GetClassId (
                                                                   hash));
             }
+
+        return true;
     }
 
     /*******************************************************/
@@ -129,11 +131,7 @@ public:
             if (!session)
                 return;
 
-            static bool toSample = true;
-
-            if (std::exchange (toSample, false))
-                HandleItemInfoRandomization (true);
-
+            static bool sampled = HandleItemInfoRandomization (true);
             HandleItemInfoRandomization (false);
         });
 

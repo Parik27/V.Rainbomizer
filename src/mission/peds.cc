@@ -2,11 +2,13 @@
 #include "CPed.hh"
 #include "CStreaming.hh"
 #include "CTheScripts.hh"
+#include "CutSceneManager.hh"
 
 #include <cstdint>
 #include <mutex>
 #include <set>
 #include <stdio.h>
+#include <utility>
 #include <vector>
 
 #include "common/common.hh"
@@ -21,9 +23,10 @@ CPed *(*CPedFactory_CreateNonCopPed_5c6) (CPedFactory *, uint8_t *, uint32_t,
 
 class PedRandomizer
 {
-    inline static std::mutex CreatePedMutex;
+    inline static std::mutex            CreatePedMutex;
     inline static std::vector<uint32_t> m_NsfwModels;
-    
+    inline static bool                  bSkipNextPedRandomization = false;
+
     static auto &
     Config ()
     {
@@ -196,11 +199,14 @@ class PedRandomizer
     }
 
     /*******************************************************/
-    template <auto &OrigFunc>
+    template <auto &CPedFactory__CreatePed>
     static CPed *
     RandomizePed (CPedFactory *fac, uint8_t *p2, uint32_t model, uint64_t p4,
                   uint8_t p5)
     {
+        if (std::exchange (bSkipNextPedRandomization, false))
+            return CPedFactory__CreatePed (fac, p2, model, p4, p5);
+
         const std::lock_guard g (CreatePedMutex);
 
         ProcessPedStreaming ();
@@ -208,7 +214,17 @@ class PedRandomizer
         uint32_t           newModel = GetRandomPedModel (model);
         const ModelSwapper swap (model, newModel);
 
-        return OrigFunc (fac, p2, newModel, p4, p5);
+        return CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
+    }
+
+    /*******************************************************/
+    template <auto &CCutsceneAnimatedActorEntity__CreatePed>
+    static void
+    SkipRandomizingCutscenePeds (class CCutsceneAnimatedActorEntity *entity,
+                                 uint32_t model, bool p3)
+    {
+        bSkipNextPedRandomization = true;
+        CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
     }
 
 public:
@@ -222,7 +238,7 @@ public:
             return;
 
         if (ForcedPed.size ())
-            Config ().ForcedPedHash = rage::atStringHash (ForcedPed.c_str ());
+            Config ().ForcedPedHash = rage::atStringHash (ForcedPed);
 
         InitialiseAllComponents ();
 
@@ -231,12 +247,20 @@ public:
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
 
+        // We don't want to randomize cutscene peds since those are managed by
+        // the cutscene randomizer.
+        REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
+                      SkipRandomizingCutscenePeds, void,
+                      class CCutsceneAnimatedActorEntity *, uint32_t, bool);
+
         // This patch changes the value of TB_DEAD from 0 to 1 to prevent
         // aquatic animals from dying. This effectively changes all TB_DEAD
         // entries to TB_COLD.
 
-        // *hook::get_pattern<uint32_t> (
-        //     "6d 99 17 b8 00 00 00 00 7f 9a 20 e4 01 00 00 00", 4)
-        //     = 1;
+#if (false)
+        *hook::get_pattern<uint32_t> (
+            "6d 99 17 b8 00 00 00 00 7f 9a 20 e4 01 00 00 00", 4)
+            = 1;
+#endif
     }
 } peds;

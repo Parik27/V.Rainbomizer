@@ -114,7 +114,7 @@ ScriptDebugInterface::HandleWebSocketRequests (
         return false;
 
     uint32_t DataHash
-        = rage::atStringHash (req.at ("Data").get<std::string> ().c_str ());
+        = rage::atStringHash (req.at ("Data").get<std::string> ());
 
     uint32_t threadId = 0;
     if (req.count ("CapturedThread"))
@@ -233,7 +233,7 @@ ScriptDebugInterface::HandleWebSocketRequests (
 
             case "capturethread"_joaat: {
                 uint32_t hash = rage::atStringHash (
-                    req.at ("ThreadName").get<std::string> ().c_str ());
+                    req.at ("ThreadName").get<std::string> ());
 
                 m_CaptureRequests.push_back (hash);
                 socket->subscribe (fmt::format ("scripts/capture/{:x}", hash));

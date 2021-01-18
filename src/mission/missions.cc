@@ -167,8 +167,8 @@ class MissionRandomizer
                         strncpy (missions[i].sMissionThread,
                                  Config ().ForcedMission.c_str (), 24);
 
-                        missions[i].nThreadHash = rage::atStringHash (
-                            Config ().ForcedMission.c_str ());
+                        missions[i].nThreadHash
+                            = rage::atStringHash (Config ().ForcedMission);
 
                         continue;
                     }

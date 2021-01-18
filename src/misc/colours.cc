@@ -48,7 +48,7 @@ class ColoursRandomizer
                 for (int i = 0; i < 4; i++)
                     colours[i] = data.Colours[i];
             }
-        catch (std::out_of_range &e)
+        catch (...)
             {
             }
     }
