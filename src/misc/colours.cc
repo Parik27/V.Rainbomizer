@@ -97,8 +97,8 @@ public:
     /*******************************************************/
     ColoursRandomizer ()
     {
-        bool RandomizeHudColours = true;
-        bool RandomizeCarColours = true;
+        static bool RandomizeHudColours = true;
+        static bool RandomizeCarColours = true;
 
         if (!ConfigManager::ReadConfig (
                 "ColourRandomizer",

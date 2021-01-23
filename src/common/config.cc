@@ -10,6 +10,10 @@
 #include <sstream>
 #include <string>
 
+#ifdef ENABLE_DEBUG_SERVER
+#include <debug/config.hh>
+#endif
+
 /*******************************************************/
 bool
 DoesFileExist (const std::string &file)
@@ -106,6 +110,10 @@ ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
     auto table = m_pConfig->get_table (tableName);
     if (table)
         out = table->get_as<T> (key).value_or (out);
+
+#ifdef ENABLE_DEBUG_SERVER
+    ConfigDebugInterface::AddConfigOption (tableName + '.' + key, &out);
+#endif
 }
 
 #define READ_VALUE_ADD_TYPE(type)                                              \

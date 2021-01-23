@@ -6,6 +6,7 @@
 // Interfaces
 #include "debug/logger.hh"
 #include "debug/scripts.hh"
+#include "debug/config.hh"
 
 /*******************************************************/
 void
@@ -108,7 +109,8 @@ RainbomizerDebugServer::InitialiseServer ()
             }
     });
 
-    InitialiseInterfaces<LoggerDebugInterface, ScriptDebugInterface> (app);
+    InitialiseInterfaces<LoggerDebugInterface, ScriptDebugInterface,
+                         ConfigDebugInterface> (app);
 
     uWS::Loop::get ()->addPreHandler (
         (void *) 10,

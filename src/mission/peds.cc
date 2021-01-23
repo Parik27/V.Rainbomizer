@@ -1,3 +1,4 @@
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "CPed.hh"
 #include "CStreaming.hh"
@@ -232,7 +233,7 @@ public:
     PedRandomizer ()
     {
 
-        std::string ForcedPed;
+        static std::string ForcedPed;
         if (!ConfigManager::ReadConfig ("PedRandomizer",
                                         std::pair ("ForcedPed", &ForcedPed)))
             return;
@@ -252,6 +253,13 @@ public:
         REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
                       SkipRandomizingCutscenePeds, void,
                       class CCutsceneAnimatedActorEntity *, uint32_t, bool);
+
+        // This patch fixes CTaskExitVehicle from crashing the game if the ped
+        // exiting the vehicle doesn't have a helmet.
+        injector::MakeNOP (
+            hook::get_pattern ("44 38 70 0a 74 ? 40 84 f6 75 ? b9 ? ? ? ? e8",
+                               4),
+            2);
 
         // This patch changes the value of TB_DEAD from 0 to 1 to prevent
         // aquatic animals from dying. This effectively changes all TB_DEAD

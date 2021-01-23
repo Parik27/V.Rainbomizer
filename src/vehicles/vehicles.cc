@@ -162,6 +162,9 @@ class ScriptVehicleRandomizer
         uint32_t originalHash = hash;
         Vector3  pos          = {coords->x, coords->y, coords->z};
 
+        if (!thread || !thread->IsYscScript ())
+            return true;
+
         // Used for async loading of script vehicles. It's to ensure that the
         // mod doesn't try to change the model it was supposed to load.
         // Additional fail-safes are ideal, but aren't important
