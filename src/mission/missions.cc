@@ -1,4 +1,5 @@
 #include <Utils.hh>
+#include <cstdint>
 #include <scrThread.hh>
 #include <rage.hh>
 #include <common/logger.hh>
@@ -88,29 +89,22 @@ class MissionRandomizer
         MissionDefinition *OriginalDefinition;
     };
 
+    inline static struct
+    {
+        bool *FLAG_PLAYER_PED_INTRODUCED_T;
+        bool *FLAG_PLAYER_PED_INTRODUCED_F;
+        bool *FLAG_PLAYER_PED_INTRODUCED_M;
+        bool *SP0_AVAILABLE;
+        bool *SP1_AVAILABLE;
+        bool *SP2_AVAILABLE;
+        int* PP_CURRENT_PED;
+    } m_Globals;
+
     inline static uint32_t g_CurrentMission         = 0;
     inline static uint64_t g_PreviousCurrentMission = 0;
 
     // contains information about the new mission
     inline static std::map<uint32_t, MissionAssociation> m_MissionAssociations;
-
-    /*******************************************************/
-    static void
-    MakeMissionThinkItsAReplay (scrProgram *program)
-    {
-        YscUtils util (program);
-
-        const static uint8_t instr[] = {
-            0x6f,            // PUSH_CONST_1
-            0x2e, 0x01, 0x01 // LEAVE 0x1, 0x1
-        };
-
-        util.FindCodePattern ("38 00 06 2a 56 ? ? 28 7d d3 48 e5",
-                              [] (hook::pattern_match match) {
-                                  memcpy (match.get<void *> (0), instr,
-                                          sizeof (instr));
-                              });
-    }
 
     /*******************************************************/
     static void
@@ -214,50 +208,19 @@ class MissionRandomizer
     }
 
     /*******************************************************/
-    static void *
-    LogRequestCutscene (fwAssetStore *store, uint32_t *outId, char const *name)
-    {
-        Rainbomizer::Logger::LogMessage (
-            "LogRequestCutscene: [%s:%03x] - %s",
-            scrThread::GetActiveThread ()->m_szScriptName,
-            scrThread::GetActiveThread ()->m_Context.m_nIp, name);
-
-        return fwAssetStore__GetIndexByNamede5b (store, outId, name);
-    }
-
-    /*******************************************************/
-    static void
-    LogStartCutscene (CutSceneManager *cuts, uint32_t thId, uint32_t cutId)
-    {
-        Rainbomizer::Logger::LogMessage (
-            "LogStartCutscene: [%s:%03x] - %d",
-            scrThread::GetActiveThread ()->m_szScriptName,
-            scrThread::GetActiveThread ()->m_Context.m_nIp, cutId);
-
-        CutSceneManager_StartCutscene (cuts, thId, cutId);
-    }
-
-    /*******************************************************/
-    static void
-    DisablePrologueStrandActiveCheck (scrProgram *program)
-    {
-        // 25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c ? ? ?
-        // Note: Can be called more than once on the same program.
-
-        YscUtils utils (program);
-        utils.FindCodePattern ("25 1b 5e ? ? ? 46 ? ? 40 ? 35 ? 6f 2c",
-                               [] (hook::pattern_match m) {
-                                   memset (m.get<void> (), 0, 18);
-                                   *m.get<uint8_t> () = 0x6e; // PUSH_CONST_0
-                               });
-    }
-
-    /*******************************************************/
     static bool
     HandleOnMissionStartCommands (uint32_t    originalMission,
                                   uint32_t    randomizedMission,
                                   scrProgram *program)
     {
+
+        *m_Globals.FLAG_PLAYER_PED_INTRODUCED_M = true;
+        *m_Globals.FLAG_PLAYER_PED_INTRODUCED_T = true;
+        *m_Globals.FLAG_PLAYER_PED_INTRODUCED_F = true;
+        *m_Globals.SP0_AVAILABLE                = true;
+        *m_Globals.SP1_AVAILABLE                = true;
+        *m_Globals.SP2_AVAILABLE                = true;
+
         // Most missions need this to not get softlocked.
         if ("IS_CUTSCENE_ACTIVE"_n())
             {
@@ -267,17 +230,12 @@ class MissionRandomizer
 
         switch (originalMission)
             {
-                // Prologue - to prevent infinite loading.
-                case "prologue1"_joaat: {
+            // Prologue - to prevent infinite loading.
+            case "prologue1"_joaat:
+                case "armenian1"_joaat: {
                     "SHUTDOWN_LOADING_SCREEN"_n();
                     "DO_SCREEN_FADE_IN"_n(0);
 
-                    break;
-                }
-
-                // Armenian1 - player frozen at the start
-                case "armenian1"_joaat: {
-                    "DO_SCREEN_FADE_IN"_n(500);
                     break;
                 }
             }
@@ -285,7 +243,13 @@ class MissionRandomizer
         switch (randomizedMission)
             {
                 case "franklin0"_joaat: {
-                    DisablePrologueStrandActiveCheck (program);
+                    *m_Globals.FLAG_PLAYER_PED_INTRODUCED_F = true;
+                    *m_Globals.SP2_AVAILABLE                = true;
+                    break;
+                }
+                case "armenian2"_joaat: {
+                    *m_Globals.PP_CURRENT_PED = 1;
+                    break;
                 }
             }
 
@@ -403,6 +367,37 @@ class MissionRandomizer
         return scrProgram_InitNativeTablese188_ (program);
     }
 
+    /*******************************************************/
+    template<typename T>
+    static void
+    RegisterFieldHook (scrThread::Info *info)
+    {
+        using namespace std::string_literals;
+
+        const char *fieldName = info->GetArg<const char *> (1);
+        T *         ptr       = info->GetArg<T *> (0);
+
+#define ADD_SAVE_DATA_GLOBAL(global)                                           \
+    if (fieldName == #global##s)                                               \
+    m_Globals.global = ptr
+
+        if constexpr (std::is_same_v<T, bool>)
+            {
+                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_T);
+                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_M);
+                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_F);
+                ADD_SAVE_DATA_GLOBAL (SP0_AVAILABLE);
+                ADD_SAVE_DATA_GLOBAL (SP1_AVAILABLE);
+                ADD_SAVE_DATA_GLOBAL (SP2_AVAILABLE);
+            }
+        else if constexpr (std::is_same_v<T, int>)
+            {
+                ADD_SAVE_DATA_GLOBAL (PP_CURRENT_PED);
+            }
+
+#undef ADD_SAVE_DATA_GLOBAL
+    }
+
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -416,19 +411,12 @@ public:
 
         InitialiseAllComponents ();
 
-        RegisterHook ("8d ? ? 98 00 00 00 e8 ? ? ? ? 83 38 ff 0f 84", 7,
-                      fwAssetStore__GetIndexByNamede5b, LogRequestCutscene);
-
         RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
                       scrThread_Runff6, RunThreadHook);
 
-        RegisterHook<true> ("8b c8 8b d3 ? 8b 5c ? ? ? 83 c4 20 5f e9", 14,
-                            CutSceneManager_StartCutscene, LogStartCutscene);
-
-        RegisterHook ("e8 ? ? ? ? ? 8b c7 ? 8b c8 8b d3 e8", 13,
-                      CutSceneManager_StartCutscene, LogStartCutscene);
-
-        // RegisterHook ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
-        //               scrProgram_InitNativeTablese188_, ApplyCodeChanges);
+        NativeCallbackMgr::InitCallback<"REGISTER_BOOL_TO_SAVE"_joaat,
+                                        RegisterFieldHook<bool>, false> ();
+        NativeCallbackMgr::InitCallback<"REGISTER_ENUM_TO_SAVE"_joaat,
+                                        RegisterFieldHook<int>, false> ();
     }
 } missions;
