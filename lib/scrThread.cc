@@ -1,4 +1,5 @@
 #include "scrThread.hh"
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include <utility>
 #include <array>
@@ -344,6 +345,16 @@ scrThread::DisassemblInsn (scrProgram *program, uint32_t offset)
 #endif
 
 /*******************************************************/
+eScriptState (*scrThread__Run) (uint64_t *, uint64_t **, scrProgram *,
+                                scrThreadContext *);
+eScriptState
+scrThread::Run (uint64_t *stack, uint64_t **globals, scrProgram *program,
+                scrThreadContext *ctx)
+{
+    return scrThread__Run (stack, globals, program, ctx);
+}
+
+/*******************************************************/
 void
 scrThread::InitialisePatterns ()
 {
@@ -352,6 +363,10 @@ scrThread::InitialisePatterns ()
 
     sm_pGlobals = GetRelativeReference<uint64_t *> (
         "8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ", 2, 6);
+
+    ReadCall (hook::get_pattern (
+                  "8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9),
+              scrThread__Run);
 
     // scrProgram related
     {

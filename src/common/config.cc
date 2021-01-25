@@ -72,7 +72,7 @@ ConfigManager::ConfigManager (const std::string &file)
 ConfigManager *
 ConfigManager::GetInstance ()
 {
-    static ConfigManager mgr("config.toml");
+    static ConfigManager mgr{"config.toml"};
     return &mgr;
 }
 

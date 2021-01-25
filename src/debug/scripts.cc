@@ -284,7 +284,7 @@ ScriptDebugInterface::CallNativeNow (
 
     else
         {
-            scrThread::Info info;
+            scrThread::Info info{};
             for (const auto &i : req.at ("NativeArgs"))
                 {
                     switch (i.at ("Type").get<int> ())

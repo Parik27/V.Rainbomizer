@@ -16,20 +16,20 @@ enum class eScriptState : uint32_t
 class scrThreadContext
 {
 public:
-    uint32_t     m_nThreadId;
-    uint32_t     m_nScriptHash;
-    eScriptState m_nState;
-    uint32_t     m_nIp;
-    uint32_t     m_nFrameSP;
-    uint32_t     m_nSP;
-    uint8_t      field_0x18[8];
-    float        m_fWaitTime;
-    uint8_t      field_0x24[44];
-    uint32_t     m_nStackSize;
-    uint32_t     m_nTimerA;
-    uint32_t     m_nTimerB;
-    uint32_t     m_nTimerC;
-    uint8_t      field_0x60[72];
+    uint32_t     m_nThreadId    = 0;
+    uint32_t     m_nScriptHash  = 0;
+    eScriptState m_nState       = eScriptState::WAITING;
+    uint32_t     m_nIp          = 0;
+    uint32_t     m_nFrameSP     = 0;
+    uint32_t     m_nSP          = 0;
+    uint8_t      field_0x18[8]  = {0};
+    float        m_fWaitTime    = 0;
+    uint8_t      field_0x24[44] = {0};
+    uint32_t     m_nStackSize   = 0;
+    uint32_t     m_nTimerA      = 0;
+    uint32_t     m_nTimerB      = 0;
+    uint32_t     m_nTimerC      = 0;
+    uint8_t      field_0x60[72] = {0};
 };
 
 struct scrProgram
@@ -112,9 +112,9 @@ class scrThread
 public:
     void *           vft;
     scrThreadContext m_Context;
-    uint64_t *       m_pStack;
-    uint8_t          field_0xb8[24];
-    char             m_szScriptName[64]; // TODO: Move to GtaThread
+    uint64_t *       m_pStack = nullptr;
+    uint8_t          field_0xb8[24] = {0};
+    char             m_szScriptName[64] = {0}; // TODO: Move to GtaThread
 
     class Info
     {
@@ -156,14 +156,15 @@ public:
 
         template <typename... Args> Info (Args... args)
         {
-            m_Ret  = (void **) &m_StackSpace[MAX_PARAMS - 1];
+            m_Ret  = (void **) &m_StackSpace[16];
             m_Args = (void **) &m_StackSpace[0];
+            m_Argc = 0;
             (..., PushArg (args));
         }
     };
 
     static scrThread **      sm_pActiveThread;
-    static inline uint64_t **sm_pGlobals;
+    static inline uint64_t **sm_pGlobals; // sm_Globals[64]
 
     inline bool
     IsYscScript ()
@@ -207,6 +208,21 @@ public:
         return *sm_pActiveThread;
     }
 
+    // Functions for stack manipulation
+    template <typename T = uint64_t>
+    void
+    Push64 (T value)
+    {
+        m_pStack[m_Context.m_nSP++] = static_cast<uint64_t>(value);
+    }
+
+    template <typename T = uint64_t>
+    T
+    Pop64 ()
+    {
+        return m_pStack[m_Context.m_nSP--];
+    }
+
     scrProgram *GetProgram ();
 
     static uint16_t    FindInstSize (scrProgram *program, uint32_t offset);
@@ -214,6 +230,9 @@ public:
 
     std::pair<uint32_t, uint32_t> FindCurrentFunctionBounds (scrProgram *program
                                                              = nullptr);
+
+    static eScriptState Run (uint64_t *stack, uint64_t **globals,
+                             scrProgram *program, scrThreadContext *ctx);
 
     static void InitialisePatterns ();
 };
