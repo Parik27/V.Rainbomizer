@@ -13,6 +13,8 @@ class ConfigManager
 {
     std::shared_ptr<cpptoml::table> m_pConfig;
 
+    ConfigManager() {};
+
     void WriteDefaultConfig (const std::string &file);
     std::shared_ptr<cpptoml::table> ParseDefaultConfig ();
 
@@ -27,7 +29,6 @@ public:
     static ConfigManager *GetInstance ();
 
     /// Initialises
-    ConfigManager () = default;
     ConfigManager (const std::string &file = "config.toml");
 
     template <typename... Args>
