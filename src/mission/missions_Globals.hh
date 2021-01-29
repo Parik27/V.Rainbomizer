@@ -38,10 +38,52 @@ struct MissionDefinition
             bool Michael : 1;
             bool Franklin : 1;
             bool Trevor : 1;
-        } FLAG_TriggerFlags;
+        } BITS_TriggerFlags;
     };
+    uint32_t field_0x5c;
 
-    uint8_t field_0x50[180];
+    union
+    {
+        uint32_t nFriendsBitset;
+
+        struct
+        {
+            bool Michael : 1;
+            bool Franklin : 1;
+            bool Trevor : 1;
+            bool Lamar : 1;
+            bool Amanda : 1;
+            bool Jimmy : 1;
+        } BITS_FriendsBitset;
+    };
+    uint32_t field_0x64[5];
+
+    union
+    {
+        uint32_t nMissionFlags;
+
+        struct
+        {
+            bool FLAG_0 : 1;
+            bool FLAG_1 : 1;
+            bool FLAG_2 : 1;
+            bool FLAG_3 : 1;
+            bool NO_STAT_WATCHER : 1;
+            bool FLAG_5 : 1;
+            bool FLAG_6 : 1;
+            bool FLAG_7 : 1;
+            bool FLAG_8 : 1;
+            bool FLAG_9 : 1;
+            bool FLAG_10 : 1;
+            bool FLAG_11 : 1;
+            bool FLAG_12 : 1;
+            bool FLAG_13 : 1;
+            bool IS_HEIST_MISSION : 1;
+            
+        } BITS_MissionFlags;
+    };
+    
+    uint8_t field_0x7c[148];
 };
 
 static_assert (sizeof (MissionDefinition) == 0x22 * 8);
@@ -73,16 +115,16 @@ public:
     // PP_INFO.PP_CURRENT_PED
     inline static int *PP_CURRENT_PED = nullptr;
 
-    uint32_t g_CurrentMission = 0;
+    YscUtils::ScriptGlobal<uint32_t> g_CurrentMission{
+        "2c 04 ? ? 38 02 60 ? ? ? 2e 05 00", 7, "flow_controller"_joaat, -1u};
 
-    uint32_t
-    GetCurrentMission ()
-    {
-        if (scrThread::GetGlobals () && g_CurrentMission)
-            return scrThread::GetGlobal<uint32_t> (g_CurrentMission);
+    YscUtils::ScriptGlobal<uint32_t> g_LastPassedMission{
+        "38 ? 60 ? ? ? 2c ? ? ? 60 ? ? ? 38 ? 25 1c", 3,
+        "flow_controller"_joaat, -1u};
 
-        return -1u;
-    }
+    YscUtils::ScriptGlobal<uint32_t> g_LastPassedMissionTime{
+        "38 ? 60 ? ? ? 2c ? ? ? 60 ? ? ? 38 ? 25 1c", 11,
+        "flow_controller"_joaat, -1u};
 
     /*******************************************************/
     template <typename T>
@@ -116,25 +158,13 @@ public:
     }
 
     /*******************************************************/
-    void
-    Init_gCurrentMission (scrThreadContext *ctx, scrProgram *program)
+    static ePlayerIndex
+    GetCurrentPlayer ()
     {
-        if (ctx->m_nIp == 0
-            && program->m_nScriptHash == "flow_controller"_joaat)
-            {
-                YscUtils utils (program);
+        if (*PP_CURRENT_PED < 4)
+            return ePlayerIndex (*PP_CURRENT_PED);
 
-                // Find offset to g_CurrentMission (Not original name)
-                utils.FindCodePattern ("2c 04 ? ? 38 02 60 ? ? ? 2e 05 00",
-                                       [&] (hook::pattern_match m) {
-                                           // GLOBAL_U24 <imm24>
-                                           g_CurrentMission
-                                               = *m.get<uint32_t> (7)
-                                                 & 0xFFFFFF;
-                                       });
-                Rainbomizer::Logger::LogMessage ("g_CurrentMission = %d",
-                                                 g_CurrentMission);
-            }
+        return ePlayerIndex::PLAYER_UNKNOWN;
     }
 
     /*******************************************************/
@@ -177,7 +207,9 @@ public:
     void
     Process (scrThreadContext *ctx, scrProgram *program)
     {
-        Init_gCurrentMission (ctx, program);
+        g_CurrentMission.Init (program);
+        g_LastPassedMission.Init (program);
+        g_LastPassedMissionTime.Init (program);
         Init_gMissions (ctx, program);
     }
 

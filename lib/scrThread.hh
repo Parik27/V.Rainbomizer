@@ -151,7 +151,8 @@ public:
         void
         PushArg (T arg)
         {
-            GetArg<T> (m_Argc++) = arg;
+            if (m_Argc < MAX_PARAMS)
+                GetArg<T> (m_Argc++) = arg;
         }
 
         template <typename... Args> Info (Args... args)

@@ -3,7 +3,7 @@
 
 /*******************************************************/
 void
-YscUtils::FindCodePattern (const std::string &pattern_str,
+YscUtils::FindCodePattern (std::string_view pattern_str,
                            std::function<void (hook::pattern_match)> CB)
 {
     m_pProgram->ForEachCodePage ([&] (int, uint8_t *block, size_t size) {

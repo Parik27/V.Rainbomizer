@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mission/missions_Data.hh"
 #include "mission/missions_Globals.hh"
 #include "scrThread.hh"
 #include "missions_Globals.hh"
@@ -8,12 +9,20 @@
 #include <map>
 #include "Utils.hh"
 
+struct MissionInfo
+{
+    uint32_t           nHash;
+    uint32_t           nId;
+    MissionDefinition *pDef;
+    MissionDefinition  DefCopy;
+    MissionData        Data;
+};
+
 class MissionRandomizer_OrderManager
 {
-    std::map<uint32_t, uint32_t>
-        m_MissionsMap; // Original -> Randomized
+    std::map<uint32_t, uint32_t> m_MissionsMap; // Original -> Randomized
 
-    std::map<uint32_t, uint32_t> m_gMissionsTranslation;
+    std::map<uint32_t, MissionInfo> m_MissionInfos;
     // To convert a gMissions index to original hash.
 
     void InitialiseMissionsMap (unsigned int seed);
@@ -26,7 +35,7 @@ public:
     Reset ()
     {
         bInitialised = false;
-        m_gMissionsTranslation.clear ();
+        m_MissionInfos.clear ();
         m_MissionsMap.clear ();
     }
 
@@ -36,13 +45,22 @@ public:
         return bInitialised;
     }
 
-    uint32_t
-    GetOriginalMissionHash (uint32_t gMissionsIndex)
+    const MissionInfo *
+    GetMissionInfo (uint32_t hash)
     {
-        if (auto hash = LookupMap (m_gMissionsTranslation, gMissionsIndex))
-            return *hash;
+        return LookupMap (m_MissionInfos, hash);
+    }
 
-        return -1u;
+    const MissionInfo *
+    GetMissionInfoFromId (uint32_t id)
+    {
+        for (auto &[hash, info] : m_MissionInfos)
+            {
+                if (info.nId == id)
+                    return &info;
+            }
+
+        return nullptr;
     }
 
     uint32_t
@@ -54,7 +72,5 @@ public:
         return -1u;
     }
 
-    MissionDefinition *GetDefinitionByHash (uint32_t hash);
-    
     void Process (scrThreadContext *ctx, scrProgram *program);
 };

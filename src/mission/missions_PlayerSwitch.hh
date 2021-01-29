@@ -4,6 +4,7 @@
 #include "common/logger.hh"
 #include "mission/missions_Globals.hh"
 #include "mission/missions_YscUtils.hh"
+#include "mission/missions_Funcs.hh"
 #include "rage.hh"
 #include "scrThread.hh"
 
@@ -80,29 +81,13 @@ public:
         return ip;
     }
 
-
     /*******************************************************/
     bool
     SetCurrentPlayer (ePlayerIndex index)
     {
-        YscUtils utils (scrProgram::FindProgramByHash ("main"_joaat));
-        uint32_t setCurrentPlayerIp = GetSetCurrentPlayerInstruction (utils);
+        if (!YscFunctions::SetCurrentPlayer (index, 1))
+            return true;
 
-        if (!setCurrentPlayerIp)
-            {
-                static bool bInstructioNotFoundErrorPrinted = false;
-                if (!std::exchange (bInstructioNotFoundErrorPrinted, true))
-                    {
-                        Rainbomizer::Logger::LogMessage (
-                            "Failed to find SetCurrentPlayerInstruction "
-                            "instruction. Mission Randomizer will not work "
-                            "properly");
-                    }
-
-                return true; // return true anyway.
-            }
-
-        utils.CallScriptFunction (setCurrentPlayerIp, destPlayer, 1);
         CStreaming::LoadAllObjects (false);
 
         bool success
@@ -110,7 +95,7 @@ public:
 
         if (!success)
             {
-                static auto lastPrint = 0;
+                static auto lastPrint = 0ll;
                 if (time (NULL) - lastPrint > 2)
                     {
                         lastPrint = time (NULL);

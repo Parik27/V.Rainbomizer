@@ -55,22 +55,20 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
         }
 }
 
-MissionDefinition *
-MissionRandomizer_OrderManager::GetDefinitionByHash (uint32_t hash)
-{
-    for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
-        {
-            auto &mission = MR::sm_Globals.g_Missions.Data[i];
-            if (mission.nThreadHash == hash)
-                return &mission;
-        }
-
-    return nullptr;
-}
-
 void
 MissionRandomizer_OrderManager::Update_gMissions ()
 {
+    for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
+        {
+            auto &data = MR::sm_Globals.g_Missions.Data[i];
+            if (!MR::sm_Data.IsValidMission (data.nThreadHash))
+                continue;
+
+            m_MissionInfos[data.nThreadHash]
+                = {data.nThreadHash, i, &data, data,
+                   MR::sm_Data.GetMissionData (data.nThreadHash)};
+        }
+
     for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
         {
             auto &origMission = MR::sm_Globals.g_Missions.Data[i];
@@ -78,16 +76,13 @@ MissionRandomizer_OrderManager::Update_gMissions ()
             if (!m_MissionsMap.count (origMission.nThreadHash))
                 continue;
 
-            auto *newMission = GetDefinitionByHash (
-                m_MissionsMap[origMission.nThreadHash]);
+            uint32_t newHash    = m_MissionsMap[origMission.nThreadHash];
+            auto &   newMission = GetMissionInfo (newHash)->DefCopy;
 
-            if (!newMission)
-                continue;
+            strncpy (origMission.sMissionThread, newMission.sMissionThread, 24);
+            origMission.nThreadHash = newMission.nThreadHash;
 
-            m_gMissionsTranslation[i] = origMission.nThreadHash;
-
-            strncpy (origMission.sMissionThread, newMission->sMissionThread,
-                     24);
-            origMission.nThreadHash = newMission->nThreadHash;
+            origMission.BITS_MissionFlags.NO_STAT_WATCHER
+                = newMission.BITS_MissionFlags.NO_STAT_WATCHER;
         }
 }
