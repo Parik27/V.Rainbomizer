@@ -101,7 +101,6 @@ class NativeCallbackMgr
         if constexpr (before)
             cb (info);
 
-        std::cout << hash << std::endl;
         NativeManager::InvokeNative (hash, info);
 
         if constexpr (!before)

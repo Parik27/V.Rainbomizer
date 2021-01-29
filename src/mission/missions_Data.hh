@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <map>
 
 #include "missions_Globals.hh"
 
