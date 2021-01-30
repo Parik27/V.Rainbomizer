@@ -5,6 +5,7 @@
 #include "missions_PlayerSwitch.hh"
 #include "missions_Flow.hh"
 #include "missions_Data.hh"
+#include "missions_Code.hh"
 
 #include "common/common.hh"
 
@@ -18,6 +19,7 @@ public:
     inline static MissionRandomizer_OrderManager   sm_Order;
     inline static MissionRandomizer_PlayerSwitcher sm_PlayerSwitcher;
     inline static MissionRandomizer_Flow           sm_Flow;
+    inline static MissionRandomizer_CodeFixes      sm_CodeFixes;
 
     static auto &
     Config ()

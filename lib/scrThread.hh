@@ -13,6 +13,137 @@ enum class eScriptState : uint32_t
     STATE_4
 };
 
+enum class YscOpCode : uint8_t
+{
+    NOP,
+    IADD,
+    ISUB,
+    IMUL,
+    IDIV,
+    IMOD,
+    INOT,
+    INEG,
+    IEQ,
+    INE,
+    IGT,
+    IGE,
+    ILT,
+    ILE,
+    FADD,
+    FSUB,
+    FMUL,
+    FDIV,
+    FMOD,
+    FNEG,
+    FEQ,
+    FNE,
+    FGT,
+    FGE,
+    FLT,
+    FLE,
+    VADD,
+    VSUB,
+    VMUL,
+    VDIV,
+    VNEG,
+    IAND,
+    IOR,
+    IXOR,
+    I2F,
+    F2I,
+    F2V,
+    PUSH_CONST_U8,
+    PUSH_CONST_U8_U8,
+    PUSH_CONST_U8_U8_U8,
+    PUSH_CONST_U32,
+    PUSH_CONST_F,
+    DUP,
+    DROP,
+    NATIVE,
+    ENTER,
+    LEAVE,
+    LOAD,
+    STORE,
+    STORE_REV,
+    LOAD_N,
+    STORE_N,
+    ARRAY_U8,
+    ARRAY_U8_LOAD,
+    ARRAY_U8_STORE,
+    LOCAL_U8,
+    LOCAL_U8_LOAD,
+    LOCAL_U8_STORE,
+    STATIC_U8,
+    STATIC_U8_LOAD,
+    STATIC_U8_STORE,
+    IADD_U8,
+    IMUL_U8,
+    IOFFSET,
+    IOFFSET_U8,
+    IOFFSET_U8_LOAD,
+    IOFFSET_U8_STORE,
+    PUSH_CONST_S16,
+    IADD_S16,
+    IMUL_S16,
+    IOFFSET_S16,
+    IOFFSET_S16_LOAD,
+    IOFFSET_S16_STORE,
+    ARRAY_U16,
+    ARRAY_U16_LOAD,
+    ARRAY_U16_STORE,
+    LOCAL_U16,
+    LOCAL_U16_LOAD,
+    LOCAL_U16_STORE,
+    STATIC_U16,
+    STATIC_U16_LOAD,
+    STATIC_U16_STORE,
+    GLOBAL_U16,
+    GLOBAL_U16_LOAD,
+    GLOBAL_U16_STORE,
+    J,
+    JZ,
+    IEQ_JZ,
+    INE_JZ,
+    IGT_JZ,
+    IGE_JZ,
+    ILT_JZ,
+    ILE_JZ,
+    CALL,
+    GLOBAL_U24,
+    GLOBAL_U24_LOAD,
+    GLOBAL_U24_STORE,
+    PUSH_CONST_U24,
+    SWITCH,
+    STRING,
+    STRINGHASH,
+    TEXT_LABEL_ASSIGN_STRING,
+    TEXT_LABEL_ASSIGN_INT,
+    TEXT_LABEL_APPEND_STRING,
+    TEXT_LABEL_APPEND_INT,
+    TEXT_LABEL_COPY,
+    CATCH,
+    THROW,
+    CALLINDIRECT,
+    PUSH_CONST_M1,
+    PUSH_CONST_0,
+    PUSH_CONST_1,
+    PUSH_CONST_2,
+    PUSH_CONST_3,
+    PUSH_CONST_4,
+    PUSH_CONST_5,
+    PUSH_CONST_6,
+    PUSH_CONST_7,
+    PUSH_CONST_FM1,
+    PUSH_CONST_F0,
+    PUSH_CONST_F1,
+    PUSH_CONST_F2,
+    PUSH_CONST_F3,
+    PUSH_CONST_F4,
+    PUSH_CONST_F5,
+    PUSH_CONST_F6,
+    PUSH_CONST_F7
+};
+
 class scrThreadContext
 {
 public:
@@ -112,8 +243,8 @@ class scrThread
 public:
     void *           vft;
     scrThreadContext m_Context;
-    uint64_t *       m_pStack = nullptr;
-    uint8_t          field_0xb8[24] = {0};
+    uint64_t *       m_pStack           = nullptr;
+    uint8_t          field_0xb8[24]     = {0};
     char             m_szScriptName[64] = {0}; // TODO: Move to GtaThread
 
     class Info
@@ -214,7 +345,7 @@ public:
     void
     Push64 (T value)
     {
-        m_pStack[m_Context.m_nSP++] = static_cast<uint64_t>(value);
+        m_pStack[m_Context.m_nSP++] = static_cast<uint64_t> (value);
     }
 
     template <typename T = uint64_t>

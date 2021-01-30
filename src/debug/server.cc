@@ -7,6 +7,7 @@
 #include "debug/logger.hh"
 #include "debug/scripts.hh"
 #include "debug/config.hh"
+#include "debug/actions.hh"
 
 /*******************************************************/
 void
@@ -110,7 +111,7 @@ RainbomizerDebugServer::InitialiseServer ()
     });
 
     InitialiseInterfaces<LoggerDebugInterface, ScriptDebugInterface,
-                         ConfigDebugInterface> (app);
+                         ConfigDebugInterface, ActionsDebugInterface> (app);
 
     uWS::Loop::get ()->addPreHandler (
         (void *) 10,

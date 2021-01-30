@@ -38,9 +38,6 @@ class MissionRandomizer_Flow
     bool OnMissionStart ();
     bool OnMissionEnd (bool passed);
 
-    template<auto&>
-    static bool ApplyCodeFixes (scrProgram* program);
-
     void LogPlayerPos (bool start);
     
 public:

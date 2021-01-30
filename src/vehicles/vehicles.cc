@@ -15,7 +15,11 @@
 #include "vehicle_common.hh"
 #include "common/config.hh"
 #include <CPools.hh>
-#include <windows.h>
+
+
+#ifdef ENABLE_DEBUG_SERVER
+#include "debug/actions.hh"
+#endif
 
 CEntity *(*CPools__GetAtEntity) (int);
 bool (*CVehicle__IsVehDriveable4137) (void *, bool, bool, bool);
@@ -42,6 +46,17 @@ class ScriptVehicleRandomizer
     InitialisePatterns ()
     {
         static bool mPatternsInitialised = false;
+
+#ifdef ENABLE_DEBUG_SERVER
+        if (ActionsDebugInterface::sm_ReloadPatternsRequested)
+            {
+                mPatternsInitialised = false;
+                mPatterns.clear ();
+
+                ActionsDebugInterface::sm_ReloadPatternsRequested = false;
+            }
+#endif
+
         if (std::exchange (mPatternsInitialised, true))
             return;
 

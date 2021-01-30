@@ -10,6 +10,10 @@
 #include <vector>
 #include <random>
 
+#ifdef ENABLE_DEBUG_SERVER
+#include "debug/actions.hh"
+#endif
+
 using MR = MissionRandomizer_Components;
 
 void
@@ -27,6 +31,18 @@ MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
 
             bInitialised = true;
         }
+
+#ifdef ENABLE_DEBUG_SERVER
+    if (ActionsDebugInterface::sm_ReloadMissionsRequested)
+        {
+            uint32_t seed = static_cast<uint32_t> (
+                std::hash<std::string>{}(MR::Config ().Seed));
+
+            InitialiseMissionsMap (seed);
+            Update_gMissions ();
+            ActionsDebugInterface::sm_ReloadMissionsRequested = false;
+        }
+#endif
 }
 
 void
@@ -58,15 +74,18 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
 void
 MissionRandomizer_OrderManager::Update_gMissions ()
 {
-    for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
+    if (m_MissionInfos.empty ())
         {
-            auto &data = MR::sm_Globals.g_Missions.Data[i];
-            if (!MR::sm_Data.IsValidMission (data.nThreadHash))
-                continue;
+            for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
+                {
+                    auto &data = MR::sm_Globals.g_Missions.Data[i];
+                    if (!MR::sm_Data.IsValidMission (data.nThreadHash))
+                        continue;
 
-            m_MissionInfos[data.nThreadHash]
-                = {data.nThreadHash, i, &data, data,
-                   MR::sm_Data.GetMissionData (data.nThreadHash)};
+                    m_MissionInfos[data.nThreadHash]
+                        = {data.nThreadHash, i, &data, data,
+                           MR::sm_Data.GetMissionData (data.nThreadHash)};
+                }
         }
 
     for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)

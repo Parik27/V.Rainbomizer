@@ -9,6 +9,7 @@
 #include <scrThread.hh>
 #include <string_view>
 
+#include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 
 /* Class for working with scrProgram. */
@@ -24,16 +25,14 @@ public:
 
     void FindString (const char *str, void (*CB) (char *));
 
-    void ExtendCode (uint32_t newSize);
-
-    inline scrProgram::scrPage *
-    AddNewPage ()
+    template <typename... Args>
+    bool
+    IsAnyOf (Args... args)
     {
-        uint32_t totalPages
-            = m_pProgram->GetTotalPages (m_pProgram->m_nCodeSize);
-        ExtendCode (totalPages * scrProgram::PAGE_SIZE);
+        bool anyOf = false;
+        (..., (anyOf = (m_pProgram->m_nScriptHash == args) ? true : anyOf));
 
-        return &m_pProgram->m_pCodeBlocks[totalPages];
+        return anyOf;
     }
 
     uint32_t GetCodeOffset (uint8_t *code);
@@ -189,4 +188,68 @@ public:
                 }
         }
     };
+};
+
+class YscUtilsOps : public YscUtils
+{
+    bool     bOperationFailed = false;
+    uint8_t *pPatternResult   = nullptr;
+
+public:
+
+    using YscUtils::YscUtils;
+    
+    /* Initialise the UtilsOps to a certain pattern for further operations */
+    void
+    Init (std::string_view pattern)
+    {
+        uint8_t *ptr = nullptr;
+        FindCodePattern (pattern, [&ptr] (hook::pattern_match m) {
+            if (!ptr)
+                ptr = m.get<uint8_t> (0);
+        });
+
+        pPatternResult = ptr;
+    }
+
+    /* Returns the evaluated pattern/initialised value of the stored ptr */
+    template <typename T>
+    T *
+    Get (int64_t offset)
+    {
+        return reinterpret_cast<T *> (pPatternResult + offset);
+    }
+
+    /* Makes a NOP at offset of size */
+    void
+    NOP (int64_t offset, size_t size)
+    {
+        if (!pPatternResult)
+            return void (bOperationFailed = true);
+        memset (pPatternResult + offset, uint8_t(YscOpCode::NOP), size);
+    }
+
+    /* Writes a value of type T at offset */
+    template <typename T>
+    void
+    Write (int64_t offset, T value)
+    {
+        if (!pPatternResult)
+            return void (bOperationFailed = true);
+        *Get<T> (offset) = value;
+    }
+
+    template <typename T>
+    void
+    WriteBytes (int64_t offset, const T &bytes)
+    {
+        if (!pPatternResult)
+            return void (bOperationFailed = true);
+        memcpy (pPatternResult, &bytes[0], std::size (bytes));
+    }
+
+    explicit operator bool const ()
+    {
+        return bOperationFailed || !pPatternResult;
+    }
 };

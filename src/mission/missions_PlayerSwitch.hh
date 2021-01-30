@@ -67,22 +67,6 @@ public:
     }
 
     /*******************************************************/
-    uint32_t
-    GetSetCurrentPlayerInstruction (YscUtils &program)
-    {
-        static uint32_t ip = 0;
-        if (!ip)
-            program.FindCodePattern (
-                                     "2d 02 0b 00 ? 6e 52 ? ? 42 ? 2c ? ? ? "
-                                     "2c ? ? ? 56 ? ? 6f 2e 02 01",
-                [&] (hook::pattern_match m) {
-                    ip = program.GetCodeOffset (m.get<uint8_t> ());
-                });
-
-        return ip;
-    }
-
-    /*******************************************************/
     bool
     SetCurrentPlayer (ePlayerIndex index)
     {

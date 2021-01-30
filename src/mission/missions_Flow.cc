@@ -13,37 +13,10 @@
 #include <utility>
 
 using MR = MissionRandomizer_Components;
-template <auto &scrProgram_InitNativeTablese188>
-bool
-MissionRandomizer_Flow::ApplyCodeFixes (scrProgram *program)
-{
-    bool ret = scrProgram_InitNativeTablese188 (program);
-    if (program->m_nScriptHash == "flow_controller"_joaat)
-        {
-            YscUtils utils (program);
-            utils.FindCodePattern (
-                "6f 54 ? ? 6f 54 ? ? 5d ? ? ? 5d ? ? ? 2e 01 00",
-                [] (hook::pattern_match p) {
-                    *p.get<uint32_t> (12) = 0;
-                    Rainbomizer::Logger::LogMessage (
-                        "Initialised mission_stat_watcher terminate fix");
-                });
-        }
-
-    return ret;
-}
 
 void
 MissionRandomizer_Flow::Reset ()
-{
-    static bool bHooksInitialised = false;
-    if (!bHooksInitialised)
-        {
-            REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff",
-                           2, ApplyCodeFixes, bool, scrProgram *);
-            bHooksInitialised = true;
-        }
-    
+{    
     MR::sm_Order.Reset ();
     MR::sm_PlayerSwitcher.Reset ();
 
