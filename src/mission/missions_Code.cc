@@ -9,7 +9,7 @@ MissionRandomizer_CodeFixes::PrintStatus (YscUtilsOps &    utils,
                                           std::string_view fixName)
 {
     Rainbomizer::Logger::LogMessage ("%s: %s", fixName.data (),
-                                     utils ? "Failed" : "Succeded");
+                                     utils ? "Failed" : "Succeeded");
 }
 
 /*******************************************************/
@@ -20,7 +20,7 @@ MissionRandomizer_CodeFixes::ApplyMissionPassFix (YscUtilsOps &utils)
         return;
 
     utils.Init ("56 ? ? 55 ? ? 6f 54");
-    utils.NOP (/*Offset=*/6, /*Size=*/3);
+    utils.NOP (/*Offset=*/6, /*Size=*/4);
 
     PrintStatus (utils, "Mission Pass Fix");
 }
@@ -89,12 +89,16 @@ void
 MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
 {
     static constexpr uint8_t ret_0x0[] = {0x2e, 0x00, 0x00};
+    static constexpr uint8_t j_0x24[] = {0x55, 0x16, 0x00};
 
     if (!utils.IsAnyOf ("finalec2"_joaat))
         return;
 
-    utils.Init ("4f ? ? 5d ? ? ? 50 ? ? 29 ? ? ? ? 29 ? ? ? ? 29");
-    utils.WriteBytes (/*Offset=*/0, ret_0x0);
+    utils.Init ("2d 00 02 00 ? 6f 2c 04 ? ? 6e");
+    utils.WriteBytes (/*Offset=*/5, j_0x24);
+
+    utils.Init ("5f ? ? ? 06 56 ? ? 2c ? ? ? 61");
+    utils.Write (/*Offset=*/5, YscOpCode::J);
 
     utils.Init ("5a ? ? 43 88 13 2c 04 ? ? 2c ? ? ? 06 56 ? ? 6e 2c 04 ? ? 55");
     utils.NOP (/*Offset=*/0, /*Size=*/26);

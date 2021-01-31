@@ -242,7 +242,7 @@ public:
     template <typename T>
     void
     WriteBytes (int64_t offset, const T &bytes)
-    {
+    {        
         if (!pPatternResult)
             return void (bOperationFailed = true);
         memcpy (pPatternResult, &bytes[0], std::size (bytes));

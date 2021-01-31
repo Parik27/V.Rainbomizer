@@ -27,9 +27,18 @@ MissionRandomizer_Flow::Reset ()
 void
 MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
 {
-    uint32_t rId       = RandomizedMission->nId;
-    auto     rDef_curr = RandomizedMission->pDef;
-    auto     rDef_orig = &RandomizedMission->DefCopy;
+    auto missionInfo = RandomizedMission;
+
+    if (missionInfo->nHash == "finalec2"_joaat)
+        {
+            missionInfo = MR::sm_Order.GetMissionInfo ("finalec1"_joaat);
+            if (!missionInfo)
+                missionInfo = RandomizedMission;
+        }
+
+    uint32_t rId       = missionInfo->nId;
+    auto     rDef_curr = missionInfo->pDef;
+    auto     rDef_orig = &missionInfo->DefCopy;
 
     uint32_t prevFlags
         = std::exchange (rDef_curr->nMissionFlags, rDef_orig->nMissionFlags);
