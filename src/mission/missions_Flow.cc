@@ -14,6 +14,7 @@
 
 using MR = MissionRandomizer_Components;
 
+/*******************************************************/
 auto
 MissionRandomizer_Flow::GenerateSwitcherContext (bool start)
 {
@@ -73,6 +74,7 @@ MissionRandomizer_Flow::GenerateSwitcherContext (bool start)
     return ctx;
 }
 
+/*******************************************************/
 void
 MissionRandomizer_Flow::Reset ()
 {    
@@ -83,6 +85,7 @@ MissionRandomizer_Flow::Reset ()
     RandomizedMission = nullptr;
 }
 
+/*******************************************************/
 void
 MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
 {
@@ -109,6 +112,7 @@ MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
     rDef_curr->nMissionFlags = prevFlags;
 }
 
+/*******************************************************/
 bool
 MissionRandomizer_Flow::PreMissionStart ()
 {
@@ -132,6 +136,7 @@ MissionRandomizer_Flow::PreMissionStart ()
     return true;
 }
 
+/*******************************************************/
 void
 MissionRandomizer_Flow::HandleCurrentMissionChanges ()
 {
@@ -161,6 +166,7 @@ MissionRandomizer_Flow::HandleCurrentMissionChanges ()
         }
 }
 
+/*******************************************************/
 bool
 MissionRandomizer_Flow::OnMissionStart ()
 {
@@ -208,6 +214,7 @@ MissionRandomizer_Flow::OnMissionStart ()
     return true;
 }
 
+/*******************************************************/
 void
 MissionRandomizer_Flow::LogPlayerPos (bool start)
 {
@@ -223,6 +230,7 @@ MissionRandomizer_Flow::LogPlayerPos (bool start)
     fflush (f);
 }
 
+/*******************************************************/
 bool
 MissionRandomizer_Flow::OnMissionEnd (bool pass)
 {
@@ -254,6 +262,7 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
     return true;
 }
 
+/*******************************************************/
 bool
 MissionRandomizer_Flow::WasMissionPassed ()
 {
@@ -261,6 +270,7 @@ MissionRandomizer_Flow::WasMissionPassed ()
            && MR::sm_Globals.g_LastPassedMissionTime != nLastPassedMissionTime;
 }
 
+/*******************************************************/
 bool
 MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
 {
@@ -288,4 +298,26 @@ MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
         return OnMissionStart ();
 
     return true;
+}
+
+/*******************************************************/
+void
+MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
+{
+    if (!RandomizedMission || !OriginalMission
+        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        return;
+
+    MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
+}
+
+/*******************************************************/
+void
+MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
+{
+    if (!RandomizedMission || !OriginalMission
+        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        return;
+
+    MR::sm_Globals.g_CurrentMission.Set (nPreviousCurrentMission);
 }

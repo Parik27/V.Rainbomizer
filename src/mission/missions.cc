@@ -53,13 +53,17 @@ class MissionRandomizer
     {
         eScriptState state = ctx->m_nState;
         if (ProcessComponents (program, ctx))
-            state = scrThread_Runff6 (stack, globals, program, ctx);
+            {
+                Components::sm_Flow.SetVariables (ctx);
+                state = scrThread_Runff6 (stack, globals, program, ctx);
+                Components::sm_Flow.ClearVariables (ctx);
+            }
 
         ProcessComponents (program, ctx);
 
         return state;
     }
-    
+
 public:
     /*******************************************************/
     MissionRandomizer ()

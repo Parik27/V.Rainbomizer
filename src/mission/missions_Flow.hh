@@ -41,10 +41,13 @@ class MissionRandomizer_Flow
     bool PreMissionStart ();
     bool OnMissionStart ();
     bool OnMissionEnd (bool passed);
-
-    void LogPlayerPos (bool start);
     
+    void LogPlayerPos (bool start);
+
 public:
+    void SetVariables (scrThreadContext *ctx);
+    void ClearVariables (scrThreadContext *ctx);
+
     bool Process (scrProgram *program, scrThreadContext *ctx);
 
     void Reset ();
