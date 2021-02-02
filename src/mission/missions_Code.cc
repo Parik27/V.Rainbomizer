@@ -64,31 +64,12 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleAB (YscUtilsOps &utils)
     utils.Write (/*Offset=*/5, YscOpCode::J);
 
     PrintStatus (utils, "Credits fix for finale a/b");
-
-#if (0)
-    utils.GetFirst ("6e 5d ? ? ? 56 ? ? 6f 54 ? ? 6f 6f ");
-    utils.MakeNOP (5, 3);
-    utils.Set (13, 0x6e);
-    utils.Set (18, 0x6e);
-    utils.Set (19, 0x6e);
-    utils.MakeNOP (29, 3);
-
-    utils.GetFirst ("56 ? ? 55 ? ? 6f 54 ? ? ");
-    utils.MakeNOP (6, 3);
-
-    utils.GetFirst ("2d 01 03 00 ? 38 ? 06 2a 56 ? ? ");
-    utils.Set (5, 0x6f);
-    utils.Set (6, 0x2e);
-    utils.Set (7, 1);
-    utils.Set (8, 1);
-#endif
 }
 
 /*******************************************************/
 void
 MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
 {
-    static constexpr uint8_t ret_0x0[] = {0x2e, 0x00, 0x00};
     static constexpr uint8_t j_0x24[] = {0x55, 0x16, 0x00};
 
     if (!utils.IsAnyOf ("finalec2"_joaat))

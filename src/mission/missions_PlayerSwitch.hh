@@ -21,6 +21,26 @@ using namespace NativeLiterals;
 
 class MissionRandomizer_PlayerSwitcher
 {
+public:
+    struct Context
+    {
+        ePlayerIndex destPlayer;
+        
+        bool        noSetPos = false;
+        rage::Vec3V destPos;
+
+        enum
+        {
+            PLAYER_SWITCHER,
+            FADES,
+            FADE_OUT_ONLY,
+            NO_TRANSITION
+        } transitionType
+            = PLAYER_SWITCHER;
+    };
+
+private:
+    
     enum
         {
             IDLE,
@@ -32,48 +52,21 @@ class MissionRandomizer_PlayerSwitcher
         } m_nCurrentState
     = IDLE;
 
-    rage::Vec3V  destPos;
-    ePlayerIndex destPlayer;
-    bool         bNoTransition = false;
+    Context m_Context;
 
-public:
-    /*******************************************************/
-    void
-    Reset ()
-    {
-        m_nCurrentState = IDLE;
-    }
-
-    /*******************************************************/
-    void
-    BeginSwitch (const rage::Vec3V &dstPos, ePlayerIndex dstPlayer,
-                 bool noTransition)
-    {
-        if (m_nCurrentState != IDLE)
-            return;
-
-        Rainbomizer::Logger::LogMessage (
-            "Beginning Player Switch: %f %f %f (%d) - %s", dstPos.x, dstPos.y,
-            dstPos.z, dstPlayer, noTransition ? "true" : "false");
-
-        destPos    = dstPos;
-        destPlayer = dstPlayer;
-
-        m_nCurrentState = TRANSITION_BEGIN;
-        if (noTransition)
-            m_nCurrentState = PLAYER_SWITCH;
-
-        this->bNoTransition = noTransition;
-    }
-
+    
     /*******************************************************/
     bool
     SetCurrentPlayer (ePlayerIndex index)
     {
-        if (!YscFunctions::SetCurrentPlayer (index, 1))
+        if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
             return true;
 
-        CStreaming::LoadAllObjects (false);
+        if (!YscFunctions::SetCurrentPlayer.CanCall (true))
+            return false;
+
+        if (!YscFunctions::SetCurrentPlayer (index, 1))
+            return true;
 
         bool success
             = *MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index);
@@ -88,11 +81,138 @@ public:
                             "Failed to set player model. current player: %x, "
                             "dst player: %x",
                             *MissionRandomizer_GlobalsManager::PP_CURRENT_PED,
-                            destPlayer);
+                            m_Context.destPlayer);
                     }
             }
 
         return success;
+    }
+
+    /*******************************************************/
+    bool
+    DoTransitionBegin ()
+    {
+        switch (m_Context.transitionType)
+            {
+            case Context::PLAYER_SWITCHER:
+                if ("IS_PLAYER_SWITCH_IN_PROGRESS"_n())
+                    return false;
+
+                "NEW_LOAD_SCENE_START_SPHERE"_n(m_Context.destPos.x,
+                                                m_Context.destPos.y,
+                                                m_Context.destPos.z, 15.0f, 2);
+
+                "_SWITCH_OUT_PLAYER"_n("PLAYER_PED_ID"_n(), 0, 1);
+                return true;
+
+            case Context::FADE_OUT_ONLY:
+            case Context::FADES: "DO_SCREEN_FADE_OUT"_n(1000); return true;
+
+            case Context::NO_TRANSITION: return true;
+            }
+        
+        return true;
+    }
+
+    /*******************************************************/
+    bool
+    DoTransitionProcess ()
+    {
+        switch (m_Context.transitionType)
+            {
+            case Context::PLAYER_SWITCHER: return "_933BBEEB8C61B5F4"_n();
+
+            case Context::FADE_OUT_ONLY:
+            case Context::FADES: return !"IS_SCREEN_FADING_OUT"_n();
+
+            case Context::NO_TRANSITION: return true;
+            }
+
+        return true;
+    }
+
+    /*******************************************************/
+    bool
+    DoPlayerSwitch ()
+    {
+        if (SetCurrentPlayer (m_Context.destPlayer))
+            {
+                if (!m_Context.noSetPos)
+                    "SET_PED_COORDS_KEEP_VEHICLE"_n("PLAYER_PED_ID"_n(),
+                                                    m_Context.destPos.x,
+                                                    m_Context.destPos.y,
+                                                    m_Context.destPos.z);
+                return true;
+            }
+
+        return false;
+    }
+
+    /*******************************************************/
+    bool
+    DoTransitionEnd ()
+    {
+        switch (m_Context.transitionType)
+            {
+            case Context::PLAYER_SWITCHER:
+                "_SWITCH_IN_PLAYER"_n("PLAYER_PED_ID"_n());
+                return true;
+
+            case Context::FADES: "DO_SCREEN_FADE_IN"_n(1000); return true;
+
+            case Context::FADE_OUT_ONLY:
+            case Context::NO_TRANSITION: return true;
+            }
+
+        return true;
+    }
+
+    /*******************************************************/
+    bool
+    DoTransitionProcessEnd ()
+    {
+        switch (m_Context.transitionType)
+            {
+            case Context::PLAYER_SWITCHER: return HasDescentFinished ();
+
+            case Context::FADES: return !"IS_SCREEN_FADING_IN"_n();
+
+            case Context::FADE_OUT_ONLY:
+            case Context::NO_TRANSITION: return true;
+            }
+
+        return true;
+    }
+
+public:
+    /*******************************************************/
+    void
+    Reset ()
+    {
+        m_nCurrentState = IDLE;
+    }
+
+    /*******************************************************/
+    void
+    BeginSwitch (Context ctx)
+    {
+        if (m_nCurrentState != IDLE)
+            return;
+
+        Rainbomizer::Logger::LogMessage (
+            "Beginning Player Switch: %f %f %f (%d) - %d", ctx.destPos.x,
+            ctx.destPos.y, ctx.destPos.z, ctx.destPlayer, ctx.transitionType);
+
+        m_nCurrentState = TRANSITION_BEGIN;
+        m_Context       = ctx;
+    }
+
+    /*******************************************************/
+    bool
+    HasDescentFinished ()
+    {
+        return !"IS_PLAYER_SWITCH_IN_PROGRESS"_n();
+            return true;
     }
 
     /*******************************************************/
@@ -103,74 +223,30 @@ public:
             {
             case IDLE: return true;
 
-                case TRANSITION_BEGIN: {
-
-                    if ("IS_PLAYER_SWITCH_IN_PROGRESS"_n())
-                        break;
-                    
-                    "_SWITCH_OUT_PLAYER"_n("PLAYER_PED_ID"_n(), 0, 1);
+            case TRANSITION_BEGIN:
+                if (DoTransitionBegin ())
                     m_nCurrentState = TRANSITION_ASCEND;
+                break;
 
-                    Rainbomizer::Logger::LogMessage (
-                        "Player switched out: %d",
-                        *MissionRandomizer_GlobalsManager::PP_CURRENT_PED);
-                    break;
-                }
+            case TRANSITION_ASCEND:
+                if (DoTransitionProcess ())
+                    m_nCurrentState = PLAYER_SWITCH;
+                break;
 
-                case TRANSITION_ASCEND: {
-                    if ("_933BBEEB8C61B5F4"_n()) {
-                        Rainbomizer::Logger::LogMessage (
-                        "Player switcher ascent finished: %d",
-                        *MissionRandomizer_GlobalsManager::PP_CURRENT_PED);
-                        m_nCurrentState = PLAYER_SWITCH;
-                    }
-                    break;
-                }
+            case PLAYER_SWITCH:
+                if (DoPlayerSwitch ())
+                    m_nCurrentState = TRANSITION_END;
+                break;
 
-                case PLAYER_SWITCH: {
-                    if (SetCurrentPlayer (destPlayer))
-                        {
-                            Rainbomizer::Logger::LogMessage (
-                                "Setting current player successful: %d",
-                                *MissionRandomizer_GlobalsManager::
-                                    PP_CURRENT_PED);
+            case TRANSITION_END:
+                if (DoTransitionEnd ())
+                    m_nCurrentState = TRANSITION_DESCEND;
+                break;
 
-                            "SET_PED_COORDS_KEEP_VEHICLE"_n("PLAYER_PED_ID"_n(),
-                                                            destPos.x,
-                                                            destPos.y,
-                                                            destPos.z);
-                            m_nCurrentState = TRANSITION_END;
-                        }
-                    break;
-                };
-
-                case TRANSITION_END: {
-                    if (!bNoTransition)
-                        {
-                            "_SWITCH_IN_PLAYER"_n("PLAYER_PED_ID"_n());
-                            Rainbomizer::Logger::LogMessage (
-                                "Player switched in: %d",
-                                *MissionRandomizer_GlobalsManager::
-                                    PP_CURRENT_PED);
-
-                            m_nCurrentState = TRANSITION_DESCEND;
-                            break;
-                        }
+            case TRANSITION_DESCEND:
+                if (DoTransitionProcessEnd ())
                     m_nCurrentState = IDLE;
-                    return true;
-                }
-
-                case TRANSITION_DESCEND: {
-                    if ("IS_PLAYER_SWITCH_IN_PROGRESS"_n())
-                        break;
-
-                    Rainbomizer::Logger::LogMessage (
-                        "Player descent finished: %d",
-                        *MissionRandomizer_GlobalsManager::PP_CURRENT_PED);
-
-                    m_nCurrentState = IDLE;
-                    return true;
-                }
+                break;
             }
 
         return false;

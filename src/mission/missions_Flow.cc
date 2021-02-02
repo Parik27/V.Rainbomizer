@@ -14,6 +14,65 @@
 
 using MR = MissionRandomizer_Components;
 
+auto
+MissionRandomizer_Flow::GenerateSwitcherContext (bool start)
+{
+    MissionRandomizer_PlayerSwitcher::Context ctx;
+    ctx.transitionType = ctx.PLAYER_SWITCHER;
+
+    // For mission start
+    if (start)
+        {
+            ctx.destPos = RandomizedMission->Data.vecStartCoords;
+            ctx.destPlayer
+                = RandomizedMission->Data.vecStartCoords.GetRandomPlayer ();
+
+            switch (RandomizedMission->nHash)
+                {
+                    // These missions don't have a proper start, so allow fades
+                    // only.
+                case "prologue1"_joaat:
+                case "armenian1"_joaat:
+                    ctx.transitionType = ctx.FADE_OUT_ONLY;
+                    ctx.noSetPos       = true;
+                    break;
+                }
+
+            switch (OriginalMission->nHash)
+                {
+                    // Don't want a transition to happen right after loading the
+                    // game (if you load a save game for armenian1 or start a
+                    // new game for example). Just set the position.
+                case "prologue1"_joaat:
+                case "armenian1"_joaat: ctx.transitionType = ctx.NO_TRANSITION;
+                }
+
+            if (bMissionRepeating)
+                ctx.transitionType = ctx.NO_TRANSITION;
+        }
+    else
+        {
+            ctx.destPos = OriginalMission->Data.vecEndCoords;
+            ctx.destPlayer
+                = OriginalMission->Data.vecEndCoords.GetRandomPlayer ();
+
+            switch (OriginalMission->nHash)
+                {
+                case "prologue1"_joaat:
+                case "finalea"_joaat:
+                case "finaleb"_joaat:
+                case "finalec2"_joaat: ctx.transitionType = ctx.FADE_OUT_ONLY;
+                }
+
+            switch (RandomizedMission->nHash)
+                {
+                case "prologue1"_joaat: ctx.transitionType = ctx.FADES;
+                }
+        }
+
+    return ctx;
+}
+
 void
 MissionRandomizer_Flow::Reset ()
 {    
@@ -62,15 +121,11 @@ MissionRandomizer_Flow::PreMissionStart ()
     nPlayerIndexBeforeMission = MR::sm_Globals.GetCurrentPlayer ();
 
     LogPlayerPos(true);
-    MR::sm_PlayerSwitcher.BeginSwitch (
-        RandomizedMission->Data.vecStartCoords,
-        RandomizedMission->Data.vecStartCoords.GetRandomPlayer (),
-        OriginalMission->Data.OrigFlags.NoTransition
-            || RandomizedMission->Data.RandFlags.NoTransition);
+    MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext(true));
 
     nLastPassedMissionTime = MR::sm_Globals.g_LastPassedMissionTime;
     bMissionRepeating      = false;
-    bScriptEnded           = false;
+    nMissionPtrsSema       = 2;
 
     InitStatWatcherForRandomizedMission ();
 
@@ -98,19 +153,10 @@ MissionRandomizer_Flow::HandleCurrentMissionChanges ()
                             MR::sm_Order.GetRandomMissionHash (
                                 OriginalMission->nHash));
 
-                    if (RandomizedMission && PreMissionStart ())
+                    if (OriginalMission && RandomizedMission
+                        && PreMissionStart ())
                         return; // Success
                 }
-
-            // Failed
-            if (!bScriptEnded || MR::sm_Globals.g_CurrentMission != -1u)
-                {
-                    OriginalMission   = nullptr;
-                    RandomizedMission = nullptr;
-
-                    bScriptEnded = false;
-                }
-
             bMissionRepeating = false;
         }
 }
@@ -144,12 +190,12 @@ MissionRandomizer_Flow::OnMissionStart ()
     if (bMissionRepeating
         && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
         {
-            MR::sm_PlayerSwitcher.SetCurrentPlayer (
-                RandomizedMission->Data.vecStartCoords.GetRandomPlayer ());
+            MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
         }
 
-    if (OriginalMission->Data.OrigFlags.FadeIn
-        || OriginalMission->Data.RandFlags.FadeIn)
+    if ((OriginalMission->nHash == "prologue1"_joaat
+         || OriginalMission->nHash == "armenian1"_joaat)
+        && !bMissionRepeating)
         {
             "SHUTDOWN_LOADING_SCREEN"_n();
             "DO_SCREEN_FADE_IN"_n(0);
@@ -157,6 +203,7 @@ MissionRandomizer_Flow::OnMissionStart ()
 
     // Need to do this again for mission fails.
     InitStatWatcherForRandomizedMission ();
+    MR::sm_Globals.g_ForceWalking.Set (0);
 
     return true;
 }
@@ -192,29 +239,18 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
     if (pass)
         {
             LogPlayerPos (false);
-
-            MR::sm_PlayerSwitcher.BeginSwitch (
-                OriginalMission->Data.vecEndCoords,
-                OriginalMission->Data.vecEndCoords.GetRandomPlayer (),
-                OriginalMission->Data.OrigFlags.NoTransition
-                    || RandomizedMission->Data.RandFlags.NoTransition);
+            MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (false));
         }
     else
         {
+#if (0)
             if (nPlayerIndexBeforeMission != ePlayerIndex::PLAYER_UNKNOWN)
                 MR::sm_PlayerSwitcher.SetCurrentPlayer (
                     nPlayerIndexBeforeMission);
+#endif
         }
 
     bMissionRepeating = true;
-    bScriptEnded      = true;
-
-    if (nPreviousCurrentMission == -1u)
-        {
-            RandomizedMission = nullptr;
-            OriginalMission   = nullptr;
-        }
-
     return true;
 }
 

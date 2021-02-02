@@ -6,6 +6,7 @@
 #include "missions_Globals.hh"
 #include "missions_Data.hh"
 #include "missions_Order.hh"
+
 #include <cstdint>
 
 #include "common/common.hh"
@@ -24,15 +25,18 @@ class MissionRandomizer_Flow
     uint32_t     nLastPassedMissionTime    = 0;
     uint32_t     nPreviousCurrentMission   = -1u;
 
+    int32_t nMissionPtrsSema = 2;
+
     bool bCallMissionEndNextFrame = false;
 
-    bool bScriptEnded      = false;
     bool bMissionRepeating = false;
     bool bGameInitialised  = false;
 
     void HandleCurrentMissionChanges ();
     void InitStatWatcherForRandomizedMission ();
 
+    auto GenerateSwitcherContext (bool start);
+    
     bool WasMissionPassed ();
     bool PreMissionStart ();
     bool OnMissionStart ();

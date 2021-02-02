@@ -118,6 +118,20 @@ public:
         }
 
         bool
+        CanCall (bool checkScript = false)
+        {
+            if (checkScript && scrThread::GetActiveThread ()
+                && scrThread::GetActiveThread ()->m_Context.m_nScriptHash
+                       == m_nProgramHash)
+                return true;
+
+            if (!scrProgram::FindProgramByHash (m_nProgramHash))
+                return false;
+
+            return true;
+        }
+
+        bool
         operator() (Args... args)
         {
             if (!GetIp ())
@@ -162,6 +176,15 @@ public:
                 return defVal;
 
             return scrThread::GetGlobal (nGlobalIdx);
+        }
+
+        void
+        Set (T value)
+        {
+            if (!nGlobalIdx || !scrThread::sm_pGlobals)
+                return;
+
+            scrThread::GetGlobal<T> (nGlobalIdx) = value;
         }
 
         void
@@ -248,7 +271,7 @@ public:
         memcpy (pPatternResult, &bytes[0], std::size (bytes));
     }
 
-    explicit operator bool const ()
+    explicit operator bool () const
     {
         return bOperationFailed || !pPatternResult;
     }

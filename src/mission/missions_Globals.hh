@@ -126,6 +126,12 @@ public:
         "38 ? 60 ? ? ? 2c ? ? ? 60 ? ? ? 38 ? 25 1c", 11,
         "flow_controller"_joaat, -1u};
 
+    // I dunno what other function this global serves other than making
+    // mission_triggerer force you into walking, so yeah :P
+    YscUtils::ScriptGlobal<uint32_t> g_ForceWalking{
+        "5f ? ? ? 56 ? ? 5f ? ? ? 38 05 57 ? ? 38 05 ", 1,
+        "flow_controller"_joaat, 0};
+
     /*******************************************************/
     template <typename T>
     static void
@@ -210,6 +216,7 @@ public:
         g_CurrentMission.Init (program);
         g_LastPassedMission.Init (program);
         g_LastPassedMissionTime.Init (program);
+        g_ForceWalking.Init (program);
         Init_gMissions (ctx, program);
     }
 
