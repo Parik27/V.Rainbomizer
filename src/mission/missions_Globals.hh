@@ -21,6 +21,45 @@ enum class ePlayerIndex : uint32_t
     PLAYER_UNKNOWN
 };
 
+enum eMissionFlowControlIntId
+{
+    INT_H_TRIGGER_HEIST     = 0,
+    INT_H_TRIGGER_MISSION   = 1,
+    INT_H_BOARD_M_JEWEL     = 2,
+    INT_H_BOARD_M_DOCKS     = 3,
+    INT_H_BOARD_M_RURAL     = 4,
+    INT_H_BOARD_M_AGENCY    = 5,
+    INT_H_BOARD_M_FINALE    = 6,
+    INT_HEIST_CHOICE_JEWEL  = 7,
+    INT_HEIST_CHOICE_DOCKS  = 8,
+    INT_HEIST_CHOICE_RURAL  = 9,
+    INT_HEIST_CHOICE_AGENCY = 10,
+    INT_HEIST_CHOICE_FINALE = 11,
+    INT_MISS_CHOICE_FINALE  = 12,
+};
+
+enum eHeistApproach
+{
+    JEWEL_STEALTH      = 1,
+    JEWEL_HIGH_IMPACT  = 2,
+    DOCKS_BLOW_UP_BOAT = 3,
+    DOCKS_DEEP_SEA     = 4,
+    RURAL_NO_TANK      = 5,
+    AGENCY_FIRETRUCK   = 6,
+    AGENCY_HELICOPTER  = 7,
+    FINALE_TRAFFCONT   = 8,
+    FINALE_HELI        = 9,
+};
+
+enum class eHeistId
+    {
+        HEIST_JEWELRY,
+        HEIST_DOCKS,
+        HEIST_RURAL,
+        HEIST_AGENCY,
+        HEIST_FINALE
+    };
+
 /*******************************************************/
 struct MissionDefinition
 {
@@ -82,17 +121,30 @@ struct MissionDefinition
             
         } BITS_MissionFlags;
     };
-    
     uint8_t field_0x7c[148];
 };
-
 static_assert (sizeof (MissionDefinition) == 0x22 * 8);
+
+/*******************************************************/
+struct MissionFlowCommand
+{
+    alignas(8) uint32_t CommandHash;
+    alignas(8) uint32_t Type;
+    alignas(8) uint32_t Data;
+};
 
 /*******************************************************/
 template <typename T> struct GlobalArrayWrapper
 {
     uint64_t nSize = 0;
     T *      Data = nullptr;
+};
+
+/*******************************************************/
+template <typename T> struct GlobalArrayStatic
+{
+    uint64_t nSize = 0;
+    T        Data[1];
 };
 
 /*******************************************************/
@@ -125,6 +177,11 @@ public:
     YscUtils::ScriptGlobal<uint32_t> g_LastPassedMissionTime{
         "38 ? 60 ? ? ? 2c ? ? ? 60 ? ? ? 38 ? 25 1c", 11,
         "flow_controller"_joaat, -1u};
+
+    YscUtils::ScriptGlobal<GlobalArrayStatic<MissionFlowCommand>>
+        g_MissionFlowCommands{"5e ? ? ? 46 ? ? 35 ? 28 6d 05 ad 1f", 1,
+                              "flow_controller"_joaat,
+                              YscUtils::GLOBAL_U24_IOFFSET_S16};
 
     // I dunno what other function this global serves other than making
     // mission_triggerer force you into walking, so yeah :P
@@ -217,6 +274,7 @@ public:
         g_LastPassedMission.Init (program);
         g_LastPassedMissionTime.Init (program);
         g_ForceWalking.Init (program);
+        g_MissionFlowCommands.Init (program);
         Init_gMissions (ctx, program);
     }
 

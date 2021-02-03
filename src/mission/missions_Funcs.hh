@@ -26,5 +26,16 @@ public:
 
     /*InitStatWatcherForMission (missionId) */
     inline static YscUtils::ScriptFunction<uint32_t> InitStatWatcherForMission{
-        "2d 01 07 00 ? 6e 39 03 38 ? 25 1a 57", "flow_controller"_joaat};  
+        "2d 01 07 00 ? 6e 39 03 38 ? 25 1a 57", "flow_controller"_joaat};
+
+    /* SetMfControlInt (controlId, value) */
+    inline static YscUtils::ScriptFunction<eMissionFlowControlIntId, uint32_t>
+        SetMfControlInt{"2d 02 04 00 ? 38 00 25 0d 08 2a 06 56",
+                        "flow_controller"_joaat};
+
+    /* VerifyAndReplaceInvalidCrewMembers (heistId) */
+    inline static YscUtils::ScriptFunction<uint32_t>
+        VerifyAndReplaceInvalidCrewMembers{
+            "2d 01 05 00 ? 38 ? 5d ? ? ? 5d ? ? ? 39 03 6e 39 04 ",
+            "jewelry_heist"_joaat};
 };

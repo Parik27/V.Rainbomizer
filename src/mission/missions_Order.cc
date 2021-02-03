@@ -32,6 +32,11 @@ MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
             bInitialised = true;
         }
 
+    if (program->m_nScriptHash == "flow_controller"_joaat && ctx->m_nIp == 0)
+        {
+            RemoveMissionFlowHeistBoards ();
+        }
+
 #ifdef ENABLE_DEBUG_SERVER
     if (ActionsDebugInterface::sm_ReloadMissionsRequested)
         {
@@ -69,6 +74,11 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
             else
                 m_MissionsMap[missions[i]] = forcedHash;
         }
+
+    m_Choices.AgencyFiretruck = engine () % 2;
+    m_Choices.DocksBlowUpBoat = engine () % 2;
+    m_Choices.FinaleHeli      = engine () % 2;
+    m_Choices.JewelStealth    = engine () % 2;
 }
 
 void
@@ -104,4 +114,35 @@ MissionRandomizer_OrderManager::Update_gMissions ()
             origMission.BITS_MissionFlags.NO_STAT_WATCHER
                 = newMission.BITS_MissionFlags.NO_STAT_WATCHER;
         }
+}
+
+void
+MissionRandomizer_OrderManager::RemoveMissionFlowHeistBoards ()
+{
+    auto NopFlowCommands = [] (unsigned int start, unsigned int end) {
+        for (unsigned int i = start; i <= end; ++i)
+            {
+                // Just set it to a non-existant flow command, it'll skip it.
+                if (auto cmds = MR::sm_Globals.g_MissionFlowCommands.Get ())
+                    cmds->Data[i].CommandHash = "123robot"_joaat;
+            }
+    };
+
+    // Agency Boards
+    NopFlowCommands(34, 34);
+    NopFlowCommands(36, 49);
+
+    // Docks Board
+    NopFlowCommands(363, 363);
+    NopFlowCommands(369, 378);
+
+    // Finale Heist Board (+ finale_heist_intro2)
+    NopFlowCommands(1017, 1033);
+
+    // Jewel Heist Board
+    NopFlowCommands(1206, 1220);
+
+    // Rural Bank Heist Board
+    NopFlowCommands(1577, 1579);
+    NopFlowCommands(1585, 1586);
 }

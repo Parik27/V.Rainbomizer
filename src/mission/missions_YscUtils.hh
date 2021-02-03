@@ -144,6 +144,12 @@ public:
         }
     };
 
+    enum PatternIdiom
+        {
+            GLOBAL_U24,
+            GLOBAL_U24_IOFFSET_S16
+        };
+    
     /*******************************************************/
     /* Wrapper to a global variable. */
     /*******************************************************/
@@ -153,6 +159,7 @@ public:
 
         std::string m_Pattern;
         uint32_t m_PatternOffset;
+        PatternIdiom m_PatternIdiom = GLOBAL_U24;
 
         uint32_t m_nProgram;
         T        defVal;
@@ -161,21 +168,29 @@ public:
 
     public:
         ScriptGlobal (std::string_view pattern, uint32_t patternOffset,
-                      uint32_t program)
+                      uint32_t program, PatternIdiom patternIdiom = GLOBAL_U24)
             : m_Pattern (pattern), m_PatternOffset (patternOffset),
-              m_nProgram (program){};
+              m_nProgram (program), m_PatternIdiom (patternIdiom) {};
 
         ScriptGlobal (std::string_view pattern, uint32_t patternOffset,
                       uint32_t program, T defValue)
             : m_Pattern (pattern), m_PatternOffset (patternOffset),
               m_nProgram (program), defVal (defValue){};
 
+        T* Get ()
+        {
+            if (!nGlobalIdx || !scrThread::sm_pGlobals)
+                return nullptr;
+
+            return &scrThread::GetGlobal<T> (nGlobalIdx);
+        }
+        
         operator T ()
         {
             if (!nGlobalIdx || !scrThread::sm_pGlobals)
                 return defVal;
 
-            return scrThread::GetGlobal (nGlobalIdx);
+            return scrThread::GetGlobal<T> (nGlobalIdx);
         }
 
         void
@@ -198,8 +213,19 @@ public:
 
             YscUtils utils (program);
             utils.FindCodePattern (m_Pattern, [&] (hook::pattern_match m) {
-                // GLOBAL_U24_* <imm24>
-                nGlobalIdx = *m.get<uint32_t> (m_PatternOffset) & 0xFFFFFF;
+                switch (m_PatternIdiom)
+                    {
+                    case GLOBAL_U24: // GLOBAL_U24_* <imm24>
+                        nGlobalIdx
+                            = *m.get<uint32_t> (m_PatternOffset) & 0xFFFFFF;
+                        break;
+
+                    case GLOBAL_U24_IOFFSET_S16:
+                        nGlobalIdx
+                            = *m.get<uint32_t> (m_PatternOffset) & 0xFFFFFF;
+                        nGlobalIdx += *m.get<int16_t> (m_PatternOffset + 4);
+                        break;
+                    }
             });
 
             if (!nGlobalIdx && !bFailMessagePrinted)

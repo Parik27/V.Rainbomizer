@@ -44,6 +44,10 @@ class MissionRandomizer_Flow
     
     void LogPlayerPos (bool start);
 
+    void SetFlowControlVariableForHeist (eHeistId id, bool approach);
+    void SetHeistFlowControlVariables ();
+    void SetHeistFlowControlVariablesForMission ();
+
 public:
     void SetVariables (scrThreadContext *ctx);
     void ClearVariables (scrThreadContext *ctx);

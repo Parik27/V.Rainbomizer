@@ -132,6 +132,7 @@ MissionRandomizer_Flow::PreMissionStart ()
     nMissionPtrsSema       = 2;
 
     InitStatWatcherForRandomizedMission ();
+    SetHeistFlowControlVariables ();
 
     return true;
 }
@@ -302,6 +303,96 @@ MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
 
 /*******************************************************/
 void
+MissionRandomizer_Flow::SetFlowControlVariableForHeist (eHeistId id,
+                                                        bool     approach)
+{
+    // Similar to a function in the heist controllers.
+    eHeistApproach           controlValue;
+    eMissionFlowControlIntId controlId;
+
+    switch (id)
+        {
+        case eHeistId::HEIST_JEWELRY:
+            controlId    = INT_HEIST_CHOICE_JEWEL;
+            controlValue = approach ? JEWEL_STEALTH : JEWEL_HIGH_IMPACT;
+            break;
+
+        case eHeistId::HEIST_AGENCY:
+            controlId    = INT_HEIST_CHOICE_AGENCY;
+            controlValue = approach ? AGENCY_FIRETRUCK : AGENCY_HELICOPTER;
+            break;
+
+        case eHeistId::HEIST_RURAL:
+            controlId    = INT_HEIST_CHOICE_RURAL;
+            controlValue = RURAL_NO_TANK;
+            break;
+
+        case eHeistId::HEIST_FINALE:
+            controlId    = INT_HEIST_CHOICE_FINALE;
+            controlValue = approach ? FINALE_HELI : FINALE_TRAFFCONT;
+            break;
+
+        case eHeistId::HEIST_DOCKS:
+            controlId    = INT_HEIST_CHOICE_DOCKS;
+            controlValue = approach ? DOCKS_BLOW_UP_BOAT : DOCKS_DEEP_SEA;
+            break;
+        }
+
+    YscFunctions::SetMfControlInt (controlId, controlValue);
+}
+
+/*******************************************************/
+void
+MissionRandomizer_Flow::SetHeistFlowControlVariablesForMission ()
+{
+    switch (RandomizedMission->nHash)
+        {
+        case "agency_heist3a"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, false);
+            break;
+
+        case "agency_heist3b"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, true);
+            break;
+
+        case "docks_heista"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_DOCKS, true);
+            break;
+
+        case "docks_heistb"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_DOCKS, false);
+            break;
+
+        case "finale_heist2a"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, true);
+            break;
+
+        case "finale_heist2b"_joaat:
+            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, false);
+            break;
+        }
+}
+
+/*******************************************************/
+void
+MissionRandomizer_Flow::SetHeistFlowControlVariables ()
+{
+#define SET_FLOW_CONTROL_VAR(id, choice)                                       \
+    SetFlowControlVariableForHeist (eHeistId::id, choices.choice)
+
+    auto choices = MR::sm_Order.GetChoices ();
+
+    SET_FLOW_CONTROL_VAR (HEIST_JEWELRY, JewelStealth);
+    SET_FLOW_CONTROL_VAR (HEIST_AGENCY, AgencyFiretruck);
+    SET_FLOW_CONTROL_VAR (HEIST_DOCKS, DocksBlowUpBoat);
+    SET_FLOW_CONTROL_VAR (HEIST_FINALE, FinaleHeli);
+    SET_FLOW_CONTROL_VAR (HEIST_RURAL, FinaleHeli);
+
+#undef SET_FLOW_CONTROL_VAR
+}
+
+/*******************************************************/
+void
 MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
 {
     if (!RandomizedMission || !OriginalMission
@@ -309,6 +400,7 @@ MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
+    SetHeistFlowControlVariablesForMission ();
 }
 
 /*******************************************************/
@@ -320,4 +412,5 @@ MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (nPreviousCurrentMission);
+    SetHeistFlowControlVariables ();
 }

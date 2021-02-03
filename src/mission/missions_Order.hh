@@ -27,8 +27,17 @@ class MissionRandomizer_OrderManager
 
     void InitialiseMissionsMap (unsigned int seed);
     void Update_gMissions ();
+    void RemoveMissionFlowHeistBoards ();
 
     bool bInitialised = false;
+
+    struct Choices
+    {
+        bool JewelStealth    = false;
+        bool DocksBlowUpBoat = false;
+        bool AgencyFiretruck = false;
+        bool FinaleHeli      = false;
+    } m_Choices;
 
 public:
     void
@@ -70,6 +79,12 @@ public:
             return *hash;
 
         return -1u;
+    }
+
+    auto
+    GetChoices ()
+    {
+        return m_Choices;
     }
 
     void Process (scrThreadContext *ctx, scrProgram *program);
