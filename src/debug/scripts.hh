@@ -91,6 +91,8 @@ class ScriptDebugInterface
     inline static std::map<uint32_t, CapturedThread> m_Threads;
     inline static std::vector<uint32_t>              m_CaptureRequests;
 
+    inline static bool m_bHookDisabled = false;
+
     inline static CapturedThread *m_CapturedThread = nullptr;
 
     static void SendThreadsList (uWS::HttpResponse<false> *res,
@@ -123,4 +125,10 @@ public:
     ScriptDebugInterface ();
 
     static void Initialise (uWS::App &app);
+
+    static void
+    SetOpcodeHookDisabled (bool disabled)
+    {
+        m_bHookDisabled = disabled;
+    }
 };

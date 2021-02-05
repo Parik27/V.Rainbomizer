@@ -1,5 +1,6 @@
 #include "missions_Code.hh"
 #include "missions.hh"
+#include <cstdint>
 
 using MR = MissionRandomizer_Components;
 
@@ -85,4 +86,32 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
     utils.NOP (/*Offset=*/0, /*Size=*/26);
 
     PrintStatus (utils, "Credits fix for finalec2");
+}
+
+/*******************************************************/
+void
+MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
+{
+    // A few missions wait for the triggerer to create the peds that are
+    // required for the mission. They don't do this for mission replay, so this
+    // makes it think that the mission is being replayed. I don't know if there
+    // are any side effects of this other than it just making things work, but
+    // hopefully there aren't any. It could be made specific to only the
+    // missions that wait for the triggerer, but you would need to go through
+    // all the missions and find out which ones are broken.
+
+    return;
+    
+    static constexpr uint8_t return_1[] = {
+        0x6f,          // PUSH_CONST_1
+        0x2e, 0x1, 0x1 // LEAVE 0x1, 0x1
+    };
+
+    if (!MR::sm_Data.IsValidMission (utils.GetProgram ()->m_nScriptHash))
+        return;
+
+    utils.Init ("2d 01 03 00 ? 38 ? 06 2a 56");
+    utils.WriteBytes (/*Offset=*/5, return_1);
+
+    PrintStatus(utils, "Triggerer Wait Fix");
 }

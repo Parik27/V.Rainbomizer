@@ -12,6 +12,10 @@
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 
+#ifdef ENABLE_DEBUG_SERVER
+#include "debug/scripts.hh"
+#endif
+
 /* Class for working with scrProgram. */
 class YscUtils
 {
@@ -49,6 +53,10 @@ public:
     void
     CallScriptFunction (uint32_t ip, Args... args)
     {
+#ifdef ENABLE_DEBUG_SERVER
+        ScriptDebugInterface::SetOpcodeHookDisabled (true);
+#endif
+        
         const int STACK_SIZE = 512;
 
         // Create dummy stack for creating a context for the function call.
@@ -73,6 +81,10 @@ public:
 
         scrThread::GetActiveThread () = prevActiveThread;
         prevActiveThread->m_Context.m_nIp = prevActiveThreadIp;
+
+#ifdef ENABLE_DEBUG_SERVER
+        ScriptDebugInterface::SetOpcodeHookDisabled (false);
+#endif
     }
 
     /*******************************************************/
@@ -200,6 +212,15 @@ public:
                 return;
 
             scrThread::GetGlobal<T> (nGlobalIdx) = value;
+        }
+
+        void
+        Init ()
+        {
+            scrProgram *program
+                = scrProgram::FindProgramByHash (m_nProgram);
+            if (program)
+                Init (program);
         }
 
         void

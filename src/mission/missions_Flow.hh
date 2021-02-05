@@ -29,12 +29,16 @@ class MissionRandomizer_Flow
 
     bool bCallMissionEndNextFrame = false;
 
-    bool bMissionRepeating = false;
-    bool bGameInitialised  = false;
+    bool bMissionRepeating       = false;
+    bool bGameInitialised        = false;
+    bool bInitialCutsceneRemoved = false;
 
     void HandleCurrentMissionChanges ();
     void InitStatWatcherForRandomizedMission ();
-
+    bool HandleCutscenesForRandomizedMission ();
+    
+    bool HandleHeistCrewRandomization ();
+    
     auto GenerateSwitcherContext (bool start);
     
     bool WasMissionPassed ();

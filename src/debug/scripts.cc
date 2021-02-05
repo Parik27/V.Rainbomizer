@@ -470,7 +470,7 @@ ScriptDebugInterface::HitBreakPoint (uint32_t, scrThread *thread)
 uint32_t
 ScriptDebugInterface::PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
 {
-    if (m_CapturedThread)
+    if (m_CapturedThread && !m_bHookDisabled)
         {
             auto &context      = m_CapturedThread->m_Thread->m_Context;
             auto  stack        = m_CapturedThread->m_Thread->m_pStack;

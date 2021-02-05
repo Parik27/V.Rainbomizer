@@ -19,6 +19,7 @@ class MissionRandomizer_CodeFixes
     static void ApplyCreditsFix_FinaleAB (YscUtilsOps &utils);
     static void ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils);
     static void ApplyMissionPassFix (YscUtilsOps &utils);
+    static void ApplyTriggererWaitFix (YscUtilsOps &utils);
 
     /*******************************************************/
     template <auto &scrProgram_InitNativeTablese188>
@@ -33,6 +34,7 @@ class MissionRandomizer_CodeFixes
         ApplyCreditsFix_FinaleAB (utils);
         ApplyCreditsFix_FinaleC2 (utils);
         ApplyMissionPassFix (utils);
+        ApplyTriggererWaitFix (utils);
 
         return ret;
     }

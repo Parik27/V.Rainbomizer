@@ -127,9 +127,10 @@ MissionRandomizer_Flow::PreMissionStart ()
     LogPlayerPos(true);
     MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext(true));
 
-    nLastPassedMissionTime = MR::sm_Globals.g_LastPassedMissionTime;
-    bMissionRepeating      = false;
-    nMissionPtrsSema       = 2;
+    nLastPassedMissionTime  = MR::sm_Globals.g_LastPassedMissionTime;
+    bMissionRepeating       = false;
+    bInitialCutsceneRemoved = false;
+    nMissionPtrsSema        = 2;
 
     InitStatWatcherForRandomizedMission ();
     SetHeistFlowControlVariables ();
@@ -169,6 +170,89 @@ MissionRandomizer_Flow::HandleCurrentMissionChanges ()
 
 /*******************************************************/
 bool
+MissionRandomizer_Flow::HandleHeistCrewRandomization ()
+{
+    eHeistId heist;
+    switch (RandomizedMission->nHash)
+        {
+        case "agency_heist3a"_joaat:
+        case "agency_heist3b"_joaat:
+            heist = eHeistId::HEIST_AGENCY;
+            break;
+            
+        case "docks_heista"_joaat:
+        case "docks_heistb"_joaat:
+            heist = eHeistId::HEIST_DOCKS;
+            break;
+            
+        case "finale_heist2a"_joaat:
+        case "finale_heist2b"_joaat:
+            heist = eHeistId::HEIST_FINALE;
+            break;
+            
+        case "rural_bank_heist"_joaat:
+            heist = eHeistId::HEIST_RURAL;
+            break;
+
+        case "jewelry_heist"_joaat:
+            // Set the board init state to 0xFF to set all the bits to true for
+            // jewelry_heist and rural_bank_heist.
+            MR::sm_Globals.g_BoardInitStateBitset.Init ();
+            MR::sm_Globals.g_BoardInitStateBitset.Set (0xFF);
+            return true;
+            
+        default:
+            return true;
+        }
+
+    if (!"HAS_SCRIPT_WITH_NAME_HASH_LOADED"_n ("jewelry_heist"_joaat))
+        {
+            "REQUEST_SCRIPT_WITH_NAME_HASH"_n("jewelry_heist"_joaat);
+            return false;
+        }
+
+    Rainbomizer::Logger::LogMessage (
+        "Randomizing crew for heist: %d (%d)", heist,
+        YscFunctions::VerifyAndReplaceInvalidCrewMembers.CanCall (false));
+
+    SetHeistFlowControlVariablesForMission ();
+    YscFunctions::VerifyAndReplaceInvalidCrewMembers (heist);
+
+    // Set the board init state to 0xFF to set all the bits to true for
+    // jewelry_heist and rural_bank_heist.
+    MR::sm_Globals.g_BoardInitStateBitset.Init ();
+    MR::sm_Globals.g_BoardInitStateBitset.Set (0xFF);
+
+    "SET_SCRIPT_WITH_NAME_HASH_AS_NO_LONGER_NEEDED"_n ("jewelry_heist"_joaat);
+    return true;
+}
+
+/*******************************************************/
+bool
+MissionRandomizer_Flow::HandleCutscenesForRandomizedMission ()
+{
+    if (!bInitialCutsceneRemoved)
+        {
+            if ("IS_CUTSCENE_ACTIVE"_n())
+                {
+                    "REMOVE_CUTSCENE"_n();
+                    return false;
+                }
+            bInitialCutsceneRemoved = true;
+        }
+
+    auto cut = RandomizedMission->Data.sCutscene;
+    if (bMissionRepeating || cut == std::string ("NONE")
+        || "HAS_THIS_CUTSCENE_LOADED"_n(cut))
+        return true;
+
+    "REQUEST_CUTSCENE"_n(cut, 8);
+
+    return false;
+}
+
+/*******************************************************/
+bool
 MissionRandomizer_Flow::OnMissionStart ()
 {
     *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_M = true;
@@ -186,13 +270,9 @@ MissionRandomizer_Flow::OnMissionStart ()
     YscFunctions::SetDoorState (62, 1);
     YscFunctions::SetDoorState (63, 1);
 
-    // Most missions need this to not get softlocked.
-    if ("IS_CUTSCENE_ACTIVE"_n())
-        {
-            "REMOVE_CUTSCENE"_n();
-            return false;
-        }
-
+    if (!HandleCutscenesForRandomizedMission())
+        return false;
+    
     // Set player if mission was replayed
     if (bMissionRepeating
         && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
@@ -200,12 +280,15 @@ MissionRandomizer_Flow::OnMissionStart ()
             MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
         }
 
+    if (!bMissionRepeating && !HandleHeistCrewRandomization ())
+        return false;        
+    
     if ((OriginalMission->nHash == "prologue1"_joaat
          || OriginalMission->nHash == "armenian1"_joaat)
         && !bMissionRepeating)
         {
             "SHUTDOWN_LOADING_SCREEN"_n();
-            "DO_SCREEN_FADE_IN"_n(0);
+            "DO_SCREEN_FADE_IN"_n(3000);
         }
 
     // Need to do this again for mission fails.
@@ -348,11 +431,11 @@ MissionRandomizer_Flow::SetHeistFlowControlVariablesForMission ()
     switch (RandomizedMission->nHash)
         {
         case "agency_heist3a"_joaat:
-            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, false);
+            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, true);
             break;
 
         case "agency_heist3b"_joaat:
-            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, true);
+            SetFlowControlVariableForHeist (eHeistId::HEIST_AGENCY, false);
             break;
 
         case "docks_heista"_joaat:
@@ -364,11 +447,11 @@ MissionRandomizer_Flow::SetHeistFlowControlVariablesForMission ()
             break;
 
         case "finale_heist2a"_joaat:
-            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, true);
+            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, false);
             break;
 
         case "finale_heist2b"_joaat:
-            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, false);
+            SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, true);
             break;
         }
 }

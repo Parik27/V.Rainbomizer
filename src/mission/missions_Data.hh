@@ -29,62 +29,21 @@ struct MissionData
 
     char sName[32] = {0};
     char sGXT[16] = {0};
+    char sCutscene[64] = {0};
     
     Coords vecStartCoords;
     Coords vecEndCoords;
-
-    struct MissionFlags
-    {
-        bool NoTransition : 1;
-        bool FadeIn : 1;
-        bool FadeOut : 1;
-
-        /*******************************************************/
-        void
-        ReadFlag (const std::string &flag)
-        {
-            if (flag == "no_transition")
-                NoTransition = true;
-            else if (flag == "fade_in")
-                FadeIn = true;
-            else if (flag == "fade_out")
-                FadeOut = true;
-        }
-
-        /*******************************************************/
-        void
-        ParseFlags (const std::string &flags)
-        {
-            std::istringstream flagStream (flags);
-            std::string        flag = "";
-
-            while (std::getline (flagStream, flag, '+'))
-                ReadFlag (flag);
-        }
-
-        MissionFlags ()
-        {
-            NoTransition = false;
-            FadeIn       = false;
-            FadeOut      = false;
-        }
-    };
-
-    MissionFlags OrigFlags;
-    MissionFlags RandFlags;
     
     bool
     Read (const char *line)
     {
         char startPlayer[4] = {0};
         char endPlayer[4]   = {0};
-        char flagsOrig[256] = {0};
-        char flagsRand[256] = {0};
 
-        if (sscanf (line, " %32s %16s %f %f %f %3s %f %f %f %3s %256s %256s ", sName, sGXT,
-                    &vecStartCoords.x, &vecStartCoords.y, &vecStartCoords.z,
-                    startPlayer, &vecEndCoords.x, &vecEndCoords.y,
-                    &vecEndCoords.z, endPlayer, flagsOrig, flagsRand)
+        if (sscanf (line, " %32s %16s %64s %f %f %f %3s %f %f %f %3s ", sName,
+                    sGXT, sCutscene, &vecStartCoords.x, &vecStartCoords.y,
+                    &vecStartCoords.z, startPlayer, &vecEndCoords.x,
+                    &vecEndCoords.y, &vecEndCoords.z, endPlayer)
             < 10)
             return false;
 
@@ -103,9 +62,6 @@ struct MissionData
 
         vecStartCoords.ValidPlayers = ReadPlayerBitset (startPlayer);
         vecEndCoords.ValidPlayers   = ReadPlayerBitset (endPlayer);
-
-        OrigFlags.ParseFlags(flagsOrig);
-        RandFlags.ParseFlags(flagsRand);
         return true;
     }
 };

@@ -183,6 +183,10 @@ public:
                               "flow_controller"_joaat,
                               YscUtils::GLOBAL_U24_IOFFSET_S16};
 
+    YscUtils::ScriptGlobal<uint32_t> g_BoardInitStateBitset{
+        "2d 01 03 00 ? 5f ? ? ? 38 ? 2c ? ? ? 2e 01 01", 6,
+        "jewelry_heist"_joaat};
+
     // I dunno what other function this global serves other than making
     // mission_triggerer force you into walking, so yeah :P
     YscUtils::ScriptGlobal<uint32_t> g_ForceWalking{

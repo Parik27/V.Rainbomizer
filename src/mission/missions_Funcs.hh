@@ -34,7 +34,7 @@ public:
                         "flow_controller"_joaat};
 
     /* VerifyAndReplaceInvalidCrewMembers (heistId) */
-    inline static YscUtils::ScriptFunction<uint32_t>
+    inline static YscUtils::ScriptFunction<eHeistId>
         VerifyAndReplaceInvalidCrewMembers{
             "2d 01 05 00 ? 38 ? 5d ? ? ? 5d ? ? ? 39 03 6e 39 04 ",
             "jewelry_heist"_joaat};
