@@ -165,7 +165,9 @@ public:
     inline static bool *SP2_AVAILABLE = nullptr;
 
     // PP_INFO.PP_CURRENT_PED
-    inline static int *PP_CURRENT_PED = nullptr;
+    inline static int *PP_CURRENT_PED       = nullptr;
+    inline static int *Crew_Unlocked_Bitset = nullptr;
+    inline static int *Crew_Dead_Bitset     = nullptr;
 
     YscUtils::ScriptGlobal<uint32_t> g_CurrentMission{
         "2c 04 ? ? 38 02 60 ? ? ? 2e 05 00", 7, "flow_controller"_joaat, -1u};
@@ -219,6 +221,8 @@ public:
         else if constexpr (std::is_same_v<T, int>)
             {
                 ADD_SAVE_DATA_GLOBAL (PP_CURRENT_PED);
+                ADD_SAVE_DATA_GLOBAL (Crew_Unlocked_Bitset);
+                ADD_SAVE_DATA_GLOBAL (Crew_Dead_Bitset);
             }
 
 #undef ADD_SAVE_DATA_GLOBAL
@@ -289,6 +293,8 @@ public:
         NativeCallbackMgr::InitCallback<"REGISTER_BOOL_TO_SAVE"_joaat,
                                         RegisterFieldHook<bool>, false> ();
         NativeCallbackMgr::InitCallback<"REGISTER_ENUM_TO_SAVE"_joaat,
+                                        RegisterFieldHook<int>, false> ();
+        NativeCallbackMgr::InitCallback<"REGISTER_INT_TO_SAVE"_joaat,
                                         RegisterFieldHook<int>, false> ();
     }
 };

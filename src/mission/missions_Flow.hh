@@ -37,7 +37,7 @@ class MissionRandomizer_Flow
     void InitStatWatcherForRandomizedMission ();
     bool HandleCutscenesForRandomizedMission ();
     
-    bool HandleHeistCrewRandomization ();
+    bool HandleHeistCrewRandomization (scrThreadContext* ctx);
     
     auto GenerateSwitcherContext (bool start);
     

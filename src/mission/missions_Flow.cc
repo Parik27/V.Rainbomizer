@@ -110,6 +110,9 @@ MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
 
     YscFunctions::InitStatWatcherForMission (rId);
     rDef_curr->nMissionFlags = prevFlags;
+
+    Rainbomizer::Logger::LogMessage (
+        "Finished initialising Stat Watcher for mission: %d", rId);
 }
 
 /*******************************************************/
@@ -170,40 +173,10 @@ MissionRandomizer_Flow::HandleCurrentMissionChanges ()
 
 /*******************************************************/
 bool
-MissionRandomizer_Flow::HandleHeistCrewRandomization ()
+MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
 {
-    eHeistId heist;
-    switch (RandomizedMission->nHash)
-        {
-        case "agency_heist3a"_joaat:
-        case "agency_heist3b"_joaat:
-            heist = eHeistId::HEIST_AGENCY;
-            break;
-            
-        case "docks_heista"_joaat:
-        case "docks_heistb"_joaat:
-            heist = eHeistId::HEIST_DOCKS;
-            break;
-            
-        case "finale_heist2a"_joaat:
-        case "finale_heist2b"_joaat:
-            heist = eHeistId::HEIST_FINALE;
-            break;
-            
-        case "rural_bank_heist"_joaat:
-            heist = eHeistId::HEIST_RURAL;
-            break;
-
-        case "jewelry_heist"_joaat:
-            // Set the board init state to 0xFF to set all the bits to true for
-            // jewelry_heist and rural_bank_heist.
-            MR::sm_Globals.g_BoardInitStateBitset.Init ();
-            MR::sm_Globals.g_BoardInitStateBitset.Set (0xFF);
-            return true;
-            
-        default:
-            return true;
-        }
+    if (ctx->m_nScriptHash != "code_controller"_joaat || ctx->m_nIp != 0)
+        return true;
 
     if (!"HAS_SCRIPT_WITH_NAME_HASH_LOADED"_n ("jewelry_heist"_joaat))
         {
@@ -211,17 +184,26 @@ MissionRandomizer_Flow::HandleHeistCrewRandomization ()
             return false;
         }
 
-    Rainbomizer::Logger::LogMessage (
-        "Randomizing crew for heist: %d (%d)", heist,
-        YscFunctions::VerifyAndReplaceInvalidCrewMembers.CanCall (false));
+    *MR::sm_Globals.Crew_Dead_Bitset     = 0; // revive all dead crew members.
+    *MR::sm_Globals.Crew_Unlocked_Bitset = 0xFFFFFFFF; // unlock all
 
-    SetHeistFlowControlVariablesForMission ();
-    YscFunctions::VerifyAndReplaceInvalidCrewMembers (heist);
+    for (int heist = int (eHeistId::HEIST_JEWELRY);
+         heist <= int (eHeistId::HEIST_FINALE); heist++)
+        {
+            Rainbomizer::Logger::LogMessage (
+                "Randomizing crew for heist: %d (%d)", heist,
+                YscFunctions::VerifyAndReplaceInvalidCrewMembers.CanCall (
+                    false));
 
-    // Set the board init state to 0xFF to set all the bits to true for
-    // jewelry_heist and rural_bank_heist.
-    MR::sm_Globals.g_BoardInitStateBitset.Init ();
-    MR::sm_Globals.g_BoardInitStateBitset.Set (0xFF);
+            SetFlowControlVariableForHeist (eHeistId (heist), true);
+            YscFunctions::VerifyAndReplaceInvalidCrewMembers (eHeistId (heist));
+
+            if (heist == int (eHeistId::HEIST_RURAL))
+                continue;
+
+            SetFlowControlVariableForHeist (eHeistId (heist), false);
+            YscFunctions::VerifyAndReplaceInvalidCrewMembers (eHeistId (heist));
+        }
 
     "SET_SCRIPT_WITH_NAME_HASH_AS_NO_LONGER_NEEDED"_n ("jewelry_heist"_joaat);
     return true;
@@ -279,9 +261,6 @@ MissionRandomizer_Flow::OnMissionStart ()
         {
             MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
         }
-
-    if (!bMissionRepeating && !HandleHeistCrewRandomization ())
-        return false;        
     
     if ((OriginalMission->nHash == "prologue1"_joaat
          || OriginalMission->nHash == "armenian1"_joaat)
@@ -362,6 +341,8 @@ MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
         return true;
 
     HandleCurrentMissionChanges ();
+    if (!HandleHeistCrewRandomization (ctx))
+        return false;
 
     if (bCallMissionEndNextFrame && ctx->m_nState != eScriptState::KILLED)
         return OnMissionEnd (WasMissionPassed ());
@@ -454,6 +435,11 @@ MissionRandomizer_Flow::SetHeistFlowControlVariablesForMission ()
             SetFlowControlVariableForHeist (eHeistId::HEIST_FINALE, true);
             break;
         }
+
+    // Set the board init state to 0xFF to set all the bits to true for
+    // jewelry_heist and rural_bank_heist.
+    MR::sm_Globals.g_BoardInitStateBitset.Init ();
+    MR::sm_Globals.g_BoardInitStateBitset.Set (0xFF);
 }
 
 /*******************************************************/
@@ -483,6 +469,7 @@ MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
+    MR::sm_Order.RestoreOriginalMissionInfo (MR::sm_Globals.g_CurrentMission);
     SetHeistFlowControlVariablesForMission ();
 }
 
@@ -494,6 +481,7 @@ MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
         || ctx->m_nScriptHash != RandomizedMission->nHash)
         return;
 
+    MR::sm_Order.ReapplyRandomMissionInfo(MR::sm_Globals.g_CurrentMission);
     MR::sm_Globals.g_CurrentMission.Set (nPreviousCurrentMission);
     SetHeistFlowControlVariables ();
 }

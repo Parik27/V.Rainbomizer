@@ -64,6 +64,17 @@ class MissionRandomizer
         return state;
     }
 
+    /*******************************************************/
+    static void
+    RequestCutsceneHook (scrThread::Info *info)
+    {
+        Rainbomizer::Logger::LogMessage (
+            "LogRequestCutscene: [%s:%03x] - %s",
+            scrThread::GetActiveThread ()->m_szScriptName,
+            scrThread::GetActiveThread ()->m_Context.m_nIp,
+            info->GetArg<char *> (0));
+    }
+
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -84,5 +95,10 @@ public:
 
         Rainbomizer::Common::AddInitCallback (
             [] (bool) { Components::sm_Flow.Reset (); });
+
+        NativeCallbackMgr::InitCallback<"REQUEST_CUTSCENE"_joaat,
+                                        RequestCutsceneHook, true> ();
+        NativeCallbackMgr::InitCallback<"_REQUEST_CUTSCENE_EX"_joaat,
+                                        RequestCutsceneHook, true> ();
     }
 } missions;
