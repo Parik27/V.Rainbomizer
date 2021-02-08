@@ -39,6 +39,8 @@ class MissionRandomizer_OrderManager
         bool FinaleHeli      = false;
     } m_Choices;
 
+    MissionDefinition m_StoredRandomInfo;
+    
 public:
     void
     Reset ()
@@ -86,6 +88,9 @@ public:
     {
         return m_Choices;
     }
+
+    void RestoreOriginalMissionInfo (uint32_t missionId);
+    void ReapplyRandomMissionInfo (uint32_t missionId);
 
     void Process (scrThreadContext *ctx, scrProgram *program);
 };

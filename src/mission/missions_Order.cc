@@ -146,3 +146,20 @@ MissionRandomizer_OrderManager::RemoveMissionFlowHeistBoards ()
     NopFlowCommands(1577, 1579);
     NopFlowCommands(1585, 1586);
 }
+
+void
+MissionRandomizer_OrderManager::RestoreOriginalMissionInfo (uint32_t missionId)
+{
+    auto info = GetMissionInfoFromId (missionId);
+    if (!info || !info->pDef)
+        return;
+
+    m_StoredRandomInfo                        = *info->pDef;
+    MR::sm_Globals.g_Missions.Data[missionId] = info->DefCopy;
+}
+
+void
+MissionRandomizer_OrderManager::ReapplyRandomMissionInfo (uint32_t missionId)
+{
+    MR::sm_Globals.g_Missions.Data[missionId] = m_StoredRandomInfo;
+}
