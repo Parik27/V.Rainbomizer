@@ -29,6 +29,7 @@ public:
             std::string Seed;
             bool        ForceSeedOnSaves;
             bool        LogMissionOrder;
+            bool        EnableFastSkips;
 
             std::string ForcedMission;
 

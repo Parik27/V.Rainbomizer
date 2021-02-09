@@ -2,7 +2,7 @@ const char configDefault[] = R"(
 ########################################################
 
 # Rainbomizer for V
-# Copyright (C) 2020 - Parik
+# Copyright (C) 2020-2021 - Parik
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -67,6 +67,8 @@ Seed = ""
 ForceSeedOnSaves = false
 
 ForcedMission = "" # All missions will start this instead of a random mission.
+
+EnableFastSkips = false # Mission skips will be enabled after failing the mission once. Useful for testing
 
 #######################################################
 [PedRandomizer]

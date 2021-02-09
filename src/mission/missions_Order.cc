@@ -113,6 +113,8 @@ MissionRandomizer_OrderManager::Update_gMissions ()
 
             origMission.BITS_MissionFlags.NO_STAT_WATCHER
                 = newMission.BITS_MissionFlags.NO_STAT_WATCHER;
+            origMission.BITS_MissionFlags.DISABLE_MISSION_SKIPS
+                = newMission.BITS_MissionFlags.DISABLE_MISSION_SKIPS;
         }
 }
 

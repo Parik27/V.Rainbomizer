@@ -105,7 +105,7 @@ struct MissionDefinition
         {
             bool FLAG_0 : 1;
             bool FLAG_1 : 1;
-            bool FLAG_2 : 1;
+            bool NO_MISSION_RETRY : 1;
             bool FLAG_3 : 1;
             bool NO_STAT_WATCHER : 1;
             bool FLAG_5 : 1;
@@ -118,6 +118,9 @@ struct MissionDefinition
             bool FLAG_12 : 1;
             bool FLAG_13 : 1;
             bool IS_HEIST_MISSION : 1;
+            bool FLAG_15 : 1;
+            bool DISABLE_MISSION_SKIPS : 1;
+            bool DISABLE_MISSION_EXIT : 1;
             
         } BITS_MissionFlags;
     };

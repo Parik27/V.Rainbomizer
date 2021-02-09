@@ -1,5 +1,6 @@
 #include "missions_Code.hh"
 #include "missions.hh"
+#include "scrThread.hh"
 #include <cstdint>
 
 using MR = MissionRandomizer_Components;
@@ -40,7 +41,7 @@ MissionRandomizer_CodeFixes::ApplyStatWatcherFix (YscUtilsOps &utils)
 
     utils.Init ("6f 54 ? ? 6f 54 ? ? 5d ? ? ? 5d ? ? ? 2e 01 00");
     utils.NOP (/*Offset=*/12, /*Size=*/4);
-
+    
     PrintStatus (utils, "mission_stat_watcher fix: ");
 }
 
@@ -114,4 +115,40 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     utils.WriteBytes (/*Offset=*/5, return_1);
 
     PrintStatus(utils, "Triggerer Wait Fix");
+}
+
+/*******************************************************/
+void
+MissionRandomizer_CodeFixes::ApplyPrepNoRepeatFix (YscUtilsOps &utils)
+{
+    // A few missions don't restart when you click replay, instead they put you
+    // somewhere near the original location and expect you to restart it
+    // yourself. This is undesired behaviour in mission randomizer since you
+    // would want to be able to restart these missions.
+
+    if (!utils.IsAnyOf ("replay_controller"_joaat))
+        return;
+
+    utils.Init ("2d 00 03 00 ? 6e 5d ? ? ? 06 56 ? ? 5d ? ? ? 6f");
+    utils.Write (/*Offset=*/11, YscOpCode::J);
+
+    PrintStatus (utils, "Prep No Repeat Fix");
+}
+
+/*******************************************************/
+void
+MissionRandomizer_CodeFixes::ApplyQuickSkipsPatch (YscUtilsOps &utils)
+{
+    /* This patch removes the 2 mission fails with no progress made checks from
+     * flow_controller's function that sets the can skip global variable for
+     * replay_controller */
+
+    if (!utils.IsAnyOf ("flow_controller"_joaat)
+        || !MR::Config ().EnableFastSkips)
+        return;
+
+    utils.Init ("5e ? ? ? 46 ? ? 46 ? ? 34 ? 41 01 70 5a ? ?");
+    utils.NOP (/*Offset=*/15, /*Size=*/3);
+
+    PrintStatus (utils, "Quick Skips Patch");
 }

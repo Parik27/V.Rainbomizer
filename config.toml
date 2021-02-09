@@ -67,6 +67,8 @@ ForceSeedOnSaves = false
 
 ForcedMission = "" # All missions will start this instead of a random mission.
 
+EnableFastSkips = false # Mission skips will be enabled after failing the mission once. Useful for testing
+
 #######################################################
 [PedRandomizer]
 
