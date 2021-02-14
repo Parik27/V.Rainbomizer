@@ -184,17 +184,14 @@ MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
             return false;
         }
 
+    Rainbomizer::Logger::LogMessage("Randomizing heist crews");
+    
     *MR::sm_Globals.Crew_Dead_Bitset     = 0; // revive all dead crew members.
     *MR::sm_Globals.Crew_Unlocked_Bitset = 0xFFFFFFFF; // unlock all
 
     for (int heist = int (eHeistId::HEIST_JEWELRY);
          heist <= int (eHeistId::HEIST_FINALE); heist++)
         {
-            Rainbomizer::Logger::LogMessage (
-                "Randomizing crew for heist: %d (%d)", heist,
-                YscFunctions::VerifyAndReplaceInvalidCrewMembers.CanCall (
-                    false));
-
             SetFlowControlVariableForHeist (eHeistId (heist), true);
             YscFunctions::VerifyAndReplaceInvalidCrewMembers (eHeistId (heist));
 

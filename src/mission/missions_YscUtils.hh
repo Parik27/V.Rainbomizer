@@ -182,7 +182,7 @@ public:
         ScriptGlobal (std::string_view pattern, uint32_t patternOffset,
                       uint32_t program, PatternIdiom patternIdiom = GLOBAL_U24)
             : m_Pattern (pattern), m_PatternOffset (patternOffset),
-              m_nProgram (program), m_PatternIdiom (patternIdiom) {};
+              m_PatternIdiom (patternIdiom), m_nProgram (program){};
 
         ScriptGlobal (std::string_view pattern, uint32_t patternOffset,
                       uint32_t program, T defValue)
@@ -315,7 +315,7 @@ public:
     {        
         if (!pPatternResult)
             return void (bOperationFailed = true);
-        memcpy (pPatternResult, &bytes[0], std::size (bytes));
+        memcpy (pPatternResult + offset, &bytes[0], std::size (bytes));
     }
 
     explicit operator bool () const

@@ -100,8 +100,6 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     // hopefully there aren't any. It could be made specific to only the
     // missions that wait for the triggerer, but you would need to go through
     // all the missions and find out which ones are broken.
-
-    return;
     
     static constexpr uint8_t return_1[] = {
         0x6f,          // PUSH_CONST_1
@@ -111,6 +109,13 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     if (!MR::sm_Data.IsValidMission (utils.GetProgram ()->m_nScriptHash))
         return;
 
+    if (!utils.IsAnyOf ("agency_heist1"_joaat, "agency_heist3a"_joaat,
+                        "jewelry_prep1a"_joaat, "jewelry_prep1b"_joaat,
+                        "jewelry_prep2a"_joaat, "family2"_joaat,
+                        "fbi4_intro"_joaat, "fbi5a"_joaat, "fbi4"_joaat,
+                        "lester1"_joaat, "agency_prep1"_joaat))
+        return;
+    
     utils.Init ("2d 01 03 00 ? 38 ? 06 2a 56");
     utils.WriteBytes (/*Offset=*/5, return_1);
 
