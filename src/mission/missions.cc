@@ -42,8 +42,10 @@ class MissionRandomizer
         Components::sm_Globals.Process (ctx, program);
         Components::sm_Order.Process (ctx, program);
 
-        return Components::sm_PlayerSwitcher.Process ()
-               && Components::sm_Flow.Process (program, ctx);
+        bool switcher = Components::sm_PlayerSwitcher.Process ();
+        bool flow     = Components::sm_Flow.Process (program, ctx);
+
+        return switcher && flow;
     }
 
     /*******************************************************/

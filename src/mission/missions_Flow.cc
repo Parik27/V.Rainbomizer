@@ -6,6 +6,7 @@
 #include "mission/missions_Funcs.hh"
 #include "mission/missions_Globals.hh"
 #include "mission/missions_YscUtils.hh"
+#include "mission/missions_Cmds.hh"
 #include "missions.hh"
 #include "scrThread.hh"
 #include <cstdint>
@@ -234,21 +235,6 @@ MissionRandomizer_Flow::HandleCutscenesForRandomizedMission ()
 bool
 MissionRandomizer_Flow::OnMissionStart ()
 {
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_M = true;
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_T = true;
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_F = true;
-    *MR::sm_Globals.SP0_AVAILABLE                = true;
-    *MR::sm_Globals.SP1_AVAILABLE                = true;
-    *MR::sm_Globals.SP2_AVAILABLE                = true;
-
-    YscFunctions::SetBuildingState (70, 1, 1, 1, 0);
-    YscFunctions::SetBuildingState (71, 1, 1, 1, 0);
-    YscFunctions::SetBuildingState (73, 1, 1, 1, 0);
-    YscFunctions::SetBuildingState (72, 0, 1, 1, 0);
-    YscFunctions::SetBuildingState (74, 0, 1, 1, 0);
-    YscFunctions::SetDoorState (62, 1);
-    YscFunctions::SetDoorState (63, 1);
-
     if (!HandleCutscenesForRandomizedMission())
         return false;
     
@@ -270,6 +256,9 @@ MissionRandomizer_Flow::OnMissionStart ()
     // Need to do this again for mission fails.
     InitStatWatcherForRandomizedMission ();
     MR::sm_Globals.g_ForceWalking.Set (0);
+
+    MissionRandomizer_Commands::OnMissionStart (OriginalMission->nHash,
+                                                RandomizedMission->nHash);
 
     return true;
 }
