@@ -39,6 +39,22 @@ class MissionRandomizer_OrderManager
         bool FinaleHeli      = false;
     } m_Choices;
 
+    struct SaveStructure
+    {
+        char          Signature[12] = "RAINBOMIZER";
+        unsigned int  Seed;
+
+        SaveStructure(unsigned int seed) : Seed(seed) {}
+
+        bool
+        ValidateSaveStructure ()
+        {
+            return Signature == std::string ("RAINBOMIZER");
+        }
+    };
+
+    SaveStructure*   GetSaveStructure ();
+    uint32_t              GetSeed ();
     MissionDefinition m_StoredRandomInfo;
     
 public:

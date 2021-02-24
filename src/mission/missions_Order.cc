@@ -16,17 +16,20 @@
 
 using MR = MissionRandomizer_Components;
 
+MissionRandomizer_OrderManager::SaveStructure *
+MissionRandomizer_OrderManager::GetSaveStructure ()
+{
+    return static_cast<SaveStructure *> (MR::sm_Globals.MF_MISSION_STRUCT_99);
+}
+
 void
 MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
                                          scrProgram *      program)
 {
-    if (program->m_nScriptHash == "standard_global_init"_joaat
+    if (program->m_nScriptHash == "initial"_joaat
         && ctx->m_nState == eScriptState::KILLED)
         {
-            uint32_t seed = static_cast<uint32_t> (
-                std::hash<std::string>{}(MR::Config ().Seed));
-
-            InitialiseMissionsMap (seed);
+            InitialiseMissionsMap (GetSeed());
             Update_gMissions ();
 
             bInitialised = true;
@@ -48,6 +51,34 @@ MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
             ActionsDebugInterface::sm_ReloadMissionsRequested = false;
         }
 #endif
+}
+
+uint32_t
+MissionRandomizer_OrderManager::GetSeed()
+{
+    auto *structure
+        = GetSaveStructure ();
+
+    Rainbomizer::Logger::LogMessage ("Signature: %s",
+                                     std::string (structure->Signature));
+    uint32_t seed = RandomInt (UINT_MAX);
+    if (structure->ValidateSaveStructure())
+    {
+            if (MR::Config ().ForceSeedOnSaves)
+            seed = static_cast<uint32_t> (
+                std::hash<std::string>{}(MR::Config ().Seed));
+            else
+                seed = structure->Seed;
+    }
+    else
+    {
+        if (MR::Config ().Seed != "")
+                seed = static_cast<uint32_t> (
+                    std::hash<std::string>{}(MR::Config ().Seed));
+        *structure = SaveStructure (seed);
+    }
+    Rainbomizer::Logger::LogMessage ("Seed: %x", seed);
+    return seed;
 }
 
 void
@@ -129,6 +160,16 @@ MissionRandomizer_OrderManager::RemoveMissionFlowHeistBoards ()
                     cmds->Data[i].CommandHash = "123robot"_joaat;
             }
     };
+
+    // Prologue Freeze
+    NopFlowCommands (1557, 1558);
+
+    // Heist Control Scripts
+    //NopFlowCommands (7, 7);
+    //NopFlowCommands (357, 357);
+    //NopFlowCommands (1011, 1011);
+    //NopFlowCommands (1199, 1199);
+    //NopFlowCommands (1566, 1566);
 
     // Agency Boards
     NopFlowCommands(34, 34);

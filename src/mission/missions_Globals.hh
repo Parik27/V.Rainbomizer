@@ -469,6 +469,8 @@ public:
     inline static int *Crew_Unlocked_Bitset = nullptr;
     inline static int *Crew_Dead_Bitset     = nullptr;
 
+    inline static void *MF_MISSION_STRUCT_99 = nullptr;
+
     YscUtils::ScriptGlobal<uint32_t> g_CurrentMission{
         "2c 04 ? ? 38 02 60 ? ? ? 2e 05 00", 7, "flow_controller"_joaat, -1u};
 
@@ -495,6 +497,27 @@ public:
         "5f ? ? ? 56 ? ? 5f ? ? ? 38 05 57 ? ? 38 05 ", 1,
         "flow_controller"_joaat, 0};
 
+    /*******************************************************/
+    template <typename T>
+    static void
+    RegisterStructHook (scrThread::Info *info)
+    {
+        using namespace std::string_literals;
+
+        const char *fieldName = info->GetArg<const char *> (2);
+        T *         ptr       = info->GetArg<T *> (0);
+
+#define ADD_SAVE_DATA_GLOBAL(global)                                           \
+    if (fieldName == #global##s)                                               \
+    global = ptr
+
+        if constexpr (std::is_same_v<T, void *>)
+            {
+                ADD_SAVE_DATA_GLOBAL (MF_MISSION_STRUCT_99);
+            }
+
+#undef ADD_SAVE_DATA_GLOBAL
+    }
     /*******************************************************/
     template <typename T>
     static void
@@ -596,5 +619,7 @@ public:
                                         RegisterFieldHook<int>, false> ();
         NativeCallbackMgr::InitCallback<"REGISTER_INT_TO_SAVE"_joaat,
                                         RegisterFieldHook<int>, false> ();
+        NativeCallbackMgr::InitCallback<"_START_SAVE_STRUCT"_joaat,
+                                        RegisterStructHook<void*>, false> ();
     }
 };
