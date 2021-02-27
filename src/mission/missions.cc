@@ -36,32 +36,28 @@ class MissionRandomizer
     }
 
     /*******************************************************/
-    static bool
-    ProcessComponents (scrProgram *program, scrThreadContext *ctx)
-    {
-        Components::sm_Globals.Process (ctx, program);
-        Components::sm_Order.Process (ctx, program);
-
-        bool switcher = Components::sm_PlayerSwitcher.Process ();
-        bool flow     = Components::sm_Flow.Process (program, ctx);
-
-        return switcher && flow;
-    }
-
-    /*******************************************************/
     static eScriptState
     RunThreadHook (uint64_t *stack, uint64_t *globals, scrProgram *program,
                    scrThreadContext *ctx)
     {
         eScriptState state = ctx->m_nState;
-        if (ProcessComponents (program, ctx))
+        static bool blocking = false;
+        if (Components::Process (program, ctx))
             {
+                if (blocking)
+                    Rainbomizer::Logger::LogMessage ("Stopped blocking");
+                blocking = false;
                 Components::sm_Flow.SetVariables (ctx);
                 state = scrThread_Runff6 (stack, globals, program, ctx);
                 Components::sm_Flow.ClearVariables (ctx);
             }
+        else if(!blocking)
+            {
+                Rainbomizer::Logger::LogMessage ("Started blocking");
+                blocking = true;
+            }
 
-        ProcessComponents (program, ctx);
+        Components::Process (program, ctx);
 
         return state;
     }
@@ -75,6 +71,18 @@ class MissionRandomizer
             scrThread::GetActiveThread ()->m_szScriptName,
             scrThread::GetActiveThread ()->m_Context.m_nIp,
             info->GetArg<char *> (0));
+    }
+
+    /*******************************************************/
+    static void
+    GetEntityScriptHook (scrThread::Info *info)
+    {
+        Rainbomizer::Logger::LogMessage (
+            "Get_Entity_Script: [%s:%03x] - %s vs %s",
+            scrThread::GetActiveThread ()->m_szScriptName,
+            scrThread::GetActiveThread ()->m_Context.m_nIp,
+            info->GetReturn<char *> (0),
+            "GET_THIS_SCRIPT_NAME"_n());
     }
 
 public:
@@ -99,9 +107,13 @@ public:
         Rainbomizer::Common::AddInitCallback (
             [] (bool) { Components::sm_Flow.Reset (); });
 
+#if (0)
         NativeCallbackMgr::InitCallback<"REQUEST_CUTSCENE"_joaat,
                                         RequestCutsceneHook, true> ();
         NativeCallbackMgr::InitCallback<"_REQUEST_CUTSCENE_EX"_joaat,
                                         RequestCutsceneHook, true> ();
+#endif
+        NativeCallbackMgr::InitCallback<"GET_ENTITY_SCRIPT"_joaat,
+                                        GetEntityScriptHook, false> ();
     }
 } missions;

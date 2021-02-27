@@ -7,6 +7,10 @@
 
 class YscFunctions
 {
+    inline static auto MissionTriggererProgram = YscUtils::AnyValidProgram<
+        "mission_triggerer_a"_joaat, "mission_triggerer_b"_joaat,
+        "mission_triggerer_c"_joaat, "mission_triggerer_d"_joaat>;
+
 public:
     /*SetDoorState(ePlayerIndex, freeModel);*/
     inline static YscUtils::ScriptFunction<ePlayerIndex, uint32_t>
@@ -54,9 +58,9 @@ public:
         AddContact{"2d 03 ? 00 ? 38 00 54 ? ? 38 00 52",
                    "flow_controller"_joaat};
 
-    /* ExecuteControlCode (id, delay) */
+    /* RunCodeId (id, delay) */
     inline static YscUtils::ScriptFunction<uint32_t, uint32_t>
-        ExecuteControlCode{"2d 02 04 00 ? 38 00 25 eb 08 2a 06 ",
+        RunCodeId{"2d 02 04 00 ? 38 00 25 eb 08 2a 06 ",
                            "flow_controller"_joaat};
 
     /* SetSafehouseUnlocked (id, unlocked) */
@@ -64,4 +68,18 @@ public:
         "2d 02 04 00 ? 38 00 25 0a 57 ? ? 2e 02 00 38 01 56 ? ? 38 00 5e ? ? ? "
         "46 ? ? 34 01 6e 2c 08 ? ? 55",
         "flow_controller"_joaat};
+
+    /* ResetTrigEntityProofs () */
+    inline static YscUtils::ScriptFunction<> ResetTrigEntityProofs{
+        "2d 00 03 00 ? 6e 39 02 38 02 25 08 5b ? ? 38 02 5e ? ? ? 35",
+        MissionTriggererProgram};
+
+    /* CleanupTrigEntities () */
+    inline static YscUtils::ScriptFunction<> CleanupTrigEntities{
+        "2d 00 04 00 ? 6e 39 02 38 02 25 08 5b", MissionTriggererProgram};
+
+    /* SetShopState - 2d 03 05 00 ?? 38 ?? 56 ?? ?? 38 00 6e 6e */
+    inline static YscUtils::ScriptFunction<uint32_t, bool, uint32_t>
+        SetShopState{"2d 03 05 00 ? 38 ? 56 ? ? 38 00 6e 6e",
+                     "flow_controller"_joaat};
 };

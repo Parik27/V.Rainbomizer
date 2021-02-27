@@ -9,6 +9,7 @@
 #include <scrThread.hh>
 #include <string_view>
 
+#include "CTheScripts.hh"
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 
@@ -92,19 +93,26 @@ public:
     /*******************************************************/
     template <typename... Args> class ScriptFunction
     {
-        uint32_t    ip = 0;
-        std::string m_Pattern;
-        uint32_t    m_nProgramHash = 0;
-        bool        bInitialised   = false;
+        using GetProgramFunction = uint32_t (*) ();
+
+        uint32_t           ip               = 0;
+        uint32_t           ip_OwningProgram = 0;
+        std::string        m_Pattern;
+        uint32_t           m_nProgramHash   = 0;
+        GetProgramFunction m_pProgramGetter = nullptr;
+        bool               bInitialised     = false;
 
         uint32_t
         GetIp ()
         {
-            if (bInitialised)
+            if (bInitialised && ip_OwningProgram == GetProgramHash ())
                 return ip;
 
-            YscUtils utils (scrProgram::FindProgramByHash (m_nProgramHash));
-            if (!ip)
+            ip               = 0;
+            ip_OwningProgram = GetProgramHash ();
+
+            YscUtils utils (GetProgram());
+            if (!ip || ip_OwningProgram != GetProgramHash ())
                 {
                     utils.FindCodePattern (m_Pattern,
                                            [&] (hook::pattern_match m) {
@@ -129,15 +137,52 @@ public:
         {
         }
 
+        ScriptFunction (std::string_view pattern, GetProgramFunction func)
+            : m_Pattern (pattern), m_pProgramGetter (func)
+        {
+        }
+
+        uint32_t
+        GetProgramHash ()
+        {
+            uint32_t programHash = m_nProgramHash;
+            if (m_pProgramGetter)
+                programHash = m_pProgramGetter ();
+
+            return programHash;
+        }
+
+        scrProgram *
+        GetProgram ()
+        {
+            return scrProgram::FindProgramByHash (GetProgramHash ());
+        }
+
+        bool
+        ThreadExists ()
+        {
+            uint32_t programHash = GetProgramHash ();
+            for (auto i : *CTheScripts::aThreads)
+                {
+                    if (i->m_Context.m_nThreadId == 0
+                        || i->m_Context.m_nState == eScriptState::KILLED)
+                        continue;
+                    
+                    if (i->m_Context.m_nScriptHash == programHash)
+                        return true;
+                }
+            return false;
+        }
+
         bool
         CanCall (bool checkScript = false)
         {
-            if (checkScript && scrThread::GetActiveThread ()
-                && scrThread::GetActiveThread ()->m_Context.m_nScriptHash
-                       == m_nProgramHash)
-                return true;
+            if (checkScript)
+                return scrThread::GetActiveThread ()
+                       && scrThread::GetActiveThread ()->m_Context.m_nScriptHash
+                              == GetProgramHash ();
 
-            if (!scrProgram::FindProgramByHash (m_nProgramHash))
+            if (!GetProgram ())
                 return false;
 
             return true;
@@ -149,12 +194,26 @@ public:
             if (!GetIp ())
                 return false;
 
-            YscUtils utils (scrProgram::FindProgramByHash (m_nProgramHash));
+            YscUtils utils (GetProgram ());
             utils.CallScriptFunction (GetIp (), args...);
 
             return true;
         }
     };
+
+    /* Helper function to get a scrProgram hash from any of the given
+     * arguments. It chooses one that's accessible at the moment */
+    template <uint32_t... Programs>
+    static uint32_t
+    AnyValidProgram ()
+    {
+        uint32_t programHash = 0;
+        (...,
+         (programHash
+          = scrProgram::FindProgramByHash (Programs) ? Programs : programHash));
+
+        return programHash;
+    }
 
     enum PatternIdiom
         {

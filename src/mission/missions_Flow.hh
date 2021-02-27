@@ -29,9 +29,11 @@ class MissionRandomizer_Flow
 
     bool bCallMissionEndNextFrame = false;
 
-    bool bMissionRepeating       = false;
-    bool bGameInitialised        = false;
-    bool bInitialCutsceneRemoved = false;
+    bool bMissionRepeating         = false;
+    bool bGameInitialised          = false;
+    bool bInitialCutsceneRemoved   = false;
+    bool bMissionStartupFinished   = false;
+    bool bTriggererCleanupFinished = false;
 
     void HandleCurrentMissionChanges ();
     void InitStatWatcherForRandomizedMission ();

@@ -598,8 +598,8 @@ public:
     }
 
     /*******************************************************/
-    void
-    Process (scrThreadContext *ctx, scrProgram *program)
+    bool
+    Process (scrProgram *program, scrThreadContext *ctx)
     {
         g_CurrentMission.Init (program);
         g_LastPassedMission.Init (program);
@@ -607,6 +607,8 @@ public:
         g_ForceWalking.Init (program);
         g_MissionFlowCommands.Init (program);
         Init_gMissions (ctx, program);
+
+        return true;
     }
 
     /*******************************************************/

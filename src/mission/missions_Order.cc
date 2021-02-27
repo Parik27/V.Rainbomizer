@@ -22,9 +22,9 @@ MissionRandomizer_OrderManager::GetSaveStructure ()
     return static_cast<SaveStructure *> (MR::sm_Globals.MF_MISSION_STRUCT_99);
 }
 
-void
-MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
-                                         scrProgram *      program)
+bool
+MissionRandomizer_OrderManager::Process (scrProgram *      program,
+                                         scrThreadContext *ctx)
 {
     if (program->m_nScriptHash == "initial"_joaat
         && ctx->m_nState == eScriptState::KILLED)
@@ -36,9 +36,7 @@ MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
         }
 
     if (program->m_nScriptHash == "flow_controller"_joaat && ctx->m_nIp == 0)
-        {
-            RemoveMissionFlowHeistBoards ();
-        }
+        MR::sm_Cmds.AdjustMissionFlowCommands ();
 
 #ifdef ENABLE_DEBUG_SERVER
     if (ActionsDebugInterface::sm_ReloadMissionsRequested)
@@ -51,16 +49,20 @@ MissionRandomizer_OrderManager::Process (scrThreadContext *ctx,
             ActionsDebugInterface::sm_ReloadMissionsRequested = false;
         }
 #endif
+
+    return true;
 }
 
 uint32_t
-MissionRandomizer_OrderManager::GetSeed()
+MissionRandomizer_OrderManager::GetSeed ()
 {
+    return static_cast<uint32_t> (std::hash<std::string>{}(MR::Config ().Seed));
+    ;
+
     auto *structure
         = GetSaveStructure ();
 
-    Rainbomizer::Logger::LogMessage ("Signature: %s",
-                                     std::string (structure->Signature));
+    Rainbomizer::Logger::LogMessage ("Signature: %s", structure->Signature);
     uint32_t seed = RandomInt (UINT_MAX);
     if (structure->ValidateSaveStructure())
     {
@@ -147,47 +149,6 @@ MissionRandomizer_OrderManager::Update_gMissions ()
             origMission.BITS_MissionFlags.DISABLE_MISSION_SKIPS
                 = newMission.BITS_MissionFlags.DISABLE_MISSION_SKIPS;
         }
-}
-
-void
-MissionRandomizer_OrderManager::RemoveMissionFlowHeistBoards ()
-{
-    auto NopFlowCommands = [] (unsigned int start, unsigned int end) {
-        for (unsigned int i = start; i <= end; ++i)
-            {
-                // Just set it to a non-existant flow command, it'll skip it.
-                if (auto cmds = MR::sm_Globals.g_MissionFlowCommands.Get ())
-                    cmds->Data[i].CommandHash = "123robot"_joaat;
-            }
-    };
-
-    // Prologue Freeze
-    NopFlowCommands (1557, 1558);
-
-    // Heist Control Scripts
-    //NopFlowCommands (7, 7);
-    //NopFlowCommands (357, 357);
-    //NopFlowCommands (1011, 1011);
-    //NopFlowCommands (1199, 1199);
-    //NopFlowCommands (1566, 1566);
-
-    // Agency Boards
-    NopFlowCommands(34, 34);
-    NopFlowCommands(36, 49);
-
-    // Docks Board
-    NopFlowCommands(363, 363);
-    NopFlowCommands(369, 378);
-
-    // Finale Heist Board (+ finale_heist_intro2)
-    NopFlowCommands(1017, 1033);
-
-    // Jewel Heist Board
-    NopFlowCommands(1206, 1220);
-
-    // Rural Bank Heist Board
-    NopFlowCommands(1577, 1579);
-    NopFlowCommands(1585, 1586);
 }
 
 void

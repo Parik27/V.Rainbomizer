@@ -134,6 +134,7 @@ MissionRandomizer_Flow::PreMissionStart ()
     nLastPassedMissionTime  = MR::sm_Globals.g_LastPassedMissionTime;
     bMissionRepeating       = false;
     bInitialCutsceneRemoved = false;
+    bMissionStartupFinished = false;
     nMissionPtrsSema        = 2;
 
     InitStatWatcherForRandomizedMission ();
@@ -235,16 +236,19 @@ MissionRandomizer_Flow::HandleCutscenesForRandomizedMission ()
 bool
 MissionRandomizer_Flow::OnMissionStart ()
 {
-    if (!HandleCutscenesForRandomizedMission())
+    if (bMissionStartupFinished)
+        return true;
+
+    if (!HandleCutscenesForRandomizedMission ())
         return false;
-    
+
     // Set player if mission was replayed
     if (bMissionRepeating
         && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
         {
             MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
         }
-    
+
     if ((OriginalMission->nHash == "prologue1"_joaat
          || OriginalMission->nHash == "armenian1"_joaat)
         && !bMissionRepeating)
@@ -255,11 +259,10 @@ MissionRandomizer_Flow::OnMissionStart ()
 
     // Need to do this again for mission fails.
     InitStatWatcherForRandomizedMission ();
-    MR::sm_Globals.g_ForceWalking.Set (0);
+    MR::sm_Cmds.OnMissionStart (OriginalMission->nHash,
+                                RandomizedMission->nHash);
 
-    MissionRandomizer_Commands::OnMissionStart (OriginalMission->nHash,
-                                                RandomizedMission->nHash);
-
+    bMissionStartupFinished = true;
     return true;
 }
 
@@ -307,7 +310,9 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
 #endif
         }
 
-    bMissionRepeating = true;
+    bMissionRepeating         = true;
+    bMissionStartupFinished   = false;
+    bTriggererCleanupFinished = false;
     return true;
 }
 

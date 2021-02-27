@@ -52,6 +52,8 @@ private:
         } m_nCurrentState
     = IDLE;
 
+    bool m_bDestPlayerSet = true;
+    
     Context m_Context;
 
     
@@ -62,7 +64,7 @@ private:
         if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
             return true;
 
-        if (!YscFunctions::SetCurrentPlayer.CanCall (true))
+        if (!YscFunctions::SetCurrentPlayer.CanCall (false))
             return false;
 
         if (!YscFunctions::SetCurrentPlayer (index, 1))
@@ -142,6 +144,7 @@ private:
                                                     m_Context.destPos.x,
                                                     m_Context.destPos.y,
                                                     m_Context.destPos.z);
+                m_bDestPlayerSet = true;
                 return true;
             }
 
@@ -156,6 +159,7 @@ private:
             {
             case Context::PLAYER_SWITCHER:
                 "_SWITCH_IN_PLAYER"_n("PLAYER_PED_ID"_n());
+                "DO_SCREEN_FADE_IN"_n(1000);
                 return true;
 
             case Context::FADES: "DO_SCREEN_FADE_IN"_n(1000); return true;
@@ -199,6 +203,8 @@ public:
         if (m_nCurrentState != IDLE)
             return;
 
+        m_bDestPlayerSet = false;
+
         Rainbomizer::Logger::LogMessage (
             "Beginning Player Switch: %f %f %f (%d) - %d", ctx.destPos.x,
             ctx.destPos.y, ctx.destPos.z, ctx.destPlayer, ctx.transitionType);
@@ -207,6 +213,15 @@ public:
         m_Context       = ctx;
     }
 
+    /*******************************************************/
+    uint32_t
+    GetDestPlayer ()
+    {
+        if (m_bDestPlayerSet)
+            return *MissionRandomizer_GlobalsManager::PP_CURRENT_PED;
+        return uint32_t(m_Context.destPlayer);
+    }
+    
     /*******************************************************/
     bool
     HasDescentFinished ()
@@ -217,7 +232,7 @@ public:
 
     /*******************************************************/
     bool
-    Process ()
+    Process (scrProgram *, scrThreadContext *)
     {
         switch (m_nCurrentState)
             {

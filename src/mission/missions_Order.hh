@@ -27,7 +27,6 @@ class MissionRandomizer_OrderManager
 
     void InitialiseMissionsMap (unsigned int seed);
     void Update_gMissions ();
-    void RemoveMissionFlowHeistBoards ();
 
     bool bInitialised = false;
 
@@ -53,10 +52,11 @@ class MissionRandomizer_OrderManager
         }
     };
 
-    SaveStructure*   GetSaveStructure ();
-    uint32_t              GetSeed ();
-    MissionDefinition m_StoredRandomInfo;
+    SaveStructure *   GetSaveStructure ();
+    uint32_t          GetSeed ();
     
+    MissionDefinition m_StoredRandomInfo;
+
 public:
     void
     Reset ()
@@ -108,5 +108,5 @@ public:
     void RestoreOriginalMissionInfo (uint32_t missionId);
     void ReapplyRandomMissionInfo (uint32_t missionId);
 
-    void Process (scrThreadContext *ctx, scrProgram *program);
+    bool Process (scrProgram *program, scrThreadContext *ctx);
 };
