@@ -310,6 +310,9 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
 #endif
         }
 
+    MR::sm_Cmds.OnMissionEnd (pass, OriginalMission->nHash,
+                              RandomizedMission->nHash);
+
     bMissionRepeating         = true;
     bMissionStartupFinished   = false;
     bTriggererCleanupFinished = false;
@@ -393,7 +396,7 @@ MissionRandomizer_Flow::SetFlowControlVariableForHeist (eHeistId id,
             break;
         }
 
-    YscFunctions::SetMfControlInt (controlId, controlValue);
+    MR::sm_Globals.GetMfInt (controlId) = controlValue;
 }
 
 /*******************************************************/

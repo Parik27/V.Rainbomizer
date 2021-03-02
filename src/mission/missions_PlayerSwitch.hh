@@ -48,7 +48,8 @@ private:
             TRANSITION_ASCEND,
             PLAYER_SWITCH,
             TRANSITION_END,
-            TRANSITION_DESCEND
+            TRANSITION_DESCEND,
+            TRANSITION_CLEANUP
         } m_nCurrentState
     = IDLE;
 
@@ -144,6 +145,7 @@ private:
                                                     m_Context.destPos.x,
                                                     m_Context.destPos.y,
                                                     m_Context.destPos.z);
+                YscFunctions::SetPlayerFreezeState (true);
                 m_bDestPlayerSet = true;
                 return true;
             }
@@ -185,6 +187,14 @@ private:
             case Context::NO_TRANSITION: return true;
             }
 
+        return true;
+    }
+
+    /*******************************************************/
+    bool
+    DoTransitionCleanup ()
+    {
+        YscFunctions::SetPlayerFreezeState (false);
         return true;
     }
 
@@ -260,8 +270,12 @@ public:
 
             case TRANSITION_DESCEND:
                 if (DoTransitionProcessEnd ())
-                    m_nCurrentState = IDLE;
+                    m_nCurrentState = TRANSITION_CLEANUP;
                 break;
+
+            case TRANSITION_CLEANUP:
+                if (DoTransitionCleanup ())
+                    m_nCurrentState = IDLE;
             }
 
         return false;

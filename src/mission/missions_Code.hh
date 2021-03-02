@@ -22,6 +22,7 @@ class MissionRandomizer_CodeFixes
     static void ApplyTriggererWaitFix (YscUtilsOps &utils);
     static void ApplyPrepNoRepeatFix (YscUtilsOps &utils);
     static void ApplyQuickSkipsPatch (YscUtilsOps &utils);
+    static void ApplySolomonCamFix (YscUtilsOps &utils);
 
     /*******************************************************/
     template <auto &scrProgram_InitNativeTablese188>
@@ -32,13 +33,13 @@ class MissionRandomizer_CodeFixes
         bool        ret = scrProgram_InitNativeTablese188 (program);
 
         ApplyStatWatcherFix (utils);
-        ApplyStatWatcherFix (utils);
         ApplyCreditsFix_FinaleAB (utils);
         ApplyCreditsFix_FinaleC2 (utils);
         ApplyMissionPassFix (utils);
         ApplyTriggererWaitFix (utils);
         ApplyPrepNoRepeatFix (utils);
         ApplyQuickSkipsPatch (utils);
+        ApplySolomonCamFix (utils);
 
         return ret;
     }

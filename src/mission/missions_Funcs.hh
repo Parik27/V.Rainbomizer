@@ -33,15 +33,6 @@ public:
     inline static YscUtils::ScriptFunction<uint32_t> InitStatWatcherForMission{
         "2d 01 07 00 ? 6e 39 03 38 ? 25 1a 57", "flow_controller"_joaat};
 
-    /* SetMfControlInt (controlId, value) */
-    inline static YscUtils::ScriptFunction<eMissionFlowControlIntId, uint32_t>
-        SetMfControlInt{"2d 02 04 00 ? 38 00 25 0d 08 2a 06 56",
-                        "flow_controller"_joaat};
-
-    /* SetMfControlFlag (flagId, value) */
-    inline static YscUtils::ScriptFunction<eFlowFlag, bool> SetMfControlFlag{
-        "2d 02 04 00 ? 38 00 25 8d 08 2a 06 ", "flow_controller"_joaat};
-
     /* VerifyAndReplaceInvalidCrewMembers (heistId) */
     inline static YscUtils::ScriptFunction<eHeistId>
         VerifyAndReplaceInvalidCrewMembers{
@@ -82,4 +73,8 @@ public:
     inline static YscUtils::ScriptFunction<uint32_t, bool, uint32_t>
         SetShopState{"2d 03 05 00 ? 38 ? 56 ? ? 38 00 6e 6e",
                      "flow_controller"_joaat};
+
+    /* SetPlayerFreezeState (state) */
+    inline static YscUtils::ScriptFunction<bool> SetPlayerFreezeState{
+        "2d 01 05 00 ? 2c ? ? ? 2c ? ? ? 06 56 ? ? 38 ? 6f", "main"_joaat};
 };

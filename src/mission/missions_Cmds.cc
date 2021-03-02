@@ -12,9 +12,9 @@ using MR = MissionRandomizer_Components;
 void
 MissionRandomizer_Commands::MakeAllPlayersAvailable ()
 {
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_M = true;
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_T = true;
-    *MR::sm_Globals.FLAG_PLAYER_PED_INTRODUCED_F = true;
+    MR::sm_Globals.GetMfFlag (FLAG_PLAYER_PED_INTRODUCED_M) = true;
+    MR::sm_Globals.GetMfFlag (FLAG_PLAYER_PED_INTRODUCED_T) = true;
+    MR::sm_Globals.GetMfFlag (FLAG_PLAYER_PED_INTRODUCED_F) = true;
 
     *MR::sm_Globals.SP0_AVAILABLE = true;
     *MR::sm_Globals.SP1_AVAILABLE = true;
@@ -132,7 +132,9 @@ MissionRandomizer_Commands::ProcessCleanupMissionTrigger ()
     if (MR::sm_Globals.g_ForceWalking)
         YF::ResetTrigEntityProofs ();
 
+    "SET_PLAYER_CONTROL"_n("PLAYER_ID"_n(), true, 0);
     YF::CleanupTrigEntities ();
+
     bMissionTriggererCleanupRequested = false;
     return true;
 }
@@ -206,7 +208,7 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             break;
 
         case "armenian1"_joaat:
-            YF::SetMfControlFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN, true);
+            MR::sm_Globals.GetMfFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN) = true;            
             [[fallthrough]];
         case "armenian2"_joaat: SetBuildingState (179, 0); [[fallthrough]];
         case "armenian3"_joaat:
@@ -254,8 +256,8 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
         case "solomon1"_joaat:
         case "solomon2"_joaat:
         case "solomon3"_joaat:
-            YF::SetMfControlFlag (FLAG_MOVIE_STUDIO_OPEN, true);
-            YF::SetMfControlFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN, true);
+            MR::sm_Globals.GetMfFlag (FLAG_MOVIE_STUDIO_OPEN)      = true;
+            MR::sm_Globals.GetMfFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN) = true;
             break;
 
         case "carsteal1"_joaat:
@@ -294,14 +296,8 @@ MissionRandomizer_Commands::CleanupMissionTriggerer ()
     if (!YF::CleanupTrigEntities.ThreadExists ()
         || !YF::CleanupTrigEntities.CanCall (false))
         {
-            Rainbomizer::Logger::LogMessage (
-                "Can't cleanup mission triggerer. Thread doesn't exist.");
             bMissionTriggererCleanupRequested = false;
             return;
-        }
-    else
-        {
-            Rainbomizer::Logger::LogMessage ("Cleaning up mission triggerer");
         }
     bMissionTriggererCleanupRequested = true;
 }
@@ -340,4 +336,14 @@ MissionRandomizer_Commands::SetMoney (uint32_t money)
 
     Rainbomizer::Logger::LogMessage ("SetMoney: %d (%d)", money, currentPed);
     "STAT_SET_INT"_n(statName, money, 1);
+}
+
+void
+MissionRandomizer_Commands::OnMissionEnd (bool pass, uint32_t origHash,
+                                          uint32_t randHash)
+{
+    MR::sm_Globals.GetMfFlag (FLAG_H_JEWEL_PRIME_BOARD)  = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_AGENCY_PRIME_BOARD) = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_DOCKS_PRIME_BOARD)  = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD) = false;
 }

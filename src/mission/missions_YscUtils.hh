@@ -66,7 +66,7 @@ public:
             = std::exchange (scrThread::GetActiveThread (), &thread);
         uint32_t prevActiveThreadIp = prevActiveThread->m_Context.m_nIp;
         
-        auto stack = std::make_unique<uint64_t[]> (STACK_SIZE);
+        static auto stack = std::make_unique<uint64_t[]> (STACK_SIZE);
         memset (stack.get(), 0, STACK_SIZE * 8);
         thread.m_pStack        = stack.get ();
         thread.m_Context.m_nIp = ip;
@@ -254,6 +254,11 @@ public:
                 return nullptr;
 
             return &scrThread::GetGlobal<T> (nGlobalIdx);
+        }
+
+        T* operator->()
+        {
+            return Get ();
         }
         
         operator T ()

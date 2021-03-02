@@ -434,17 +434,16 @@ struct MissionFlowCommand
 };
 
 /*******************************************************/
-template <typename T> struct GlobalArrayWrapper
+template <typename T> struct YscArray
 {
-    uint64_t nSize = 0;
-    T *      Data = nullptr;
-};
-
-/*******************************************************/
-template <typename T> struct GlobalArrayStatic
-{
-    uint64_t nSize = 0;
+    uint64_t Size = 0;
     T        Data[1];
+
+    T &
+    operator[] (uint64_t idx)
+    {
+        return Data[idx];
+    }
 };
 
 /*******************************************************/
@@ -452,13 +451,6 @@ template <typename T> struct GlobalArrayStatic
 class MissionRandomizer_GlobalsManager
 {
 public:
-    GlobalArrayWrapper<MissionDefinition> g_Missions;
-
-    // Mission Flow Flags
-    inline static bool *FLAG_PLAYER_PED_INTRODUCED_T = nullptr;
-    inline static bool *FLAG_PLAYER_PED_INTRODUCED_F = nullptr;
-    inline static bool *FLAG_PLAYER_PED_INTRODUCED_M = nullptr;
-
     // PP_INFO.AVAILABLE
     inline static bool *SP0_AVAILABLE = nullptr;
     inline static bool *SP1_AVAILABLE = nullptr;
@@ -471,6 +463,14 @@ public:
 
     inline static void *MF_MISSION_STRUCT_99 = nullptr;
 
+    // MF_CONTROLS_STRUCT
+    inline static YscArray<uint64_t> *MF_CONTROL_FLAGIDS = nullptr;
+    inline static YscArray<uint64_t> *MF_CONTROL_INTIDS  = nullptr;
+
+    YscUtils::ScriptGlobal<YscArray<MissionDefinition>> g_Missions{
+        "2d 09 0b 00 ? 38 01 38 00 5e ? ? ? 34 22", 10,
+        "standard_global_init"_joaat};
+
     YscUtils::ScriptGlobal<uint32_t> g_CurrentMission{
         "2c 04 ? ? 38 02 60 ? ? ? 2e 05 00", 7, "flow_controller"_joaat, -1u};
 
@@ -482,10 +482,9 @@ public:
         "38 ? 60 ? ? ? 2c ? ? ? 60 ? ? ? 38 ? 25 1c", 11,
         "flow_controller"_joaat, -1u};
 
-    YscUtils::ScriptGlobal<GlobalArrayStatic<MissionFlowCommand>>
-        g_MissionFlowCommands{"5e ? ? ? 46 ? ? 35 ? 28 6d 05 ad 1f", 1,
-                              "flow_controller"_joaat,
-                              YscUtils::GLOBAL_U24_IOFFSET_S16};
+    YscUtils::ScriptGlobal<YscArray<MissionFlowCommand>> g_MissionFlowCommands{
+        "5e ? ? ? 46 ? ? 35 ? 28 6d 05 ad 1f", 1, "flow_controller"_joaat,
+        YscUtils::GLOBAL_U24_IOFFSET_S16};
 
     YscUtils::ScriptGlobal<uint32_t> g_BoardInitStateBitset{
         "2d 01 03 00 ? 5f ? ? ? 38 ? 2c ? ? ? 2e 01 01", 6,
@@ -496,47 +495,23 @@ public:
     YscUtils::ScriptGlobal<uint32_t> g_ForceWalking{
         "5f ? ? ? 56 ? ? 5f ? ? ? 38 05 57 ? ? 38 05 ", 1,
         "flow_controller"_joaat, 0};
-
+    
     /*******************************************************/
-    template <typename T>
+    template <typename T, int fieldNameIdx = 1>
     static void
-    RegisterStructHook (scrThread::Info *info)
+    StoreSaveGlobals (scrThread::Info *info)
     {
         using namespace std::string_literals;
 
-        const char *fieldName = info->GetArg<const char *> (2);
+        const char *fieldName = info->GetArg<const char *> (fieldNameIdx);
         T *         ptr       = info->GetArg<T *> (0);
 
 #define ADD_SAVE_DATA_GLOBAL(global)                                           \
     if (fieldName == #global##s)                                               \
-    global = ptr
-
-        if constexpr (std::is_same_v<T, void *>)
-            {
-                ADD_SAVE_DATA_GLOBAL (MF_MISSION_STRUCT_99);
-            }
-
-#undef ADD_SAVE_DATA_GLOBAL
-    }
-    /*******************************************************/
-    template <typename T>
-    static void
-    RegisterFieldHook (scrThread::Info *info)
-    {
-        using namespace std::string_literals;
-
-        const char *fieldName = info->GetArg<const char *> (1);
-        T *         ptr       = info->GetArg<T *> (0);
-
-#define ADD_SAVE_DATA_GLOBAL(global)                                           \
-    if (fieldName == #global##s)                                               \
-        global = ptr
+        global = static_cast<decltype(global)>(ptr)
 
         if constexpr (std::is_same_v<T, bool>)
             {
-                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_T);
-                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_M);
-                ADD_SAVE_DATA_GLOBAL (FLAG_PLAYER_PED_INTRODUCED_F);
                 ADD_SAVE_DATA_GLOBAL (SP0_AVAILABLE);
                 ADD_SAVE_DATA_GLOBAL (SP1_AVAILABLE);
                 ADD_SAVE_DATA_GLOBAL (SP2_AVAILABLE);
@@ -546,6 +521,12 @@ public:
                 ADD_SAVE_DATA_GLOBAL (PP_CURRENT_PED);
                 ADD_SAVE_DATA_GLOBAL (Crew_Unlocked_Bitset);
                 ADD_SAVE_DATA_GLOBAL (Crew_Dead_Bitset);
+            }
+        else if constexpr (std::is_same_v<T, void>)
+            {
+                ADD_SAVE_DATA_GLOBAL (MF_MISSION_STRUCT_99);
+                ADD_SAVE_DATA_GLOBAL (MF_CONTROL_FLAGIDS);
+                ADD_SAVE_DATA_GLOBAL (MF_CONTROL_INTIDS);
             }
 
 #undef ADD_SAVE_DATA_GLOBAL
@@ -562,39 +543,17 @@ public:
     }
 
     /*******************************************************/
-    void
-    Init_gMissions (scrThreadContext *ctx, scrProgram *program)
+    uint64_t &
+    GetMfInt (eMissionFlowControlIntId id)
     {
-        if (program->m_nScriptHash == "standard_global_init"_joaat
-            && ctx->m_nState == eScriptState::KILLED)
-            {
-                YscUtils utils (program);
-                uint32_t globalOffset = 0;
+        return MF_CONTROL_INTIDS->Data[id];
+    }
 
-                // Find offset to gMissions (Not original name)
-                utils.FindCodePattern (
-                    "2d 09 0b 00 ? 38 01 38 00 5e ? ? ? 34 22 ? ? ? ? ?",
-                    [&] (hook::pattern_match m) {
-                        // GLOBAL_U24 <imm24>
-                        globalOffset = *m.get<uint32_t> (10) & 0xFFFFFF;
-                    });
-
-                if (globalOffset == 0)
-                    {
-                        Rainbomizer::Logger::LogMessage (
-                            "Failed to initialise Mission Randomizer - Cannot "
-                            "find offset for gMissions");
-
-                        g_Missions.nSize = 0;
-                        g_Missions.Data  = nullptr;
-
-                        return;
-                    }
-
-                g_Missions.nSize = scrThread::GetGlobal (globalOffset);
-                g_Missions.Data  = &scrThread::GetGlobal<MissionDefinition> (
-                    globalOffset + 1);
-            }
+    /*******************************************************/
+    uint64_t &
+    GetMfFlag (eFlowFlag id)
+    {
+        return MF_CONTROL_FLAGIDS->Data[id];
     }
 
     /*******************************************************/
@@ -606,7 +565,7 @@ public:
         g_LastPassedMissionTime.Init (program);
         g_ForceWalking.Init (program);
         g_MissionFlowCommands.Init (program);
-        Init_gMissions (ctx, program);
+        g_Missions.Init (program);
 
         return true;
     }
@@ -615,13 +574,17 @@ public:
     void
     Initialise ()
     {
-        NativeCallbackMgr::InitCallback<"REGISTER_BOOL_TO_SAVE"_joaat,
-                                        RegisterFieldHook<bool>, false> ();
-        NativeCallbackMgr::InitCallback<"REGISTER_ENUM_TO_SAVE"_joaat,
-                                        RegisterFieldHook<int>, false> ();
-        NativeCallbackMgr::InitCallback<"REGISTER_INT_TO_SAVE"_joaat,
-                                        RegisterFieldHook<int>, false> ();
-        NativeCallbackMgr::InitCallback<"_START_SAVE_STRUCT"_joaat,
-                                        RegisterStructHook<void*>, false> ();
+#define HOOK(native, func)                                                     \
+    NativeCallbackMgr::InitCallback<native##_joaat, func, true> ()
+#define s_StoreSaveGlobals(...) StoreSaveGlobals<__VA_ARGS__>
+
+        HOOK ("REGISTER_BOOL_TO_SAVE", s_StoreSaveGlobals (bool));
+        HOOK ("REGISTER_ENUM_TO_SAVE", s_StoreSaveGlobals (int));
+        HOOK ("REGISTER_INT_TO_SAVE", s_StoreSaveGlobals (int));
+        HOOK ("_START_SAVE_STRUCT", s_StoreSaveGlobals (void, 2));
+        HOOK ("_START_SAVE_ARRAY", s_StoreSaveGlobals (void, 2));
+
+#undef HOOK
+#undef s_StoreSaveGlobals
     }
 };

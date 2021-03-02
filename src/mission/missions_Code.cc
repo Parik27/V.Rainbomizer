@@ -1,4 +1,5 @@
 #include "missions_Code.hh"
+#include "common/logger.hh"
 #include "missions.hh"
 #include "scrThread.hh"
 #include <cstdint>
@@ -157,4 +158,28 @@ MissionRandomizer_CodeFixes::ApplyQuickSkipsPatch (YscUtilsOps &utils)
     utils.NOP (/*Offset=*/15, /*Size=*/3);
 
     PrintStatus (utils, "Quick Skips Patch");
+}
+
+/*******************************************************/
+void
+MissionRandomizer_CodeFixes::ApplySolomonCamFix (YscUtilsOps &utils)
+{
+    /* Mr. Richards. The trigger for this mission starts with a camera pan up
+     * before the mission starts. However, it seems again that the original
+     * mission script is responsible for resetting it, so it gets stuck there
+     * for anything else */
+
+    if (!utils.IsAnyOf ("mission_triggerer_c"_joaat))
+        return;
+
+    utils.Init ("5d ? ? ? 2c ? ? ? 51 ? ? 50");
+    auto nopEnd = utils.Get<uint8_t> (11);
+
+    utils.Init ("29 00 00 48 42 6e 70 2c");
+    utils.NOP (/*Offset=*/7, /*Size=*/nopEnd - utils.Get<uint8_t> (7));
+
+    Rainbomizer::Logger::LogMessage ("solomon1 nop size: %d",
+                                     nopEnd - utils.Get<uint8_t> (7));
+
+    PrintStatus (utils, "Solomon Cam Fix");
 }

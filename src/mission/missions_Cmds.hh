@@ -29,7 +29,9 @@ class MissionRandomizer_Commands
 public:
 
     static void AdjustMissionFlowCommands ();
+
     static void OnMissionStart (uint32_t origHash, uint32_t randHash);
+    static void OnMissionEnd (bool pass, uint32_t origHash, uint32_t randHash);
 
     void CleanupMissionTriggerer ();
 

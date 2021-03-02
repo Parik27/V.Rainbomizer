@@ -1,4 +1,5 @@
 #include "missions_Order.hh"
+#include "common/logger.hh"
 #include "mission/missions_Globals.hh"
 #include "missions.hh"
 
@@ -112,16 +113,32 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
     m_Choices.DocksBlowUpBoat = engine () % 2;
     m_Choices.FinaleHeli      = engine () % 2;
     m_Choices.JewelStealth    = engine () % 2;
+
+
+    // Print information about the seed.
+#define PRINT_CHOICE(choice, yes, no)                                          \
+    Rainbomizer::Logger::LogMessage (#choice ": %s",                           \
+                                     m_Choices.choice ? yes : no)
+
+    Rainbomizer::Logger::LogMessage ("Mission Randomizer Initialised.");
+    Rainbomizer::Logger::LogMessage ("Seed: %u (%x)", seed, seed);
+    PRINT_CHOICE (AgencyFiretruck, "AGENCY_FIRETRUCK", "AGENCY_HELICOPTER");
+    PRINT_CHOICE (DocksBlowUpBoat, "DOCKS_BLOW_UP_BOAT", "DOCKS_DEEP_SEA");
+    PRINT_CHOICE (FinaleHeli, "FINALE_HELI", "FINALE_TRAFFCONT");
+    PRINT_CHOICE (JewelStealth, "JEWEL_STEALTH", "JEWEL_HIGH_IMPACT");
+
+#undef PRINT_CHOICE
 }
 
 void
 MissionRandomizer_OrderManager::Update_gMissions ()
 {
+    auto g_Missions = MR::sm_Globals.g_Missions.Get ();
     if (m_MissionInfos.empty ())
         {
-            for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
+            for (unsigned int i = 0; i < g_Missions->Size; i++)
                 {
-                    auto &data = MR::sm_Globals.g_Missions.Data[i];
+                    auto &data = g_Missions->Data[i];
                     if (!MR::sm_Data.IsValidMission (data.nThreadHash))
                         continue;
 
@@ -131,9 +148,9 @@ MissionRandomizer_OrderManager::Update_gMissions ()
                 }
         }
 
-    for (unsigned int i = 0; i < MR::sm_Globals.g_Missions.nSize; i++)
+    for (unsigned int i = 0; i < g_Missions->Size; i++)
         {
-            auto &origMission = MR::sm_Globals.g_Missions.Data[i];
+            auto &origMission = g_Missions->Data[i];
 
             if (!m_MissionsMap.count (origMission.nThreadHash))
                 continue;
@@ -159,11 +176,11 @@ MissionRandomizer_OrderManager::RestoreOriginalMissionInfo (uint32_t missionId)
         return;
 
     m_StoredRandomInfo                        = *info->pDef;
-    MR::sm_Globals.g_Missions.Data[missionId] = info->DefCopy;
+    MR::sm_Globals.g_Missions->Data[missionId] = info->DefCopy;
 }
 
 void
 MissionRandomizer_OrderManager::ReapplyRandomMissionInfo (uint32_t missionId)
 {
-    MR::sm_Globals.g_Missions.Data[missionId] = m_StoredRandomInfo;
+    MR::sm_Globals.g_Missions->Data[missionId] = m_StoredRandomInfo;
 }
