@@ -14,7 +14,8 @@ class ColoursRandomizer
 {
     struct VehicleColourData
     {
-        CARGB Colours[4];
+        CARGB OriginalColours[4];
+        CARGB RandomColours[4];
     };
 
     inline static std::map<CVehicle *, VehicleColourData> mColourData;
@@ -46,7 +47,7 @@ class ColoursRandomizer
                 CARGB *colours = shader->GetColours ();
 
                 for (int i = 0; i < 4; i++)
-                    colours[i] = data.Colours[i];
+                    colours[i] = data.OriginalColours[i];
             }
         catch (...)
             {
@@ -62,7 +63,7 @@ class ColoursRandomizer
 
         bool changed = false;
         for (int i = 0; i < 4; i++)
-            if (std::exchange (data.Colours[i], colours[i]) != colours[i])
+            if (std::exchange (data.OriginalColours[i], colours[i]) != colours[i])
                 changed = true;
 
         return changed;
@@ -80,15 +81,14 @@ class ColoursRandomizer
 
         if (StoreVehicleColourData (shader, veh))
             {
+                using Rainbomizer::HSL;
                 for (int i = 0; i < 4; i++)
-                    {
-                        using Rainbomizer::HSL;
-
-                        colours[i]
-                            = HSL (RandomFloat (360), 1.0, RandomFloat (1.0))
-                                  .ToARGB ();
-                    }
+                    mColourData[veh].RandomColours[i]
+                        = HSL (RandomFloat(360.0f), 1.0f, RandomFloat(1.0f)).ToARGB ();
             }
+
+        for (int i = 0; i < 4; i++)
+            colours[i] = mColourData[veh].RandomColours[i];
 
         return ret;
     }
