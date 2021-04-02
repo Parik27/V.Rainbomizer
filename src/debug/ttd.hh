@@ -389,7 +389,7 @@ public:
     bool
     ShouldWriteOpcode (YscOpCode op)
     {
-#define ENABLE_TTD_DEBUG_WRITE_OPCODE
+        //#define ENABLE_TTD_DEBUG_WRITE_OPCODE
 #ifdef ENABLE_TTD_DEBUG_WRITE_OPCODE
         Rainbomizer::Logger::LogMessage ("Attempting to write opcode: %d", op);
 #endif

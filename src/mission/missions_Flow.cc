@@ -244,16 +244,9 @@ MissionRandomizer_Flow::OnMissionStart ()
         return false;
 
     // Set player if mission was replayed
-    if (bMissionRepeating)
-        {
-            auto switcherContext = GenerateSwitcherContext (true);
-
-            switcherContext.noSetPos = true;
-            if (nPlayerIndexOnMissionFail != ePlayerIndex::PLAYER_UNKNOWN)
-                switcherContext.destPlayer = nPlayerIndexOnMissionFail;
-
-            MR::sm_PlayerSwitcher.BeginSwitch (switcherContext);
-        }
+    if (bMissionRepeating
+        && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
+        MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
 
     if ((OriginalMission->nHash == "prologue1"_joaat
          || OriginalMission->nHash == "armenian1"_joaat)
@@ -269,7 +262,7 @@ MissionRandomizer_Flow::OnMissionStart ()
                                 RandomizedMission->nHash);
 
     bMissionStartupFinished = true;
-    return true;
+    return false;
 }
 
 /*******************************************************/

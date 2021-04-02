@@ -36,8 +36,8 @@ public:
     static bool
     Process (scrProgram *program, scrThreadContext *ctx)
     {
-        return ProcessComponents<sm_Globals, sm_Order, sm_PlayerSwitcher,
-                                 sm_Flow, sm_Cmds> (program, ctx);
+        return ProcessComponents<sm_Globals, sm_Order, sm_Flow,
+                                 sm_PlayerSwitcher, sm_Cmds> (program, ctx);
     }
 
     static auto &

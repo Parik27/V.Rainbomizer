@@ -219,12 +219,12 @@ SIMPLE_OPS = {
     84: ["<6xI", "$PTR", "<Q"],                    # GLOBAL_U16_STORE
     85: [""],                                      # J
     86: ["<I4x"],                                  # JZ
-    87: ["<II4x4x"],                               # IEQ_JZ
-    88: ["<II4x4x"],                               # INE_JZ
-    89: ["<II4x4x"],                               # IGT_JZ
-    90: ["<II4x4x"],                               # IGE_JZ
-    91: ["<II4x4x"],                               # ILT_JZ
-    92: ["<II4x4x"],                               # ILE_JZ
+    87: ["<I4xI4x"],                               # IEQ_JZ
+    88: ["<I4xI4x"],                               # INE_JZ
+    89: ["<I4xI4x"],                               # IGT_JZ
+    90: ["<I4xI4x"],                               # IGE_JZ
+    91: ["<I4xI4x"],                               # ILT_JZ
+    92: ["<I4xI4x"],                               # ILE_JZ
     93: [""],                                      # CALL
     94: ["<3x", "$PTR", "<Q"],                     # GLOBAL_U24
     95: ["<3x", "$PTR", "<Q"],                     # GLOBAL_U24_LOAD
@@ -282,7 +282,6 @@ class Opcode:
                 numItems, = self.ttd._read ("<I4x")
                 items = []
 
-                print(numItems)
                 for i in range(numItems):
                     ptr, val = self.ttd._read("<QQ")
                     items.append((self.ttd.resolve_ptr(ptr), val))
@@ -292,7 +291,7 @@ class Opcode:
                 num,  = self.ttd._read ("<b")
                 self.data = self.data + (list(
                     '&' + self.ttd.resolve_ptr(i) \
-                    for i in self.ttd._read("<{}Q".format(num))),)
+                    for i in self.ttd._read(f"<{num}Q")),)
 
             elif desc == "$STR":
                 if str_buffer_size == 0:
@@ -311,9 +310,8 @@ class Opcode:
 
     #######################################################
     def __str__(self):
-        return "{:08x}: {} {}".format(self.ip,
-                                      OP_NAMES[self.opcode],
-                                      ", ".join(str(i) for i in self.data))
+        return (f"{self.ip:08x}: {OP_NAMES[self.opcode]} "
+                f"{', '.join(str(i) for i in self.data)}")
         pass
 
 class TTDFile:
@@ -332,13 +330,13 @@ class TTDFile:
     #######################################################
     def resolve_ptr (self, ptr):
         if ptr >= self.stack_ptr and ptr <= self.stack_ptr + len(self.stack):
-            return "s_{}".format((ptr - self.stack_ptr) // 8)
+            return f"s_{(ptr - self.stack_ptr) // 8}"
         for global_ptr in self.global_ptrs:
             if global_ptr == 0:
                 continue
             
             if ptr >= global_ptr and ptr <= global_ptr + 0x40000:
-                return "G_{}".format((ptr - global_ptr))
+                return f"G_{ptr - global_ptr}"
         return str(ptr)
     
     #######################################################
@@ -368,7 +366,7 @@ class TTDFile:
         self.script_name = self.script_name.split(b"\x00")[0].decode("ascii")
         
         numPages, = self._read ("<I")
-        self.code_blocks = list(self._read ("<{}Q".format(numPages)))
+        self.code_blocks = list(self._read (f"<{numPages}Q"))
 
     #######################################################
     def _read_globals (self):
