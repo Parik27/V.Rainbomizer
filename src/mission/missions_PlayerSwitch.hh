@@ -141,11 +141,13 @@ private:
         if (SetCurrentPlayer (m_Context.destPlayer))
             {
                 if (!m_Context.noSetPos)
-                    "SET_PED_COORDS_KEEP_VEHICLE"_n("PLAYER_PED_ID"_n(),
-                                                    m_Context.destPos.x,
-                                                    m_Context.destPos.y,
-                                                    m_Context.destPos.z);
-                YscFunctions::SetPlayerFreezeState (true);
+                    {
+                        "SET_PED_COORDS_KEEP_VEHICLE"_n("PLAYER_PED_ID"_n(),
+                                                        m_Context.destPos.x,
+                                                        m_Context.destPos.y,
+                                                        m_Context.destPos.z);
+                        YscFunctions::SetPlayerFreezeState (true);
+                    }
                 m_bDestPlayerSet = true;
                 return true;
             }
@@ -194,7 +196,8 @@ private:
     bool
     DoTransitionCleanup ()
     {
-        YscFunctions::SetPlayerFreezeState (false);
+        if (!m_Context.noSetPos)
+            YscFunctions::SetPlayerFreezeState (false);
         return true;
     }
 

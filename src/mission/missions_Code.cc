@@ -115,7 +115,8 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
                         "jewelry_prep2a"_joaat, "family2"_joaat,
                         "fbi4_intro"_joaat, "fbi5a"_joaat, "fbi4"_joaat,
                         "lester1"_joaat, "agency_prep1"_joaat, "family6"_joaat,
-                        "docks_prep1"_joaat))
+                        "docks_prep1"_joaat, "rural_bank_prep1"_joaat,
+                        "docks_prep2b"_joaat))
         return;
 
     utils.Init ("2d 01 03 00 ? 38 ? 06 2a 56");

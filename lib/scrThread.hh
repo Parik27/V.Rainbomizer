@@ -13,7 +13,7 @@ enum class eScriptState : uint32_t
     STATE_4
 };
 
-enum class YscOpCode : uint8_t
+enum YscOpCode : uint8_t
 {
     NOP,
     IADD,
@@ -296,7 +296,8 @@ public:
     };
 
     static scrThread **      sm_pActiveThread;
-    static inline uint64_t **sm_pGlobals; // sm_Globals[64]
+    static inline uint64_t **sm_Globals; // sm_Globals[64]
+    static inline uint32_t *sm_GlobalSizes; // sm_GlobalSizes[64]
 
     inline bool
     IsYscScript ()
@@ -310,7 +311,7 @@ public:
     static inline uint64_t *&
     GetGlobals ()
     {
-        return *sm_pGlobals;
+        return *sm_Globals;
     }
 
     template <typename T = uint64_t>

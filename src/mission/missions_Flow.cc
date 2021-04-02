@@ -131,11 +131,12 @@ MissionRandomizer_Flow::PreMissionStart ()
     LogPlayerPos(true);
     MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext(true));
 
-    nLastPassedMissionTime  = MR::sm_Globals.g_LastPassedMissionTime;
-    bMissionRepeating       = false;
-    bInitialCutsceneRemoved = false;
-    bMissionStartupFinished = false;
-    nMissionPtrsSema        = 2;
+    nLastPassedMissionTime    = MR::sm_Globals.g_LastPassedMissionTime;
+    bMissionRepeating         = false;
+    nPlayerIndexOnMissionFail = ePlayerIndex::PLAYER_UNKNOWN;
+    bInitialCutsceneRemoved   = false;
+    bMissionStartupFinished   = false;
+    nMissionPtrsSema          = 2;
 
     InitStatWatcherForRandomizedMission ();
     SetHeistFlowControlVariables ();
@@ -243,10 +244,15 @@ MissionRandomizer_Flow::OnMissionStart ()
         return false;
 
     // Set player if mission was replayed
-    if (bMissionRepeating
-        && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
+    if (bMissionRepeating)
         {
-            MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
+            auto switcherContext = GenerateSwitcherContext (true);
+
+            switcherContext.noSetPos = true;
+            if (nPlayerIndexOnMissionFail != ePlayerIndex::PLAYER_UNKNOWN)
+                switcherContext.destPlayer = nPlayerIndexOnMissionFail;
+
+            MR::sm_PlayerSwitcher.BeginSwitch (switcherContext);
         }
 
     if ((OriginalMission->nHash == "prologue1"_joaat
@@ -314,6 +320,7 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
                               RandomizedMission->nHash);
 
     bMissionRepeating         = true;
+    nPlayerIndexOnMissionFail = MR::sm_Globals.GetCurrentPlayer ();
     bMissionStartupFinished   = false;
     bTriggererCleanupFinished = false;
     return true;

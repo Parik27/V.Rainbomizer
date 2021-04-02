@@ -77,7 +77,7 @@ public:
         (..., thread.Push64 (args));
         thread.Push64 (0); // Returning to 0 terminates the script.
 
-        thread.Run (stack.get (), scrThread::sm_pGlobals, m_pProgram,
+        thread.Run (stack.get (), scrThread::sm_Globals, m_pProgram,
                     &thread.m_Context);
 
         scrThread::GetActiveThread () = prevActiveThread;
@@ -250,7 +250,7 @@ public:
 
         T* Get ()
         {
-            if (!nGlobalIdx || !scrThread::sm_pGlobals)
+            if (!nGlobalIdx || !scrThread::sm_Globals)
                 return nullptr;
 
             return &scrThread::GetGlobal<T> (nGlobalIdx);
@@ -263,7 +263,7 @@ public:
         
         operator T ()
         {
-            if (!nGlobalIdx || !scrThread::sm_pGlobals)
+            if (!nGlobalIdx || !scrThread::sm_Globals)
                 return defVal;
 
             return scrThread::GetGlobal<T> (nGlobalIdx);
@@ -272,7 +272,7 @@ public:
         void
         Set (T value)
         {
-            if (!nGlobalIdx || !scrThread::sm_pGlobals)
+            if (!nGlobalIdx || !scrThread::sm_Globals)
                 return;
 
             scrThread::GetGlobal<T> (nGlobalIdx) = value;

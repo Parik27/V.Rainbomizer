@@ -22,6 +22,8 @@ class MissionRandomizer_Flow
     const MissionInfo* RandomizedMission = nullptr;
 
     ePlayerIndex nPlayerIndexBeforeMission = ePlayerIndex::PLAYER_UNKNOWN;
+    ePlayerIndex nPlayerIndexOnMissionFail = ePlayerIndex::PLAYER_UNKNOWN;
+    
     uint32_t     nLastPassedMissionTime    = 0;
     uint32_t     nPreviousCurrentMission   = -1u;
 

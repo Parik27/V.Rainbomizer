@@ -80,10 +80,9 @@ class TextCaseRandomizer
                                 if ((c >= 'a' && c <= 'z')
                                     || (c >= 'A' && c <= 'Z'))
                                     {
-                                        bool upperCase = RandomInt (1);
-                                        c              = static_cast<char> (
-                                            (upperCase) ? std::toupper (c)
-                                                                     : std::tolower (c));
+                                        c = static_cast<char> (
+                                            (RandomInt (1)) ? std::toupper (c)
+                                                            : std::tolower (c));
                                     }
                             }
                     }

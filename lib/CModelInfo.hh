@@ -28,14 +28,19 @@ class CBaseModelInfo
 {
 public:
     void *        vft;
-    uint8_t       __pad08[16];
+    uint8_t       field_0x8[16];
     uint32_t      m_nHash;
-    uint8_t       __pad1C[20];
+    uint8_t       field_0x1c[20];
     Vector4       m_vecMin;
     Vector4       m_vecMax;
-    uint8_t       __padCC[77];
+    uint32_t      m_nFlags;
+    char          field_0x54[12];
+    uint8_t       m_nDrawableType;
+    uint8_t       field_0x61;
+    uint16_t      m_nDrawableIndex;
+    uint8_t       field_0x64[57];
     unsigned char m_nType;
-    uint8_t       __pad9E[18];
+    uint8_t       field_0x9E[18];
 
     eModelInfoType
     GetType ()

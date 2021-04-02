@@ -1,10 +1,14 @@
 #include "scripts.hh"
 #include <CTheScripts.hh>
+#include "mission/missions.hh"
+#include "scrThread.hh"
 #include "server.hh"
 #include "Utils.hh"
+#include <cstdint>
 #include <fmt/core.h>
 #include "mission/missions_YscUtils.hh"
 #include "common/logger.hh"
+#include "ttd.hh"
 
 /*******************************************************/
 void
@@ -33,6 +37,7 @@ ScriptDebugInterface::SendThreadsList (uWS::HttpResponse<false> *res,
                                        uWS::HttpRequest *        req)
 {
     res->writeHeader ("Content-Type", "application/json");
+    res->writeHeader ("Access-Control-Allow-Origin", "*");
     nlohmann::json threads = {};
 
     if (CTheScripts::aThreads)
@@ -421,6 +426,32 @@ ScriptDebugInterface::HandleCaptureRequests ()
         }
 }
 
+class ScriptTempContext
+{
+public:
+    uint64_t* stack;
+    uint64_t* globals;
+    scrProgram* program;
+    scrThreadContext* context;
+    uint64_t Ip;
+
+    template <typename T = int>
+    inline T &
+    Pop ()
+    {
+        return *reinterpret_cast<T *> (stack--);
+    }
+
+    template <typename T = int>
+    inline void
+    Push (T value)
+    {
+        return *reinterpret_cast<T *> (stack++) = value;
+    }
+};
+
+static std::vector<uint8_t> mOpcodes;
+
 /*******************************************************/
 template <auto &O>
 eScriptState
@@ -430,6 +461,7 @@ ScriptDebugInterface::RunThreadHook (uint64_t *stack, uint64_t *globals,
     eScriptState state = eScriptState::WAITING;
 
     HandleCaptureRequests ();
+    TimeTravelDebugInterface::Process (stack, globals, program, ctx);
 
     if ((m_CapturedThread = LookupMap (m_Threads, ctx->m_nThreadId)))
         {
@@ -470,6 +502,11 @@ ScriptDebugInterface::HitBreakPoint (uint32_t, scrThread *thread)
 uint32_t
 ScriptDebugInterface::PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
 {
+    if (!m_bHookDisabled)
+        {
+            TimeTravelDebugInterface::ProcessOpcode (ip, SP, FSP);
+        }
+
     if (m_CapturedThread && !m_bHookDisabled)
         {
             auto &context      = m_CapturedThread->m_Thread->m_Context;
@@ -486,20 +523,26 @@ ScriptDebugInterface::PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
 void
 ScriptDebugInterface::InitialisePerOpcodeHook ()
 {
-    const int CALL_OFFSET       = 15;
-    const int JMP_OFFSET        = 24;
+    const int CALL_OFFSET       = 23;
+    const int JMP_OFFSET        = 36;
     const int ORIG_INSTRUCTIONS = 6;
 
     unsigned char Instructions[] = {
         0x48, 0xff, 0xc7,             // INC     RDI
         0x0f, 0xb6, 0x07,             // MOVZX   EAX,byte ptr [RDI]
+        0x41, 0x50,                   // PUSH    R8
+        0x41, 0x51,                   // PUSH    R9
+        0x41, 0x52,                   // PUSH    R10
+        0x41, 0x53,                   // PUSH    R11
         0x48, 0x89, 0xf9,             // MOV     RCX,RDI
         0x48, 0x89, 0xda,             // MOV     RDX,RBX
         0x4d, 0x89, 0xd8,             // MOV     R8, R11
         0xe8, 0x00, 0x00, 0x00, 0x00, // CALL    0x0
-        0x4c, 0x8b, 0x45, 0x6f,       // MOV     R8, qword ptr [RBP + 0x10]
-        0x4c, 0x8b, 0x4d, 0x67, 0x4c, 0x8b, 0x5d,
-        0x7f, 0xe9, 0x00, 0x00, 0x00, 0x00 // JMP     0x0
+        0x41, 0x5b,                   // POP     R11
+        0x41, 0x5a,                   // POP     R10
+        0x41, 0x59,                   // POP     R9
+        0x41, 0x58,                   // POP     R8
+        0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
     };
 
     void *addr       = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 7e 0f 87");
@@ -514,8 +557,6 @@ ScriptDebugInterface::InitialisePerOpcodeHook ()
     injector::MakeJMP (&trampoline[0][JMP_OFFSET], (uint8_t *) addr + 5);
 
     RegisterHook (&trampoline[0][CALL_OFFSET], PerOpcodeHook);
-
-    printf ("Address: %p\nTrampoline: %p", addr, trampoline);
 }
 
 /*******************************************************/
