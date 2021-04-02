@@ -256,4 +256,16 @@ struct cutfCutsceneFile2
     }
 };
 
+// This class is way too big for me to export a proper structure for :P
+class CutSceneManager
+{
+public:
+    char     field_0x0[3344];
+    uint32_t m_nCurrentCutsceneHash;
+    char     field_d1f[96];
+    uint32_t m_nPlayerObjId;
+    char     field_d78[36];
+    bool     bHasPlayerObjectId;
+};
+
 #pragma pack(pop)

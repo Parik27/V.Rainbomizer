@@ -77,4 +77,8 @@ CPedInventory::InitialisePatterns ()
     ReadCall (hook::get_pattern (
                   "? 83 ec 20 ? 8b f8 8b ea e8 ? ? ? ? 33 db ? 85 c0", 9),
               fwScriptGuidPool__GetPed);
+
+    //?? 8b 05 ?? ?? ?? ?? ?? 8b d9 ?? 8b ?? ?? ?? 8b 42 20 ?? 85 c0
+    CPedFactory::sm_Instance = GetRelativeReference<CPedFactory *> (
+        "? 8b 05 ? ? ? ? ? 8b d9 ? 8b ? ? ? 8b 42 20 ? 85 c0", 3, 7);
 }

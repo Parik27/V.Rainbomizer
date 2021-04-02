@@ -35,8 +35,8 @@ typedef enum eCombatBehaviourFlag
     BF_36d422,
     BF_BlindFireWhenInCover,
     BF_Aggressive,
-    BF_8e5666e1,
-    BF_f933ae10,
+    BF_CanInvestigate,
+    BF_HasRadio,
     BF_6bde28d1,
     BF_AlwaysFlee,
     BF_7852797d,
@@ -46,21 +46,21 @@ typedef enum eCombatBehaviourFlag
     BF_4f8caec8,
     BF_cd7168b8,
     BF_UseProximityFiringRate,
-    BF_48f914f8,
-    BF_2ea543d0,
-    BF_581e6ba,
+    BF_DisableSecondaryTarget,
+    BF_DisableEntryReactions,
+    BF_PerfectAccuracy,
     BF_CanUseFrustratedAdvance,
     BF_3d131ac1,
     BF_3ad95f27,
     BF_MaintainMinDistanceToTarget,
     BF_ead68ad2,
-    BF_a206c2e0,
+    BF_UseProximityAccuracy,
     BF_CanUsePeekingVariations,
-    BF_a5715184,
+    BF_DisablePinnedDown,
     BF_d5265533,
     BF_2b84c2bf,
-    BF_8887cdd4,
-    BF_1d4581ad,
+    BF_DisableBulletReactions,
+    BF_CanBust,
     BF_aa525726,
     BF_CanCommandeerVehicles,
     BF_CanFlank,
@@ -73,8 +73,8 @@ typedef enum eCombatBehaviourFlag
     BF_UseEnemyAccuracyScaling,
     BF_CanCharge,
     BF_da8c2bd3,
-    BF_6562f017,
-    BF_a2c3d53b,
+    BF_UseVehicleAttack,
+    BF_CanThrowSignalsAttacking,
     BF_f49578b8,
     BF_CanSeeUnderwaterPeds,
     BF_f619486b,
@@ -153,4 +153,18 @@ public:
 
     CPedInventory *   GetInventory ();
     CPedIntelligence *GetIntelligence ();
+};
+
+class CPedFactory
+{
+public:
+    void* vft;
+    CPed* pPlayer;
+
+    inline static CPedFactory** sm_Instance = nullptr;
+
+    static CPedFactory* Get ()
+    {
+        return *sm_Instance;
+    }
 };
