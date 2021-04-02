@@ -1,9 +1,11 @@
 #include <cstdio>
 #include <Utils.hh>
 #include <CutSceneManager.hh>
+#include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 #include "common/common.hh"
 #include "common/config.hh"
+#include "injector/injector.hpp"
 
 class parInstanceVisitor;
 
@@ -108,8 +110,15 @@ public:
 
         InitialiseAllComponents ();
 
-        if (InitialiseModelData ())
-            RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
-                          VisitTopLevelStructure_37027e, RandomizeCutScene);
+        if (!InitialiseModelData ())
+            return;
+        
+        RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
+                      VisitTopLevelStructure_37027e, RandomizeCutScene);
+
+        // Disables the check for StreamingName of cutscene registered entities
+        // pCVar5->m_nStreamingName == *param_3
+        injector::WriteMemory<uint8_t> (
+            hook::get_pattern ("41 8b 06 39 83 ac 00 00 00 74", 9), 0xeb);
     }
 } _cuts;

@@ -23,7 +23,6 @@ class SfxRandomizer
             56,  // Bicycle
             57,  // Aeroplane
             87,  // Explosion
-            101, // Alarm
         };
 
         return DoesElementExist (validTypes, type);
