@@ -25,7 +25,9 @@ class MissionRandomizer_Commands
 
     bool ProcessCleanupMissionTrigger ();
     bool ProcessShopUnlocks ();
-    
+
+    static void CreateStingerRamp ();
+
 public:
 
     static void AdjustMissionFlowCommands ();

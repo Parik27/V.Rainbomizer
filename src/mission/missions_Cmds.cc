@@ -1,5 +1,6 @@
 #include "missions_Cmds.hh"
 
+#include "CStreaming.hh"
 #include "common/logger.hh"
 #include "mission/missions_Funcs.hh"
 #include "mission/missions_Globals.hh"
@@ -208,7 +209,7 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             break;
 
         case "armenian1"_joaat:
-            MR::sm_Globals.GetMfFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN) = true;            
+            MR::sm_Globals.GetMfFlag (FLAG_MOVIE_STUDIO_OPEN_FRAN) = true;
             [[fallthrough]];
         case "armenian2"_joaat: SetBuildingState (179, 0); [[fallthrough]];
         case "armenian3"_joaat:
@@ -274,12 +275,12 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
 
         case "fbi4_prep4"_joaat:
             YF::SetShopState (21, true, 0);
-            SetMoney(std::max(150u, GetMoney()));
+            SetMoney (std::max (150u, GetMoney ()));
             break;
 
         case "fbi4_prep5"_joaat:
             YF::SetShopState (28, true, 0);
-            SetMoney(std::max(315u, GetMoney()));
+            SetMoney (std::max (315u, GetMoney ()));
             break;
 
         case "finale_heist_prepc"_joaat:
@@ -287,9 +288,12 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             break;
 
         case "family3"_joaat: SetBuildingState (2, 0); break;
+
+        case "finale_heist_prepa"_joaat: CreateStingerRamp (); break;
         }
 }
 
+/*******************************************************/
 void
 MissionRandomizer_Commands::CleanupMissionTriggerer ()
 {
@@ -346,4 +350,19 @@ MissionRandomizer_Commands::OnMissionEnd (bool pass, uint32_t origHash,
     MR::sm_Globals.GetMfFlag (FLAG_H_AGENCY_PRIME_BOARD) = false;
     MR::sm_Globals.GetMfFlag (FLAG_H_DOCKS_PRIME_BOARD)  = false;
     MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD) = false;
+}
+
+/*******************************************************/
+void
+MissionRandomizer_Commands::CreateStingerRamp ()
+{
+    const uint32_t FRY_MODEL = "stt_prop_ramp_jump_xs"_joaat;
+
+    CStreaming::RequestModel (CStreaming::GetModelIndex (FRY_MODEL), 0);
+    CStreaming::LoadAllObjects (false);
+
+    uint32_t fryObj
+        = "CREATE_OBJECT_NO_OFFSET"_n(FRY_MODEL, 400.1f, -1611.5f, 28.2919f,
+                                      false, false, false);
+    "SET_ENTITY_ROTATION"_n(fryObj, 0.0f, 0.0f, 49.1f, 1, true);
 }
