@@ -164,11 +164,6 @@ public:
         RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
                       VisitTopLevelStructure_37027e, RandomizeCutScene);
 
-        // Disables the check for StreamingName of cutscene registered entities
-        // pCVar5->m_nStreamingName == *param_3
-        injector::WriteMemory<uint8_t> (
-            hook::get_pattern ("41 8b 06 39 83 ac 00 00 00 74", 9), 0xeb);
-
         //?? 8b d9 40 38 3d ?? ?? ?? ?? 75 ?? e8 ?? ?? ?? ??
         RegisterHook ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
                       CorrectPlayerObjIdx);

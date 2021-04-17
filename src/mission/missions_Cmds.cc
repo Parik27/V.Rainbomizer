@@ -6,6 +6,7 @@
 #include "mission/missions_Globals.hh"
 #include "missions.hh"
 #include "rage.hh"
+#include <cstdint>
 
 using MR = MissionRandomizer_Components;
 
@@ -358,11 +359,19 @@ MissionRandomizer_Commands::CreateStingerRamp ()
 {
     const uint32_t FRY_MODEL = "stt_prop_ramp_jump_xs"_joaat;
 
-    CStreaming::RequestModel (CStreaming::GetModelIndex (FRY_MODEL), 0);
-    CStreaming::LoadAllObjects (false);
+    static uint32_t fryObj      = -1;
+    uint32_t        fryModelIdx = CStreaming::GetModelIndex (FRY_MODEL);
 
-    uint32_t fryObj
-        = "CREATE_OBJECT_NO_OFFSET"_n(FRY_MODEL, 400.1f, -1611.5f, 28.2919f,
-                                      false, false, false);
+    if ("DOES_ENTITY_EXIST"_n(fryObj))
+        return;
+
+    if (!CStreaming::HasModelLoaded (fryModelIdx))
+        {
+            CStreaming::RequestModel (fryModelIdx, 0);
+            CStreaming::LoadAllObjects (false);
+        }
+
+    fryObj = "CREATE_OBJECT_NO_OFFSET"_n(FRY_MODEL, 400.1f, -1611.5f, 28.2919f,
+                                         false, false, false);
     "SET_ENTITY_ROTATION"_n(fryObj, 0.0f, 0.0f, 49.1f, 1, true);
 }
