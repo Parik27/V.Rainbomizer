@@ -7,12 +7,19 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
+#include <CEntity.hh>
 
 class CTheScripts
 {
 public:
     static atArray<scrThread *> *aThreads;
     static void                  InitialisePatterns ();
+};
+
+class fwScriptGuid
+{
+public:
+    static CEntity *GetBaseFromGuid (uint32_t guid);
 };
 
 /* Utility Classes */

@@ -6,6 +6,7 @@
 #include "CutSceneManager.hh"
 
 #include <cstdint>
+#include <map>
 #include <mutex>
 #include <set>
 #include <stdio.h>
@@ -15,12 +16,18 @@
 #include "common/common.hh"
 #include "common/config.hh"
 #include "common/logger.hh"
+#include "injector/hooking.hpp"
+#include "phBound.hh"
 #include "rage.hh"
+#include "fwExtensibleBase.hh"
+#include "scrThread.hh"
 
 class CPedFactory;
 
 CPed *(*CPedFactory_CreateNonCopPed_5c6) (CPedFactory *, uint8_t *, uint32_t,
                                           uint64_t, uint8_t);
+
+using namespace NativeLiterals;
 
 class PedRandomizer
 {
@@ -28,13 +35,18 @@ class PedRandomizer
     inline static std::vector<uint32_t> m_NsfwModels;
     inline static bool                  bSkipNextPedRandomization = false;
 
+    inline static std::map<CPed *, std::pair<uint32_t, uint32_t>>
+        sm_PedModelFixupMap;
+
     static auto &
     Config ()
     {
         static struct Config
         {
-            uint32_t ForcedPedHash = -1;
-            bool EnableNSFWModels = false;
+            std::string ForcedPed        = "";
+            uint32_t    ForcedPedHash    = -1;
+            bool        EnableNSFWModels = false;
+            bool        RandomizePlayer  = true;
         } m_Config;
 
         return m_Config;
@@ -87,6 +99,9 @@ class PedRandomizer
             SWAP_FIELD (GetInitInfo ().m_nRelationshipGroup);
             SWAP_FIELD (GetInitInfo ().m_nDecisionMakerName);
             SWAP_FIELD (GetInitInfo ().m_nNavCapabilitiesName);
+            SWAP_FIELD (GetInitInfo ().m_nMotionTaskDataSetName);
+            SWAP_FIELD (GetInitInfo ().m_nDefaultTaskDataSetName);
+            SWAP_FIELD (m_nMovementClipSet);
 
 #undef SWAP_FIELD
         }
@@ -165,19 +180,20 @@ class PedRandomizer
     static uint32_t
     GetRandomPedModel (uint32_t model)
     {
-        if (IsPlayerModel (CStreaming::GetModelByIndex (model)))
+        if (!Config ().RandomizePlayer
+            && IsPlayerModel (CStreaming::GetModelByIndex (model)))
             return model;
 
         // Forced Ped
-        if (Config ().ForcedPedHash != -1u)
+        if (!Config ().ForcedPed.empty ())
             {
-                uint32_t id
-                    = CStreaming::GetModelIndex (Config ().ForcedPedHash);
+                uint32_t id = CStreaming::GetModelIndex (
+                    rage::atStringHash (Config ().ForcedPed));
 
                 if (CStreaming::HasModelLoaded (id))
                     return id;
 
-                CStreaming::RequestModel (id, 7);
+                CStreaming::RequestModel (id, 0);
                 return model;
             }
 
@@ -213,9 +229,12 @@ class PedRandomizer
         ProcessPedStreaming ();
 
         uint32_t           newModel = GetRandomPedModel (model);
-        const ModelSwapper swap (model, newModel);
+        const ModelSwapper swap (newModel, model);
 
-        return CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
+        CPed *ped = CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
+        sm_PedModelFixupMap[ped] = std::make_pair (newModel, model);
+
+        return ped;
     }
 
     /*******************************************************/
@@ -228,18 +247,63 @@ class PedRandomizer
         CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
     }
 
+    /*******************************************************/
+    static uint32_t
+    FixupScriptEntityModel (uint32_t guid)
+    {
+        CPed *ped = static_cast<CPed *> (fwScriptGuid::GetBaseFromGuid (guid));
+
+        if (!ped || !ped->m_pModelInfo)
+            return 0;
+
+        auto *model = ped->m_pModelInfo;
+        if (auto *data = LookupMap (sm_PedModelFixupMap, ped))
+            {
+                auto *storedModel = CStreaming::GetModelByIndex (data->first);
+                auto *intendedModel
+                    = CStreaming::GetModelByIndex (data->second);
+
+                if (storedModel->m_nHash == model->m_nHash)
+                    model = intendedModel;
+            }
+
+        return model->m_nHash;
+    }
+
+    /*******************************************************/
+    static void
+    FixupScriptEntityModel (scrThread::Info *info)
+    {
+        info->GetReturn () = FixupScriptEntityModel (info->GetArg (0));
+    }
+
+    /*******************************************************/
+    template <auto &phBoundComposite_CalculateExtents>
+    static void
+    AllocateTypeAndIncludeFlagsForFishBounds (phBoundComposite *bound, bool p1,
+                                              bool p2)
+    {
+        if (!bound->OwnedTypeAndIncludeFlags)
+            {
+                bound->AllocateTypeAndIncludeFlags ();
+                bound->TypeAndIncludeFlags[1] &= 3221225471;
+            }
+
+        phBoundComposite_CalculateExtents (bound, p1, p2);
+    }
+
 public:
     /*******************************************************/
     PedRandomizer ()
     {
-
-        static std::string ForcedPed;
-        if (!ConfigManager::ReadConfig ("PedRandomizer",
-                                        std::pair ("ForcedPed", &ForcedPed)))
+        std::string ForcedPed;
+        if (!ConfigManager::ReadConfig (
+                "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
+                std::pair ("RandomizePlayer", &Config ().RandomizePlayer)))
             return;
 
-        if (ForcedPed.size ())
-            Config ().ForcedPedHash = rage::atStringHash (ForcedPed);
+        if (Config ().ForcedPed.size ())
+            Config ().ForcedPedHash = rage::atStringHash (Config ().ForcedPed);
 
         InitialiseAllComponents ();
 
@@ -250,9 +314,11 @@ public:
 
         // We don't want to randomize cutscene peds since those are managed by
         // the cutscene randomizer.
+#if 0
         REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
-                      SkipRandomizingCutscenePeds, void,
-                      class CCutsceneAnimatedActorEntity *, uint32_t, bool);
+                       SkipRandomizingCutscenePeds, void,
+                       class CCutsceneAnimatedActorEntity *, uint32_t, bool);
+#endif
 
         // This patch fixes CTaskExitVehicle from crashing the game if the ped
         // exiting the vehicle doesn't have a helmet.
@@ -261,14 +327,14 @@ public:
                                4),
             2);
 
-        // This patch changes the value of TB_DEAD from 0 to 1 to prevent
-        // aquatic animals from dying. This effectively changes all TB_DEAD
-        // entries to TB_COLD.
+        // Fix for scripts where a certain hash is required for a certain ped.
+        "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
 
-#if (false)
-        *hook::get_pattern<uint32_t> (
-            "6d 99 17 b8 00 00 00 00 7f 9a 20 e4 01 00 00 00", 4)
-            = 1;
-#endif
+        // This hook fixes a crash in CTaskUseScenario, where the ped bounds
+        // type and include flags are accessed; In case of fish bounds, these
+        // type and include flags are not allocated causing a crash.
+        REGISTER_HOOK ("0f 29 40 30 e8 ? ? ? ? b2 01 ? 8b cf e8", 4,
+                       AllocateTypeAndIncludeFlagsForFishBounds, void,
+                       phBoundComposite *, bool, bool);
     }
 } peds;

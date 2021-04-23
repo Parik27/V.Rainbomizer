@@ -18,6 +18,7 @@
 #include "ParserUtils.hh"
 #include "CHandlingDataMgr.hh"
 #include "CLoadingScreens.hh"
+#include "phBound.hh"
 
 #include "Utils.hh"
 
@@ -118,6 +119,7 @@ InitialiseAllComponents ()
     sysUseAllocator::InitialisePatterns ();
     CHandlingDataMgr::InitialisePatterns ();
     CLoadingScreens::InitialisePatterns ();
+    phBound::InitialisePatterns ();
 
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();

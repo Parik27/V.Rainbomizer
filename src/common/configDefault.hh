@@ -76,4 +76,5 @@ EnableFastSkips = false # Mission skips will be enabled after failing the missio
 
 ForcedPed = ""
 EnableNSFWModels = false
+RandomizePlayer = true
 )";

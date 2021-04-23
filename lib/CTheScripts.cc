@@ -1,10 +1,13 @@
 #include "CTheScripts.hh"
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "NativeTranslationTable.hh"
 #include "common/common.hh"
 #include <memory>
 
 #include <windows.h>
+
+CEntity* (*fwScriptGuid_GetBaseFromGuid) (uint32_t) = nullptr;
 
 /*******************************************************/
 std::unique_ptr<NativeManager::NativeFunc[]>
@@ -163,8 +166,19 @@ CTheScripts::InitialisePatterns ()
     aThreads = GetRelativeReference<atArray<scrThread *>> (
         "8b 0d ? ? ? ? 3b ca 7d ? ? 8b 0d ", 13, 17);
 
+    ConvertCall (hook::get_pattern (
+                     "83 f9 ff 74 ? ? 8b 0d ? ? ? ? 44 8b c1 ? 8b"),
+                 fwScriptGuid_GetBaseFromGuid);
+
     Rainbomizer::Common::AddInitCallback (
         [] (bool) { NativeManager::Initialise (); });
+}
+
+/*******************************************************/
+CEntity *
+fwScriptGuid::GetBaseFromGuid (uint32_t guid)
+{
+    return fwScriptGuid_GetBaseFromGuid (guid);
 }
 
 atArray<scrThread *> *CTheScripts::aThreads;

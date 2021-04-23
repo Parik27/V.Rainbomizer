@@ -15,16 +15,29 @@ public:
 
     /*******************************************************/
     template <uint32_t... Hashes>
+    inline static bool
+    IsVehicleAnyOfType (uint32_t idx)
+    {
+        bool     ret     = true;
+        uint32_t vehType = CStreaming::GetModelByIndex<CVehicleModelInfo> (idx)
+                               ->GetVehicleType ();
+        (..., (ret = vehType == Hashes ? true : ret));
+
+        return ret;
+    }
+
+    /*******************************************************/
+    template <uint32_t... Hashes>
     inline static void
     RemoveVehicleTypesFromSet (std::set<uint32_t> &set)
-    {
-        set.erase (std::remove_if (set.begin (), set.end (), [] (uint32_t id) {
-            bool     ret = true;
-            uint32_t vehType
-                = CStreaming::GetModelByIndex<CVehicleModelInfo> (id)
-                      ->GetVehicleType ();
-            (..., (ret = vehType == Hashes ? true : ret));
-        }));
+    {        
+        for (auto it = set.begin (), end = set.end (); it != end;)
+            {
+                if (IsVehicleAnyOfType<Hashes...>(*it))
+                    it = set.erase(it);
+                else
+                    ++it;
+            }
     }
 
     /*******************************************************/
@@ -32,13 +45,13 @@ public:
     inline static void
     RemoveOtherVehicleTypesFromSet (std::set<uint32_t> &set)
     {
-        set.erase (std::remove_if (set.begin (), set.end (), [] (uint32_t id) {
-            bool     ret = true;
-            uint32_t vehType
-                = CStreaming::GetModelByIndex<CVehicleModelInfo> (id)
-                      ->GetVehicleType ();
-            (..., (ret = vehType != Hashes ? true : ret));
-        }));
+        for (auto it = set.begin (), end = set.end (); it != end;)
+            {
+                if (!IsVehicleAnyOfType<Hashes...>(*it))
+                    it = set.erase(it);
+                else
+                    ++it;
+            }
     }
 
     static uint32_t GetRandomLoadedVehIndex (uint32_t *outNum = nullptr,
