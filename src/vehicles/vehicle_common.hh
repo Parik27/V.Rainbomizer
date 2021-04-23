@@ -18,7 +18,7 @@ public:
     inline static bool
     IsVehicleAnyOfType (uint32_t idx)
     {
-        bool     ret     = true;
+        bool     ret     = false;
         uint32_t vehType = CStreaming::GetModelByIndex<CVehicleModelInfo> (idx)
                                ->GetVehicleType ();
         (..., (ret = vehType == Hashes ? true : ret));

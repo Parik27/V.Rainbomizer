@@ -46,25 +46,15 @@ class DispatchRandomizer
     static uint32_t
     GetRandomPoliceHelicopter ()
     {
-        static std::vector<uint32_t> m_HeliHashes;
+        auto vehs = VehicleRandomizerHelper::GetLoadedVehSet ();
 
-        if (!m_HeliHashes.size ())
-            {
-                auto &hashes = Rainbomizer::Common::GetVehicleHashes ();
-                for (auto hash : hashes)
-                    {
-                        CVehicleModelInfo *model
-                            = CStreaming::GetModelByHash<CVehicleModelInfo> (
-                                hash);
+        VehicleRandomizerHelper::RemoveOtherVehicleTypesFromSet<
+            "VEHICLE_TYPE_HELI"_joaat> (vehs);
 
-                        if (model->GetVehicleType ()
-                            != "VEHICLE_TYPE_HELI"_joaat)
-                            m_HeliHashes.push_back (
-                                CStreaming::GetModelIndex (hash));
-                    }
-            }
+        if (vehs.size ())
+            return GetRandomElement (vehs);
 
-        return CStreaming::GetModelIndex (GetRandomElement (m_HeliHashes));
+        return ~0;
     }
 
     /*******************************************************/
@@ -130,7 +120,7 @@ class DispatchRandomizer
         bool ret = CDispatchService_GetVehicleSetModels98c (service, outVeh,
                                                             outPed, outObj, p5);
 
-        //StoreVehicleIndex (GetVehicleForDispatchService (service), outVeh);
+        StoreVehicleIndex (GetVehicleForDispatchService (service), outVeh);
         return ret;
     }
 

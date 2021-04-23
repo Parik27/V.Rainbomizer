@@ -99,9 +99,6 @@ class PedRandomizer
             SWAP_FIELD (GetInitInfo ().m_nRelationshipGroup);
             SWAP_FIELD (GetInitInfo ().m_nDecisionMakerName);
             SWAP_FIELD (GetInitInfo ().m_nNavCapabilitiesName);
-            SWAP_FIELD (GetInitInfo ().m_nMotionTaskDataSetName);
-            SWAP_FIELD (GetInitInfo ().m_nDefaultTaskDataSetName);
-            SWAP_FIELD (m_nMovementClipSet);
 
 #undef SWAP_FIELD
         }
