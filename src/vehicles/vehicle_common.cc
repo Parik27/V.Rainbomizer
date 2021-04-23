@@ -4,7 +4,6 @@
 #include <set>
 #include <Utils.hh>
 #include <scrThread.hh>
-#include <xmemory>
 #include "CModelInfo.hh"
 #include "common/logger.hh"
 
