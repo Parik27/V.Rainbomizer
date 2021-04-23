@@ -288,14 +288,14 @@ class Opcode:
                 self.data = self.data + (items,)
 
             elif desc == "$STACK":
-                num,  = self.ttd._read ("<b")
+                num,  = self.ttd._read ("<B")
                 self.data = self.data + (list(
                     '&' + self.ttd.resolve_ptr(i) \
                     for i in self.ttd._read(f"<{num}Q")),)
 
             elif desc == "$STR":
                 if str_buffer_size == 0:
-                    str_buffer_size, = self.ttd._read("<b")
+                    str_buffer_size, = self.ttd._read("<B")
                 self.data = self.data + (self.ttd._read_bytes (str_buffer_size), )
 
             else:
@@ -303,7 +303,7 @@ class Opcode:
         
     #######################################################
     def read (self):
-        self.ip, self.opcode = self.ttd._read ("<Qb")
+        self.ip, self.opcode = self.ttd._read ("<QB")
         self.ip = self.ttd.convert_ptr_to_ip (self.ip)
 
         self.__read_internal ()
@@ -353,8 +353,11 @@ class TTDFile:
     
     #######################################################
     def _read (self, formatStr):
-        return struct.unpack(formatStr,
-                             self._read_bytes(struct.calcsize(formatStr)))
+        try:
+            return struct.unpack(formatStr,
+                                 self._read_bytes(struct.calcsize(formatStr)))
+        except:
+            print(formatStr)
     
     #######################################################
     def _read_header (self):

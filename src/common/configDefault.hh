@@ -23,6 +23,7 @@ const char configDefault[] = R"(
 [Randomizers]
 
 TrafficRandomizer = true
+DispatchRandomizer = true
 ColourRandomizer = true
 WeaponRandomizer = true
 WeaponStatsRandomizer = true

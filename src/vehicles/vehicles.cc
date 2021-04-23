@@ -156,7 +156,8 @@ class ScriptVehicleRandomizer
         {
             uint32_t numRandomLoaded = 0;
             uint32_t randomLoaded
-                = GetRandomLoadedVehIndex (&numRandomLoaded, false);
+                = VehicleRandomizerHelper::GetRandomLoadedVehIndex (
+                    &numRandomLoaded, false);
             if (!returnLoaded && numRandomLoaded < 30)
                 {
                     const auto &indices
@@ -265,7 +266,7 @@ public:
 
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
-        InitialiseDLCDespawnFix ();
+        VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
     }
 };
 

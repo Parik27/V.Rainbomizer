@@ -4,13 +4,15 @@
 #include <set>
 #include <Utils.hh>
 #include <scrThread.hh>
+#include <xmemory>
+#include "CModelInfo.hh"
 #include "common/logger.hh"
 
 bool (*scrProgram_InitNativeTablese188) (scrProgram *);
 
 /*******************************************************/
-uint32_t
-GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
+std::set<uint32_t>
+VehicleRandomizerHelper::GetLoadedVehSet ()
 {
     std::set<uint32_t> cars;
     auto               groups = CStreaming::sm_Instance;
@@ -20,14 +22,18 @@ GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
     groups->mInappropriateCarsSet.for_each (
         [&cars] (int val) { cars.insert (val); });
     groups->mBoatsSet.for_each ([&cars] (int val) { cars.insert (val); });
+    groups->mSpecialVehiclesSet.for_each ([&] (int val) { cars.insert (val); });
 
-    groups->mSpecialVehiclesSet.for_each ([&] (int val) {
-        if (trains
-            || CStreaming::GetModelByIndex<CVehicleModelInfo> (val)
-                       ->GetVehicleType ()
-                   != "VEHICLE_TYPE_TRAIN"_joaat)
-            cars.insert (val);
-    });
+    return cars;
+}
+
+/*******************************************************/
+uint32_t
+VehicleRandomizerHelper::GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
+{
+    std::set<uint32_t> cars = GetLoadedVehSet ();
+    if (!trains)
+        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_TRAIN"_joaat> (cars);
 
     if (outNum)
         *outNum = static_cast<uint32_t> (cars.size ());
@@ -47,7 +53,7 @@ GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
 
 /*******************************************************/
 bool
-ApplyDLCDespawnFix (scrProgram *program)
+VehicleRandomizerHelper::ApplyDLCDespawnFix (scrProgram *program)
 {
     bool ret = scrProgram_InitNativeTablese188 (program);
 
@@ -86,7 +92,7 @@ ApplyDLCDespawnFix (scrProgram *program)
 
 /*******************************************************/
 void
-InitialiseDLCDespawnFix ()
+VehicleRandomizerHelper::InitialiseDLCDespawnFix ()
 {
     static bool bFixInitialised = false;
     if (!std::exchange (bFixInitialised, true))
