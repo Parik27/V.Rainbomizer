@@ -3,12 +3,15 @@
 #include <cstdio>
 #include <Utils.hh>
 #include <CutSceneManager.hh>
+#include "CModelInfo.hh"
+#include "CStreaming.hh"
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 #include "common/common.hh"
 #include "common/config.hh"
 #include "injector/injector.hpp"
 #include "CPed.hh"
+#include "peds/peds_Compatibility.hh"
 
 class parInstanceVisitor;
 
@@ -17,8 +20,6 @@ void (*VisitTopLevelStructure_37027e) (parInstanceVisitor *,
 
 class CutSceneRandomizer
 {
-    inline static std::array<int32_t, 3> m_aPlayerObjects{};
-    
     /*******************************************************/
     static std::vector<std::vector<uint32_t>> &
     GetModelsList ()
@@ -29,15 +30,15 @@ class CutSceneRandomizer
 
     /*******************************************************/
     static uint32_t
-    GetRandomModel (uint32_t model)
+    GetRandomModel (uint32_t modelHash)
     {
         for (const auto &i : GetModelsList ())
             {
-                if (DoesElementExist (i, model))
+                if (DoesElementExist (i, modelHash))
                     return GetRandomElement (i);
             }
 
-        return model;
+        return modelHash;
     }
 
     /*******************************************************/
@@ -69,35 +70,9 @@ class CutSceneRandomizer
     }
 
     /*******************************************************/
-    static int32_t
-    GetPlayerArrayIdx (uint32_t hash)
-    {
-        switch (hash)
-            {
-            case "player_zero"_joaat: return 0; break;
-            case "player_one"_joaat: return 1; break;
-            case "player_two"_joaat: return 2; break;
-            default: return -1;
-            }
-    }
-
-    /*******************************************************/
-    static void
-    SetPlayerObjectIdFromObject (cutfModelObject *obj)
-    {
-        int idx = GetPlayerArrayIdx (obj->StreamingName);
-
-        if (idx != -1)
-            m_aPlayerObjects[idx] = obj->iObjectId;
-    }
-
-    /*******************************************************/
     static void
     RandomizeCutScene (parInstanceVisitor *visitor, cutfCutsceneFile2 *file)
     {
-        for (auto &obj : m_aPlayerObjects)
-            obj = -1;
-
         for (int i = 0; i < file->pCutsceneObjects.Size; i++)
             {
                 switch (file->pCutsceneObjects.Data[i]->GetType ())
@@ -106,8 +81,6 @@ class CutSceneRandomizer
                         case eCutfObjectType::MODEL: {
                             auto obj = static_cast<cutfModelObject *> (
                                 file->pCutsceneObjects.Data[i]);
-
-                            SetPlayerObjectIdFromObject(obj);
                             
                             obj->StreamingName
                                 = GetRandomModel (obj->StreamingName);
@@ -135,20 +108,6 @@ class CutSceneRandomizer
         VisitTopLevelStructure_37027e (visitor, file);
     }
 
-    /*******************************************************/
-    static void
-    CorrectPlayerObjIdx (CutSceneManager *mgr)
-    {
-        int32_t arrIdx = GetPlayerArrayIdx (
-            CPedFactory::Get ()->pPlayer->m_pModelInfo->m_nHash);
-
-        if (m_aPlayerObjects[arrIdx] != -1)
-            {
-                mgr->bHasPlayerObjectId = true;
-                mgr->m_nPlayerObjId     = m_aPlayerObjects[arrIdx];
-            }
-    }
-
 public:
     /*******************************************************/
     CutSceneRandomizer ()
@@ -163,16 +122,5 @@ public:
         
         RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
                       VisitTopLevelStructure_37027e, RandomizeCutScene);
-
-        //?? 8b d9 40 38 3d ?? ?? ?? ?? 75 ?? e8 ?? ?? ?? ??
-        RegisterHook ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
-                      CorrectPlayerObjIdx);
-
-#if (false)
-        // Disables the check for StreamingName of cutscene registered entities
-        // pCVar5>m_nStreamingName == *param_3
-        injector::WriteMemory<uint8_t> (
-            hook::get_pattern ("41 8b 06 39 83 ac 00 00 00 74", 9), 0xeb);
-#endif
     }
 } _cuts;

@@ -125,12 +125,20 @@ RegisterHook (void *addr, F hookedFunc)
 /*******************************************************/
 template <bool Jmp = false, typename F, typename O>
 void
+RegisterHook (void *addr, O &originalFunc, F hookedFunc)
+{
+    ReadCall (addr, originalFunc);
+    RegisterHook<Jmp> (addr, hookedFunc);
+}
+
+/*******************************************************/
+template <bool Jmp = false, typename F, typename O>
+void
 RegisterHook (const std::string &pattern, int offset, O &originalFunc,
               F hookedFunc)
 {
-    void *addr = hook::get_pattern (pattern, offset);
-    ReadCall (addr, originalFunc);
-    RegisterHook<Jmp> (addr, hookedFunc);
+    RegisterHook<Jmp> (hook::get_pattern (pattern, offset), originalFunc,
+                       hookedFunc);
 }
 
 /*******************************************************/
@@ -221,4 +229,11 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         RegisterHook (pattern, offset, F, function<F>);                        \
+    }
+
+/*******************************************************/
+#define REGISTER_JMP_HOOK(size, pattern, offset, function, ret, ...)           \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterJmpHook<size> (pattern, offset, F, function<F>);               \
     }

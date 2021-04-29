@@ -1,20 +1,24 @@
-#include "Utils.hh"
+#include <cstdint>
+#include <random>
+#include <algorithm>
+#include <ctime>
+
+#include <scrThread.hh>
+#include <array>
+
+#include "common/config.hh"
 #include "common/common.hh"
 #include "common/logger.hh"
+#include "exceptions/exceptions_Mgr.hh"
+#include "peds/peds_Compatibility.hh"
+
+#include "weapons_equipMgr.hh"
+#include "Utils.hh"
 #include "CEntity.hh"
 #include "CPed.hh"
 #include "UtilsHooking.hh"
 #include "rage.hh"
 #include "CItemInfo.hh"
-#include <cstdint>
-#include <random>
-#include <algorithm>
-#include <ctime>
-#include <scrThread.hh>
-#include <array>
-#include "common/config.hh"
-#include "weapons_equipMgr.hh"
-#include "exceptions/exceptions_Mgr.hh"
 
 CInventoryItem *(*CPedInventory_GiveWeapon2d8) (CPedInventory *, uint32_t,
                                                 uint32_t);
@@ -156,8 +160,9 @@ class WeaponRandomizer
         if (!weapons->m_pPed->m_pModelInfo || weapon == 0)
             return weapon;
 
-        bool isPlayer = ((CPedModelInfo *) weapons->m_pPed->m_pModelInfo)
-                            ->m_bIsPlayerType;
+        bool isPlayer
+            = PedRandomizerCompatibility::GetOriginalModel (weapons->m_pPed)
+                  ->m_bIsPlayerType;
 
         // Don't randomize the weapon if it's given to the player
         if (isPlayer)

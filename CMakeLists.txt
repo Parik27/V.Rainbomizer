@@ -32,6 +32,7 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
   src/misc/*.cc
   src/mission/*.cc
   src/sounds/*.cc
+  src/peds/*.cc
   src/vehicles/*.cc
   src/weapons/*.cc
   lib/*.cc

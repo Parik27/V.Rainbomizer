@@ -1,3 +1,4 @@
+#include "CModelInfo.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "CPed.hh"
@@ -10,6 +11,7 @@
 #include <mutex>
 #include <set>
 #include <stdio.h>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -21,6 +23,8 @@
 #include "rage.hh"
 #include "fwExtensibleBase.hh"
 #include "scrThread.hh"
+
+#include "peds_Compatibility.hh"
 
 class CPedFactory;
 
@@ -35,15 +39,13 @@ class PedRandomizer
     inline static std::vector<uint32_t> m_NsfwModels;
     inline static bool                  bSkipNextPedRandomization = false;
 
-    inline static std::map<CPed *, std::pair<uint32_t, uint32_t>>
-        sm_PedModelFixupMap;
-
     static auto &
     Config ()
     {
         static struct Config
         {
             std::string ForcedPed        = "";
+            std::string ForcedClipset    = "";
             uint32_t    ForcedPedHash    = -1;
             bool        EnableNSFWModels = false;
             bool        RandomizePlayer  = true;
@@ -91,16 +93,38 @@ class PedRandomizer
             auto modelA = CStreaming::GetModelByIndex<CPedModelInfo> (a);
             auto modelB = CStreaming::GetModelByIndex<CPedModelInfo> (b);
 
+            CPedModelInfo *clipsetSrc = nullptr;
+            if (!Config ().ForcedClipset.empty ())
+                {
+                    clipsetSrc = CStreaming::GetModelByHash<CPedModelInfo> (
+                        rage::atStringHash (Config ().ForcedClipset));
+                }
+
 #define SWAP_FIELD(field) std::swap (modelA->field, modelB->field);
+#define SWAP_FIELD_CLIP(field) modelA->field = clipsetSrc->field;
 
             SWAP_FIELD (m_nCombatInfo);
             SWAP_FIELD (m_nPedType);
+            SWAP_FIELD (m_nPersonality);
+
             SWAP_FIELD (GetInitInfo ().m_nTaskDataName);
             SWAP_FIELD (GetInitInfo ().m_nRelationshipGroup);
             SWAP_FIELD (GetInitInfo ().m_nDecisionMakerName);
             SWAP_FIELD (GetInitInfo ().m_nNavCapabilitiesName);
 
+#ifdef FLYING_BIRDS
+            SWAP_FIELD (m_nMovementClipSet);
+            SWAP_FIELD (GetInitInfo ().m_nMotionTaskDataSetName);
+#endif
+
+            if (clipsetSrc)
+                {
+                    SWAP_FIELD_CLIP (m_nMovementClipSet);
+                    SWAP_FIELD_CLIP (GetInitInfo ().m_nMotionTaskDataSetName);
+                }
+
 #undef SWAP_FIELD
+#undef SET_FIELD
         }
 
     public:
@@ -202,6 +226,7 @@ class PedRandomizer
             [&peds] (int val) { peds.insert (val); });
         groups->mInAppropriatePedsSet.for_each (
             [&peds] (int val) { peds.insert (val); });
+        groups->mCopsSet.for_each ([&peds] (int val) { peds.insert (val); });
 
         if (!Config ().EnableNSFWModels)
             RemoveNsfwModels (peds);
@@ -229,7 +254,7 @@ class PedRandomizer
         const ModelSwapper swap (newModel, model);
 
         CPed *ped = CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
-        sm_PedModelFixupMap[ped] = std::make_pair (newModel, model);
+        PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
 
         return ped;
     }
@@ -253,18 +278,7 @@ class PedRandomizer
         if (!ped || !ped->m_pModelInfo)
             return 0;
 
-        auto *model = ped->m_pModelInfo;
-        if (auto *data = LookupMap (sm_PedModelFixupMap, ped))
-            {
-                auto *storedModel = CStreaming::GetModelByIndex (data->first);
-                auto *intendedModel
-                    = CStreaming::GetModelByIndex (data->second);
-
-                if (storedModel->m_nHash == model->m_nHash)
-                    model = intendedModel;
-            }
-
-        return model->m_nHash;
+        return PedRandomizerCompatibility::GetOriginalModel (ped)->m_nHash;
     }
 
     /*******************************************************/
@@ -289,6 +303,65 @@ class PedRandomizer
         phBoundComposite_CalculateExtents (bound, p1, p2);
     }
 
+    /*******************************************************/
+    template <auto &CutSceneManager_InitPlayerObj>
+    static void
+    CorrectPlayerObjIdx (CutSceneManager *mgr)
+    {
+        CPed *          player = CPedFactory::Get ()->pPlayer;
+        CBaseModelInfo *model  = PedRandomizerCompatibility::GetOriginalModel (
+            CPedFactory::Get ()->pPlayer);
+
+        // Restore original model for this function and change it back after
+        // done.
+        std::swap (player->m_pModelInfo, model);
+        CutSceneManager_InitPlayerObj (mgr);
+        std::swap (player->m_pModelInfo, model);
+    }
+
+    /*******************************************************/
+    template <auto &CutSceneManager_RegisterEntity>
+    static void
+    CorrectRegisterEntity (CutSceneManager *mgr, CEntity *entity,
+                           uint32_t *handle, uint32_t *modelHash, bool p5,
+                           bool p6, bool p7, uint32_t p8)
+    {
+        if (entity
+            && entity->m_pModelInfo->GetType ()
+                   == eModelInfoType::MODEL_INFO_PED)
+            {
+                *modelHash = PedRandomizerCompatibility::GetOriginalModel (
+                                 static_cast<CPed *> (entity))
+                                 ->m_nHash;
+            }
+
+        CutSceneManager_RegisterEntity (mgr, entity, handle, modelHash, p5, p6,
+                                        p7, p8);
+    }
+
+    /*******************************************************/
+    template <auto &CStreaming_GetRandomPedToLoad>
+    static uint32_t
+    RandomizePedToLoad (CStreaming *str, bool p2)
+    {
+        // CStreaming_GetRandomPedToLoad (str, p2);
+        auto &peds = Rainbomizer::Common::GetPedHashes ();
+
+        for (int i = 0; i < 16; i++)
+            {
+                uint32_t vehicle = GetRandomElement (peds);
+                uint32_t pedIndex;
+                auto model = CStreaming::GetModelAndIndexByHash<CPedModelInfo> (
+                    vehicle, pedIndex);
+
+                if (CStreaming::HasModelLoaded (pedIndex))
+                    continue;
+
+                return pedIndex;
+            }
+        return 65535; // -1/uint16_t
+    }
+
 public:
     /*******************************************************/
     PedRandomizer ()
@@ -296,7 +369,8 @@ public:
         std::string ForcedPed;
         if (!ConfigManager::ReadConfig (
                 "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
-                std::pair ("RandomizePlayer", &Config ().RandomizePlayer)))
+                std::pair ("RandomizePlayer", &Config ().RandomizePlayer),
+                std::pair ("ForcedClipset", &Config ().ForcedClipset)))
             return;
 
         if (Config ().ForcedPed.size ())
@@ -308,6 +382,11 @@ public:
         RegisterHook ("8b c0 ? 8b ? ? 8b ? ? 88 7c ? ? e8 ? ? ? ? eb ?", 13,
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
+
+        REGISTER_HOOK (
+            "88 44 ? ? 40 88 7c ? ? e8 ? ? ? ? ? 8b d8 ? 85 c0 0f 84", 9,
+            RandomizePed, CPed *, CPedFactory *, uint8_t *, uint32_t, uint64_t,
+            uint8_t);
 
         // We don't want to randomize cutscene peds since those are managed by
         // the cutscene randomizer.
@@ -324,6 +403,14 @@ public:
                                4),
             2);
 
+        // This patch enables phone models for all ped models (for player
+        // randomizer)
+        injector::MakeNOP (
+            hook::get_pattern (
+                "8b ? ? ? ? ? 44 38 70 09 74 ? 40 84 f6 75 ? b9 30 00 00 00 ",
+                10),
+            2);
+
         // Fix for scripts where a certain hash is required for a certain ped.
         "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
 
@@ -333,5 +420,25 @@ public:
         REGISTER_HOOK ("0f 29 40 30 e8 ? ? ? ? b2 01 ? 8b cf e8", 4,
                        AllocateTypeAndIncludeFlagsForFishBounds, void,
                        phBoundComposite *, bool, bool);
+
+        // Hook for cutscenes to properly get the object model to register for
+        // the cutscene.
+        REGISTER_HOOK ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
+                       CorrectPlayerObjIdx, void, CutSceneManager *);
+
+        REGISTER_HOOK (
+            "83 ec 20 80 3d ? ? ? ? 00 ? 8b f1 74 ? e8 ? ? ? ? eb ? e8", 22,
+            RandomizePedToLoad, uint32_t, CStreaming *, bool);
+
+        REGISTER_HOOK (
+            "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
+            CorrectRegisterEntity, void, CutSceneManager *, CEntity *,
+            uint32_t *, uint32_t *, bool, bool, bool, uint32_t);
+
+        // Hook to prevent peds with flag (DiesOnRagdoll) from dying
+        injector::MakeNOP (
+            hook::get_pattern (
+                "75 ? ? 8b ? ? ? ? ? ? 85 c0 74 ? 44 38 60 0f 75", 18),
+            2);
     }
 } peds;

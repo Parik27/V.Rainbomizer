@@ -59,7 +59,7 @@ public:
 class CPedModelInfo : public CBaseModelInfo
 {
 public:
-    uint8_t  field_0xb0[54];
+    uint8_t  field_0xb0[64];
     uint32_t m_nMovementClipSet;
     uint8_t  field_0xf4[4];
     uint64_t field_0xf8;
@@ -82,7 +82,7 @@ public:
     float    m_nMinActivationImpulse;
     float    m_fStubble;
     uint8_t  field_0x144[6];
-    short    field_0x14a;
+    short    m_nPersonality; // confirmed
     uint8_t  field_0x14c[16];
     uint8_t  Radio1;
     uint8_t  Radio2;
@@ -141,9 +141,10 @@ public:
         uint32_t m_nPerceptionInfo;
         uint32_t m_nDefaultBrawlingStyle;
         uint32_t m_nDefaultUnarmedWeapon;
+        uint32_t m_nSpecialAbility;
     } _info;
 
-    uint8_t field_0x278[6];
+    uint8_t field_0x278[2];
     uint8_t m_nFlags;
     uint8_t field_0x27f;
     uint8_t m_nFlags2;

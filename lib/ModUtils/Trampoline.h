@@ -45,6 +45,10 @@ public:
 		return *Pointer<T>( align );
 	}
 
+	LPVOID Space( size_t size, size_t align = 0)
+	{
+		return GetNewSpace( size, align );
+	}
 
 private:
 	static Trampoline* MakeTrampoline( uintptr_t addr )
