@@ -27,27 +27,6 @@ PedRandomizerCompatibility::GetOriginalModel (CPed *ped)
     return static_cast<CPedModelInfo *> (model);
 }
 
-/*******************************************************/
-void
-PedRandomizerCompatibility::AddRandomizedPed (CPed *ped, uint32_t from,
-                                              uint32_t to)
-{
-    sm_PedModelFixupMap[ped] = std::make_pair (from, to);
-
-    auto *model
-        = static_cast<CPedModelInfo *> (CStreaming::GetModelByIndex (from));
-
-    if (IsPlayerModel (model->m_nHash))
-        {
-            sm_ModelMap[model->m_nHash]
-                = CStreaming::GetModelByIndex (to)->m_nHash;
-
-            Rainbomizer::Logger::LogMessage (
-                "Randomized Player Model: %x -> %x", model->m_nHash,
-                sm_ModelMap[model->m_nHash]);
-        }
-}
-
 bool
 PedRandomizerCompatibility::IsPlayerModel (uint32_t model)
 {
