@@ -9,7 +9,7 @@ class MissionRandomizer_Commands
     using YF = YscFunctions;
 
     bool bMissionTriggererCleanupRequested = false;
-    
+
     static void MakeAllPlayersAvailable ();
     static void UnlockWeapon (ePlayerIndex player, uint32_t hash,
                               bool unlock = true, bool p4 = true);
@@ -21,7 +21,7 @@ class MissionRandomizer_Commands
     static void NopFlowCommands (unsigned int start, unsigned int end);
 
     static uint32_t GetMoney ();
-    static void SetMoney (uint32_t money);
+    static void     SetMoney (uint32_t money);
 
     bool ProcessCleanupMissionTrigger ();
     bool ProcessShopUnlocks ();
@@ -29,7 +29,6 @@ class MissionRandomizer_Commands
     static void CreateStingerRamp ();
 
 public:
-
     static void AdjustMissionFlowCommands ();
 
     static void OnMissionStart (uint32_t origHash, uint32_t randHash);

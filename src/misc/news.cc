@@ -1,4 +1,4 @@
-#include "Utils.hh" 
+#include "Utils.hh"
 #include "common/logger.hh"
 
 #include <array>

@@ -28,7 +28,7 @@ eScriptState (*scrThread_Runff6) (uint64_t *, uint64_t *, scrProgram *,
 class MissionRandomizer
 {
     using Components = MissionRandomizer_Components;
-    
+
     static auto &
     Config ()
     {
@@ -40,8 +40,8 @@ class MissionRandomizer
     RunThreadHook (uint64_t *stack, uint64_t *globals, scrProgram *program,
                    scrThreadContext *ctx)
     {
-        eScriptState state = ctx->m_nState;
-        static bool blocking = false;
+        eScriptState state    = ctx->m_nState;
+        static bool  blocking = false;
         if (Components::Process (program, ctx))
             {
                 if (blocking)
@@ -51,7 +51,7 @@ class MissionRandomizer
                 state = scrThread_Runff6 (stack, globals, program, ctx);
                 Components::sm_Flow.ClearVariables (ctx);
             }
-        else if(!blocking)
+        else if (!blocking)
             {
                 Rainbomizer::Logger::LogMessage ("Started blocking");
                 blocking = true;
@@ -81,8 +81,7 @@ class MissionRandomizer
             "Get_Entity_Script: [%s:%03x] - %s vs %s",
             scrThread::GetActiveThread ()->m_szScriptName,
             scrThread::GetActiveThread ()->m_Context.m_nIp,
-            info->GetReturn<char *> (0),
-            "GET_THIS_SCRIPT_NAME"_n());
+            info->GetReturn<char *> (0), "GET_THIS_SCRIPT_NAME"_n());
     }
 
 public:
@@ -99,8 +98,8 @@ public:
 
         InitialiseAllComponents ();
 
-        Components::sm_Globals.Initialise();
-        
+        Components::sm_Globals.Initialise ();
+
         RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
                       scrThread_Runff6, RunThreadHook);
 

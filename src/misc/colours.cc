@@ -63,7 +63,8 @@ class ColoursRandomizer
 
         bool changed = false;
         for (int i = 0; i < 4; i++)
-            if (std::exchange (data.OriginalColours[i], colours[i]) != colours[i])
+            if (std::exchange (data.OriginalColours[i], colours[i])
+                != colours[i])
                 changed = true;
 
         return changed;
@@ -84,7 +85,8 @@ class ColoursRandomizer
                 using Rainbomizer::HSL;
                 for (int i = 0; i < 4; i++)
                     mColourData[veh].RandomColours[i]
-                        = HSL (RandomFloat(360.0f), 1.0f, RandomFloat(1.0f)).ToARGB ();
+                        = HSL (RandomFloat (360.0f), 1.0f, RandomFloat (1.0f))
+                              .ToARGB ();
             }
 
         for (int i = 0; i < 4; i++)

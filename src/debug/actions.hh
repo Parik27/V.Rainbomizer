@@ -39,10 +39,9 @@ class ActionsDebugInterface
              ReloadMissions}}};
 
 public:
-
     inline static bool sm_ReloadPatternsRequested = false;
     inline static bool sm_ReloadMissionsRequested = false;
-    
+
     /*******************************************************/
     static void
     SendActionsList (uWS::HttpResponse<false> *res, uWS::HttpRequest *req)

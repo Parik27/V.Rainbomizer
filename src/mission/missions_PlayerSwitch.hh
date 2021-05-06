@@ -25,7 +25,7 @@ public:
     struct Context
     {
         ePlayerIndex destPlayer;
-        
+
         bool        noSetPos = false;
         rage::Vec3V destPos;
 
@@ -40,24 +40,22 @@ public:
     };
 
 private:
-    
     enum
-        {
-            IDLE,
-            TRANSITION_BEGIN,
-            TRANSITION_ASCEND,
-            PLAYER_SWITCH,
-            TRANSITION_END,
-            TRANSITION_DESCEND,
-            TRANSITION_CLEANUP
-        } m_nCurrentState
-    = IDLE;
+    {
+        IDLE,
+        TRANSITION_BEGIN,
+        TRANSITION_ASCEND,
+        PLAYER_SWITCH,
+        TRANSITION_END,
+        TRANSITION_DESCEND,
+        TRANSITION_CLEANUP
+    } m_nCurrentState
+        = IDLE;
 
     bool m_bDestPlayerSet = true;
-    
+
     Context m_Context;
 
-    
     /*******************************************************/
     bool
     SetCurrentPlayer (ePlayerIndex index)
@@ -113,7 +111,7 @@ private:
 
             case Context::NO_TRANSITION: return true;
             }
-        
+
         return true;
     }
 
@@ -232,15 +230,15 @@ public:
     {
         if (m_bDestPlayerSet)
             return *MissionRandomizer_GlobalsManager::PP_CURRENT_PED;
-        return uint32_t(m_Context.destPlayer);
+        return uint32_t (m_Context.destPlayer);
     }
-    
+
     /*******************************************************/
     bool
     HasDescentFinished ()
     {
         return !"IS_PLAYER_SWITCH_IN_PROGRESS"_n();
-            return true;
+        return true;
     }
 
     /*******************************************************/

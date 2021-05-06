@@ -14,7 +14,7 @@ ConfigDebugInterface::Initialise (uWS::App &app)
 /*******************************************************/
 template <typename T>
 void
-ConvertFromChars (std::string a, T& out)
+ConvertFromChars (std::string a, T &out)
 {
     if constexpr (std::is_same_v<T, bool>)
         out = a == "true";
@@ -30,14 +30,13 @@ ConfigDebugInterface::UpdateOption (const nlohmann::json &j)
 {
     try
         {
-            std::visit ([&j] (auto &&arg) {
-                ConvertFromChars(j.at("data"), *arg);
-            },
-                sm_ConfigOptions.at (j.at("key")));
+            std::visit (
+                [&j] (auto &&arg) { ConvertFromChars (j.at ("data"), *arg); },
+                sm_ConfigOptions.at (j.at ("key")));
         }
     catch (std::exception &e)
         {
-            return e.what();
+            return e.what ();
         }
 
     return ":)";
@@ -48,15 +47,18 @@ void
 ConfigDebugInterface::HandleUpdateConfig (uWS::HttpResponse<false> *res,
                                           uWS::HttpRequest *        req)
 {
-    res->onData([res, buffer = std::string("")] (std::string_view data, bool last) mutable {
-        buffer.append(data.data(), data.length());
+    res->onData ([res, buffer = std::string ("")] (std::string_view data,
+                                                   bool last) mutable {
+        buffer.append (data.data (), data.length ());
 
-        if (last) {            
-            res->writeHeader ("Access-Control-Allow-Origin", "*");
-            res->end(UpdateOption (nlohmann::json::parse(buffer)).c_str());
-        }
+        if (last)
+            {
+                res->writeHeader ("Access-Control-Allow-Origin", "*");
+                res->end (
+                    UpdateOption (nlohmann::json::parse (buffer)).c_str ());
+            }
     });
-    res->onAborted([] () { });
+    res->onAborted ([] () {});
 }
 
 /*******************************************************/
@@ -66,10 +68,10 @@ ConfigDebugInterface::SendConfigOptions (uWS::HttpResponse<false> *res,
 {
     res->writeHeader ("Content-Type", "application/json");
     res->writeHeader ("Access-Control-Allow-Origin", "*");
-        
+
     nlohmann::json j;
     for (auto &[key, data] : sm_ConfigOptions)
         std::visit ([&, key = key] (auto &&arg) { j[key] = *arg; }, data);
 
-    res->end (j.dump());
+    res->end (j.dump ());
 }

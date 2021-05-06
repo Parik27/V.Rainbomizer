@@ -429,11 +429,11 @@ ScriptDebugInterface::HandleCaptureRequests ()
 class ScriptTempContext
 {
 public:
-    uint64_t* stack;
-    uint64_t* globals;
-    scrProgram* program;
-    scrThreadContext* context;
-    uint64_t Ip;
+    uint64_t *        stack;
+    uint64_t *        globals;
+    scrProgram *      program;
+    scrThreadContext *context;
+    uint64_t          Ip;
 
     template <typename T = int>
     inline T &

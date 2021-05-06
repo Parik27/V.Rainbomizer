@@ -393,7 +393,7 @@ public:
 #ifdef ENABLE_TTD_DEBUG_WRITE_OPCODE
         Rainbomizer::Logger::LogMessage ("Attempting to write opcode: %d", op);
 #endif
-        
+
         switch (m_eState)
             {
             case CAPTURING_ALL: return true;
@@ -487,7 +487,6 @@ class TimeTravelDebugInterface
         {
             this->m_NumIterations = iters;
         }
-        
     };
 
     inline static std::map<uint32_t, TTDFileManager> m_Files{};
@@ -505,7 +504,7 @@ class TimeTravelDebugInterface
 
         m_Files[rage::atStringHash (threadName)].SetNumIterations (
             (pause) ? 0 : iterations);
-        
+
         return ":)";
     }
 

@@ -12,17 +12,17 @@ class SfxRandomizer
     ShouldRandomizeGameObject (uint32_t type)
     {
         static constexpr std::array validTypes{
-            1,   // Collision
-            2,   // Vehicle Trailer
-            3,   // Vehicle
-            4,   // Vehicle Engine
-            8,   // Helicopter
-            16,  // Boat
-            47,  // Door
-            53,  // Train
-            56,  // Bicycle
-            57,  // Aeroplane
-            87,  // Explosion
+            1,  // Collision
+            2,  // Vehicle Trailer
+            3,  // Vehicle
+            4,  // Vehicle Engine
+            8,  // Helicopter
+            16, // Boat
+            47, // Door
+            53, // Train
+            56, // Bicycle
+            57, // Aeroplane
+            87, // Explosion
         };
 
         return DoesElementExist (validTypes, type);

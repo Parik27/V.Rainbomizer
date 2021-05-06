@@ -50,9 +50,8 @@ public:
                    "flow_controller"_joaat};
 
     /* RunCodeId (id, delay) */
-    inline static YscUtils::ScriptFunction<uint32_t, uint32_t>
-        RunCodeId{"2d 02 04 00 ? 38 00 25 eb 08 2a 06 ",
-                           "flow_controller"_joaat};
+    inline static YscUtils::ScriptFunction<uint32_t, uint32_t> RunCodeId{
+        "2d 02 04 00 ? 38 00 25 eb 08 2a 06 ", "flow_controller"_joaat};
 
     /* SetSafehouseUnlocked (id, unlocked) */
     inline static YscUtils::ScriptFunction<uint32_t, bool> SetSafehouseUnlocked{

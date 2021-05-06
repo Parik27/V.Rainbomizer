@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <CMath.hh>
 #include <rage.hh>

@@ -32,7 +32,7 @@ struct ScaleformMethodStruct
         GetStr ()
         {
             if (Type == 4)
-                return reinterpret_cast<char **>(&Data);
+                return reinterpret_cast<char **> (&Data);
             return nullptr;
         }
 

@@ -14,7 +14,8 @@ class PedRandomizerCompatibility
     static bool IsPlayerModel (uint32_t model);
 
     /*******************************************************/
-    static void AddRandomizedPed (CPed *ped, uint32_t from, uint32_t to)
+    static void
+    AddRandomizedPed (CPed *ped, uint32_t from, uint32_t to)
     {
         sm_PedModelFixupMap[ped] = std::make_pair (from, to);
     }

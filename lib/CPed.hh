@@ -158,12 +158,13 @@ public:
 class CPedFactory
 {
 public:
-    void* vft;
-    CPed* pPlayer;
+    void *vft;
+    CPed *pPlayer;
 
-    inline static CPedFactory** sm_Instance = nullptr;
+    inline static CPedFactory **sm_Instance = nullptr;
 
-    static CPedFactory* Get ()
+    static CPedFactory *
+    Get ()
     {
         return *sm_Instance;
     }

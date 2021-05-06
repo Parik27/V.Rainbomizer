@@ -7,9 +7,9 @@
 class fwExtension
 {
 public:
-    virtual ~fwExtension ()        = 0;
-    virtual void v_1 ()            = 0;
-    virtual void v_2 ()            = 0;
+    virtual ~fwExtension ()            = 0;
+    virtual void     v_1 ()            = 0;
+    virtual void     v_2 ()            = 0;
     virtual uint32_t GetExtensionId () = 0;
 };
 

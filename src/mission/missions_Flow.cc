@@ -40,16 +40,10 @@ MissionRandomizer_Flow::GenerateSwitcherContext (bool start)
                     break;
                 }
 
-            switch (OriginalMission->nHash)
-                {
-                    // Don't want a transition to happen right after loading the
-                    // game (if you load a save game for armenian1 or start a
-                    // new game for example). Just set the position.
-                case "prologue1"_joaat:
-                case "armenian1"_joaat: ctx.transitionType = ctx.NO_TRANSITION;
-                }
-
-            if (bMissionRepeating)
+            // Don't want a transition to happen right after loading the
+            // game (if you load a save game for armenian1 or start a
+            // new game for example). Just set the position.
+            if ("GET_IS_LOADING_SCREEN_ACTIVE"_n() || bMissionRepeating)
                 ctx.transitionType = ctx.NO_TRANSITION;
         }
     else
@@ -78,7 +72,7 @@ MissionRandomizer_Flow::GenerateSwitcherContext (bool start)
 /*******************************************************/
 void
 MissionRandomizer_Flow::Reset ()
-{    
+{
     MR::sm_Order.Reset ();
     MR::sm_PlayerSwitcher.Reset ();
 
@@ -128,8 +122,8 @@ MissionRandomizer_Flow::PreMissionStart ()
 
     nPlayerIndexBeforeMission = MR::sm_Globals.GetCurrentPlayer ();
 
-    LogPlayerPos(true);
-    MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext(true));
+    LogPlayerPos (true);
+    MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
 
     nLastPassedMissionTime    = MR::sm_Globals.g_LastPassedMissionTime;
     bMissionRepeating         = false;
@@ -181,14 +175,14 @@ MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
     if (ctx->m_nScriptHash != "code_controller"_joaat || ctx->m_nIp != 0)
         return true;
 
-    if (!"HAS_SCRIPT_WITH_NAME_HASH_LOADED"_n ("jewelry_heist"_joaat))
+    if (!"HAS_SCRIPT_WITH_NAME_HASH_LOADED"_n("jewelry_heist"_joaat))
         {
             "REQUEST_SCRIPT_WITH_NAME_HASH"_n("jewelry_heist"_joaat);
             return false;
         }
 
-    Rainbomizer::Logger::LogMessage("Randomizing heist crews");
-    
+    Rainbomizer::Logger::LogMessage ("Randomizing heist crews");
+
     *MR::sm_Globals.Crew_Dead_Bitset     = 0; // revive all dead crew members.
     *MR::sm_Globals.Crew_Unlocked_Bitset = 0xFFFFFFFF; // unlock all
 
@@ -205,7 +199,7 @@ MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
             YscFunctions::VerifyAndReplaceInvalidCrewMembers (eHeistId (heist));
         }
 
-    "SET_SCRIPT_WITH_NAME_HASH_AS_NO_LONGER_NEEDED"_n ("jewelry_heist"_joaat);
+    "SET_SCRIPT_WITH_NAME_HASH_AS_NO_LONGER_NEEDED"_n("jewelry_heist"_joaat);
     return true;
 }
 
@@ -248,9 +242,7 @@ MissionRandomizer_Flow::OnMissionStart ()
         && MR::sm_Globals.GetCurrentPlayer () == nPlayerIndexBeforeMission)
         MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
 
-    if ((OriginalMission->nHash == "prologue1"_joaat
-         || OriginalMission->nHash == "armenian1"_joaat)
-        && !bMissionRepeating)
+    if ("GET_IS_LOADING_SCREEN_ACTIVE"_n())
         {
             "SHUTDOWN_LOADING_SCREEN"_n();
             "DO_SCREEN_FADE_IN"_n(3000);
@@ -475,7 +467,7 @@ MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
         || ctx->m_nScriptHash != RandomizedMission->nHash)
         return;
 
-    MR::sm_Order.ReapplyRandomMissionInfo(MR::sm_Globals.g_CurrentMission);
+    MR::sm_Order.ReapplyRandomMissionInfo (MR::sm_Globals.g_CurrentMission);
     MR::sm_Globals.g_CurrentMission.Set (nPreviousCurrentMission);
     SetHeistFlowControlVariables ();
 }

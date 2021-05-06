@@ -9,6 +9,8 @@
 struct crSkeleton;
 
 /*******************************************************/
+/* These are here because of a bug in clang            */
+/*******************************************************/
 template <auto &crSkeleton_PartialUpdate>
 static void
 Fix_crSkeleton_PartialUpdate (crSkeleton *skelly, uint32_t id, bool fullUpdate)
@@ -67,7 +69,7 @@ class PedRandomizerSkeletonFixes
     /*******************************************************/
     template <auto &CPed_GetBoneIndex>
     static uint32_t
-    FixSkeletonBoneCrashes (CPed* ped, uint16_t boneId)
+    FixSkeletonBoneCrashes (CPed *ped, uint16_t boneId)
     {
         uint32_t bone = CPed_GetBoneIndex (ped, boneId);
         if (bone == -1)
@@ -105,9 +107,11 @@ public:
             0, Fix_crSkeleton_SetGlobalMtx, void, crSkeleton *, uint32_t,
             rage::Mat34V *);
 
-        // PartialUpdate
+// PartialUpdate
+#ifdef PARTIAL_UPDATE_CRASH_FIX
         RegisterPartialUpdateHook<0> ();
         RegisterPartialUpdateHook<1> ();
+#endif
 
         // GetGlobalMtx
         REGISTER_JMP_HOOK (17,

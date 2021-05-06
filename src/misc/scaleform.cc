@@ -74,11 +74,11 @@ class ScaleformRandomizer
         switch (hash)
             {
             case "SHOW_SHARD_CENTERED_MP_MESSAGE_LARGE"_joaat:
-                SetMissionFailInsult(params[1]);
+                SetMissionFailInsult (params[1]);
                 break;
 
             case "UPDATE_MESSAGE"_joaat:
-                SetMissionFailInsult(params[0], true);
+                SetMissionFailInsult (params[0], true);
                 break;
             }
     }

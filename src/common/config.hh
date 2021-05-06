@@ -13,7 +13,7 @@ class ConfigManager
 {
     std::shared_ptr<cpptoml::table> m_pConfig;
 
-    ConfigManager() {};
+    ConfigManager (){};
 
     void WriteDefaultConfig (const std::string &file);
     std::shared_ptr<cpptoml::table> ParseDefaultConfig ();

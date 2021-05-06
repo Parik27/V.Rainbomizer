@@ -2,7 +2,8 @@
 #include "Patterns/Patterns.hh"
 #include "phBound.hh"
 
-void (*phBoundComposite__AllocateTypeAndIncludeFlags) (phBoundComposite *) = nullptr;
+void (*phBoundComposite__AllocateTypeAndIncludeFlags) (phBoundComposite *)
+    = nullptr;
 
 void
 phBound::InitialisePatterns ()

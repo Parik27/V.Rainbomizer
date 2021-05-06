@@ -296,8 +296,8 @@ public:
     };
 
     static scrThread **      sm_pActiveThread;
-    static inline uint64_t **sm_Globals; // sm_Globals[64]
-    static inline uint32_t *sm_GlobalSizes; // sm_GlobalSizes[64]
+    static inline uint64_t **sm_Globals;     // sm_Globals[64]
+    static inline uint32_t * sm_GlobalSizes; // sm_GlobalSizes[64]
 
     inline bool
     IsYscScript ()

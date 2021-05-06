@@ -16,7 +16,6 @@
 #include "common/config.hh"
 #include <CPools.hh>
 
-
 #ifdef ENABLE_DEBUG_SERVER
 #include "debug/actions.hh"
 #endif

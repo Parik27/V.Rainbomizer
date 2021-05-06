@@ -27,13 +27,13 @@ struct MissionData
         }
     };
 
-    char sName[32] = {0};
-    char sGXT[16] = {0};
+    char sName[32]     = {0};
+    char sGXT[16]      = {0};
     char sCutscene[64] = {0};
-    
+
     Coords vecStartCoords;
     Coords vecEndCoords;
-    
+
     bool
     Read (const char *line)
     {
@@ -47,15 +47,15 @@ struct MissionData
             < 10)
             return false;
 
-        auto ReadPlayerBitset = [] (decltype(startPlayer) str) {
+        auto ReadPlayerBitset = [] (decltype (startPlayer) str) {
             std::vector<ePlayerIndex> b;
 
-            if(str[0] == 'M' || str[1] == 'M' || str[2] == 'M')
-                b.push_back(ePlayerIndex::PLAYER_MICHAEL);
-            if(str[0] == 'T' || str[1] == 'T' || str[2] == 'T')
-                b.push_back(ePlayerIndex::PLAYER_TREVOR);
+            if (str[0] == 'M' || str[1] == 'M' || str[2] == 'M')
+                b.push_back (ePlayerIndex::PLAYER_MICHAEL);
+            if (str[0] == 'T' || str[1] == 'T' || str[2] == 'T')
+                b.push_back (ePlayerIndex::PLAYER_TREVOR);
             if (str[0] == 'F' || str[1] == 'F' || str[2] == 'F')
-                b.push_back(ePlayerIndex::PLAYER_FRANKLIN);
+                b.push_back (ePlayerIndex::PLAYER_FRANKLIN);
 
             return b;
         };
@@ -71,14 +71,13 @@ class MissionRandomizer_Data
     std::map<uint32_t, MissionData> m_MissionData;
 
 public:
-
     bool
     IsValidMission (uint32_t missionName)
     {
         return m_MissionData.count (missionName);
     }
 
-    const auto&
+    const auto &
     GetMissionDataMap ()
     {
         return m_MissionData;

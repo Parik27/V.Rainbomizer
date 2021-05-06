@@ -310,7 +310,7 @@ MissionRandomizer_Commands::CleanupMissionTriggerer ()
 uint32_t
 MissionRandomizer_Commands::GetMoney ()
 {
-    uint32_t currentPed = MR::sm_PlayerSwitcher.GetDestPlayer();
+    uint32_t currentPed = MR::sm_PlayerSwitcher.GetDestPlayer ();
     uint32_t statName   = 0;
     uint32_t money      = 0;
 

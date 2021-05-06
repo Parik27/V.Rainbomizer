@@ -57,7 +57,7 @@ public:
 #ifdef ENABLE_DEBUG_SERVER
         ScriptDebugInterface::SetOpcodeHookDisabled (true);
 #endif
-        
+
         const int STACK_SIZE = 512;
 
         // Create dummy stack for creating a context for the function call.
@@ -65,13 +65,13 @@ public:
         scrThread *prevActiveThread
             = std::exchange (scrThread::GetActiveThread (), &thread);
         uint32_t prevActiveThreadIp = prevActiveThread->m_Context.m_nIp;
-        
+
         static auto stack = std::make_unique<uint64_t[]> (STACK_SIZE);
-        memset (stack.get(), 0, STACK_SIZE * 8);
-        thread.m_pStack        = stack.get ();
-        thread.m_Context.m_nIp = ip;
-        thread.m_Context.m_nStackSize    = STACK_SIZE;
-        thread.m_Context.m_nState = eScriptState::RUNNING;
+        memset (stack.get (), 0, STACK_SIZE * 8);
+        thread.m_pStack               = stack.get ();
+        thread.m_Context.m_nIp        = ip;
+        thread.m_Context.m_nStackSize = STACK_SIZE;
+        thread.m_Context.m_nState     = eScriptState::RUNNING;
 
         // Push arguments and return address to the thread stack.
         (..., thread.Push64 (args));
@@ -80,7 +80,7 @@ public:
         thread.Run (stack.get (), scrThread::sm_Globals, m_pProgram,
                     &thread.m_Context);
 
-        scrThread::GetActiveThread () = prevActiveThread;
+        scrThread::GetActiveThread ()     = prevActiveThread;
         prevActiveThread->m_Context.m_nIp = prevActiveThreadIp;
 
 #ifdef ENABLE_DEBUG_SERVER
@@ -111,7 +111,7 @@ public:
             ip               = 0;
             ip_OwningProgram = GetProgramHash ();
 
-            YscUtils utils (GetProgram());
+            YscUtils utils (GetProgram ());
             if (!ip || ip_OwningProgram != GetProgramHash ())
                 {
                     utils.FindCodePattern (m_Pattern,
@@ -131,7 +131,6 @@ public:
         }
 
     public:
-
         ScriptFunction (std::string_view pattern, uint32_t program)
             : m_Pattern (pattern), m_nProgramHash (program)
         {
@@ -167,7 +166,7 @@ public:
                     if (i->m_Context.m_nThreadId == 0
                         || i->m_Context.m_nState == eScriptState::KILLED)
                         continue;
-                    
+
                     if (i->m_Context.m_nScriptHash == programHash)
                         return true;
                 }
@@ -216,20 +215,20 @@ public:
     }
 
     enum PatternIdiom
-        {
-            GLOBAL_U24,
-            GLOBAL_U24_IOFFSET_S16
-        };
-    
+    {
+        GLOBAL_U24,
+        GLOBAL_U24_IOFFSET_S16
+    };
+
     /*******************************************************/
     /* Wrapper to a global variable. */
     /*******************************************************/
     template <typename T> class ScriptGlobal
     {
-        uint32_t    nGlobalIdx = 0;
+        uint32_t nGlobalIdx = 0;
 
-        std::string m_Pattern;
-        uint32_t m_PatternOffset;
+        std::string  m_Pattern;
+        uint32_t     m_PatternOffset;
         PatternIdiom m_PatternIdiom = GLOBAL_U24;
 
         uint32_t m_nProgram;
@@ -248,7 +247,8 @@ public:
             : m_Pattern (pattern), m_PatternOffset (patternOffset),
               m_nProgram (program), defVal (defValue){};
 
-        T* Get ()
+        T *
+        Get ()
         {
             if (!nGlobalIdx || !scrThread::sm_Globals)
                 return nullptr;
@@ -256,11 +256,12 @@ public:
             return &scrThread::GetGlobal<T> (nGlobalIdx);
         }
 
-        T* operator->()
+        T *
+        operator-> ()
         {
             return Get ();
         }
-        
+
         operator T ()
         {
             if (!nGlobalIdx || !scrThread::sm_Globals)
@@ -281,14 +282,13 @@ public:
         void
         Init ()
         {
-            scrProgram *program
-                = scrProgram::FindProgramByHash (m_nProgram);
+            scrProgram *program = scrProgram::FindProgramByHash (m_nProgram);
             if (program)
                 Init (program);
         }
 
         void
-        Init (scrProgram* program)
+        Init (scrProgram *program)
         {
             if (nGlobalIdx)
                 return;
@@ -330,9 +330,8 @@ class YscUtilsOps : public YscUtils
     uint8_t *pPatternResult   = nullptr;
 
 public:
-
     using YscUtils::YscUtils;
-    
+
     /* Initialise the UtilsOps to a certain pattern for further operations */
     void
     Init (std::string_view pattern)
@@ -360,7 +359,7 @@ public:
     {
         if (!pPatternResult)
             return void (bOperationFailed = true);
-        memset (pPatternResult + offset, uint8_t(YscOpCode::NOP), size);
+        memset (pPatternResult + offset, uint8_t (YscOpCode::NOP), size);
     }
 
     /* Writes a value of type T at offset */
@@ -376,7 +375,7 @@ public:
     template <typename T>
     void
     WriteBytes (int64_t offset, const T &bytes)
-    {        
+    {
         if (!pPatternResult)
             return void (bOperationFailed = true);
         memcpy (pPatternResult + offset, &bytes[0], std::size (bytes));

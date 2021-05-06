@@ -30,11 +30,11 @@ public:
     template <uint32_t... Hashes>
     inline static void
     RemoveVehicleTypesFromSet (std::set<uint32_t> &set)
-    {        
+    {
         for (auto it = set.begin (), end = set.end (); it != end;)
             {
-                if (IsVehicleAnyOfType<Hashes...>(*it))
-                    it = set.erase(it);
+                if (IsVehicleAnyOfType<Hashes...> (*it))
+                    it = set.erase (it);
                 else
                     ++it;
             }
@@ -47,8 +47,8 @@ public:
     {
         for (auto it = set.begin (), end = set.end (); it != end;)
             {
-                if (!IsVehicleAnyOfType<Hashes...>(*it))
-                    it = set.erase(it);
+                if (!IsVehicleAnyOfType<Hashes...> (*it))
+                    it = set.erase (it);
                 else
                     ++it;
             }

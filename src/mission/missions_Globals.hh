@@ -349,13 +349,13 @@ enum class eCharacter
 };
 
 enum class eHeistId
-    {
-        HEIST_JEWELRY,
-        HEIST_DOCKS,
-        HEIST_RURAL,
-        HEIST_AGENCY,
-        HEIST_FINALE
-    };
+{
+    HEIST_JEWELRY,
+    HEIST_DOCKS,
+    HEIST_RURAL,
+    HEIST_AGENCY,
+    HEIST_FINALE
+};
 
 /*******************************************************/
 struct MissionDefinition
@@ -418,7 +418,7 @@ struct MissionDefinition
             bool FLAG_15 : 1;
             bool DISABLE_MISSION_SKIPS : 1;
             bool DISABLE_MISSION_EXIT : 1;
-            
+
         } BITS_MissionFlags;
     };
     uint8_t field_0x7c[148];
@@ -428,9 +428,9 @@ static_assert (sizeof (MissionDefinition) == 0x22 * 8);
 /*******************************************************/
 struct MissionFlowCommand
 {
-    alignas(8) uint32_t CommandHash;
-    alignas(8) uint32_t Type;
-    alignas(8) uint32_t Data;
+    alignas (8) uint32_t CommandHash;
+    alignas (8) uint32_t Type;
+    alignas (8) uint32_t Data;
 };
 
 /*******************************************************/
@@ -495,7 +495,7 @@ public:
     YscUtils::ScriptGlobal<uint32_t> g_ForceWalking{
         "5f ? ? ? 56 ? ? 5f ? ? ? 38 05 57 ? ? 38 05 ", 1,
         "flow_controller"_joaat, 0};
-    
+
     /*******************************************************/
     template <typename T, int fieldNameIdx = 1>
     static void
@@ -508,7 +508,7 @@ public:
 
 #define ADD_SAVE_DATA_GLOBAL(global)                                           \
     if (fieldName == #global##s)                                               \
-        global = static_cast<decltype(global)>(ptr)
+    global = static_cast<decltype (global)> (ptr)
 
         if constexpr (std::is_same_v<T, bool>)
             {

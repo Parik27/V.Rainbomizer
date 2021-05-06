@@ -14,7 +14,7 @@ private:
     inline static std::map<std::string, Type> sm_ConfigOptions;
 
     static std::string UpdateOption (const nlohmann::json &request);
-    
+
     static void HandleUpdateConfig (uWS::HttpResponse<false> *res,
                                     uWS::HttpRequest *        req);
 

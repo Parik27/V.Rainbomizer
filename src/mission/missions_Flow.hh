@@ -18,14 +18,14 @@ class MissionRandomizer_Flow
     FILE *mEndCoordsFile
         = Rainbomizer::Common::GetRainbomizerFile ("endCoords.txt", "a");
 
-    const MissionInfo* OriginalMission = nullptr;
-    const MissionInfo* RandomizedMission = nullptr;
+    const MissionInfo *OriginalMission   = nullptr;
+    const MissionInfo *RandomizedMission = nullptr;
 
     ePlayerIndex nPlayerIndexBeforeMission = ePlayerIndex::PLAYER_UNKNOWN;
     ePlayerIndex nPlayerIndexOnMissionFail = ePlayerIndex::PLAYER_UNKNOWN;
-    
-    uint32_t     nLastPassedMissionTime    = 0;
-    uint32_t     nPreviousCurrentMission   = -1u;
+
+    uint32_t nLastPassedMissionTime  = 0;
+    uint32_t nPreviousCurrentMission = -1u;
 
     int32_t nMissionPtrsSema = 2;
 
@@ -40,16 +40,16 @@ class MissionRandomizer_Flow
     void HandleCurrentMissionChanges ();
     void InitStatWatcherForRandomizedMission ();
     bool HandleCutscenesForRandomizedMission ();
-    
-    bool HandleHeistCrewRandomization (scrThreadContext* ctx);
-    
+
+    bool HandleHeistCrewRandomization (scrThreadContext *ctx);
+
     auto GenerateSwitcherContext (bool start);
-    
+
     bool WasMissionPassed ();
     bool PreMissionStart ();
     bool OnMissionStart ();
     bool OnMissionEnd (bool passed);
-    
+
     void LogPlayerPos (bool start);
 
     void SetFlowControlVariableForHeist (eHeistId id, bool approach);

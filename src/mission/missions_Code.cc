@@ -42,7 +42,7 @@ MissionRandomizer_CodeFixes::ApplyStatWatcherFix (YscUtilsOps &utils)
 
     utils.Init ("6f 54 ? ? 6f 54 ? ? 5d ? ? ? 5d ? ? ? 2e 01 00");
     utils.NOP (/*Offset=*/12, /*Size=*/4);
-    
+
     PrintStatus (utils, "mission_stat_watcher fix: ");
 }
 
@@ -101,7 +101,7 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     // hopefully there aren't any. It could be made specific to only the
     // missions that wait for the triggerer, but you would need to go through
     // all the missions and find out which ones are broken.
-    
+
     static constexpr uint8_t return_1[] = {
         0x6f,          // PUSH_CONST_1
         0x2e, 0x1, 0x1 // LEAVE 0x1, 0x1
@@ -122,7 +122,7 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     utils.Init ("2d 01 03 00 ? 38 ? 06 2a 56");
     utils.WriteBytes (/*Offset=*/5, return_1);
 
-    PrintStatus(utils, "Triggerer Wait Fix");
+    PrintStatus (utils, "Triggerer Wait Fix");
 }
 
 /*******************************************************/

@@ -81,7 +81,7 @@ class CutSceneRandomizer
                         case eCutfObjectType::MODEL: {
                             auto obj = static_cast<cutfModelObject *> (
                                 file->pCutsceneObjects.Data[i]);
-                            
+
                             obj->StreamingName
                                 = GetRandomModel (obj->StreamingName);
 
@@ -119,7 +119,7 @@ public:
 
         if (!InitialiseModelData ())
             return;
-        
+
         RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
                       VisitTopLevelStructure_37027e, RandomizeCutScene);
     }

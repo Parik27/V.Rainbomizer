@@ -364,8 +364,9 @@ scrThread::InitialisePatterns ()
     // 8b d9 33 d2 ?? 8d 15 ?? ?? ?? ?? ?? 8d 05
     sm_Globals = GetRelativeReference<uint64_t *> (
         "8b d9 33 d2 ? 8d 15 ? ? ? ? ? 8d 05", 14, 18);
-    sm_GlobalSizes = GetRelativeReference<uint32_t> (
-        "8b d9 33 d2 ? 8d 15 ? ? ? ? ? 8d 05", 7, 11);
+    sm_GlobalSizes
+        = GetRelativeReference<uint32_t> ("8b d9 33 d2 ? 8d 15 ? ? ? ? ? 8d 05",
+                                          7, 11);
 
     ReadCall (hook::get_pattern (
                   "8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9),

@@ -132,6 +132,25 @@ RegisterHook (void *addr, O &originalFunc, F hookedFunc)
 }
 
 /*******************************************************/
+template <uint32_t offset, typename F, typename O>
+void
+RegisterHookVft (void *vft, O &originalFunc, F hookedFunc)
+{
+    void *&address = reinterpret_cast<void **> (vft)[offset];
+
+    injector::WriteMemory (&originalFunc, address);
+    injector::WriteMemory (&address, hookedFunc);
+}
+
+/*******************************************************/
+template <typename T, uint32_t offset, typename F, typename O>
+void
+RegisterHookVft (O &originalFunc, F hookedFunc)
+{
+    RegisterHookVft<offset> ((void *) T::vftable, originalFunc, hookedFunc);
+}
+
+/*******************************************************/
 template <bool Jmp = false, typename F, typename O>
 void
 RegisterHook (const std::string &pattern, int offset, O &originalFunc,
@@ -236,4 +255,11 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         RegisterJmpHook<size> (pattern, offset, F, function<F>);               \
+    }
+
+/*******************************************************/
+#define REGISTER_VFT_HOOK(type, offset, function, ret, ...)                    \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterHookVft<type, offset> (F, function<F>);                        \
     }

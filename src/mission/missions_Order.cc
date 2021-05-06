@@ -30,7 +30,7 @@ MissionRandomizer_OrderManager::Process (scrProgram *      program,
     if (program->m_nScriptHash == "initial"_joaat
         && ctx->m_nState == eScriptState::KILLED)
         {
-            InitialiseMissionsMap (GetSeed());
+            InitialiseMissionsMap (GetSeed ());
             Update_gMissions ();
 
             bInitialised = true;
@@ -60,26 +60,25 @@ MissionRandomizer_OrderManager::GetSeed ()
     return static_cast<uint32_t> (std::hash<std::string>{}(MR::Config ().Seed));
     ;
 
-    auto *structure
-        = GetSaveStructure ();
+    auto *structure = GetSaveStructure ();
 
     Rainbomizer::Logger::LogMessage ("Signature: %s", structure->Signature);
     uint32_t seed = RandomInt (UINT_MAX);
-    if (structure->ValidateSaveStructure())
-    {
+    if (structure->ValidateSaveStructure ())
+        {
             if (MR::Config ().ForceSeedOnSaves)
-            seed = static_cast<uint32_t> (
-                std::hash<std::string>{}(MR::Config ().Seed));
-            else
-                seed = structure->Seed;
-    }
-    else
-    {
-        if (MR::Config ().Seed != "")
                 seed = static_cast<uint32_t> (
                     std::hash<std::string>{}(MR::Config ().Seed));
-        *structure = SaveStructure (seed);
-    }
+            else
+                seed = structure->Seed;
+        }
+    else
+        {
+            if (MR::Config ().Seed != "")
+                seed = static_cast<uint32_t> (
+                    std::hash<std::string>{}(MR::Config ().Seed));
+            *structure = SaveStructure (seed);
+        }
     Rainbomizer::Logger::LogMessage ("Seed: %x", seed);
     return seed;
 }
@@ -113,7 +112,6 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
     m_Choices.DocksBlowUpBoat = engine () % 2;
     m_Choices.FinaleHeli      = engine () % 2;
     m_Choices.JewelStealth    = engine () % 2;
-
 
     // Print information about the seed.
 #define PRINT_CHOICE(choice, yes, no)                                          \
@@ -175,7 +173,7 @@ MissionRandomizer_OrderManager::RestoreOriginalMissionInfo (uint32_t missionId)
     if (!info || !info->pDef)
         return;
 
-    m_StoredRandomInfo                        = *info->pDef;
+    m_StoredRandomInfo                         = *info->pDef;
     MR::sm_Globals.g_Missions->Data[missionId] = info->DefCopy;
 }
 

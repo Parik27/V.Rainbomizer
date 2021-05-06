@@ -19,6 +19,8 @@
 #include "CHandlingDataMgr.hh"
 #include "CLoadingScreens.hh"
 #include "phBound.hh"
+#include "CTask.hh"
+#include "CModelIndices.hh"
 
 #include "Utils.hh"
 
@@ -120,6 +122,8 @@ InitialiseAllComponents ()
     CHandlingDataMgr::InitialisePatterns ();
     CLoadingScreens::InitialisePatterns ();
     phBound::InitialisePatterns ();
+    aiTask::InitialisePatterns ();
+    CModelIndices::InitialisePatterns ();
 
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();

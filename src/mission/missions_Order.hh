@@ -40,10 +40,10 @@ class MissionRandomizer_OrderManager
 
     struct SaveStructure
     {
-        char          Signature[12] = "RAINBOMIZER";
-        unsigned int  Seed;
+        char         Signature[12] = "RAINBOMIZER";
+        unsigned int Seed;
 
-        SaveStructure(unsigned int seed) : Seed(seed) {}
+        SaveStructure (unsigned int seed) : Seed (seed) {}
 
         bool
         ValidateSaveStructure ()
@@ -52,9 +52,9 @@ class MissionRandomizer_OrderManager
         }
     };
 
-    SaveStructure *   GetSaveStructure ();
-    uint32_t          GetSeed ();
-    
+    SaveStructure *GetSaveStructure ();
+    uint32_t       GetSeed ();
+
     MissionDefinition m_StoredRandomInfo;
 
 public:

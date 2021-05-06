@@ -7,7 +7,7 @@
 
 #include <windows.h>
 
-CEntity* (*fwScriptGuid_GetBaseFromGuid) (uint32_t) = nullptr;
+CEntity *(*fwScriptGuid_GetBaseFromGuid) (uint32_t) = nullptr;
 
 /*******************************************************/
 std::unique_ptr<NativeManager::NativeFunc[]>
