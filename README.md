@@ -47,12 +47,19 @@ Rainbomizer requires an **ASI-Loader** to function. It works with **all** versio
 
 If you wish to change any of the mod's functionalities, for example to disable a specific randomizer, a configuration file (`config.toml`) has been provided with the mod. The config file is located in the `rainbomizer` folder in the game's root directory.
 
-The default configuration file is in the main repository, `config.toml`, and is automatically created by the mod if it doesn't exist in the rainbomizer folder.
+The default configuration file is in the main repository, `config.toml`, and is automatically created by the mod if it doesn't exist in the rainbomizer folder using pre-determined default values.
+
+It can be opened and modified with a text editing program such as Notepad++. Any aspect of the mod can be modified to your liking using this file - if you make changes while the game is running, the game must be restarted for these to take effect.
 
 - To enable or disable a certain randomizer, set the corresponding value to "true" or "false" from the list of randomizers at the top of the file.   
 - To configure a certain randomizer, find its specific section in the file by searching for its name. If there isn't a specific section, the randomizer doesn't offer further customization. More information about how to configure specific randomizers is provided in the default config file.
 
 ## Credits 🌈
+
+- [Parik](https://github.com/Parik27) - Creation and implementation of the ASI.
+- [Fryterp23](https://www.twitch.tv/fryterp23) - Assisting with creation of external files and extensive testing.
+- [123robot](https://www.twitch.tv/123robot) - Creation of external files, testing, and support with debugging.
+- [Gibstack](https://www.twitch.tv/gibstack) - Testing.
 
 <span id="contribute"></span>
 ## Contribution
