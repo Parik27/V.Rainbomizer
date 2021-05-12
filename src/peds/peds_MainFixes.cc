@@ -4,6 +4,7 @@
 #include <CutSceneManager.hh>
 
 #include "peds_Compatibility.hh"
+#include "scrThread.hh"
 
 using namespace NativeLiterals;
 
@@ -54,12 +55,21 @@ class PedRandomizer_MainFixes
                                         p7, p8);
     }
 
+    /*******************************************************/
+    static void
+    FixIsPedModelNative (scrThread::Info *info)
+    {
+        info->GetReturn ()
+            = FixupScriptEntityModel (info->GetArg (0)) == info->GetArg (1);
+    }
+
 public:
     /*******************************************************/
     PedRandomizer_MainFixes ()
     {
         // Fix for scripts where a certain hash is required for a certain ped.
         "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
+        "IS_PED_MODEL"_n.Hook (FixIsPedModelNative);
 
         REGISTER_HOOK (
             "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
