@@ -59,7 +59,7 @@ It can be opened and modified with a text editing program such as Notepad++. Any
 - [Parik](https://github.com/Parik27) - Creation and implementation of the ASI.
 - [Fryterp23](https://www.twitch.tv/fryterp23) - Assisting with creation of external files and extensive testing.
 - [123robot](https://www.twitch.tv/123robot) - Creation of external files, testing, and support with debugging.
-- [Gibstack](https://www.twitch.tv/gibstack) - Testing.
+- [Gibstack](https://www.twitch.tv/gibstack) - Beta Testing.
 
 <span id="contribute"></span>
 ## Contribution

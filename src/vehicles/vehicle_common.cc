@@ -6,6 +6,8 @@
 #include <scrThread.hh>
 #include "CModelInfo.hh"
 #include "common/logger.hh"
+#include "common/ysc.hh"
+#include "mission/missions_YscUtils.hh"
 
 bool (*scrProgram_InitNativeTablese188) (scrProgram *);
 
@@ -51,50 +53,31 @@ VehicleRandomizerHelper::GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
 }
 
 /*******************************************************/
-bool
-VehicleRandomizerHelper::ApplyDLCDespawnFix (scrProgram *program)
-{
-    bool ret = scrProgram_InitNativeTablese188 (program);
-
-    if (program->m_nScriptHash == "shop_controller"_joaat)
-        {
-            // This script handles despawning of DLC vehicles. This finds the
-            // function that does that and overrides the branch to make the
-            // checks not happen.
-
-            program->ForEachCodePage ([] (int, uint8_t *block, size_t size) {
-                // ENTER 01 08 00 ?
-                // LOCAL_U8_LOAD 00
-                // CALL ? ? ? (<-- should not execute despawning code)
-                // INOT
-                // JZ ? ? (<-- jumps to the despawning code)
-                // LEAVE 01 00
-
-                auto pattern = hook::make_range_pattern (
-                    uintptr_t (block), uintptr_t (block) + size,
-                    "2d 01 08 00 ? 38 00 5d ? ? ? 06 56 ? ? 2e 01 00");
-
-                pattern.for_each_result ([] (hook::pattern_match match) {
-                    // NOPs the JZ instruction
-                    // JZ ? ? => NOP NOP NOP
-                    *match.get<uint16_t> (12) = 0;
-                    *match.get<uint8_t> (14)  = 0;
-
-                    Rainbomizer::Logger::LogMessage ("Applied DLC Despawn fix");
-
-                    return true;
-                });
-            });
-        }
-    return ret;
-}
-
-/*******************************************************/
 void
 VehicleRandomizerHelper::InitialiseDLCDespawnFix ()
 {
     static bool bFixInitialised = false;
-    if (!std::exchange (bFixInitialised, true))
-        RegisterHook ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
-                      scrProgram_InitNativeTablese188, ApplyDLCDespawnFix);
+    if (std::exchange (bFixInitialised, true))
+        return;
+
+    // shop_controller handles despawning DLC vehicles. This edit overrides the
+    // branch by NOPing the JZ instruction that makes the code jump to the
+    // despawning code.
+
+    // ENTER 01 08 00 ?
+    // LOCAL_U8_LOAD 00
+    // CALL ? ? ? (<-- should not execute despawning code)
+    // INOT
+    // JZ ? ? (<-- jumps to the despawning code)
+    // LEAVE 01 00
+
+    YscCodeEdits::Add ("DLC Despawn Fix", [] (YscUtilsOps &ops) -> bool {
+        if (!ops.IsAnyOf ("shop_controller"_joaat))
+            return false;
+
+        ops.Init ("2d 01 08 00 ? 38 00 5d ? ? ? 06 56 ? ? 2e 01 00");
+        ops.NOP (/*Offset=*/12, 3);
+
+        return true;
+    });
 }

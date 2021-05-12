@@ -49,6 +49,7 @@ class PedRandomizer_Streaming
     {
         if (sm_NsfwModelsInitialised)
             return;
+        sm_NsfwModelsInitialised = true;
 
         FILE *f
             = Rainbomizer::Common::GetRainbomizerDataFile ("NSFW_Models.txt");

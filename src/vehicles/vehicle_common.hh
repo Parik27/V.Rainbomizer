@@ -8,8 +8,6 @@ struct scrProgram;
 
 class VehicleRandomizerHelper
 {
-    static bool ApplyDLCDespawnFix (scrProgram *program);
-
 public:
     static std::set<uint32_t> GetLoadedVehSet ();
 

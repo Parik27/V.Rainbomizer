@@ -12,42 +12,17 @@
 class MissionRandomizer_CodeFixes
 {
     /*******************************************************/
-    static void PrintStatus (YscUtilsOps &utils, std::string_view fixName);
-
-    /*******************************************************/
-    static void ApplyStatWatcherFix (YscUtilsOps &utils);
-    static void ApplyCreditsFix_FinaleAB (YscUtilsOps &utils);
-    static void ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils);
-    static void ApplyMissionPassFix (YscUtilsOps &utils);
-    static void ApplyTriggererWaitFix (YscUtilsOps &utils);
-    static void ApplyPrepNoRepeatFix (YscUtilsOps &utils);
-    static void ApplyQuickSkipsPatch (YscUtilsOps &utils);
-    static void ApplySolomonCamFix (YscUtilsOps &utils);
-
-    /*******************************************************/
-    template <auto &scrProgram_InitNativeTablese188>
-    static bool
-    ApplyCodeFixes (scrProgram *program)
-    {
-        YscUtilsOps utils (program);
-        bool        ret = scrProgram_InitNativeTablese188 (program);
-
-        ApplyStatWatcherFix (utils);
-        ApplyCreditsFix_FinaleAB (utils);
-        ApplyCreditsFix_FinaleC2 (utils);
-        ApplyMissionPassFix (utils);
-        ApplyTriggererWaitFix (utils);
-        ApplyPrepNoRepeatFix (utils);
-        ApplyQuickSkipsPatch (utils);
-        ApplySolomonCamFix (utils);
-
-        return ret;
-    }
+    static bool ApplyStatWatcherFix (YscUtilsOps &utils);
+    static bool ApplyCreditsFix_FinaleAB (YscUtilsOps &utils);
+    static bool ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils);
+    static bool ApplyMissionPassFix (YscUtilsOps &utils);
+    static bool ApplyTriggererWaitFix (YscUtilsOps &utils);
+    static bool ApplyPrepNoRepeatFix (YscUtilsOps &utils);
+    static bool ApplyQuickSkipsPatch (YscUtilsOps &utils);
+    static bool ApplySolomonCamFix (YscUtilsOps &utils);
 
 public:
-    MissionRandomizer_CodeFixes ()
-    {
-        REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
-                       ApplyCodeFixes, bool, scrProgram *);
-    }
+    void Initialise ();
+
+    MissionRandomizer_CodeFixes () { Initialise (); }
 };

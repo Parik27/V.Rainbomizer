@@ -32,15 +32,13 @@ class WeatherRandomizer
 
         auto GetRandomWeather = []() -> auto &
         {
-            return CWeather::g_Weather
-                ->aWeatherTypes[RandomInt (CWeather::g_Weather->nTotalTypes)];
+            return CWeather::g_Weather->aWeatherTypes[RandomInt (
+                CWeather::g_Weather->nTotalTypes - 1)];
         };
 
         for (int i = 0; i < CWeather::g_Weather->nTotalTypes; i++)
             {
                 CWeatherType &type = CWeather::g_Weather->aWeatherTypes[i];
-
-                type.Lightning = true;
 
                 // Frankenstein randomization, basically. This will swap each
                 // field for a certain element with the field of a random
@@ -58,7 +56,7 @@ class WeatherRandomizer
                 RANDOMIZE_FIELD (Snow)
                 RANDOMIZE_FIELD (SnowMist)
                 RANDOMIZE_FIELD (Fog)
-                // RANDOMIZE_FIELD (Lighting)
+                RANDOMIZE_FIELD (Lightning)
                 RANDOMIZE_FIELD (Sandstorm)
                 RANDOMIZE_FIELD (DropSettingIndex)
                 RANDOMIZE_FIELD (MistSettingIndex)

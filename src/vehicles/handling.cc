@@ -135,7 +135,7 @@ class HandlingRandomizer
          * randomizer for each of their types. So effectively this means a
          * unique randomizer for bikes and boats.  */
 
-        // Default randomizer for all types except boats and bikes
+        // Default randomizer for all types except boats, bikes and trailers
         static CHandlingDataRandomizer Automobiles;
 
         for (auto &i : data->Get<atArray<CBaseSubHandlingData *>> (
@@ -157,6 +157,12 @@ class HandlingRandomizer
                         case "CBoatHandlingData"_joaat: {
                             static CHandlingDataRandomizer Boats;
                             return Boats;
+                        }
+
+                        // Trailers
+                        case "CTrailerHandlingData"_joaat: {
+                            static CHandlingDataRandomizer Trailers;
+                            return Trailers;
                         }
                     }
             }

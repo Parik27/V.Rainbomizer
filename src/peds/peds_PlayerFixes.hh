@@ -12,6 +12,8 @@
 #include <rage.hh>
 #include <utility>
 
+#include "common/ysc.hh"
+
 struct fwRefAwareBase;
 
 class PedRandomizer_PlayerFixes
@@ -109,6 +111,22 @@ class PedRandomizer_PlayerFixes
         UpdatePlayerHash ();
     }
 
+    /*******************************************************/
+    static bool
+    RemoveLester1ClothesRequirement (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("lester1"_joaat))
+            return false;
+
+        ops.Init ("38 0e 25 ? 08 2a 06 56 ? ?");
+        ops.NOP (/*Offset=*/7, /*Size=*/3);
+
+        ops.Init ("2a 06 56 ? ? 38 0d 25 48 08 20");
+        ops.NOP (/*Offset=*/2, /*Size=*/3);
+
+        return true;
+    }
+
 public:
     /*******************************************************/
     static void
@@ -139,6 +157,9 @@ public:
         REGISTER_HOOK (
             "? 8d ? 08 ? 8b cf ? 89 ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ? 8b d7", 11,
             UpdatePlayerHash_Trampoline, void, fwRefAwareBase *, void *);
+
+        YscCodeEdits::Add ("Remove Lester1 Clothes Requirement",
+                           RemoveLester1ClothesRequirement);
     }
 
     /*******************************************************/
@@ -164,7 +185,7 @@ public:
         if (!model)
             return;
 
-        GetPlayerModelIndexPtr (model->m_nHash)->nHash
-            = player->m_pModelInfo->m_nHash;
+        if (auto idxPtr = GetPlayerModelIndexPtr (model->m_nHash))
+            idxPtr->nHash = player->m_pModelInfo->m_nHash;
     }
 };

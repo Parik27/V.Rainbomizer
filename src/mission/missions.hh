@@ -12,15 +12,18 @@
 
 class MissionRandomizer_Components
 {
-    template <auto &...Components>
-    static bool
-    ProcessComponents (scrProgram *program, scrThreadContext *ctx)
+    template <auto &...Components> class ComponentSet
     {
-        bool ret = true;
-        (..., (ret = Components.Process (program, ctx) ? ret : false));
+    public:
+        static bool
+        Process (scrProgram *program, scrThreadContext *ctx)
+        {
+            bool ret = true;
+            (..., (ret = Components.Process (program, ctx) ? ret : false));
 
-        return ret;
-    }
+            return ret;
+        }
+    };
 
 public:
     inline static MissionRandomizer_Data sm_Data{
@@ -33,11 +36,13 @@ public:
     inline static MissionRandomizer_CodeFixes      sm_CodeFixes;
     inline static MissionRandomizer_Commands       sm_Cmds;
 
+    using ComponentList = ComponentSet<sm_Globals, sm_Order, sm_Flow,
+                                       sm_PlayerSwitcher, sm_Cmds>;
+
     static bool
     Process (scrProgram *program, scrThreadContext *ctx)
     {
-        return ProcessComponents<sm_Globals, sm_Order, sm_Flow,
-                                 sm_PlayerSwitcher, sm_Cmds> (program, ctx);
+        return ComponentList::Process (program, ctx);
     }
 
     static auto &

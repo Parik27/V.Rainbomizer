@@ -29,10 +29,10 @@ public:
     PedRandomizer_AnimalFixes ()
     {
         // Hook to prevent peds with flag (DiesOnRagdoll) from dying
-        // injector::MakeNOP (
-        //     hook::get_pattern (
-        //         "75 ? ? 8b ? ? ? ? ? ? 85 c0 74 ? 44 38 60 0f 75", 18),
-        //     2);
+        injector::MakeNOP (
+            hook::get_pattern (
+                "75 ? ? 8b ? ? ? ? ? ? 85 c0 74 ? 44 38 60 0f 75", 18),
+            2);
 
         // This hook fixes a crash in CTaskUseScenario, where the ped bounds
         // type and include flags are accessed; In case of fish bounds, these
