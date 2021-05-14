@@ -57,30 +57,15 @@ MissionRandomizer_OrderManager::Process (scrProgram *      program,
 uint32_t
 MissionRandomizer_OrderManager::GetSeed ()
 {
-    return static_cast<uint32_t> (std::hash<std::string>{}(MR::Config ().Seed));
-    ;
+    auto *save = GetSaveStructure ();
 
-    auto *structure = GetSaveStructure ();
+    uint32_t randomSeed = RandomSize (UINT_MAX);
+    uint32_t configSeed = rage::atLiteralStringHash (MR::Config ().Seed);
 
-    Rainbomizer::Logger::LogMessage ("Signature: %s", structure->Signature);
-    uint32_t seed = RandomInt (UINT_MAX);
-    if (structure->ValidateSaveStructure ())
-        {
-            if (MR::Config ().ForceSeedOnSaves)
-                seed = static_cast<uint32_t> (
-                    std::hash<std::string>{}(MR::Config ().Seed));
-            else
-                seed = structure->Seed;
-        }
-    else
-        {
-            if (MR::Config ().Seed != "")
-                seed = static_cast<uint32_t> (
-                    std::hash<std::string>{}(MR::Config ().Seed));
-            *structure = SaveStructure (seed);
-        }
-    Rainbomizer::Logger::LogMessage ("Seed: %x", seed);
-    return seed;
+    if (!save->ValidateSaveStructure ())
+        *save = SaveStructure (configSeed == 0 ? randomSeed : configSeed);
+
+    return MR::Config ().ForceSeedOnSaves ? configSeed : save->Seed;
 }
 
 void

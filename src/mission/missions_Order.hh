@@ -40,15 +40,16 @@ class MissionRandomizer_OrderManager
 
     struct SaveStructure
     {
-        char         Signature[12] = "RAINBOMIZER";
-        unsigned int Seed;
+        alignas (8) char Signature[4] = {'R', 'B', 'M', 'Z'};
+        alignas (8) unsigned int Seed;
 
         SaveStructure (unsigned int seed) : Seed (seed) {}
 
         bool
-        ValidateSaveStructure ()
+        ValidateSaveStructure () const
         {
-            return Signature == std::string ("RAINBOMIZER");
+            return Signature[0] == 'R' && Signature[1] == 'B'
+                   && Signature[2] == 'M' && Signature[3] == 'Z';
         }
     };
 
