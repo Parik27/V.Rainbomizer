@@ -197,9 +197,9 @@ public:
         if (m_Config.RandomizeWeather)
             Rainbomizer::Common::AddInitCallback (RandomizeWeather);
 
-        if (!m_Config.CrazyMode)
+        if (!m_Config.CrazyMode && m_Config.RandomizeTimecycle)
             Rainbomizer::Common::AddInitCallback (RandomizeTimecycles);
-        else
+        else if (m_Config.CrazyMode)
             RegisterHook (
                 "? 03 de e8 ? ? ? ? b9 00 00 00 38 0f 57 c9 f2 0f 5a c8", 3,
                 RandomizeTimecycleComponent);

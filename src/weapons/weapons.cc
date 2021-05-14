@@ -125,18 +125,6 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
-    static void
-    PrintWeaponList ()
-    {
-        // for (auto &info : CWeaponInfoManager::sm_Instance->aWeaponInfos)
-        //     {
-        //         Rainbomizer::Logger::LogMessage (
-        //             "classId => %x, modelId = %x, name = %x",
-        //             info->GetClassId (), info->GetModelHash (), info->Name);
-        //     }
-    }
-
-    /*******************************************************/
     static bool
     ShouldRandomizeWeapon (uint32_t weapon)
     {

@@ -4,17 +4,23 @@
 #include <array>
 
 #include "CModelInfo.hh"
+#include "ParserUtils.hh"
 #include "peds_Compatibility.hh"
 
 #include <CPed.hh>
 #include <CutSceneManager.hh>
 #include <CModelIndices.hh>
+#include <cstdint>
 #include <rage.hh>
 #include <utility>
 
 #include "common/ysc.hh"
 
 struct fwRefAwareBase;
+
+class CPlayerPedSaveStructure : public ParserWrapper<CPlayerPedSaveStructure>
+{
+};
 
 class PedRandomizer_PlayerFixes
 {
@@ -127,6 +133,20 @@ class PedRandomizer_PlayerFixes
         return true;
     }
 
+    /*******************************************************/
+    template <auto &CPlayerPedSaveStructure__PreSave>
+    static void
+    FixSavedPlayerModel (CPlayerPedSaveStructure *save)
+    {
+        CPlayerPedSaveStructure__PreSave (save);
+
+        uint32_t origHash = PedRandomizerCompatibility::GetOriginalModel (
+                                CPedFactory::Get ()->pPlayer)
+                                ->m_nHash;
+
+        save->Get<uint32_t> ("ModelHashKey"_joaat) = origHash;
+    }
+
 public:
     /*******************************************************/
     static void
@@ -139,6 +159,17 @@ public:
         // the cutscene.
         REGISTER_HOOK ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
                        CorrectPlayerObjIdx, void, CutSceneManager *);
+
+        // Hook to reset the saved player model during saving to make sure
+        // you don't get a random player on loading without Rainbomizer and
+        // (more importantly) to prevent softlocks and crashes this causes.
+        // Pattern from Robot (insert u word here)
+        REGISTER_JMP_HOOK (12,
+                           "? 89 5c ? ? 55 56 57 41 54 41 55 41 56 41 57 ? 8d "
+                           "? ? d9 ? 81 ec 90 00 00 00 ? 8b ? ? ? ? ? 33 f6 ? "
+                           "8b f1 ? 8b ? ? ? 85 ff 0f 84 ? ? ? ? ? 8b",
+                           0, FixSavedPlayerModel, void,
+                           CPlayerPedSaveStructure *);
 
         // This patch enables phone models for all ped models
         injector::MakeNOP (
