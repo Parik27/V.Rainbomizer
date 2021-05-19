@@ -23,6 +23,7 @@ class ScaleformRandomizer
                           bool useLastInsult = false)
     {
         static const int INSULT_ODDS = 10;
+        ReadInsultsList ();
 
         if (m_MissionFailInsults.empty ())
             return;
@@ -99,23 +100,28 @@ class ScaleformRandomizer
     }
 
     /*******************************************************/
-    bool
+    static void
     ReadInsultsList ()
     {
+        static bool sm_Initialised = false;
+        if (std::exchange (sm_Initialised, true))
+            return;
+
         FILE *insultsFile
             = Rainbomizer::Common::GetRainbomizerDataFile ("FailMessages.txt");
 
         if (!insultsFile)
-            return false;
+            return;
 
         char line[1024] = {0};
         while (fgets (line, 512, insultsFile))
             {
                 line[strcspn (line, "\n")] = 0;
                 m_MissionFailInsults.push_back (line);
+                m_MissionFailInsults.back () += ' ';
             }
 
-        return true;
+        return;
     }
 
 public:
@@ -123,7 +129,6 @@ public:
     ScaleformRandomizer ()
     {
         InitialiseAllComponents ();
-        ReadInsultsList ();
         REGISTER_HOOK ("89 74 ? ? e8 ? ? ? ? ? 8b cd ? 8b d0 e8", 4,
                        RandomizeScaleformMethod, void *, void *, int, uint64_t,
                        uint64_t, char *, ScaleformMethodStruct::ParamStruct *,

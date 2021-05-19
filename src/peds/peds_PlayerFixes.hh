@@ -155,6 +155,8 @@ public:
         if (sm_Initialised)
             return;
 
+        sm_Initialised = true;
+
         // Hook for cutscenes to properly get the object model to register for
         // the cutscene.
         REGISTER_HOOK ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
@@ -177,8 +179,6 @@ public:
                 "8b ? ? ? ? ? 44 38 70 09 74 ? 40 84 f6 75 ? b9 30 00 00 00 ",
                 10),
             2);
-
-        sm_Initialised = true;
 
         // To make UpdatePlayerHash also be called after a call to
         // CHANGE_PLAYER_PED (and several other functions). Can also be extended

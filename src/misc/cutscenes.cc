@@ -46,7 +46,7 @@ class CutSceneRandomizer
     InitialiseModelData ()
     {
         FILE *modelsFile = Rainbomizer::Common::GetRainbomizerDataFile (
-            "CutsceneModels.txt");
+            "CutsceneModelsProps.txt");
         GetModelsList ().clear ();
 
         if (!modelsFile)

@@ -21,7 +21,7 @@ class PedRandomizer_Streaming
     GetRandomPedIndex ()
     {
         auto &PedHashes = Rainbomizer::Common::GetPedHashes ();
-        return GetRandomElement (PedHashes);
+        return CStreaming::GetModelIndex (GetRandomElement (PedHashes));
     }
 
     /*******************************************************/

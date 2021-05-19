@@ -51,7 +51,7 @@ LogSpawnedVehicles = false # Logs all the spawned script vehicles
 #######################################################
 [WeatherRandomizer]
 
-RandomizeWeather = false # Randomize the weather (properties like sun, rain, etc.)
+RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
 
 # CrazyMode = false # Not recommended, makes the game invisible.
