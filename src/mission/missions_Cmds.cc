@@ -214,8 +214,6 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             [[fallthrough]];
         case "armenian2"_joaat: SetBuildingState (179, 0); [[fallthrough]];
         case "armenian3"_joaat:
-            SetBuildingState (174, 0);
-            SetBuildingState (178, 0);
             SetBuildingState (175, 0);
             SetBuildingState (176, 0);
             SetBuildingState (177, 0);

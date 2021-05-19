@@ -196,6 +196,26 @@ MissionRandomizer_CodeFixes::ApplySolomonCamFix (YscUtilsOps &utils)
 }
 
 /*******************************************************/
+bool
+MissionRandomizer_CodeFixes::ApplyBuildingStatePatch (YscUtilsOps &utils)
+{
+    /* This patch makes it so all building/door changes are applied immediately,
+     * by removing the checks for bits/switch states/load scenes etc.
+     */
+
+    if (!utils.IsAnyOf ("flow_controller"_joaat))
+        return false;
+
+    utils.Init ("56 ? ? 6f 39 0a 38 0a 56 ? ?");
+    utils.NOP (/*Offset=*/8, /*Size=*/3);
+
+    utils.Init ("38 69 56 ? ? 37 09 41 03 62 ?");
+    utils.NOP (/*Offset=*/2, /*Size=*/3);
+
+    return true;
+}
+
+/*******************************************************/
 void
 MissionRandomizer_CodeFixes::Initialise ()
 {
@@ -207,4 +227,5 @@ MissionRandomizer_CodeFixes::Initialise ()
     YscCodeEdits::Add ("Prep No Repeat Fix", ApplyPrepNoRepeatFix);
     YscCodeEdits::Add ("Quick Skips Patch", ApplyQuickSkipsPatch);
     YscCodeEdits::Add ("Solomon Cam Fix", ApplySolomonCamFix);
+    YscCodeEdits::Add ("Building State Patch", ApplyBuildingStatePatch);
 }

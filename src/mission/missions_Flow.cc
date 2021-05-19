@@ -451,7 +451,8 @@ void
 MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
 {
     if (!RandomizedMission || !OriginalMission
-        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        || (ctx->m_nScriptHash != RandomizedMission->nHash
+            && ctx->m_nScriptHash != "selector"_joaat))
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
@@ -464,7 +465,8 @@ void
 MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
 {
     if (!RandomizedMission || !OriginalMission
-        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        || (ctx->m_nScriptHash != RandomizedMission->nHash
+            && ctx->m_nScriptHash != "selector"_joaat))
         return;
 
     MR::sm_Order.ReapplyRandomMissionInfo (MR::sm_Globals.g_CurrentMission);
