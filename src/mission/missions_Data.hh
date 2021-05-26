@@ -91,6 +91,9 @@ public:
 
     MissionRandomizer_Data (FILE *file)
     {
+        if (!file)
+            return;
+
         char line[1024] = {0};
         while (fgets (line, 1024, file))
             {

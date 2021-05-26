@@ -58,6 +58,37 @@ private:
 
     /*******************************************************/
     bool
+    CheckCurrentPlayer (ePlayerIndex index)
+    {
+        if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
+            return true;
+
+        if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED
+            == int (eCharacter::_))
+            {
+                uint32_t hash = 0;
+                switch (index)
+                    {
+                    case ePlayerIndex::PLAYER_MICHAEL:
+                        hash = "player_zero"_joaat;
+                        break;
+                    case ePlayerIndex::PLAYER_FRANKLIN:
+                        hash = "player_one"_joaat;
+                        break;
+                    case ePlayerIndex::PLAYER_TREVOR:
+                        hash = "player_two"_joaat;
+                        break;
+                    default: return false;
+                    }
+
+                return "IS_PED_MODEL"_n("PLAYER_PED_ID"_n(), hash);
+            }
+
+        return false;
+    }
+
+    /*******************************************************/
+    bool
     SetCurrentPlayer (ePlayerIndex index)
     {
         if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
@@ -69,8 +100,7 @@ private:
         if (!YscFunctions::SetCurrentPlayer (index, 1))
             return true;
 
-        bool success
-            = *MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index);
+        bool success = CheckCurrentPlayer (index);
 
         if (!success)
             {
