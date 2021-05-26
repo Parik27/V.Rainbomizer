@@ -1,11 +1,14 @@
 #pragma once
 
 #include "ParserUtils.hh"
+#include "common/common.hh"
 #include <cstdint>
 #include <map>
+#include <string.h>
 #include <type_traits>
 #include <tuple>
 #include <array>
+#include <utility>
 
 /* A randomizer to randomize a field between its min/max value */
 template <typename T> class RangedRandomizer
@@ -32,6 +35,84 @@ public:
 
         Min = std::min (value, Min);
         Max = std::max (value, Max);
+    }
+};
+
+template <const char *FileName, auto ValidateFunction = nullptr>
+class DataFileBasedModelRandomizer
+{
+    using Type = uint32_t;
+
+private:
+    bool                           m_Initialised = false;
+    std::vector<std::vector<Type>> m_Values;
+
+    /*******************************************************/
+    void
+    Initialise ()
+    {
+        if (std::exchange (m_Initialised, true))
+            return;
+
+        FILE *file = Rainbomizer::Common::GetRainbomizerDataFile (FileName);
+        if (!file)
+            return;
+
+        m_Values.push_back ({});
+
+        char line[512] = {0};
+        while (fgets (line, 512, file))
+            {
+                if (strlen (line) < 3)
+                    {
+                        m_Values.push_back ({});
+                        continue;
+                    }
+
+                line[strcspn (line, "\n")] = 0;
+
+                Type value = rage::atStringHash (line);
+                if (!ValidateFunction || ValidateFunction (value))
+                    m_Values.back ().push_back (value);
+            }
+    }
+
+public:
+    /*******************************************************/
+    void
+    RandomizeObject (Type &out)
+    {
+        Initialise ();
+        for (const auto &i : m_Values)
+            {
+                if (DoesElementExist (i, out))
+                    out = GetRandomElement (i);
+            }
+    }
+
+    /*******************************************************/
+    void
+    AddSample (const Type value)
+    {
+    }
+};
+
+template <typename T, T... Values> class ConstantValues
+{
+    constexpr static std::array<T, sizeof...(Values)> m_Values{Values...};
+
+public:
+    using Type = T;
+
+    void
+    RandomizeObject (T &out) const
+    {
+        out = GetRandomElement (m_Values);
+    }
+
+    void
+    AddSample (const T value)
+    {
     }
 };
 

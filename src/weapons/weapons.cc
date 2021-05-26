@@ -64,20 +64,21 @@ class WeaponRandomizer
                             }
                     }
             }
+        fclose (file);
 
-        double base_probability = 1;
+        double base_probability = 0.01;
 
         std::vector<double> weights;
         for (auto i : mValidWeapons)
             {
                 double weight = base_probability;
 
-                // Multiply groupWeight with the current weight
-                if (auto *gW = LookupMap (probabilities, mValidWeaponGroups[i]))
-                    weight = (*gW);
-
                 if (auto *weapWeight = LookupMap (probabilities, i))
                     weight = *weapWeight;
+
+                // Multiply groupWeight with the current weight
+                if (auto *gW = LookupMap (probabilities, mValidWeaponGroups[i]))
+                    weight *= (*gW);
 
                 weights.push_back (weight);
             }
@@ -131,6 +132,7 @@ class WeaponRandomizer
             }
 
         InitialiseWeaponWeights ();
+        PrintWeaponList ();
         Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons",
                                          mValidWeapons.size ());
     }
@@ -210,6 +212,25 @@ class WeaponRandomizer
 
         SET_CURRENT_PED_WEAPON784 (ped, mEquipMgr.GetWeaponToEquip (weaponHash),
                                    true);
+    }
+
+    /*******************************************************/
+    static void
+    PrintWeaponList ()
+    {
+        for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
+            {
+                uint32_t outHash = 0;
+                bool     valid
+                    = info->Model
+                      && info->GetClassId (outHash) == "cweaponinfo"_joaat
+                      && IsValidWeapon (*static_cast<CWeaponInfo *> (info));
+
+                Rainbomizer::Logger::LogMessage (
+                    "classId => %x, modelId = %x, name = %x, value = %s",
+                    info->GetClassId (outHash), info->Model, info->Name,
+                    valid ? "true" : "false");
+            }
     }
 
     /*******************************************************/
