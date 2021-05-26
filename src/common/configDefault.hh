@@ -74,7 +74,11 @@ EnableFastSkips = false # Mission skips will be enabled after failing the missio
 #######################################################
 [PedRandomizer]
 
-ForcedPed = ""
-EnableNSFWModels = false
 RandomizePlayer = true
+
+ForcedPed = ""
+ForcedClipset = ""
+
+EnableNSFWModels = false
+UseCutsceneModelsFile = false
 )";

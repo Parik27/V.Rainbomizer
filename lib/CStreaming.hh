@@ -87,6 +87,12 @@ public:
         return index;
     }
 
+    static inline uint32_t
+    GetModelHash (uint32_t index)
+    {
+        return GetModelByIndex (index)->m_nHash;
+    }
+
     template <typename T>
     static inline T *
     GetModelAndIndexByHash (uint32_t hash, uint32_t &outIndex)
@@ -94,7 +100,7 @@ public:
         return static_cast<T *> (GetModelAndIndexByHash (hash, outIndex));
     }
 
-    template <typename T>
+    template <typename T = CBaseModelInfo>
     static inline T *
     GetModelByHash (uint32_t hash)
     {

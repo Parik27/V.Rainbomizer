@@ -3,7 +3,10 @@
 #include <utility>
 
 #include <common/config.hh>
+#include <common/parser.hh>
 
+#include "CModelInfo.hh"
+#include "common/logger.hh"
 #include "peds_Compatibility.hh"
 #include "peds_Streaming.hh"
 #include "peds_PlayerFixes.hh"
@@ -19,6 +22,11 @@ class PedRandomizer
     inline static std::mutex CreatePedMutex;
     inline static bool       bSkipNextPedRandomization = false;
 
+    constexpr static const char PedsFileName[] = "CutsceneModelsPeds.txt";
+    using CutsPedsRandomizer
+        = DataFileBasedModelRandomizer<PedsFileName,
+                                       CStreaming::GetModelByHash<>>;
+
     using ModelSwapper = PedRandomizer_ModelSwapper;
 
     static auto &
@@ -26,11 +34,12 @@ class PedRandomizer
     {
         static struct Config
         {
-            std::string ForcedPed        = "";
-            std::string ForcedClipset    = "";
-            uint32_t    ForcedPedHash    = -1;
-            bool        EnableNSFWModels = false;
-            bool        RandomizePlayer  = true;
+            std::string ForcedPed             = "";
+            std::string ForcedClipset         = "";
+            uint32_t    ForcedPedHash         = -1;
+            bool        EnableNSFWModels      = false;
+            bool        RandomizePlayer       = true;
+            bool        UseCutsceneModelsFile = false;
         } m_Config;
 
         return m_Config;
@@ -106,6 +115,39 @@ class PedRandomizer
         return ped;
     }
 
+    /*******************************************************/
+    template <auto &CCutsceneAnimatedActorEntity__CreatePed>
+    static void
+    RandomizeCutscenePeds (class CCutsceneAnimatedActorEntity *entity,
+                           uint32_t model, bool p3)
+    {
+        static CutsPedsRandomizer sm_Randomizer;
+
+        // Randomize model (remember model here is the idx, so convert to hash)
+        uint32_t hash = CStreaming::GetModelHash (model);
+        sm_Randomizer.RandomizeObject (hash);
+
+        // Load the new model
+        uint32_t newModel = CStreaming::GetModelIndex (hash);
+        if (!CStreaming::HasModelLoaded (newModel))
+            {
+                Rainbomizer::Logger::LogMessage ("Trying to load model: %x",
+                                                 hash);
+
+                CStreaming::RequestModel (newModel, 0);
+                CStreaming::LoadAllObjects (false);
+            }
+
+        if (CStreaming::HasModelLoaded (newModel))
+            {
+                model                     = newModel;
+                bSkipNextPedRandomization = true;
+            }
+
+        // Spawn the ped
+        CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
+    }
+
 public:
     /*******************************************************/
     PedRandomizer ()
@@ -114,6 +156,8 @@ public:
         if (!ConfigManager::ReadConfig (
                 "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
                 std::pair ("RandomizePlayer", &Config ().RandomizePlayer),
+                std::pair ("UseCutsceneModelsFile",
+                           &Config ().UseCutsceneModelsFile),
                 std::pair ("ForcedClipset", &Config ().ForcedClipset)))
             return;
 
@@ -126,6 +170,12 @@ public:
         RegisterHook ("8b c0 ? 8b ? ? 8b ? ? 88 7c ? ? e8 ? ? ? ? eb ?", 13,
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
+
+        if (Config ().UseCutsceneModelsFile)
+            REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
+                           RandomizeCutscenePeds, void,
+                           class CCutsceneAnimatedActorEntity *, uint32_t,
+                           bool);
 
         REGISTER_HOOK (
             "88 44 ? ? 40 88 7c ? ? e8 ? ? ? ? ? 8b d8 ? 85 c0 0f 84", 9,
