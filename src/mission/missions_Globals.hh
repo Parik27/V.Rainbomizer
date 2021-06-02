@@ -426,6 +426,15 @@ struct MissionDefinition
 static_assert (sizeof (MissionDefinition) == 0x22 * 8);
 
 /*******************************************************/
+struct MissionRepeatInfo
+{
+    alignas (8) ePlayerIndex Player;
+
+    // ...
+    // There are more fields, but these aren't required (yet).
+};
+
+/*******************************************************/
 struct MissionFlowCommand
 {
     alignas (8) uint32_t CommandHash;
@@ -485,6 +494,12 @@ public:
     YscUtils::ScriptGlobal<YscArray<MissionFlowCommand>> g_MissionFlowCommands{
         "5e ? ? ? 46 ? ? 35 ? 28 6d 05 ad 1f", 1, "flow_controller"_joaat,
         YscUtils::GLOBAL_U24_IOFFSET_S16};
+
+    YscUtils::ScriptGlobal<MissionRepeatInfo> g_MissionRepeatInfo{
+        "25 3e 57 ? ? 70 60 ? ? ? 70 60 ? ? ?", 7, "flow_controller"_joaat};
+
+    YscUtils::ScriptGlobal<MissionRepeatInfo> g_MissionRepeatInfo2{
+        "25 3e 57 ? ? 70 60 ? ? ? 70 60 ? ? ?", 12, "flow_controller"_joaat};
 
     YscUtils::ScriptGlobal<uint32_t> g_BoardInitStateBitset{
         "2d 01 03 00 ? 5f ? ? ? 38 ? 2c ? ? ? 2e 01 01", 6,
@@ -566,6 +581,8 @@ public:
         g_ForceWalking.Init (program);
         g_MissionFlowCommands.Init (program);
         g_Missions.Init (program);
+        g_MissionRepeatInfo.Init (program);
+        g_MissionRepeatInfo2.Init (program);
 
         return true;
     }

@@ -24,7 +24,7 @@ class MissionRandomizer_PlayerSwitcher
 public:
     struct Context
     {
-        ePlayerIndex destPlayer;
+        ePlayerIndex destPlayer = ePlayerIndex::PLAYER_MICHAEL;
 
         bool        noSetPos = false;
         rage::Vec3V destPos;

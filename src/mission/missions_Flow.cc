@@ -5,6 +5,7 @@
 #include "common/logger.hh"
 #include "mission/missions_Funcs.hh"
 #include "mission/missions_Globals.hh"
+#include "mission/missions_PlayerSwitch.hh"
 #include "mission/missions_YscUtils.hh"
 #include "mission/missions_Cmds.hh"
 #include "missions.hh"
@@ -111,6 +112,21 @@ MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
 }
 
 /*******************************************************/
+void
+MissionRandomizer_Flow::FixMissionRepeatStructForRandomizedMission ()
+{
+    ePlayerIndex player = ePlayerIndex (MR::sm_PlayerSwitcher.GetDestPlayer ());
+
+    Rainbomizer::Logger::LogMessage (
+        "Updating Mission Repeat Info players - %x to %x, %x to %x",
+        MR::sm_Globals.g_MissionRepeatInfo->Player, player,
+        MR::sm_Globals.g_MissionRepeatInfo2->Player, player);
+
+    MR::sm_Globals.g_MissionRepeatInfo->Player  = player;
+    MR::sm_Globals.g_MissionRepeatInfo2->Player = player;
+}
+
+/*******************************************************/
 bool
 MissionRandomizer_Flow::PreMissionStart ()
 {
@@ -132,6 +148,7 @@ MissionRandomizer_Flow::PreMissionStart ()
     bMissionStartupFinished   = false;
     nMissionPtrsSema          = 2;
 
+    FixMissionRepeatStructForRandomizedMission ();
     InitStatWatcherForRandomizedMission ();
     SetHeistFlowControlVariables ();
 
@@ -249,6 +266,7 @@ MissionRandomizer_Flow::OnMissionStart ()
         }
 
     // Need to do this again for mission fails.
+    FixMissionRepeatStructForRandomizedMission ();
     InitStatWatcherForRandomizedMission ();
     MR::sm_Cmds.OnMissionStart (OriginalMission->nHash,
                                 RandomizedMission->nHash);

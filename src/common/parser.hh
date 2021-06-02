@@ -2,8 +2,10 @@
 
 #include "ParserUtils.hh"
 #include "common/common.hh"
+#include "common/logger.hh"
 #include <cstdint>
 #include <map>
+#include <stdio.h>
 #include <string.h>
 #include <type_traits>
 #include <tuple>
@@ -44,8 +46,14 @@ class DataFileBasedModelRandomizer
     using Type = uint32_t;
 
 private:
-    bool                           m_Initialised = false;
-    std::vector<std::vector<Type>> m_Values;
+    struct ValueGroup
+    {
+        std::vector<uint32_t> Values;
+        std::vector<double>   Weights;
+    };
+
+    bool                    m_Initialised = false;
+    std::vector<ValueGroup> m_Groups;
 
     /*******************************************************/
     void
@@ -58,22 +66,31 @@ private:
         if (!file)
             return;
 
-        m_Values.push_back ({});
+        m_Groups.push_back ({});
 
         char line[512] = {0};
         while (fgets (line, 512, file))
             {
                 if (strlen (line) < 3)
                     {
-                        m_Values.push_back ({});
+                        m_Groups.push_back ({});
                         continue;
                     }
 
-                line[strcspn (line, "\n")] = 0;
+                double weight     = 1.0;
+                char   model[256] = {0};
 
-                Type value = rage::atStringHash (line);
+                sscanf (line, "%s %lf", model, &weight);
+                if (fabs (weight - 1.0) > 0.1)
+                    Rainbomizer::Logger::LogMessage ("%s => %lf", model,
+                                                     weight);
+
+                Type value = rage::atStringHash (model);
                 if (!ValidateFunction || ValidateFunction (value))
-                    m_Values.back ().push_back (value);
+                    {
+                        m_Groups.back ().Values.push_back (value);
+                        m_Groups.back ().Weights.push_back (weight);
+                    }
             }
     }
 
@@ -83,10 +100,13 @@ public:
     RandomizeObject (Type &out)
     {
         Initialise ();
-        for (const auto &i : m_Values)
+        for (const auto &i : m_Groups)
             {
-                if (DoesElementExist (i, out))
-                    out = GetRandomElement (i);
+                if (DoesElementExist (i.Values, out))
+                    {
+                        out = i.Values[RandomWeighed (i.Weights)];
+                        break;
+                    }
             }
     }
 
