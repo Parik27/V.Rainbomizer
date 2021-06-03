@@ -355,6 +355,8 @@ MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
         || ctx->m_nScriptHash != RandomizedMission->nHash)
         return true;
 
+    MR::sm_Cmds.OnMissionTick ();
+
     // Defer Mission pass callback to the next valid script execution
     if (ctx->m_nState == eScriptState::KILLED)
         {

@@ -184,6 +184,9 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
     MR::sm_Cmds.CleanupMissionTriggerer ();
     MakeAllPlayersAvailable ();
     UnlockSafehousesForMission (randHash);
+
+    sm_ForcedDoorStates.clear ();
+
     switch (randHash)
         {
         case "trevor2"_joaat:
@@ -194,14 +197,16 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
         case "lamar1"_joaat:
             UnlockWeapon ("weapon_sawnoffshotgun"_joaat);
             UnlockWeapon ("weapon_pumpshotgun"_joaat);
-            YF::SetDoorState (101, 0);
-            YF::SetDoorState (102, 0);
-            YF::SetDoorState (103, 0);
-            YF::SetDoorState (104, 0);
+            ForceDoorState (0x9402adfe, eDoorState::UNLOCKED);
+            ForceDoorState (0x5fdfc5b9, eDoorState::UNLOCKED);
+            ForceDoorState (0xa936772c, eDoorState::UNLOCKED);
+            ForceDoorState (0x3842153d, eDoorState::UNLOCKED);
             break;
 
         case "docks_setup"_joaat:
             AddContact (eCharacter::Trevor, eCharacter::Ron);
+            ForceDoorState (0xede40625, eDoorState::UNLOCKED);
+            ForceDoorState (0xbdcf3f39, eDoorState::UNLOCKED);
             [[fallthrough]];
 
         case "docks_heista"_joaat:
@@ -239,8 +244,8 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             SetBuildingState (72, 0);
             SetBuildingState (74, 0);
 
-            YF::SetDoorState (62, 0);
-            YF::SetDoorState (63, 0);
+            ForceDoorState (0xcec320e2, eDoorState::UNLOCKED);
+            ForceDoorState (0x2d865e67, eDoorState::UNLOCKED);
 
             break;
 
@@ -248,9 +253,9 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
         case "rural_bank_heist"_joaat:
         case "rural_bank_setup"_joaat:
 
-            YF::SetDoorState (67, 0);
-            YF::SetDoorState (68, 0);
-            YF::SetDoorState (69, 0);
+            ForceDoorState (0xca5ce57, eDoorState::UNLOCKED);
+            ForceDoorState (0xf8762600, eDoorState::UNLOCKED);
+            ForceDoorState (0x693e01a8, eDoorState::UNLOCKED);
             break;
 
         case "solomon1"_joaat:
@@ -262,14 +267,14 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
 
         case "carsteal1"_joaat:
         case "carsteal3"_joaat:
-            YF::SetDoorState (79, 0);
-            YF::SetDoorState (80, 0);
+            ForceDoorState (0x548188cd, eDoorState::UNLOCKED);
+            ForceDoorState (0xf9a7537e, eDoorState::UNLOCKED);
             break;
 
         case "finalec1"_joaat:
-            YF::SetDoorState (70, 0);
-            YF::SetDoorState (71, 0);
-            YF::SetDoorState (72, 0);
+            ForceDoorState (0x2f397905, eDoorState::UNLOCKED);
+            ForceDoorState (0x2192ddb8, eDoorState::UNLOCKED);
+            ForceDoorState (0xd4aaf76d, eDoorState::UNLOCKED);
             break;
 
         case "fbi4_prep4"_joaat:
@@ -349,6 +354,8 @@ MissionRandomizer_Commands::OnMissionEnd (bool pass, uint32_t origHash,
     MR::sm_Globals.GetMfFlag (FLAG_H_AGENCY_PRIME_BOARD) = false;
     MR::sm_Globals.GetMfFlag (FLAG_H_DOCKS_PRIME_BOARD)  = false;
     MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD) = false;
+
+    sm_ForcedDoorStates.clear ();
 }
 
 /*******************************************************/
@@ -373,3 +380,11 @@ MissionRandomizer_Commands::CreateStingerRamp ()
                                          false, false, false);
     "SET_ENTITY_ROTATION"_n(fryObj, 0.0f, 0.0f, 49.1f, 1, true);
 }
+
+/*******************************************************/
+void
+MissionRandomizer_Commands::OnMissionTick ()
+{
+    for (auto i : sm_ForcedDoorStates)
+        "DOOR_SYSTEM_SET_DOOR_STATE"_n(i.DoorHash, i.State, false, true);
+};
