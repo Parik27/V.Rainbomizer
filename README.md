@@ -5,7 +5,7 @@
 
 <a href="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg"> <img src="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg?width=933&height=513"></a>
 
-A modification for Grand Theft Auto: V that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
+A modification for Grand Theft Auto V that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
 <p align="center">
   <a href="http://rainbomizer.com/"><strong>homepage</strong></a> • 
@@ -22,26 +22,26 @@ A modification for Grand Theft Auto: V that randomizes various aspects of the ga
 
 - :helicopter: **Traffic Randomizer** - Randomizes cars that spawn in traffic. 
 - :blue_car: **Mission Vehicle Randomizer** - Randomizes vehicles you are given in missions, making sure that the vehicle you're given is usable for that mission.
-- :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD and more. 
+- :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD, and more. 
 - :page_with_curl: **Mission Randomizer** - Randomizes order of missions in-game. Upon completion of a mission, the game progresses as if you completed the original mission.
 - :gun: **Weapon Randomizer** - Randomizes weapons given to the enemies.
-- :sound: **Sounds Randomizer** - Randomizes dialogues and sound effects played in-game.
+- :sound: **Sounds Randomizer** - Randomizes dialogue and sound effects played in-game.
 - :movie_camera: **Cutscene Randomizer** - Randomizes models used in motion-captured cutscenes.
-- :walking: **Ped Randomizer** - Randomizes all ambient, mission and cutscene peds.
+- :walking: **Ped Randomizer** - Randomizes all ambient, mission, and cutscene peds.
 - :video_game: **Player Randomizer** - Randomizes the player model into a different ped model.
 - :star2: **Player Special Ability Randomizer** - With Player Randomizer enabled, this feature randomizes the player's special ability.
 - :cloud_with_rain: **Timecycle and Weather Randomizer** - Randomizes the look of the game by randomizing weather elements and sky colour.
 - :tractor: **Handling Randomizer** - Randomizes the handling of all vehicles.
 - :rocket: **Weapon Stats Randomizer** - Randomizes weapon stats such as fire rate, range, etc. of all weapons.
-- :oncoming_police_car: **Dispatch Randomizer** - Randomizes all dispatched police cars, ambulances, helicopters and boats.
+- :oncoming_police_car: **Dispatch Randomizer** - Randomizes all dispatched police cars, ambulances, helicopters, and boats.
 
 <span id="installation"></span>
 ## Installation
 
 Rainbomizer requires an **ASI-Loader** to function. It works with **all** versions of the game. Additionally, you require **ScriptHook** for certain features.
 
-1. Install **ScriptHook** (includes an ASI Loader) from [here](http://www.dev-c.com/gtav/scripthookv/)
-2. Download Rainbomizer from [Releases](https://github.com/Parik27/IV.EFLC.Rainbomizer/releases) and **extract the archive** to the root directory of GTA V. 
+1. Install **ScriptHook** (includes an ASI Loader) from [here](http://www.dev-c.com/gtav/scripthookv)
+2. Download Rainbomizer from [Releases](https://github.com/Parik27/V.Rainbomizer/releases) and **extract the archive** to the root directory of GTA V. 
 
 ## Configuration
 
@@ -56,18 +56,27 @@ It can be opened and modified with a text editing program such as Notepad++. Any
 
 ## Credits 🌈
 
+#### Lead Developers
+
 - [Parik](https://github.com/Parik27) - Creation and implementation of the ASI.
+
+#### Major Contributors
+
 - [Fryterp23](https://www.twitch.tv/fryterp23) - Assisting with creation of external files and extensive testing.
 - [123robot](https://www.twitch.tv/123robot) - Creation of external files, testing, and support with debugging.
-- [Gibstack](https://www.twitch.tv/gibstack) - Beta Testing.
+
+#### Beta Testers
+
+- [Gibstack](https://www.twitch.tv/gibstack)
+- [SpeedyFolf](https://www.twitch.tv/speedyfolf)
 
 <span id="contribute"></span>
 ## Contribution
 
-You can contribute to the project by reporting any crashes/issues you encounter in the [Issues](https://github.com/Parik27/Rainbomizer/issues) section of the repository.
+You can contribute to the project by reporting any crashes/issues you encounter in the [Issues](https://github.com/Parik27/V.Rainbomizer/issues) section of the repository.
 
 Pull requests are welcome, but are required to follow the current style used in the project.
 
 You can also keep up with or contribute to development as it happens by [joining the official Rainbomizer Discord!](https://discord.gg/BYVBQw7) You can give #suggestions, ask for #support, or view current development in #v.
 
-The lib folder in the repository's base is intended for reuse in other projects, and should not contain any Rainbomizer specific code.
+The lib folder in the repository's base is intended for reuse in other projects and should not contain any Rainbomizer specific code.
