@@ -5,8 +5,15 @@
 #include "CEntity.hh"
 
 class CInventoryItem;
-class CPedWeaponManager;
 class CPed;
+
+class CPedWeaponManager
+{
+public:
+    void *vft;
+    void *param_0x8;
+    CPed *m_pPed;
+};
 
 struct CInventoryItemRepository
 {

@@ -1,5 +1,6 @@
 #include "phBound.hh"
 #include <Utils.hh>
+#include <CPed.hh>
 
 /*******************************************************/
 /* Animal Fixes - Ped Randomizer fixes required for animals to work properly and
@@ -24,6 +25,24 @@ class PedRandomizer_AnimalFixes
         phBoundComposite_CalculateExtents (bound, p1, p2);
     }
 
+    /*******************************************************/
+    template <auto &CPedWeaponManager__ProcessFall>
+    static void
+    FixPoodleCrash (CPedWeaponManager *manager)
+    {
+        /* This hook fixes the game crashing when a poodle is ran over. For some
+         * reason the only ped that's known to crash is a_c_poddle  */
+
+        bool poodle
+            = manager && manager->m_pPed && manager->m_pPed->m_pModelInfo
+              && manager->m_pPed->m_pModelInfo->m_nHash == "a_c_poodle"_joaat;
+
+        if (poodle)
+            return;
+
+        CPedWeaponManager__ProcessFall (manager);
+    }
+
 public:
     /*******************************************************/
     PedRandomizer_AnimalFixes ()
@@ -40,6 +59,10 @@ public:
         REGISTER_HOOK ("0f 29 40 30 e8 ? ? ? ? b2 01 ? 8b cf e8", 4,
                        AllocateTypeAndIncludeFlagsForFishBounds, void,
                        phBoundComposite *, bool, bool);
+
+        REGISTER_HOOK ("? 83 c6 08 3b f1 7c ? ? 8b ? ? ? ? ? ? 85 c9 74 ? e8 ? "
+                       "? ? ? ? 8b ? ? ? ? ? ? 8b 03 ",
+                       20, FixPoodleCrash, void, CPedWeaponManager *);
 
         // This patch fixes CTaskExitVehicle from crashing the game if the ped
         // exiting the vehicle doesn't have a helmet.

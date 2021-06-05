@@ -148,7 +148,7 @@ finale_heist2b	Bodhi2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N
 finale_heist2b	Buffalo2	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2b	Oracle2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2b	Cutter	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
-finale_heist2b	Frogger	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
+finale_heist2b	Frogger	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finale_heist2b	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N					
 finale_heist2b	Police3	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finale_heist2b	Fbi2	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	N	N					
