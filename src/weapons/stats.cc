@@ -86,7 +86,8 @@ public:
         for (CItemInfo *i : CWeaponInfoManager::sm_Instance->aItemInfos)
             {
                 if (i->Model != -1 && i->Model)
-                    sm_WeaponModelRandomizer.RandomizeObject (i->Model);
+                    sm_WeaponModelRandomizer.RandomizeObject (i->Name,
+                                                              i->Model);
 
                 std::uint32_t hash;
                 if (sample)

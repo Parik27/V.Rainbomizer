@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <tuple>
 #include <array>
+#include <unordered_map>
 #include <utility>
 
 /* A randomizer to randomize a field between its min/max value */
@@ -108,6 +109,19 @@ public:
                         break;
                     }
             }
+    }
+
+    /*******************************************************/
+    void
+    RandomizeObject (uint32_t identifier, Type &out)
+    {
+        static std::unordered_map<uint32_t, Type> sm_Identifiers;
+        sm_Identifiers.insert (std::make_pair (identifier, out));
+
+        uint32_t model = sm_Identifiers[identifier];
+        RandomizeObject (model);
+
+        out = model;
     }
 
     /*******************************************************/
