@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CPed.hh"
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 #include "mission/missions_Globals.hh"
@@ -16,6 +17,7 @@
 #include <ctime>
 
 #include "missions_Globals.hh"
+#include "peds/peds_Compatibility.hh"
 
 using namespace NativeLiterals;
 
@@ -67,6 +69,10 @@ private:
             == int (eCharacter::_))
             {
                 uint32_t hash = 0;
+                auto *   playerModel
+                    = PedRandomizerCompatibility::GetOriginalModel (
+                        CPedFactory::Get ()->pPlayer);
+
                 switch (index)
                     {
                     case ePlayerIndex::PLAYER_MICHAEL:
@@ -81,7 +87,7 @@ private:
                     default: return false;
                     }
 
-                return "IS_PED_MODEL"_n("PLAYER_PED_ID"_n(), hash);
+                return playerModel && playerModel->m_nHash == hash;
             }
 
         return false;
