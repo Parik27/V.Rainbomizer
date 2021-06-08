@@ -531,6 +531,40 @@ public:
     inline static void *vftable;
 };
 
+class CTaskHumanLocomotion : public aiTask
+{
+public:
+    inline static void *vftable;
+};
+
+class CTaskBirdLocomotion : public aiTask
+{
+public:
+    inline static void *vftable;
+};
+
+class CTaskMotionInVehicle : public aiTask
+{
+public:
+    inline static void *vftable;
+
+    static auto *Create [[nodiscard]] ()
+    {
+        return TaskHelper::CreateTask<CTaskMotionInVehicle> ();
+    }
+};
+
+class CTaskMotionAiming : public aiTask
+{
+public:
+    inline static void *vftable;
+
+    static auto *Create [[nodiscard]] ()
+    {
+        return TaskHelper::CreateTask<CTaskMotionAiming> ();
+    }
+};
+
 class CTaskWeapon : public aiTask
 {
 public:

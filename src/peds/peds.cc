@@ -106,8 +106,12 @@ class PedRandomizer
         const ModelSwapper swap (newModel, model);
         swap.OverrideClipset (Config ().ForcedClipset);
 
+        PedRandomizerCompatibility::SetRandomizingPed (
+            CStreaming::GetModelByIndex<CPedModelInfo> (model));
+
         CPed *ped = CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
 
+        PedRandomizerCompatibility::SetRandomizingPed (nullptr);
         PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
         PedRandomizer_PlayerFixes::UpdatePlayerHash ();
         PedRandomizer_PlayerFixes::RandomizeSpecialAbility (ped);

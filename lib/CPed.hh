@@ -3,9 +3,12 @@
 #include <cstdint>
 #include <rage.hh>
 #include "CEntity.hh"
+#include "ParserUtils.hh"
 
 class CInventoryItem;
 class CPed;
+class CVehicle;
+struct aiTask;
 
 class CPedWeaponManager
 {
@@ -127,6 +130,22 @@ public:
     rage::bitset<BF_TOTAL_FLAGS> &GetCombatBehaviourFlags ();
 };
 
+class sMotionTaskData : public ParserWrapper<sMotionTaskData>
+{
+};
+
+class CMotionTaskDataSet : public ParserWrapper<CMotionTaskDataSet>
+{
+};
+
+class CMotionTaskDataManager
+{
+public:
+    atArray<CMotionTaskDataSet *> aMotionTaskData;
+
+    static CMotionTaskDataSet *FindByName (uint32_t name);
+};
+
 struct CPedInventory
 {
 public:
@@ -160,6 +179,9 @@ public:
 
     CPedInventory *   GetInventory ();
     CPedIntelligence *GetIntelligence ();
+    aiTask *          CreateMotionTask (sMotionTaskData *set, bool lowLod);
+    CVehicle *        GetVehicle ();
+    uint32_t          GetMotionState ();
 };
 
 class CPedFactory

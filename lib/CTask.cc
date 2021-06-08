@@ -51,4 +51,21 @@ aiTask::InitialisePatterns ()
     CTaskGun::vftable = GetRelativeReference (
         "? 8d 05 ? ? ? ? f3 0f 10 74 ? ? 0f 57 ff 0f 2f 35 ? ? ? ? ? 89 ? ", 3,
         7);
+
+    CTaskHumanLocomotion::vftable
+        = GetRelativeReference ("? 8d 05 ? ? ? ? 0f 57 c0 ? 89 ? ? 8d 8e 30 01 "
+                                "00 00 0f 29 86 20 01 00 00 ",
+                                3, 7);
+
+    CTaskBirdLocomotion::vftable = GetRelativeReference (
+        "? 8d 05 ? ? ? ? ? 8d 8e 20 01 00 00 ? 89 ? e8 ? ? ? ? ? 8b 44 ? ? 33 "
+        "d2 ? 89 96 40 01 00 00 ",
+        3, 7);
+
+    CTaskMotionInVehicle::vftable = GetRelativeReference (
+        "? 8d 05 ? ? ? ? ? 8d 8b 58 01 00 00 ? 89 ? ? 89 bb 20 01 00 00  ", 3,
+        7);
+
+    CTaskMotionAiming::vftable = GetRelativeReference (
+        "? 8d 05 ? ? ? ? 0f 57 c0 ? 89 ? ? 8d 8e 38 01 00 00 ", 3, 7);
 }

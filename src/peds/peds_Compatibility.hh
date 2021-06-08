@@ -11,6 +11,8 @@ class PedRandomizerCompatibility
     inline static std::map<CPed *, std::pair<uint32_t, uint32_t>>
         sm_PedModelFixupMap;
 
+    inline static CPedModelInfo *sm_CurrentRandomizingPed = nullptr;
+
     static bool IsPlayerModel (uint32_t model);
 
     /*******************************************************/
@@ -20,9 +22,22 @@ class PedRandomizerCompatibility
         sm_PedModelFixupMap[ped] = std::make_pair (from, to);
     }
 
+    /*******************************************************/
+    static void
+    SetRandomizingPed (CPedModelInfo *model)
+    {
+        sm_CurrentRandomizingPed = model;
+    }
+
 public:
     /*******************************************************/
     static CPedModelInfo *GetOriginalModel (CPed *ped);
+
+    static CPedModelInfo *
+    GetCurrentPedRandomizing ()
+    {
+        return sm_CurrentRandomizingPed;
+    }
 
     friend class PedRandomizer;
 };
