@@ -89,3 +89,25 @@ ParserUtils::FindFieldEnum (parStructureStaticData *data, void *ptr,
     return ParserEnumEquate<> (*enumField->m_pTranslationTable,
                                FindFieldPtr (data, ptr, hash));
 }
+
+/*******************************************************/
+ParserBitset
+ParserUtils::FindFieldBitset (parStructureStaticData *data, void *ptr,
+                              uint32_t hash)
+{
+    parMemberCommonData *field = FindFieldData (data->Params, hash);
+
+    if (!field)
+        throw std::runtime_error ("Failed to find bitset field for parser"
+                                  + std::to_string (hash));
+
+    if (field->eType != parMemberType::BITSET)
+        throw std::runtime_error (
+            "Bitset field for parser is not of bitset type"
+            + std::to_string (hash));
+
+    parMemberBitsetData *enumField = static_cast<parMemberBitsetData *> (field);
+
+    return ParserBitset (*enumField->m_pTranslationTable,
+                         FindFieldPtr (data, ptr, hash));
+}

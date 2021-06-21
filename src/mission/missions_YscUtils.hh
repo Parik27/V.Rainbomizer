@@ -345,6 +345,34 @@ public:
         pPatternResult = ptr;
     }
 
+    /* Reinitialises the UtilsOps to the branch destination at offset of stored
+     * ptr */
+    void
+    FollowBranchDestination (int64_t offset)
+    {
+        switch (*Get<YscOpCode> (offset))
+            {
+                // Absolute offset
+            case YscOpCode::CALL:
+                pPatternResult = &GetProgram ()->GetCodeByte<uint8_t> (
+                    (*Get<uint32_t> (offset) >> 8));
+                break;
+
+                // Relative offset
+            case YscOpCode::J:
+            case YscOpCode::JZ:
+            case YscOpCode::IEQ_JZ:
+            case YscOpCode::INE_JZ:
+            case YscOpCode::IGT_JZ:
+            case YscOpCode::IGE_JZ:
+            case YscOpCode::ILT_JZ:
+            case YscOpCode::ILE_JZ:
+                pPatternResult += *Get<uint16_t> (offset + 1) + (offset + 3);
+
+            default: bOperationFailed = true; break;
+            }
+    }
+
     /* Returns the evaluated pattern/initialised value of the stored ptr */
     template <typename T>
     T *

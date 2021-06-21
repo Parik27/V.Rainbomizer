@@ -72,6 +72,14 @@ struct parMemberEnumData : parMemberCommonData
     uint8_t  field_0x18[16];
     void **  m_pTranslationTable;
 };
+
+struct parMemberBitsetData : parMemberCommonData
+{
+
+    uint8_t field_0x18[23];
+    void ** m_pTranslationTable;
+};
+
 #pragma pack(pop)
 
 /*******************************************************/

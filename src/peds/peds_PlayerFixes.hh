@@ -5,6 +5,7 @@
 
 #include "CModelInfo.hh"
 #include "ParserUtils.hh"
+#include "mission/missions_YscUtils.hh"
 #include "peds_Compatibility.hh"
 
 #include <CPed.hh>
@@ -134,6 +135,37 @@ class PedRandomizer_PlayerFixes
     }
 
     /*******************************************************/
+    static bool
+    RemoveJewelrySetupClothesRequirement (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("mission_triggerer_a"_joaat))
+            return false;
+
+        uint8_t return_0x1[] = {0x6f, 0x2e, 0x00, 0x01};
+
+        ops.Init ("2d 00 03 00 ? 2c ? 00 74 71 5d ? ? ? 39 02 38 02 6e");
+        ops.WriteBytes (/*Offset=*/5, return_0x1);
+
+        return true;
+    }
+
+    /*******************************************************/
+    static bool
+    RemoveMichael4ClothesRequirement (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("michael4"_joaat))
+            return false;
+
+        uint8_t return_0x1[] = {0x6f, 0x2e, 0x03, 0x01};
+
+        ops.Init ("26 0c 10 5d ? ? ? 06 56 ? ? 28 c9 14 71 0d");
+        ops.FollowBranchDestination (/*Offset=*/3);
+        ops.WriteBytes (/*Offset=*/5, return_0x1);
+
+        return true;
+    }
+
+    /*******************************************************/
     template <auto &CPlayerPedSaveStructure__PreSave>
     static void
     FixSavedPlayerModel (CPlayerPedSaveStructure *save)
@@ -154,6 +186,8 @@ public:
     {
         if (sm_Initialised)
             return;
+
+        sm_Initialised = true;
 
         // Hook for cutscenes to properly get the object model to register for
         // the cutscene.
@@ -178,8 +212,6 @@ public:
                 10),
             2);
 
-        sm_Initialised = true;
-
         // To make UpdatePlayerHash also be called after a call to
         // CHANGE_PLAYER_PED (and several other functions). Can also be extended
         // to add CPedFactory::CreatePlayer, but I didn't see the need.
@@ -191,6 +223,10 @@ public:
 
         YscCodeEdits::Add ("Remove Lester1 Clothes Requirement",
                            RemoveLester1ClothesRequirement);
+        YscCodeEdits::Add ("Remove JewelrySetup Clothes Requirement",
+                           RemoveJewelrySetupClothesRequirement);
+        YscCodeEdits::Add ("Remove Michael4 Clothes Requirement",
+                           RemoveMichael4ClothesRequirement);
     }
 
     /*******************************************************/

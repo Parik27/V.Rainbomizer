@@ -31,6 +31,8 @@ class WeaponRandomizer
     static inline bool                            mSkipNextWeaponRandomization;
     static inline WeaponEquipMgr                  mEquipMgr;
 
+    static inline std::unordered_map<uint32_t, uint32_t> mValidWeaponGroups;
+
     /*******************************************************/
     static void
     InitialiseWeaponWeights ()
@@ -62,16 +64,23 @@ class WeaponRandomizer
                             }
                     }
             }
+        fclose (file);
 
-        double mean_probability = 1;
+        double base_probability = 0.01;
 
         std::vector<double> weights;
         for (auto i : mValidWeapons)
             {
-                if (probabilities.count (i))
-                    weights.push_back (probabilities[i]);
-                else
-                    weights.push_back (mean_probability);
+                double weight = base_probability;
+
+                if (auto *weapWeight = LookupMap (probabilities, i))
+                    weight = *weapWeight;
+
+                // Multiply groupWeight with the current weight
+                if (auto *gW = LookupMap (probabilities, mValidWeaponGroups[i]))
+                    weight *= (*gW);
+
+                weights.push_back (weight);
             }
 
         mDistribution
@@ -82,13 +91,13 @@ class WeaponRandomizer
     static bool
     IsValidWeapon (CWeaponInfo &info)
     {
-        switch (info.Equate ("FireType"_joaat).ToHash ())
-            {
-            case "PROJECTILE"_joaat:
-            case "NONE"_joaat: return false;
-            }
+        if (info.Equate ("FireType"_joaat).ToHash () == "NONE"_joaat)
+            return false;
 
         if (info.Get<uint32_t> ("HumanNameHash"_joaat) == "wt_invalid"_joaat)
+            return false;
+
+        if (info.Bitset ("WeaponFlags"_joaat)["Thrown"_joaat])
             return false;
 
         return true;
@@ -108,18 +117,22 @@ class WeaponRandomizer
 
         for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
             {
-                uint32_t modelHash = info->Model;
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
-
                 uint32_t outHash = 0;
 
-                if (modelHash && !DoesElementExist (mExceptions, info->Name)
+                if (info->Model && !DoesElementExist (mExceptions, info->Name)
                     && info->GetClassId (outHash) == "cweaponinfo"_joaat
                     && IsValidWeapon (*static_cast<CWeaponInfo *> (info)))
-                    mValidWeapons.push_back (info->Name);
+                    {
+                        mValidWeapons.push_back (info->Name);
+                        mValidWeaponGroups[info->Name]
+                            = static_cast<CWeaponInfo *> (info)->Get<uint32_t> (
+                                "Group"_joaat);
+                    }
             }
 
         InitialiseWeaponWeights ();
+        PrintWeaponList ();
         Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons",
                                          mValidWeapons.size ());
     }
@@ -199,6 +212,25 @@ class WeaponRandomizer
 
         SET_CURRENT_PED_WEAPON784 (ped, mEquipMgr.GetWeaponToEquip (weaponHash),
                                    true);
+    }
+
+    /*******************************************************/
+    static void
+    PrintWeaponList ()
+    {
+        for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
+            {
+                uint32_t outHash = 0;
+                bool     valid
+                    = info->Model
+                      && info->GetClassId (outHash) == "cweaponinfo"_joaat
+                      && IsValidWeapon (*static_cast<CWeaponInfo *> (info));
+
+                Rainbomizer::Logger::LogMessage (
+                    "classId => %x, modelId = %x, name = %x, value = %s",
+                    info->GetClassId (outHash), info->Model, info->Name,
+                    valid ? "true" : "false");
+            }
     }
 
     /*******************************************************/

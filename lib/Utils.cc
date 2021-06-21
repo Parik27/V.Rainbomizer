@@ -42,6 +42,15 @@ RandomInt (int min, int max)
 }
 
 /*******************************************************/
+unsigned int
+RandomWeighed (const std::vector<double> &weights)
+{
+    std::discrete_distribution<unsigned int> dist{weights.begin (),
+                                                  weights.end ()};
+    return dist (RandEngine ());
+}
+
+/*******************************************************/
 int
 RandomInt (int max)
 {

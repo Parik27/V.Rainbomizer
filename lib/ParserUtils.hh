@@ -6,6 +6,53 @@
 #include <string_view>
 
 /*******************************************************/
+class ParserBitset
+{
+    rage::bitset<32> *pData;
+
+    struct TranslationTable
+    {
+        uint32_t nHash;
+        uint32_t nValue;
+    } * Table;
+
+public:
+    ParserBitset (void *Table, void *data)
+    {
+        pData       = reinterpret_cast<rage::bitset<32> *> (data);
+        this->Table = reinterpret_cast<TranslationTable *> (Table);
+    }
+
+    uint32_t
+    Translate (uint32_t hash)
+    {
+        TranslationTable *t = Table;
+        while (t->nHash != 0 && t->nValue != -1u)
+            {
+                if (t->nHash == hash)
+                    return t->nValue;
+                t++;
+            }
+
+        return -1;
+    }
+
+    void
+    Set (uint32_t hash, bool value)
+    {
+        uint32_t translated = Translate (hash);
+        if (translated != -1)
+            pData->Set (translated, value);
+    }
+
+    bool
+    operator[] (uint32_t hash)
+    {
+        return (*pData)[Translate (hash)];
+    }
+};
+
+/*******************************************************/
 template <typename T = uint32_t> class ParserEnumEquate
 {
     T *pData;
@@ -106,6 +153,16 @@ public:
         return FindFieldEnum (data, (void *) ptr, hash);
     }
 
+    static ParserBitset FindFieldBitset (parStructureStaticData *data,
+                                         void *ptr, uint32_t hash);
+
+    template <typename P>
+    inline static ParserBitset
+    FindFieldBitset (parStructureStaticData *data, P *ptr, uint32_t hash)
+    {
+        return FindFieldBitset (data, (void *) ptr, hash);
+    }
+
     template <typename T, typename P>
     inline static T &
     FindFieldPtr (parStructureStaticData *data, P *ptr, uint32_t hash)
@@ -179,6 +236,14 @@ public:
         return ParserUtils::FindFieldEnum (GetStaticData (),
                                            static_cast<Class *> (this),
                                            fieldHash);
+    }
+
+    ParserBitset
+    Bitset (uint32_t fieldHash)
+    {
+        return ParserUtils::FindFieldBitset (GetStaticData (),
+                                             static_cast<Class *> (this),
+                                             fieldHash);
     }
 
     template <typename T>

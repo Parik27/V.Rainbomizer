@@ -63,6 +63,20 @@ class PedRandomizer_MainFixes
             = FixupScriptEntityModel (info->GetArg (0)) == info->GetArg (1);
     }
 
+    /*******************************************************/
+    static void
+    AdjustAiBlipNoticeRange (scrThread::Info *info)
+    {
+        info->GetArg<float> (1) = -1.0f;
+    }
+
+    /*******************************************************/
+    static void
+    AdjustAiBlipForcedOn (scrThread::Info *info)
+    {
+        info->GetArg<bool> (1) = true;
+    }
+
 public:
     /*******************************************************/
     PedRandomizer_MainFixes ()
@@ -71,10 +85,18 @@ public:
         "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
         "IS_PED_MODEL"_n.Hook (FixIsPedModelNative);
 
+#define HOOK(native, func)                                                     \
+    NativeCallbackMgr::InitCallback<native##_joaat, func, true> ()
+
+        HOOK ("SET_PED_AI_BLIP_NOTICE_RANGE", AdjustAiBlipNoticeRange);
+        HOOK ("SET_PED_AI_BLIP_FORCED_ON", AdjustAiBlipForcedOn);
+
         REGISTER_HOOK (
             "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
             CorrectRegisterEntity, void, CutSceneManager *, CEntity *,
             uint32_t *, uint32_t *, bool, bool, bool, uint32_t);
+
+#undef HOOK
     }
 
 } peds_MainFixes;

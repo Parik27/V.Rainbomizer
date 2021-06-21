@@ -1,11 +1,17 @@
 #pragma once
 
 #include "ParserUtils.hh"
+#include "common/common.hh"
+#include "common/logger.hh"
 #include <cstdint>
 #include <map>
+#include <stdio.h>
+#include <string.h>
 #include <type_traits>
 #include <tuple>
 #include <array>
+#include <unordered_map>
+#include <utility>
 
 /* A randomizer to randomize a field between its min/max value */
 template <typename T> class RangedRandomizer
@@ -32,6 +38,115 @@ public:
 
         Min = std::min (value, Min);
         Max = std::max (value, Max);
+    }
+};
+
+template <const char *FileName, auto ValidateFunction = nullptr>
+class DataFileBasedModelRandomizer
+{
+    using Type = uint32_t;
+
+private:
+    struct ValueGroup
+    {
+        std::vector<uint32_t> Values;
+        std::vector<double>   Weights;
+    };
+
+    bool                    m_Initialised = false;
+    std::vector<ValueGroup> m_Groups;
+
+    /*******************************************************/
+    void
+    Initialise ()
+    {
+        if (std::exchange (m_Initialised, true))
+            return;
+
+        FILE *file = Rainbomizer::Common::GetRainbomizerDataFile (FileName);
+        if (!file)
+            return;
+
+        m_Groups.push_back ({});
+
+        char line[512] = {0};
+        while (fgets (line, 512, file))
+            {
+                if (strlen (line) < 3)
+                    {
+                        m_Groups.push_back ({});
+                        continue;
+                    }
+
+                double weight     = 1.0;
+                char   model[256] = {0};
+
+                sscanf (line, "%s %lf", model, &weight);
+                if (fabs (weight - 1.0) > 0.1)
+                    Rainbomizer::Logger::LogMessage ("%s => %lf", model,
+                                                     weight);
+
+                Type value = rage::atStringHash (model);
+                if (!ValidateFunction || ValidateFunction (value))
+                    {
+                        m_Groups.back ().Values.push_back (value);
+                        m_Groups.back ().Weights.push_back (weight);
+                    }
+            }
+    }
+
+public:
+    /*******************************************************/
+    void
+    RandomizeObject (Type &out)
+    {
+        Initialise ();
+        for (const auto &i : m_Groups)
+            {
+                if (DoesElementExist (i.Values, out))
+                    {
+                        out = i.Values[RandomWeighed (i.Weights)];
+                        break;
+                    }
+            }
+    }
+
+    /*******************************************************/
+    void
+    RandomizeObject (uint32_t identifier, Type &out)
+    {
+        static std::unordered_map<uint32_t, Type> sm_Identifiers;
+        sm_Identifiers.insert (std::make_pair (identifier, out));
+
+        uint32_t model = sm_Identifiers[identifier];
+        RandomizeObject (model);
+
+        out = model;
+    }
+
+    /*******************************************************/
+    void
+    AddSample (const Type value)
+    {
+    }
+};
+
+template <typename T, T... Values> class ConstantValues
+{
+    constexpr static std::array<T, sizeof...(Values)> m_Values{Values...};
+
+public:
+    using Type = T;
+
+    void
+    RandomizeObject (T &out) const
+    {
+        out = GetRandomElement (m_Values);
+    }
+
+    void
+    AddSample (const T value)
+    {
     }
 };
 

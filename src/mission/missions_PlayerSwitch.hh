@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CPed.hh"
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 #include "mission/missions_Globals.hh"
@@ -16,6 +17,7 @@
 #include <ctime>
 
 #include "missions_Globals.hh"
+#include "peds/peds_Compatibility.hh"
 
 using namespace NativeLiterals;
 
@@ -24,7 +26,7 @@ class MissionRandomizer_PlayerSwitcher
 public:
     struct Context
     {
-        ePlayerIndex destPlayer;
+        ePlayerIndex destPlayer = ePlayerIndex::PLAYER_MICHAEL;
 
         bool        noSetPos = false;
         rage::Vec3V destPos;
@@ -58,6 +60,41 @@ private:
 
     /*******************************************************/
     bool
+    CheckCurrentPlayer (ePlayerIndex index)
+    {
+        if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
+            return true;
+
+        if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED
+            == int (eCharacter::_))
+            {
+                uint32_t hash = 0;
+                auto *   playerModel
+                    = PedRandomizerCompatibility::GetOriginalModel (
+                        CPedFactory::Get ()->pPlayer);
+
+                switch (index)
+                    {
+                    case ePlayerIndex::PLAYER_MICHAEL:
+                        hash = "player_zero"_joaat;
+                        break;
+                    case ePlayerIndex::PLAYER_FRANKLIN:
+                        hash = "player_one"_joaat;
+                        break;
+                    case ePlayerIndex::PLAYER_TREVOR:
+                        hash = "player_two"_joaat;
+                        break;
+                    default: return false;
+                    }
+
+                return playerModel && playerModel->m_nHash == hash;
+            }
+
+        return false;
+    }
+
+    /*******************************************************/
+    bool
     SetCurrentPlayer (ePlayerIndex index)
     {
         if (*MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index))
@@ -69,8 +106,7 @@ private:
         if (!YscFunctions::SetCurrentPlayer (index, 1))
             return true;
 
-        bool success
-            = *MissionRandomizer_GlobalsManager::PP_CURRENT_PED == int (index);
+        bool success = CheckCurrentPlayer (index);
 
         if (!success)
             {

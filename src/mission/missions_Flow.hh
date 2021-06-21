@@ -39,6 +39,7 @@ class MissionRandomizer_Flow
 
     void HandleCurrentMissionChanges ();
     void InitStatWatcherForRandomizedMission ();
+    void FixMissionRepeatStructForRandomizedMission ();
     bool HandleCutscenesForRandomizedMission ();
 
     bool HandleHeistCrewRandomization (scrThreadContext *ctx);

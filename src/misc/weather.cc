@@ -13,7 +13,7 @@ class WeatherRandomizer
     // Config
     static inline struct Config
     {
-        bool RandomizeWeather   = false;
+        bool RandomizeWeather   = true;
         bool RandomizeTimecycle = true;
         bool CrazyMode          = false;
 

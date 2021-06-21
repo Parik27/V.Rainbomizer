@@ -9,6 +9,7 @@
 #include "common/logger.hh"
 #include "common/common.hh"
 #include "common/config.hh"
+#include "common/parser.hh"
 #include "injector/injector.hpp"
 #include "CPed.hh"
 #include "peds/peds_Compatibility.hh"
@@ -20,53 +21,19 @@ void (*VisitTopLevelStructure_37027e) (parInstanceVisitor *,
 
 class CutSceneRandomizer
 {
-    /*******************************************************/
-    static std::vector<std::vector<uint32_t>> &
-    GetModelsList ()
-    {
-        static std::vector<std::vector<uint32_t>> mModels;
-        return mModels;
-    }
+    inline static char PropsFileName[] = "CutsceneModelsProps.txt";
+    using PropsRandomizer
+        = DataFileBasedModelRandomizer<PropsFileName,
+                                       CStreaming::GetModelByHash<>>;
+
+    inline static PropsRandomizer sm_Randomizer;
 
     /*******************************************************/
     static uint32_t
     GetRandomModel (uint32_t modelHash)
     {
-        for (const auto &i : GetModelsList ())
-            {
-                if (DoesElementExist (i, modelHash))
-                    return GetRandomElement (i);
-            }
-
+        sm_Randomizer.RandomizeObject (modelHash);
         return modelHash;
-    }
-
-    /*******************************************************/
-    static bool
-    InitialiseModelData ()
-    {
-        FILE *modelsFile = Rainbomizer::Common::GetRainbomizerDataFile (
-            "CutsceneModels.txt");
-        GetModelsList ().clear ();
-
-        if (!modelsFile)
-            return false;
-
-        char line[512] = {0};
-        GetModelsList ().push_back ({});
-        while (fgets (line, 512, modelsFile))
-            {
-                if (strlen (line) < 2)
-                    {
-                        GetModelsList ().push_back ({});
-                        continue;
-                    }
-
-                line[strcspn (line, "\n")] = 0;
-                GetModelsList ().back ().push_back (rage::atStringHash (line));
-            }
-
-        return true;
     }
 
     /*******************************************************/
@@ -116,9 +83,6 @@ public:
             return;
 
         InitialiseAllComponents ();
-
-        if (!InitialiseModelData ())
-            return;
 
         RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
                       VisitTopLevelStructure_37027e, RandomizeCutScene);

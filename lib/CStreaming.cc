@@ -62,7 +62,9 @@ CStreaming::InitialisePatterns ()
         hook::get_pattern ("? 23 c4 ? 23 c5 89 ? ? e8 ? ? ? ? 84 c0 0f 84", 9),
         CStreaming__HasModelLoaded);
 
-    ReadCall (hook::get_pattern ("75 ? 33 c9 e8 ? ? ? ? 8b ? ? 8b ce ", 4),
+    ReadCall (hook::get_pattern ("41 b8 01 00 00 00 03 d3 e8 ? ? ? ? 33 c9 e8 "
+                                 "? ? ? ? 8b 0d ? ? ? ? ",
+                                 15),
               CStreaming__LoadAllObjects);
 
     ReadCall (hook::get_pattern ("? 23 c4 89 44 ? ? e8 ? ? ? ? ff cb ", 7),

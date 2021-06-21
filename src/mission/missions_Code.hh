@@ -20,6 +20,7 @@ class MissionRandomizer_CodeFixes
     static bool ApplyPrepNoRepeatFix (YscUtilsOps &utils);
     static bool ApplyQuickSkipsPatch (YscUtilsOps &utils);
     static bool ApplySolomonCamFix (YscUtilsOps &utils);
+    static bool ApplyBuildingStatePatch (YscUtilsOps &utils);
 
 public:
     void Initialise ();

@@ -5,6 +5,7 @@
 #include "common/logger.hh"
 #include "mission/missions_Funcs.hh"
 #include "mission/missions_Globals.hh"
+#include "mission/missions_PlayerSwitch.hh"
 #include "mission/missions_YscUtils.hh"
 #include "mission/missions_Cmds.hh"
 #include "missions.hh"
@@ -111,6 +112,21 @@ MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
 }
 
 /*******************************************************/
+void
+MissionRandomizer_Flow::FixMissionRepeatStructForRandomizedMission ()
+{
+    ePlayerIndex player = ePlayerIndex (MR::sm_PlayerSwitcher.GetDestPlayer ());
+
+    Rainbomizer::Logger::LogMessage (
+        "Updating Mission Repeat Info players - %x to %x, %x to %x",
+        MR::sm_Globals.g_MissionRepeatInfo->Player, player,
+        MR::sm_Globals.g_MissionRepeatInfo2->Player, player);
+
+    MR::sm_Globals.g_MissionRepeatInfo->Player  = player;
+    MR::sm_Globals.g_MissionRepeatInfo2->Player = player;
+}
+
+/*******************************************************/
 bool
 MissionRandomizer_Flow::PreMissionStart ()
 {
@@ -132,6 +148,7 @@ MissionRandomizer_Flow::PreMissionStart ()
     bMissionStartupFinished   = false;
     nMissionPtrsSema          = 2;
 
+    FixMissionRepeatStructForRandomizedMission ();
     InitStatWatcherForRandomizedMission ();
     SetHeistFlowControlVariables ();
 
@@ -249,6 +266,7 @@ MissionRandomizer_Flow::OnMissionStart ()
         }
 
     // Need to do this again for mission fails.
+    FixMissionRepeatStructForRandomizedMission ();
     InitStatWatcherForRandomizedMission ();
     MR::sm_Cmds.OnMissionStart (OriginalMission->nHash,
                                 RandomizedMission->nHash);
@@ -336,6 +354,8 @@ MissionRandomizer_Flow::Process (scrProgram *program, scrThreadContext *ctx)
     if (!RandomizedMission || !OriginalMission
         || ctx->m_nScriptHash != RandomizedMission->nHash)
         return true;
+
+    MR::sm_Cmds.OnMissionTick ();
 
     // Defer Mission pass callback to the next valid script execution
     if (ctx->m_nState == eScriptState::KILLED)
@@ -451,7 +471,8 @@ void
 MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
 {
     if (!RandomizedMission || !OriginalMission
-        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        || (ctx->m_nScriptHash != RandomizedMission->nHash
+            && ctx->m_nScriptHash != "selector"_joaat))
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
@@ -464,7 +485,8 @@ void
 MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
 {
     if (!RandomizedMission || !OriginalMission
-        || ctx->m_nScriptHash != RandomizedMission->nHash)
+        || (ctx->m_nScriptHash != RandomizedMission->nHash
+            && ctx->m_nScriptHash != "selector"_joaat))
         return;
 
     MR::sm_Order.ReapplyRandomMissionInfo (MR::sm_Globals.g_CurrentMission);

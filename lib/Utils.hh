@@ -22,11 +22,13 @@ ConvertCall (Addr address, Func &func)
     func = Func (address);
 }
 
-int    RandomInt (int max);
-int    RandomInt (int min, int max);
-size_t RandomSize (size_t max);
-float  RandomFloat (float min, float max);
-float  RandomFloat (float max);
+int          RandomInt (int max);
+int          RandomInt (int min, int max);
+size_t       RandomSize (size_t max);
+float        RandomFloat (float min, float max);
+float        RandomFloat (float max);
+unsigned int RandomWeighed (const std::vector<double> &weights);
+
 void   InitialiseAllComponents ();
 
 /*******************************************************/

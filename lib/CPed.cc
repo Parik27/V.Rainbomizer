@@ -1,3 +1,5 @@
+#include "CVehicle.hh"
+#include "Patterns/Patterns.hh"
 #include <Utils.hh>
 #include <CPed.hh>
 
@@ -5,6 +7,8 @@ void *(*CPedInventory__GiveWeapon) (CPedInventory *, uint32_t, uint32_t);
 CInventoryItem *(*CInventoryItemRepository__FindWeapon) (
     CInventoryItemRepository *, uint32_t);
 CPed *(*fwScriptGuidPool__GetPed) (uint32_t handle);
+CMotionTaskDataSet *(*CMotionTaskDataManager__FindByName) (uint32_t name);
+aiTask *(*CPed__CreateMotionTask) (CPed *, sMotionTaskData *, bool);
 
 /*******************************************************/
 CInventoryItem *__cdecl CInventoryItemRepository::FindWeapon (uint32_t hash)
@@ -61,6 +65,41 @@ CPedInventory::AddWeapon (uint32_t hash, uint32_t ammo)
 }
 
 /*******************************************************/
+CMotionTaskDataSet *
+CMotionTaskDataManager::FindByName (uint32_t name)
+{
+    return CMotionTaskDataManager__FindByName (name);
+}
+
+/*******************************************************/
+aiTask *
+CPed::CreateMotionTask (sMotionTaskData *set, bool lowLod)
+{
+    return CPed__CreateMotionTask (this, set, lowLod);
+}
+
+/*******************************************************/
+CVehicle *
+CPed::GetVehicle ()
+{
+    static uint32_t nVehicleIndex = *hook::get_pattern<uint32_t> (
+        "8b ? ? ? ? ? c1 e8 1e 41 84 c5 74 ? ? 83 ? ? ? ? ? 00 74 ? ba 0c 00 "
+        "00 00 e9",
+        17);
+
+    return *GetAtOffset<CVehicle *> (this, nVehicleIndex);
+}
+
+/*******************************************************/
+uint32_t
+CPed::GetMotionState ()
+{
+    static uint32_t nMotionStateIndex = *hook::get_pattern<uint32_t> (
+        "44 8b f2 ? 8b e9 e8 ? ? ? ? 33 ff 44 89 ? ? ? ? ?", 16);
+    return *GetAtOffset<uint32_t> (this, nMotionStateIndex);
+}
+
+/*******************************************************/
 void
 CPedInventory::InitialisePatterns ()
 {
@@ -77,6 +116,16 @@ CPedInventory::InitialisePatterns ()
     ReadCall (hook::get_pattern (
                   "? 83 ec 20 ? 8b f8 8b ea e8 ? ? ? ? 33 db ? 85 c0", 9),
               fwScriptGuidPool__GetPed);
+
+    ReadCall (
+        hook::get_pattern ("? 89 ? ? ? ? ? 8b ? ? ? ? ? e8 ? ? ? ? ? 89 ? ? ? "
+                           "? ? 8b ? ? ? ? ? e8 ? ? ? ? 33 d2 ? 8d ? ? ? ? ?",
+                           13),
+        CMotionTaskDataManager__FindByName);
+
+    ReadCall (hook::get_pattern (
+                  "? 8b 52 08 45 8a c1 e8 ? ? ? ? ? 8b c0 ? 8b c0 ", 7),
+              CPed__CreateMotionTask);
 
     //?? 8b 05 ?? ?? ?? ?? ?? 8b d9 ?? 8b ?? ?? ?? 8b 42 20 ?? 85 c0
     CPedFactory::sm_Instance = GetRelativeReference<CPedFactory *> (

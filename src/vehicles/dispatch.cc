@@ -87,25 +87,23 @@ class DispatchRandomizer
         switch (service->eId)
             {
 
-            case eDispatchId::CPoliceAutomobileDispatch:
-            case eDispatchId::CArmyVehicleDispatch:
-            case eDispatchId::CSwatAutomobileDispatch:
-            case eDispatchId::CPoliceRidersDispatch:
-            case eDispatchId::CPoliceVehicleRequest:
+            case eDispatchId::DT_PoliceAutomobile:
+            case eDispatchId::DT_ArmyVehicle:
+            case eDispatchId::DT_SwatAutomobile:
+            case eDispatchId::DT_PoliceRiders:
+            case eDispatchId::DT_PoliceVehicleRequest:
                 return GetRandomVehicleForPoliceAutomobile ();
 
-            case eDispatchId::CWantedHelicopterDispatch:
-            case eDispatchId::CSwatHelicopterDispatch:
+            case eDispatchId::DT_PoliceHelicopter:
+            case eDispatchId::DT_SwatHelicopter:
                 return GetRandomPoliceHelicopter ();
 
-            case eDispatchId::CPoliceBoatDispatch:
-                return GetRandomBoat ();
-                break;
+            case eDispatchId::DT_PoliceBoat: return GetRandomBoat (); break;
 
-            case eDispatchId::CFireDepartmentDispatch:
-            case eDispatchId::CAmbulanceDepartmentDispatch:
-            case eDispatchId::CGangDispatch:
-            case eDispatchId::CPoliceRoadBlockDispatch:
+            case eDispatchId::DT_FireDepartment:
+            case eDispatchId::DT_AmbulanceDepartment:
+            case eDispatchId::DT_Gangs:
+            case eDispatchId::DT_PoliceRoadBlock:
             default: return GetRandomVehicle ();
             }
 
