@@ -320,7 +320,6 @@ P_Idol_Case_S
 P_Inhaler_01_S
 P_Kitch_Juicer_S
 P_Laptop_02_S
-P_Large_gold_S
 p_laz_J01_s
 p_laz_J02_s
 P_Lazlow_Shirt_S
@@ -357,7 +356,6 @@ P_Syringe_01_S
 P_T_Shirt_Pile_S
 P_Till_01_S
 P_TMom_earrings_S
-P_tourist_map_01_S
 p_trev_ski_mask_s
 P_trevor_prologe_bally_S
 P_Tumbler_01_Bar_S
@@ -648,7 +646,6 @@ prop_cs_lazlow_ponytail
 prop_cs_lazlow_shirt_01
 prop_cs_lazlow_shirt_01b
 prop_cs_leg_chain_01
-prop_cs_lester_crate
 prop_cs_lipstick
 prop_cs_magazine
 prop_cs_marker_01
@@ -938,7 +935,6 @@ prop_cs_spray_can
 prop_cs_tablet
 prop_cs_tablet_02
 prop_cs_vial_01
-prop_cs_walking_stick
 prop_cuff_keys_01
 prop_defilied_ragdoll_01
 prop_egg_clock_01
@@ -3268,6 +3264,7 @@ prop_bodyarmour_06
 p_para_bag_pilot2_s
 prop_oiltub_04
 p_w_ar_musket_chrg
+prop_mp3_dock
 
 prop_flatscreen_overlay
 prop_michaels_credit_tv
@@ -3294,6 +3291,7 @@ prop_ld_rail_02
 
 prop_carwash_roller_horz
 prop_carwash_roller_vert
+P_Large_gold_S
 prop_cash_crate_01
 prop_coffin_02
 prop_coffin_02b
@@ -3315,7 +3313,6 @@ prop_ld_rubble_04
 prop_military_pickup_01
 prop_mil_crate_01
 prop_mil_crate_02
-prop_mp3_dock
 prop_mp_arrow_barrier_01
 prop_mp_barrier_01
 prop_mp_barrier_01b
@@ -6347,7 +6344,6 @@ prop_wrecked_buzzard
 prop_asteroid_01
 prop_cs_dumpster_01a
 prop_ld_greenscreen_01
-prop_shamal_crash
 p_beefsplitter_s
 p_ferris_wheel_amo_l
 p_ferris_wheel_amo_l2
@@ -6622,7 +6618,6 @@ vw_prop_vw_contr_01b_ld
 vw_prop_vw_contr_01c_ld
 vw_prop_vw_contr_01d_ld
 
-P_Blueprints_01_S
 P_cloth_Airdancer_S
 P_clothTarp_down_S
 p_clothtarp_s
@@ -6634,6 +6629,7 @@ P_wboard_clth_S
 prop_shower_towel
 vw_p_vw_cs_bandana_s
 P_CS_Bandana_S
+P_tourist_map_01_S
 
 P_bloodsplat_S
 p_cs1_14b_train_s
@@ -7735,6 +7731,7 @@ prop_mk_lines
 prop_win_trailer_ld
 prop_medstation_01
 prop_police_id_board
+P_Blueprints_01_S
 
 P_Finale_bld_ground_S
 P_Finale_Bld_pool_S
