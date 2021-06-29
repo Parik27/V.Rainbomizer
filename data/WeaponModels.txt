@@ -69,9 +69,7 @@ w_lr_firework
 w_lr_firework_final
 w_lr_grenadelauncher
 w_lr_homing
-w_lr_homing_rocket
 w_lr_rpg
-w_lr_rpg_rocket
 w_pi_flaregun
 prop_space_pistol
 prop_space_rifle
@@ -167,9 +165,7 @@ w_lr_firework
 w_lr_firework_final
 w_lr_grenadelauncher
 w_lr_homing
-w_lr_homing_rocket
 w_lr_rpg
-w_lr_rpg_rocket
 w_pi_flaregun
 prop_space_pistol
 prop_space_rifle
@@ -312,9 +308,7 @@ w_lr_firework
 w_lr_firework_final
 w_lr_grenadelauncher
 w_lr_homing
-w_lr_homing_rocket
 w_lr_rpg
-w_lr_rpg_rocket
 w_pi_flaregun
 w_sg_doublebarrel_mag1
 w_pi_singleshot_shell
@@ -1672,7 +1666,6 @@ prop_cs_bowie_knife
 prop_cs_bowl_01
 prop_cs_bowl_01b
 prop_cs_box_step
-prop_cs_brain_chunk
 prop_cs_bs_cup
 prop_cs_burger_01
 prop_cs_business_card
@@ -3429,9 +3422,7 @@ w_lr_firework
 w_lr_firework_final
 w_lr_grenadelauncher
 w_lr_homing
-w_lr_homing_rocket
 w_lr_rpg
-w_lr_rpg_rocket
 w_pi_flaregun
 w_lr_compactgl_shell
 w_lr_firework_rocket

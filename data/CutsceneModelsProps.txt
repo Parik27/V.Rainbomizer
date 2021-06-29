@@ -1004,6 +1004,7 @@ prop_parapack_01
 prop_phone_cs_frank
 prop_phone_ing_02
 prop_phone_ing_02_lod
+prop_phone_ing_03
 prop_phone_proto
 prop_phone_proto_back
 prop_phone_proto_battery
