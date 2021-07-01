@@ -16,7 +16,7 @@ constexpr int RAINBOMIZER_BUILD_NUMBER =
 
 char *(*rage__formatf6eb9) (char *, char const *, ...);
 
-#ifdef ENABLE_DEBUG_SERVER
+#ifdef ENABLE_DEBUG_MENU
 
 #include "debug/logger.hh"
 
@@ -76,7 +76,7 @@ Logger::LogMessage (const char *format, ...)
     unsigned int size = vfprintf (file, format, args) + 1;
     va_end (args);
 
-#ifdef ENABLE_DEBUG_SERVER
+#ifdef ENABLE_DEBUG_MENU
     std::unique_ptr<char[]> buf (new char[size]);
     va_start (args, format);
     vsnprintf (buf.get (), size, format, args);

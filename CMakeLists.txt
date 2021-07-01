@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.5)
 project(rainbomizer_v)
 
-option(ENABLE_DEBUG_SERVER "Enables a webserver for debugging purposes")
+option(ENABLE_DEBUG_MENU "Enables an imgui-menu for debugging purposes")
 
 # C++20
 if (MSVC_VERSION GREATER_EQUAL "1900")
@@ -40,8 +40,8 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
 
 add_library("rainbomizer" SHARED ${SOURCES} )
 
-if (ENABLE_DEBUG_SERVER)
-  include(cmake/DebugServer.cmake)
+if (ENABLE_DEBUG_MENU)
+  include(cmake/DebugImgui.cmake)
 endif()
 
 # Properties

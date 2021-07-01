@@ -7,6 +7,7 @@
 #include <common/logger.hh>
 #include <CStreaming.hh>
 #include <common/common.hh>
+#include <common/events.hh>
 #include <algorithm>
 #include <audEngine.hh>
 #include <thread>
@@ -261,9 +262,9 @@ public:
         InitialiseAllComponents ();
         InitialiseHooks ();
 
-        Rainbomizer::Common::AddInitCallback ([] (bool session) {
+        Rainbomizer::Events ().OnInit += [] (bool session) {
             if (session)
                 InitialiseSoundsList ();
-        });
+        };
     }
 } voices;

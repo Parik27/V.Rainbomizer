@@ -15,29 +15,9 @@ ExceptionHandlerMgr::GetInstance ()
 
 /*******************************************************/
 void
-ExceptionHandlerMgr::RunThread ()
-{
-    while (true)
-        {
-            if (GetAsyncKeyState (VK_F8) && GetAsyncKeyState (VK_F9)
-                && GetAsyncKeyState (VK_F10))
-                {
-                    ExceptionHandlerMgr::GetInstance ().RunExitHandler ();
-                    abort ();
-                }
-
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for (1s);
-        }
-}
-
-/*******************************************************/
-void
 ExceptionHandlerMgr::Init ()
 {
     SetUnhandledExceptionFilter (RunExceptionHandler);
-
-    static std::thread handlerThread (this->RunThread);
 }
 
 /*******************************************************/

@@ -16,6 +16,7 @@ franklin0	Speedo	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	no_rotors
 family1	Sentinel2	2	N	N	N	N	N	N	N	N	N	N	N	N					
 family1	Phantom	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Tr3				
 family1	Tr3	0	N	N	N	N	N	N	N	N	N	N	N	N					
+family1	AllVehicles	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	w=8.0+l=100.0+h=100.0				
 family2	Cruiser	1	N	Y	Y	Y	N	N	N	N	N	N	N	N					
 family2	Bmx	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=7.0+l=5.0+h=6				
 family2	Scorcher	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=7.0+l=4.0+h=6	15	-23	0	
@@ -78,7 +79,8 @@ carsteal1	Policeb	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	x=2684+y=5131+z=43+no_rotors
 carsteal1	Entityxf	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20				
 carsteal1	Cheetah	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20				
 carsteal2	Polmav	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
-carsteal2	Ztype	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+carsteal2	Buffalo2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	N	w=30.0+l=30.0+h=20.0				
+carsteal2	Ztype	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=3.0+l=13.0+h=3.4				
 carsteal3	Jb700	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=15+no_rotors				
 carsteal1	AllVehicles	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	w=8.0+l=100.0+h=100.0				
 martin1	Burrito3	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15+no_rotors				
@@ -139,7 +141,7 @@ finale_heist2a	Dubsta	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N
 finale_heist2a	Burrito3	2	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 finale_heist2a	Stockade	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 finale_heist2a	Mesa3	4	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
-finale_heist2a	Gauntlet	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+finale_heist2a	Gauntlet	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=3.0+l=6.0+h=6.0				
 finale_heist2a	Cavalcade2	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2a	Packer	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Trailers3				
 finale_heist2a	Trailers3	0	N	N	N	N	N	N	N	N	N	N	N	N					
@@ -147,7 +149,7 @@ finale_heist2a	AllVehicles	2	Y	N	N	N	N	N	N	N	N	Y	N	N	w=8.0+l=100.0+h=100.0
 finale_heist2b	Bodhi2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2b	Buffalo2	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2b	Oracle2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
-finale_heist2b	Cutter	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+finale_heist2b	Cutter	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.5+l=11.1+h=5.6				
 finale_heist2b	Frogger	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finale_heist2b	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N					
 finale_heist2b	Police3	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
@@ -173,7 +175,7 @@ michael3	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N
 michael4	Stretch	4	Y	Y	N	Y	N	Y	N	Y	Y	Y	N	N					
 michael4	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 agency_heist1	Tailgater	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
-agency_heist1	Stanier	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
+agency_heist1	Stanier	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	h=5.0				
 agency_heist1	AllVehicles	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 agency_heist2	Zion2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	w=15.0+l=15.0+h=15.0				
 agency_heist3a	Firetruk	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
@@ -201,12 +203,15 @@ assassin_valet	Taxi	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N
 assassin_multi	Marquis	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
 assassin_multi	Bati	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 assassin_hooker	Peyote	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
+assassin_hooker	Ruiner	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+assassin_hooker	Primo	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+assassin_hooker	Emperor2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 assassin_bus	Bus	2	Y	Y	Y	Y	Y	Y	Y	N	N	N	N	N					
 assassin_bus	Scorcher	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 assassin_construction	Maverick	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
-pilot_school	Cuban800	1	Y	Y	N	N	Y	N	Y	N	N	N	N	N	flying				
-pilot_school	Stunt	1	Y	Y	N	N	Y	N	Y	N	N	N	N	N	flying				
-pilot_school	Frogger	1	Y	Y	N	N	Y	Y	Y	N	N	N	N	N	flying				
+pilot_school	Cuban800	1	N	N	N	N	Y	N	Y	N	N	N	N	N	flying				
+pilot_school	Stunt	1	N	N	N	N	Y	N	Y	N	N	N	N	N	flying				
+pilot_school	Frogger	1	N	N	N	N	Y	Y	Y	N	N	N	N	N	flying				
 traffick_air	Cuban800	1	N	N	N	N	Y	Y	N	N	N	N	N	N	w=17.0+l=15.0+h=6.0+flying	-14	28	0	
 traffick_air	Squalo	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
 traffick_ground	Dune	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
@@ -214,12 +219,17 @@ drf5	Comet2	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N
 abigail1	Submersible	1	N	N	N	N	N	N	N	N	Y	N	N	N					
 abigail1	Submersible2	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
 abigail1	Dinghy	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
+launcher_abigail	Submersible	1	N	N	N	N	N	N	N	N	Y	N	N	N					
+launcher_abigail	Submersible2	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
+launcher_abigail	Dinghy	1	N	N	N	N	N	N	N	Y	Y	N	N	N					
 barry3a	Dloader	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 barry3c	Emperor2	1	Y	N	N	N	N	N	N	N	N	Y	N	N					
 barry3c	Towtruck	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_tow				
+launcher_barry	Emperor2	1	Y	N	N	N	N	N	N	N	N	Y	N	N					
+launcher_barry	Towtruck	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_tow				
 paparazzo1	Pcj	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 paparazzo1	Stretch	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
-paparazzo2	Fq2	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
+paparazzo2	Fq2	4	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y	N	w=20.0+l=20.0+h=20.0				
 paparazzo2	Rapidgt2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 paparazzo2	Landstalker	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 paparazzo3a	Cogcabrio	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
@@ -228,8 +238,8 @@ paparazzo3b	Landstalker	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N
 minute1	Pranger	4	Y	Y	N	Y	Y	Y	N	N	N	Y	N	N					
 minute1	Tornado4	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 minute2	Pranger	4	Y	Y	N	Y	Y	Y	N	N	N	Y	N	N					
-minute2	Blazer	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
-minute2	Sanchez	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+minute2	Blazer	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+minute2	Sanchez	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 minute3	Tractor2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 extreme1	Maverick	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 extreme1	Scorcher	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
@@ -255,7 +265,10 @@ tonya5	Towtruck	2	Y	N	N	N	N	N	N	N	N	N	N	N	can_tow
 tonya5	Intruder	1	Y	N	N	N	N	N	N	N	N	Y	N	N					
 offroad_races	Blazer	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 offroad_races	Sanchez	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
-stunt_plane_races	Stunt	1	Y	Y	N	N	Y	Y	N	N	N	N	N	N	flying				
+launcher_offroadracing	Blazer	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
+launcher_offroadracing	Sanchez	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
+stunt_plane_races	Stunt	1	N	N	N	N	Y	Y	N	N	N	N	N	N	flying				
+launcher_stunts	Stunt	1	N	N	N	N	Y	Y	N	N	N	N	N	N	flying				
 triathlonsp	Tribike	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 triathlonsp	Tribike2	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 triathlonsp	Tribike3	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
@@ -269,7 +282,7 @@ mission_triggerer_b	Towtruck	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	x=1377+y=-2076+z=51
 mission_triggerer_b	Trash	2	N	N	N	N	N	N	N	N	N	N	N	N					
 franklin1	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+x=-120+y=-1868+z=-0+no_rotors+invincible 	-8	-2	3	
 franklin1	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+x=-124+y=-1864+z=-0+no_rotors+invincible 	0	0	0	
-franklin1	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=.0+l=5.0+h=5+x=-127+y=-1861+z=-0+no_rotors+invincible 	3	7	3	
+franklin1	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+x=-127+y=-1861+z=-0+no_rotors+invincible 	3	7	3	
 mission_triggerer_c	F620	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20+x=117+y=-414+z=40				
 mission_triggerer_c	Adder	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=10.0+l=20.0+h=20+x=119+y=-398+z=40				
 mission_triggerer_c	Felon	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=10.0+l=20.0+h=20+x=110+y=-401+z=40				
@@ -289,3 +302,24 @@ mission_triggerer_a	Bjxl	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5
 mission_triggerer_a	Taligate	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
 mission_triggerer_a	Premier	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
 mission_triggerer_a	Bison2	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+freemode	Kosatka	1	N	N	N	N	N	N	N	N	N	N	N	N					
+launcher_racing	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+no_rotors				
+launcher_nigel	Speedo	4	N	N	N	N	N	N	N	N	N	N	N	N					
+player_timetable_scene	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y					
+player_timetable_scene	Buffalo2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y					
+launcher_fanatic	Scorcher	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+launcher_fanatic	Tribike	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+me_jimmy1	Landstalker	4	Y	N	N	N	N	N	N	N	N	Y	N	N					
+re_cartheft	Peyote	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
+launcher_minute	Pranger	4	Y	Y	N	Y	Y	Y	N	N	N	Y	N	N					
+re_bus_tours	Tourbus	2	Y	Y	N	Y	Y	Y	Y	N	N	Y	N	N					
+re_bikethief	Bati	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+launcher_racing	Ninef	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	w=20.0+l=20.0+h=20.0				
+launcher_racing	Feltzer	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	w=20.0+l=20.0+h=20.0				
+re_chasethieves	Gburrito	4	Y	N	N	N	N	Y	Y	N	N	Y	N	N					
+re_chasethieves	Hexer	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+re_drunkdriver	Emperor	2	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
+re_drunkdriver	Baller2	4	Y	Y	N	N	N	Y	N	N	N	Y	N	N					
+bailbond1	Landstalker	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+bailbond2	Bison	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
+bailbond2	Bison2	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					

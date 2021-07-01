@@ -1,0 +1,353 @@
+light_dir_mult FIELD 0  1 0.5
+light_directional_amb_intensity FIELD 0  1 0.5
+light_directional_amb_intensity_mult FIELD 0  1 0.5
+light_directional_amb_bounce_enabled FIELD 0  1 0.5
+light_amb_down_wrap FIELD 0  1 0.5
+light_natural_amb_down_intensity FIELD 0  1 0.5
+light_natural_amb_up_intensity FIELD 0  1 0.5
+light_natural_amb_up_intensity_mult FIELD 0  1 0.5
+light_natural_push FIELD 0  1 0.5
+light_ambient_bake_ramp FIELD 0  1 0.5
+light_artificial_int_down_intensity FIELD 0  1 0.5
+light_artificial_int_up_intensity FIELD 0  1 0.5
+light_artificial_ext_down_intensity FIELD 0  1 0.5
+light_artificial_ext_up_intensity FIELD 0  1 0.5
+ped_light_mult FIELD 3  0 1
+ped_light_direction_x FIELD 0  1 0.5
+ped_light_direction_y FIELD 0  1 0.5
+ped_light_direction_z FIELD 0  1 0.5
+light_amb_occ_mult FIELD 0  1 0.5
+light_amb_occ_mult_ped FIELD 0  1 0.5
+light_amb_occ_mult_veh FIELD 0  1 0.5
+light_amb_occ_mult_prop FIELD 0  1 0.5
+light_amb_volumes_in_diffuse FIELD 0  1 0.5
+ssao_inten FIELD 0  1 0.5
+ssao_type FIELD 0  1 0.5
+ssao_cp_strength FIELD 0  1 0.5
+ssao_qs_strength FIELD 0  1 0.5
+light_ped_rim_mult FIELD 0  1 0.5
+light_dynamic_bake_tweak FIELD 0  1 0.5
+light_vehicle_second_spec_override FIELD 0  1 0.5
+light_vehicle_intenity_scale FIELD 0  1 0.5
+light_direction_override FIELD 0  1 0.5
+light_direction_override_overrides_sun FIELD 0  1 0.5
+sun_direction_x FIELD 3  0 100
+sun_direction_y FIELD 0  1 0.5
+sun_direction_z FIELD 0  1 0.5
+moon_direction_x FIELD 3  0 100
+moon_direction_y FIELD 3  0 100
+moon_direction_z FIELD 3  0 100
+light_ray_mult FIELD 1  1 0.5
+light_ray_underwater_mult FIELD 1  1 0.5
+light_ray_dist FIELD 1  1 0.5
+light_ray_heightfalloff FIELD 1  1 0.5
+light_ray_height_falloff_start FIELD 1  1 0.5
+light_ray_add_reducer FIELD 1  1 0.5
+light_ray_blit_size FIELD 1  1 0.5
+light_ray_length FIELD 1  1 0.5
+postfx_exposure FIELD 0  1 0.5
+postfx_exposure_min FIELD 0  1 0.5
+postfx_exposure_max FIELD 0  1 0.5
+postfx_bright_pass_thresh_width FIELD 0  1 0.5
+postfx_bright_pass_thresh FIELD 0  1 0.5
+postfx_intensity_bloom FIELD 0  1 0.5
+postfx_correct_cutoff FIELD 3  0.7 1
+postfx_shift_cutoff FIELD 0  1 0.5
+postfx_desaturation FIELD 3  0 2
+postfx_noise FIELD 0  1 0.5
+postfx_noise_size FIELD 0  1 0.5
+postfx_tonemap_filmic_override_dark FIELD 0  1 0.5
+postfx_tonemap_filmic_exposure_dark FIELD 0  1 0.5
+postfx_tonemap_filmic_a FIELD 0  1 0.5
+postfx_tonemap_filmic_e FIELD 0  1 0.5
+postfx_tonemap_filmic_f FIELD 0  1 0.5
+postfx_tonemap_filmic_w FIELD 0  1 0.5
+postfx_tonemap_filmic_override_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_exposure_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_a_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_b_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_c_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_d_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_e_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_f_bright FIELD 0  1 0.5
+postfx_tonemap_filmic_w_bright FIELD 0  1 0.5
+postfx_vignetting_intensity FIELD 0  1 0.5
+postfx_vignetting_radius FIELD 0  1 0.5
+postfx_vignetting_contrast FIELD 0  1 0.5
+postfx_grad_midpoint FIELD 0  1 0.5
+postfx_grad_top_middle_midpoint FIELD 0  1 0.5
+postfx_grad_middle_bottom_midpoint FIELD 0  1 0.5
+postfx_scanlineintensity FIELD 0  1 0.5
+postfx_scanline_frequency_0 FIELD 0  1 0.5
+postfx_scanline_frequency_1 FIELD 0  1 0.5
+postfx_scanline_speed FIELD 0  1 0.5
+postfx_motionblurlength FIELD 0  1 0.5
+dof_far FIELD 0  1 0.5
+dof_blur_mid FIELD 0  1 0.5
+dof_blur_far FIELD 0  1 0.5
+dof_enable_hq FIELD 0  1 0.5
+dof_hq_smallblur FIELD 0  1 0.5
+dof_hq_shallowdof FIELD 0  1 0.5
+dof_hq_nearplane_out FIELD 0  1 0.5
+dof_hq_nearplane_in FIELD 0  1 0.5
+dof_hq_farplane_out FIELD 0  1 0.5
+dof_hq_farplane_in FIELD 0  1 0.5
+environmental_blur_in FIELD 0  1 0.5
+environmental_blur_out FIELD 0  1 0.5
+environmental_blur_size FIELD 0  1 0.5
+bokeh_brightness_min FIELD 0  1 0.5
+bokeh_brightness_max FIELD 0  1 0.5
+bokeh_fade_min FIELD 0  1 0.5
+bokeh_fade_max FIELD 0  1 0.5
+nv_light_dir_mult FIELD 0  1 0.5
+nv_light_amb_down_mult FIELD 0  1 0.5
+nv_light_amb_up_mult FIELD 0  1 0.5
+nv_lowLum FIELD 0  1 0.5
+nv_highLum FIELD 0  1 0.5
+nv_topLum FIELD 0  1 0.5
+nv_scalerLum FIELD 0  1 0.5
+nv_offsetLum FIELD 0  1 0.5
+nv_offsetLowLum FIELD 0  1 0.5
+nv_offsetHighLum FIELD 0  1 0.5
+nv_noiseLum FIELD 0  1 0.5
+nv_noiseLowLum FIELD 0  1 0.5
+nv_noiseHighLum FIELD 0  1 0.5
+nv_bloomLum FIELD 0  1 0.5
+hh_startRange FIELD 0  1 0.5
+hh_farRange FIELD 0  1 0.5
+hh_minIntensity FIELD 0  1 0.5
+hh_maxIntensity FIELD 0  1 0.5
+hh_displacementU FIELD 0  1 0.5
+hh_displacementV FIELD 0  1 0.5
+hh_tex1UScale FIELD 0  1 0.5
+hh_tex1VScale FIELD 0  1 0.5
+hh_tex1UOffset FIELD 0  1 0.5
+hh_tex1VOffset FIELD 0  1 0.5
+hh_tex2UScale FIELD 0  1 0.5
+hh_tex2VScale FIELD 0  1 0.5
+hh_tex2UOffset FIELD 0  1 0.5
+hh_tex2VOffset FIELD 0  1 0.5
+hh_tex1UFrequencyOffset FIELD 0  1 0.5
+hh_tex1UFrequency FIELD 0  1 0.5
+hh_tex1UAmplitude FIELD 0  1 0.5
+hh_tex1VScrollingSpeed FIELD 0  1 0.5
+hh_tex2UFrequencyOffset FIELD 0  1 0.5
+hh_tex2UFrequency FIELD 0  1 0.5
+hh_tex2UAmplitude FIELD 0  1 0.5
+hh_tex2VScrollingSpeed FIELD 0  1 0.5
+lens_dist_coeff FIELD 0  1 0.5
+lens_dist_cube_coeff FIELD 0  1 0.5
+chrom_aberration_coeff FIELD 0  1 0.5
+chrom_aberration_coeff2 FIELD 0  1 0.5
+lens_artefacts_intensity FIELD 0  1 0.5
+lens_artefacts_min_exp_intensity FIELD 0  1 0.5
+lens_artefacts_max_exp_intensity FIELD 0  1 0.5
+blur_vignetting_radius FIELD 0  1 0.5
+blur_vignetting_intensity FIELD 0  1 0.5
+screen_blur_intensity FIELD 0  1 0.5
+sky_zenith_transition_position FIELD 0  1 0.5
+sky_zenith_transition_east_blend FIELD 0  1 0.5
+sky_zenith_transition_west_blend FIELD 0  1 0.5
+sky_zenith_blend_start FIELD 0  1 0.5
+sky_zenith_col_inten FIELD 0  1 0.5
+sky_zenith_transition_col_inten FIELD 0  1 0.5
+sky_azimuth_transition_position FIELD 0  1 0.5
+sky_azimuth_east_col_inten FIELD 0  1 0.5
+sky_azimuth_transition_col_inten FIELD 0  1 0.5
+sky_azimuth_west_col_inten FIELD 0  1 0.5
+sky_hdr FIELD 0  1 0.5
+sky_plane_inten FIELD 0  1 0.5
+sky_sun_disc_size FIELD 0  1 0.5
+sky_sun_hdr FIELD 0  1 0.5
+sky_sun_miephase FIELD 0  1 0.5
+sky_sun_miescatter FIELD 0  1 0.5
+sky_sun_mie_intensity_mult FIELD 0  1 0.5
+sky_sun_influence_radius FIELD 0  1 0.5
+sky_sun_scatter_inten FIELD 0  1 0.5
+sky_moon_disc_size FIELD 3  0 35
+sky_moon_iten FIELD 3  0 50
+sky_stars_iten FIELD 3  0 100
+sky_moon_influence_radius FIELD 0  1 0.5
+sky_moon_scatter_inten FIELD 0  1 0.5
+sky_cloud_gen_frequency FIELD 1  1 0.5
+sky_cloud_gen_scale FIELD 1  1 0.5
+sky_cloud_gen_threshold FIELD 1  1 0.5
+sky_cloud_gen_softness FIELD 1  1 0.5
+sky_cloud_density_mult FIELD 1  1 0.5
+sky_cloud_density_bias FIELD 1  1 0.5
+sky_cloud_base_strength FIELD 1  1 0.5
+sky_cloud_shadow_strength FIELD 1  1 0.5
+sky_cloud_gen_density_offset FIELD 1  1 0.5
+sky_cloud_offset FIELD 1  1 0.5
+sky_cloud_overall_strength FIELD 1  1 0.5
+sky_cloud_overall_color FIELD 1  1 0.5
+sky_cloud_edge_strength FIELD 1  1 0.5
+sky_cloud_fadeout FIELD 1  1 0.5
+sky_cloud_hdr FIELD 1  1 0.5
+sky_cloud_dither_strength FIELD 1  1 0.5
+sky_small_cloud_detail_strength FIELD 1  1 0.5
+sky_small_cloud_detail_scale FIELD 1  1 0.5
+sky_small_cloud_density_mult FIELD 1  1 0.5
+sky_small_cloud_density_bias FIELD 1  1 0.5
+cloud_shadow_density FIELD 1  1 0.5
+cloud_shadow_softness FIELD 1  1 0.5
+cloud_shadow_opacity FIELD 1  1 0.5
+dir_shadow_num_cascades FIELD 0  1 0.5
+dir_shadow_distance_multiplier FIELD 0  1 0.5
+dir_shadow_softness FIELD 0  1 0.5
+dir_shadow_cascade0_scale FIELD 0  1 0.5
+sprite_brightness FIELD 0  1 0.5
+sprite_size FIELD 0  1 0.5
+sprite_corona_screenspace_expansion FIELD 0  1 0.5
+Lensflare_visibility FIELD 0  1 0.5
+sprite_distant_light_twinkle FIELD 0  1 0.5
+water_reflection FIELD 0  1 0.5
+water_reflection_far_clip FIELD 0  1 0.5
+water_reflection_lod FIELD 0  1 0.5
+water_reflection_sky_flod_range FIELD 0  1 0.5
+water_reflection_lod_range_enabled FIELD 0  1 0.5
+water_reflection_lod_range_hd_start FIELD 0  1 0.5
+water_reflection_lod_range_hd_end FIELD 0  1 0.5
+water_reflection_lod_range_orphanhd_start FIELD 0  1 0.5
+water_reflection_lod_range_orphanhd_end FIELD 0  1 0.5
+water_reflection_lod_range_lod_start FIELD 0  1 0.5
+water_reflection_lod_range_lod_end FIELD 0  1 0.5
+water_reflection_lod_range_slod1_start FIELD 0  1 0.5
+water_reflection_lod_range_slod1_end FIELD 0  1 0.5
+water_reflection_lod_range_slod2_start FIELD 0  1 0.5
+water_reflection_lod_range_slod2_end FIELD 0  1 0.5
+water_reflection_lod_range_slod3_start FIELD 0  1 0.5
+water_reflection_lod_range_slod3_end FIELD 0  1 0.5
+water_reflection_lod_range_slod4_start FIELD 0  1 0.5
+water_reflection_lod_range_slod4_end FIELD 0  1 0.5
+water_reflection_height_offset FIELD 0  1 0.5
+water_reflection_height_override FIELD 0  1 0.5
+water_reflection_height_override_amount FIELD 0  1 0.5
+water_reflection_distant_light_intensity FIELD 0  1 0.5
+water_reflection_corona_intensity FIELD 0  1 0.5
+water_foglight FIELD 0  1 0.5
+water_interior FIELD 0  1 0.5
+water_fogstreaming FIELD 0  1 0.5
+water_foam_intensity_mult FIELD 0  1 0.5
+water_drying_speed_mult FIELD 0  1 0.5
+water_specular_intensity FIELD 0  1 0.5
+mirror_reflection_local_light_intensity FIELD 0  1 0.5
+fog_start FIELD 1  1 0.5
+fog_near_col_a FIELD 0  1 0.5
+fog_col_a FIELD 0  1 0.5
+fog_sun_lighting_calc_pow FIELD 0  1 0.5
+fog_moon_col_a FIELD 0  1 0.5
+fog_moon_lighting_calc_pow FIELD 0  1 0.5
+fog_east_col_a FIELD 0  1 0.5
+fog_density FIELD 0  1 0.5
+fog_falloff FIELD 0  1 0.5
+fog_base_height FIELD 0  1 0.5
+fog_alpha FIELD 0  1 0.5
+fog_horizon_tint_scale FIELD 0  1 0.5
+fog_hdr FIELD 0  1 0.5
+fog_haze_density FIELD 0  1 0.5
+fog_haze_alpha FIELD 0  1 0.5
+fog_haze_hdr FIELD 0  1 0.5
+fog_haze_start FIELD 0  1 0.5
+fog_shape_bottom FIELD 0  1 0.5
+fog_shape_top FIELD 0  1 0.5
+fog_shape_log_10_of_visibility FIELD 0  1 0.5
+fog_shape_weight_0 FIELD 0  1 0.5
+fog_shape_weight_1 FIELD 0  1 0.5
+fog_shape_weight_2 FIELD 0  1 0.5
+fog_shape_weight_3 FIELD 0  1 0.5
+fog_shadow_amount FIELD 0  1 0.5
+fog_shadow_falloff FIELD 0  1 0.5
+fog_shadow_base_height FIELD 0  1 0.5
+fog_volume_light_range FIELD 0  1 0.5
+fog_volume_light_fade FIELD 0  1 0.5
+fog_volume_light_intensity FIELD 0  1 0.5
+fog_volume_light_size FIELD 0  1 0.5
+fogray_contrast FIELD 0  1 0.5
+fogray_intensity FIELD 0  1 0.5
+fogray_density FIELD 0  1 0.5
+fogray_nearfade FIELD 0  1 0.5
+fogray_farfade FIELD 0  1 0.5
+reflection_lod_range_start FIELD 0  1 0.5
+reflection_lod_range_end FIELD 0  1 0.5
+reflection_slod_range_start FIELD 0  1 0.5
+reflection_slod_range_end FIELD 0  1 0.5
+reflection_interior_range FIELD 0  1 0.5
+reflection_tweak_interior_amb FIELD 0  1 0.5
+reflection_tweak_exterior_amb FIELD 0  1 0.5
+reflection_tweak_emissive FIELD 0  1 0.5
+reflection_tweak_directional FIELD 0  1 0.5
+reflection_hdr_mult FIELD 0  1 0.5
+far_clip FIELD 0  1 0.5
+temperature FIELD 0  1 0.5
+particle_emissive_intensity_mult FIELD 0  1 0.5
+vfxlightning_intensity_mult FIELD 0  1 0.5
+vfxlightning_visibility FIELD 0  1 0.5
+particle_light_intensity_mult FIELD 0  1 0.5
+natural_ambient_multiplier FIELD 0  1 0.5
+artificial_int_ambient_multiplier FIELD 0  1 0.5
+fog_cut_off FIELD 0  1 0.5
+no_weather_fx FIELD 0  1 0.5
+no_gpu_fx FIELD 0  1 0.5
+no_rain FIELD 0  1 0.5
+no_rain_ripples FIELD 0  1 0.5
+fogvolume_density_scalar FIELD 0  1 0.5
+fogvolume_density_scalar_interior FIELD 0  1 0.5
+fogvolume_fog_scaler FIELD 0  1 0.5
+time_offset FIELD 0  1 0.5
+vehicle_dirt_mod FIELD 0  1 0.5
+wind_speed_mult FIELD 1  1 0.5
+entity_reject FIELD 0  1 0.5
+lod_mult FIELD 0  1 0.5
+enable_occlusion FIELD 0  1 0.5
+enable_shadow_occlusion FIELD 0  1 0.5
+render_exterior FIELD 0  1 0.5
+portal_weight FIELD 0  1 0.5
+light_falloff_mult FIELD 0  1 0.5
+lodlight_range_mult FIELD 0  1 0.5
+shadow_distance_mult FIELD 0  1 0.5
+lod_mult_hd FIELD 0  1 0.5
+lod_mult_orphanhd FIELD 0  1 0.5
+lod_mult_lod FIELD 0  1 0.5
+lod_mult_slod1 FIELD 0  1 0.5
+lod_mult_slod2 FIELD 0  1 0.5
+lod_mult_slod3 FIELD 0  1 0.5
+lod_mult_slod4 FIELD 0  1 0.5
+light_dir_col_r FIELD_COL 6
+light_directional_amb_col_r FIELD_COL 6
+light_natural_amb_down_col_r FIELD_COL 6
+light_natural_amb_up_col_r FIELD_COL 6
+light_artificial_int_down_col_r FIELD_COL 6
+light_artificial_int_up_col_r FIELD_COL 6
+light_artificial_ext_down_col_r FIELD_COL 6
+light_artificial_ext_up_col_r FIELD_COL 6
+ped_light_col_r FIELD_COL 6
+light_ray_col_r FIELD_COL 6
+postfx_correct_col_r FIELD_COL 4 0 360 0.3 0.5 0.5 0.7
+postfx_shift_col_r FIELD_COL 4 0 360 0 1 0 1
+postfx_tonemap_filmic_b FIELD_COL 6
+postfx_vignetting_col_r FIELD_COL 4 0 360 0 1 0 1
+postfx_grad_top_col_r FIELD_COL 0
+postfx_grad_middle_col_r FIELD_COL 6
+postfx_grad_bottom_col_r FIELD_COL 6
+nv_colorLum_r FIELD_COL 6
+nv_colorLowLum_r FIELD_COL 6
+nv_colorHighLum_r FIELD_COL 6
+sky_zenith_col_r FIELD_COL 6
+sky_zenith_transition_col_r FIELD_COL 6
+sky_azimuth_east_col_r FIELD_COL 6
+sky_azimuth_transition_col_r FIELD_COL 6
+sky_azimuth_west_col_r FIELD_COL 6
+sky_plane_r FIELD_COL 6
+sky_sun_col_r FIELD_COL 6
+sky_sun_disc_col_r FIELD_COL 6
+sky_moon_col_r FIELD_COL 6
+sky_cloud_mid_col_r FIELD_COL 4 0 360 0 1 0 1
+sky_cloud_base_col_r FIELD_COL 4 0 360 0 1 0 1
+sky_cloud_shadow_col_r FIELD_COL 4 0 360 0 1 0 1
+sky_small_cloud_col_r FIELD_COL 4 0 360 0 1 0 1
+fog_near_col_r FIELD_COL 6
+fog_col_r FIELD_COL 6
+fog_moon_col_r FIELD_COL 6
+fog_east_col_r FIELD_COL 6
+fog_haze_col_r FIELD_COL 0

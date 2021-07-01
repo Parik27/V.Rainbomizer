@@ -17,10 +17,6 @@ class Common
     static inline std::vector<int> mPedHashes;
 
     static void InitialiseHashes ();
-    static void ProcessInitCallbacks (gameSkeleton *, uint32_t);
-
-    static void InitialiseInitCallbackHook ();
-    static std::vector<std::function<void (bool)>> &GetCallbacks ();
 
 public:
     static const std::vector<int> &GetVehicleHashes ();
@@ -35,8 +31,5 @@ public:
 
     static FILE *GetRainbomizerDataFile (const std::string &name,
                                          const std::string &mode = "r");
-
-    // callback = void (bool Session)
-    static void AddInitCallback (std::function<void (bool)> callback);
 };
 } // namespace Rainbomizer

@@ -1,6 +1,6 @@
 #include <common/logger.hh>
 #include <exceptions/exceptions_Mgr.hh>
-#include <common/common.hh>
+#include <common/events.hh>
 #include <common/config.hh>
 
 #include <Natives.hh>
@@ -62,28 +62,6 @@ class MissionRandomizer
         return state;
     }
 
-    /*******************************************************/
-    static void
-    RequestCutsceneHook (scrThread::Info *info)
-    {
-        Rainbomizer::Logger::LogMessage (
-            "LogRequestCutscene: [%s:%03x] - %s",
-            scrThread::GetActiveThread ()->m_szScriptName,
-            scrThread::GetActiveThread ()->m_Context.m_nIp,
-            info->GetArg<char *> (0));
-    }
-
-    /*******************************************************/
-    static void
-    GetEntityScriptHook (scrThread::Info *info)
-    {
-        Rainbomizer::Logger::LogMessage (
-            "Get_Entity_Script: [%s:%03x] - %s vs %s",
-            scrThread::GetActiveThread ()->m_szScriptName,
-            scrThread::GetActiveThread ()->m_Context.m_nIp,
-            info->GetReturn<char *> (0), "GET_THIS_SCRIPT_NAME"_n());
-    }
-
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -103,16 +81,7 @@ public:
         RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
                       scrThread_Runff6, RunThreadHook);
 
-        Rainbomizer::Common::AddInitCallback (
-            [] (bool) { Components::sm_Flow.Reset (); });
-
-#if (0)
-        NativeCallbackMgr::InitCallback<"REQUEST_CUTSCENE"_joaat,
-                                        RequestCutsceneHook, true> ();
-        NativeCallbackMgr::InitCallback<"_REQUEST_CUTSCENE_EX"_joaat,
-                                        RequestCutsceneHook, true> ();
-#endif
-        NativeCallbackMgr::InitCallback<"GET_ENTITY_SCRIPT"_joaat,
-                                        GetEntityScriptHook, false> ();
+        Rainbomizer::Events ().OnInit +=
+            [] (bool) { Components::sm_Flow.Reset (); };
     }
 } missions;

@@ -1,5 +1,5 @@
 #include <Utils.hh>
-#include <common/common.hh>
+#include <common/events.hh>
 #include <common/config.hh>
 #include "CHandlingDataMgr.hh"
 #include <common/parser.hh>
@@ -230,9 +230,9 @@ public:
         InitialiseAllComponents ();
         InitialiseCollectSamplesHooks ();
 
-        Rainbomizer::Common::AddInitCallback ([] (bool session) {
+        Rainbomizer::Events ().OnInit += [] (bool session) {
             if (session)
                 RandomizeHandling ();
-        });
+        };
     }
 } handling;

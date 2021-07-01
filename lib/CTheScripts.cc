@@ -2,7 +2,7 @@
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "NativeTranslationTable.hh"
-#include "common/common.hh"
+#include "common/events.hh"
 #include <memory>
 
 #include <windows.h>
@@ -143,6 +143,8 @@ NativeManager::Initialise ()
     if (std::exchange (initialised, true))
         return;
 
+    m_ScriptHookInfo.bAvailable = false;
+
     HMODULE scriptHook = LoadLibrary (TEXT ("ScriptHookV.dll"));
     if (scriptHook)
         {
@@ -152,10 +154,12 @@ NativeManager::Initialise ()
             size_t numVersions = FindNativesTableWidth (table);
             size_t verOffset   = FindNativesVersionOffset (table, numVersions);
 
-            InitialiseNativeCmdsFromTable (table, numVersions, verOffset);
-            FreeLibrary (scriptHook);
+            m_ScriptHookInfo.bAvailable = true;
 
+            InitialiseNativeCmdsFromTable (table, numVersions, verOffset);
             InitialiseNativeHooks ();
+
+            FreeLibrary (scriptHook);
         }
 }
 
@@ -170,8 +174,8 @@ CTheScripts::InitialisePatterns ()
                      "83 f9 ff 74 ? ? 8b 0d ? ? ? ? 44 8b c1 ? 8b"),
                  fwScriptGuid_GetBaseFromGuid);
 
-    Rainbomizer::Common::AddInitCallback (
-        [] (bool) { NativeManager::Initialise (); });
+    Rainbomizer::Events ().OnInit +=
+        [] (bool) { NativeManager::Initialise (); };
 }
 
 /*******************************************************/

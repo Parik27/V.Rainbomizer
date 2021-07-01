@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <cstdint>
+#include <string.h>
 #include <string_view>
 #include <type_traits>
 
@@ -320,5 +321,14 @@ struct atString
     char *m_szString;
     short m_nLength;
     short m_nCapacity;
+
+    atString () = default;
+
+    atString (const char *str)
+    {
+        m_szString  = const_cast<char *> (str);
+        m_nLength   = strlen (str);
+        m_nCapacity = m_nLength;
+    }
 };
 #pragma pack(pop)

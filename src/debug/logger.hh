@@ -1,47 +1,36 @@
 #pragma once
 
-#include "rage.hh"
-#include "server.hh"
-#include <deque>
+#include "base.hh"
+#include "imgui.h"
+#include <string_view>
 
-class LoggerDebugInterface
+class LoggerDebugInterface : public DebugInterface
 {
-    static constexpr int      MAX_LOG_HISTORY = 20;
-    inline static std::string m_History;
+    ImGuiTextBuffer             buf;
+    static LoggerDebugInterface sm_Instance;
+
+    void
+    Draw () override
+    {
+        if (ImGui::Button ("Clear"))
+            buf.clear ();
+
+        ImGui::TextUnformatted (buf.begin (), buf.end ());
+    }
 
 public:
-    /*******************************************************/
     static void
     PublishLogMessage (std::string_view msg)
     {
-        nlohmann::json j;
-        j["Type"]  = "Update";
-        j["Topic"] = "Log";
-        j["Data"]  = std::string (msg) + '\n';
-
-        RainbomizerDebugServer::Get ().Broadcast ("logs", j);
-        m_History += j["Data"];
-
-        while (m_History.size () > 20'000)
-            m_History = m_History.substr (m_History.find ('\n') + 1);
+        sm_Instance.buf.append (msg.data (), msg.data () + msg.size ());
+        sm_Instance.buf.appendf ("\n");
     }
 
-    /*******************************************************/
-    static void
-    SendLogHistory (uWS::HttpResponse<false> *res)
+    const char *
+    GetName () override
     {
-        res->writeHeader ("Content-Type", "text/plain");
-        res->writeHeader ("Access-Control-Allow-Origin", "*");
-        res->end (m_History);
-    }
-
-    /*******************************************************/
-    static void
-    Initialise (uWS::App &app)
-    {
-        app.get ("/get/logs/",
-                 [] (uWS::HttpResponse<false> *res, uWS::HttpRequest *req) {
-                     SendLogHistory (res);
-                 });
+        return "Log";
     }
 };
+
+inline LoggerDebugInterface LoggerDebugInterface::sm_Instance{};

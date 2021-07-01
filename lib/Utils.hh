@@ -253,6 +253,13 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     }
 
 /*******************************************************/
+#define REGISTER_HOOK_JMP(pattern, offset, function, ret, ...)                 \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterHook<true> (pattern, offset, F, function<F>);                  \
+    }
+
+/*******************************************************/
 #define REGISTER_JMP_HOOK(size, pattern, offset, function, ret, ...)           \
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \

@@ -38,6 +38,7 @@ private:
 
     struct ScriptHookInfo
     {
+        bool                                     bAvailable;
         std::unordered_map<uint32_t, NativeInfo> mNatives;
     };
     inline static ScriptHookInfo m_ScriptHookInfo;
@@ -75,6 +76,9 @@ public:
     static inline void
     InvokeNative (uint32_t hash, scrThread::Info *info)
     {
+        if (!m_ScriptHookInfo.bAvailable)
+            return;
+
         m_ScriptHookInfo.mNatives.at (hash).func (info);
     }
 

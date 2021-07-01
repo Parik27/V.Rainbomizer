@@ -97,7 +97,7 @@ private:
 
 public:
     /*******************************************************/
-    void
+    bool
     RandomizeObject (Type &out)
     {
         Initialise ();
@@ -106,22 +106,25 @@ public:
                 if (DoesElementExist (i.Values, out))
                     {
                         out = i.Values[RandomWeighed (i.Weights)];
-                        break;
+                        return true;
                     }
             }
+
+        return false;
     }
 
     /*******************************************************/
-    void
+    bool
     RandomizeObject (uint32_t identifier, Type &out)
     {
         static std::unordered_map<uint32_t, Type> sm_Identifiers;
         sm_Identifiers.insert (std::make_pair (identifier, out));
 
         uint32_t model = sm_Identifiers[identifier];
-        RandomizeObject (model);
+        bool     ret   = RandomizeObject (model);
 
         out = model;
+        return ret;
     }
 
     /*******************************************************/

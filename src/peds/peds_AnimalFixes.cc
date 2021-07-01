@@ -33,14 +33,65 @@ class PedRandomizer_AnimalFixes
         /* This hook fixes the game crashing when a poodle is ran over. For some
          * reason the only ped that's known to crash is a_c_poddle  */
 
-        bool poodle
-            = manager && manager->m_pPed && manager->m_pPed->m_pModelInfo
-              && manager->m_pPed->m_pModelInfo->m_nHash == "a_c_poodle"_joaat;
+        return;
 
-        if (poodle)
-            return;
+        if (manager && manager->m_pPed && manager->m_pPed->m_pModelInfo)
+            {
+                uint32_t hash = manager->m_pPed->m_pModelInfo->m_nHash;
+                switch (hash)
+                    {
+                    case "a_c_boar"_joaat:
+                    case "a_c_cat_01"_joaat:
+                    case "a_c_chickenhawk"_joaat:
+                    case "a_c_chimp"_joaat:
+                    case "a_c_chop"_joaat:
+                    case "a_c_cormorant"_joaat:
+                    case "a_c_cow"_joaat:
+                    case "a_c_coyote"_joaat:
+                    case "a_c_crow"_joaat:
+                    case "a_c_deer"_joaat:
+                    case "a_c_dolphin"_joaat:
+                    case "a_c_fish"_joaat:
+                    case "a_c_hen"_joaat:
+                    case "a_c_humpback"_joaat:
+                    case "a_c_husky"_joaat:
+                    case "a_c_killerwhale"_joaat:
+                    case "a_c_mtlion"_joaat:
+                    case "a_c_pig"_joaat:
+                    case "a_c_pigeon"_joaat:
+                    case "a_c_poodle"_joaat:
+                    case "a_c_pug"_joaat:
+                    case "a_c_rabbit_01"_joaat:
+                    case "a_c_rat"_joaat:
+                    case "a_c_retriever"_joaat:
+                    case "a_c_rhesus"_joaat:
+                    case "a_c_rottweiler"_joaat:
+                    case "a_c_seagull"_joaat:
+                    case "a_c_sharkhammer"_joaat:
+                    case "a_c_sharktiger"_joaat:
+                    case "a_c_shepherd"_joaat:
+                    case "a_c_stingray"_joaat:
+                    case "a_c_westy"_joaat: return;
+                    }
+            }
 
         CPedWeaponManager__ProcessFall (manager);
+    }
+
+    /*******************************************************/
+    void
+    FixLadderClimbAsAnimal ()
+    {
+        uint8_t xmm0_0p57[] = {
+            0xb8, 0x85, 0xeb, 0x11, 0x3f, // mov    eax,0x3f11eb85
+            0x66, 0x0f, 0x6e, 0xc0        // movd   xmm0,eax
+        };
+
+        void *ptr = hook::get_pattern (
+            "f3 0f 10 40 64 8a 42 0c fe c8 3c 01 0f 96 ? f6 d9 ? 1b c0 ? 23 c2 "
+            "f3 0f 5c 40 40 f3 0f 58 f8 ");
+        injector::MakeNOP (ptr, 28);
+        injector::WriteMemoryRaw (ptr, xmm0_0p57, sizeof (xmm0_0p57), true);
     }
 
 public:
@@ -70,5 +121,7 @@ public:
             hook::get_pattern ("44 38 70 0a 74 ? 40 84 f6 75 ? b9 ? ? ? ? e8",
                                4),
             2);
+
+        FixLadderClimbAsAnimal ();
     }
 } peds_AnimalFixes;

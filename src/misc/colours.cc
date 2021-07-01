@@ -1,10 +1,14 @@
 #include <CHud.hh>
 #include <Utils.hh>
+#include "CARGB.hh"
 #include "common/config.hh"
 #include "HSL.hh"
+#include "common/logger.hh"
 #include <CVehicle.hh>
+#include <cstdint>
 #include <map>
 #include <stdexcept>
+#include "common/events.hh"
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
 uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
@@ -19,12 +23,15 @@ class ColoursRandomizer
     };
 
     inline static std::map<CVehicle *, VehicleColourData> mColourData;
+    inline static std::map<uint32_t, CARGB>               mHudCols;
 
     /*******************************************************/
     static void
     SetNewHudColour (int index, int r, int g, int b, int a)
     {
         using Rainbomizer::HSL;
+
+        mHudCols[index] = CARGB (a, r, g, b);
 
         HSL colour (CARGB (a, r, g, b));
         colour.h = RandomFloat (360);
@@ -95,6 +102,15 @@ class ColoursRandomizer
         return ret;
     }
 
+    /*******************************************************/
+    static void
+    RandomizeOnFade ()
+    {
+        Rainbomizer::Logger::LogMessage ("Randomizing Colours on Fade");
+        for (const auto &[idx, col] : mHudCols)
+            SetNewHudColour (idx, col.r, col.g, col.b, col.a);
+    }
+
 public:
     /*******************************************************/
     ColoursRandomizer ()
@@ -129,5 +145,7 @@ public:
                     RandomizeVehicleColour);
                 // RegisterHook (addr, RandomizeVehicleColour);
             }
+
+        Rainbomizer::Events ().OnFade += RandomizeOnFade;
     }
 } _cols;

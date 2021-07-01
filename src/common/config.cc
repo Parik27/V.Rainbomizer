@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-#ifdef ENABLE_DEBUG_SERVER
+#ifdef ENABLE_DEBUG_MENU
 #include <debug/config.hh>
 #endif
 
@@ -111,7 +111,7 @@ ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
     if (table)
         out = table->get_as<T> (key).value_or (out);
 
-#ifdef ENABLE_DEBUG_SERVER
+#ifdef ENABLE_DEBUG_MENU
     ConfigDebugInterface::AddConfigOption (tableName + '.' + key, &out);
 #endif
 }

@@ -5,12 +5,15 @@
 #include <common/config.hh>
 #include <common/parser.hh>
 
+#include <scrThread.hh>
+
 #include "CModelInfo.hh"
 #include "common/logger.hh"
 #include "peds_Compatibility.hh"
 #include "peds_Streaming.hh"
 #include "peds_PlayerFixes.hh"
 #include "peds_Swapper.hh"
+#include "peds_Stats.hh"
 
 class CPedFactory;
 
@@ -67,6 +70,10 @@ class PedRandomizer
             && IsPlayerModel (CStreaming::GetModelByIndex (model)))
             return model;
 
+        if (scrThread::IsCurrentScriptAddon ()
+            && PedRandomizer_Streaming::IsNsfwModel (model))
+            return model;
+
         // Forced Ped
         if (!Config ().ForcedPed.empty ())
             {
@@ -115,6 +122,7 @@ class PedRandomizer
         PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
         PedRandomizer_PlayerFixes::UpdatePlayerHash ();
         PedRandomizer_PlayerFixes::RandomizeSpecialAbility (ped);
+        PedRandomizer_Stats::AddPedSpawn (newModel);
 
         return ped;
     }
@@ -129,15 +137,14 @@ class PedRandomizer
 
         // Randomize model (remember model here is the idx, so convert to hash)
         uint32_t hash = CStreaming::GetModelHash (model);
-        sm_Randomizer.RandomizeObject (hash);
+
+        if (!sm_Randomizer.RandomizeObject (hash))
+            return CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
 
         // Load the new model
         uint32_t newModel = CStreaming::GetModelIndex (hash);
         if (!CStreaming::HasModelLoaded (newModel))
             {
-                Rainbomizer::Logger::LogMessage ("Trying to load model: %x",
-                                                 hash);
-
                 CStreaming::RequestModel (newModel, 0);
                 CStreaming::LoadAllObjects (false);
             }

@@ -125,10 +125,19 @@ class ParserUtils
 public:
     static void Register ();
 
+    static parStructureStaticData *FindStaticDataFromMemory (uint32_t hash);
+
     inline static parStructureStaticData *
     FindStaticData (uint32_t hash)
     {
-        return m_pStaticDatas.at (hash);
+        try
+            {
+                return m_pStaticDatas.at (hash);
+            }
+        catch (...)
+            {
+                return FindStaticDataFromMemory (hash);
+            }
     }
 
     inline static parStructureStaticData *

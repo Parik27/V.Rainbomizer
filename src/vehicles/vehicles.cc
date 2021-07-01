@@ -16,8 +16,8 @@
 #include "common/config.hh"
 #include <CPools.hh>
 
-#ifdef ENABLE_DEBUG_SERVER
-#include "debug/actions.hh"
+#ifdef ENABLE_DEBUG_MENU
+#include "debug/base.hh"
 #endif
 
 CEntity *(*CPools__GetAtEntity) (int);
@@ -46,13 +46,11 @@ class ScriptVehicleRandomizer
     {
         static bool mPatternsInitialised = false;
 
-#ifdef ENABLE_DEBUG_SERVER
-        if (ActionsDebugInterface::sm_ReloadPatternsRequested)
+#ifdef ENABLE_DEBUG_MENU
+        if (DebugInterfaceManager::GetAction ("Reload Patterns"))
             {
                 mPatternsInitialised = false;
                 mPatterns.clear ();
-
-                ActionsDebugInterface::sm_ReloadPatternsRequested = false;
             }
 #endif
 

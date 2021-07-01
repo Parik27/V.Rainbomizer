@@ -21,6 +21,7 @@
 #include "phBound.hh"
 #include "CTask.hh"
 #include "CModelIndices.hh"
+#include "CCredits.hh"
 
 #include "Utils.hh"
 
@@ -133,6 +134,7 @@ InitialiseAllComponents ()
     phBound::InitialisePatterns ();
     aiTask::InitialisePatterns ();
     CModelIndices::InitialisePatterns ();
+    CCreditArray::InitialisePatterns ();
 
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();

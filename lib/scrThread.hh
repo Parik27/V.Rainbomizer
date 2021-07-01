@@ -299,6 +299,15 @@ public:
     static inline uint64_t **sm_Globals;     // sm_Globals[64]
     static inline uint32_t * sm_GlobalSizes; // sm_GlobalSizes[64]
 
+    static bool
+    IsCurrentScriptAddon ()
+    {
+        if (!scrThread::GetActiveThread ())
+            return true;
+
+        return !scrThread::GetActiveThread ()->IsYscScript ();
+    }
+
     inline bool
     IsYscScript ()
     {

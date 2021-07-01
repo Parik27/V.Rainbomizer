@@ -13,45 +13,6 @@ namespace Rainbomizer {
 
 /*******************************************************/
 void
-Common::ProcessInitCallbacks (gameSkeleton *skelly, uint32_t mode)
-{
-    gameSkeleton__Init (skelly, mode);
-
-    Rainbomizer::Logger::LogMessage ("rage::gameSkeleton::Init(%s)",
-                                     mode == 4 ? "AFTER_MAP_LOAD"
-                                               : "INIT_SESSION");
-
-    for (const auto &i : GetCallbacks ())
-        i (mode != 4);
-}
-
-/*******************************************************/
-void
-Common::InitialiseInitCallbackHook ()
-{
-    static bool isInitialised = false;
-    if (std::exchange (isInitialised, true))
-        return;
-
-    RegisterHook ("e8 ? ? ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ba 04 00 00 00", 22,
-                  gameSkeleton__Init, ProcessInitCallbacks);
-
-    RegisterHook ("? 8d 0d ? ? ? ? ba 08 00 00 00 e8 ? ? ? ? c6 05 ? ? ? ? 01 ",
-                  12, gameSkeleton__Init, ProcessInitCallbacks);
-}
-
-/*******************************************************/
-std::vector<std::function<void (bool)>> &
-Common::GetCallbacks ()
-{
-    static std::vector<std::function<void (bool)>> callbacks;
-
-    InitialiseInitCallbackHook ();
-    return callbacks;
-}
-
-/*******************************************************/
-void
 Common::InitialiseHashes ()
 {
     for (size_t i = 0; i < CStreaming::ms_aModelPointers->m_nAllocated; i++)
@@ -158,13 +119,6 @@ Common::GetRainbomizerDataFile (const std::string &name,
                             name.c_str ());
 
     return f;
-}
-
-/*******************************************************/
-void
-Common::AddInitCallback (std::function<void (bool)> callback)
-{
-    GetCallbacks ().push_back (callback);
 }
 
 /*******************************************************/

@@ -117,7 +117,7 @@ MissionRandomizer_Commands::NopFlowCommands (unsigned int start,
         {
             // Just set it to an invalid flow command, it'll skip it.
             if (auto cmds = MR::sm_Globals.g_MissionFlowCommands.Get ())
-                cmds->Data[i].CommandHash = "123robot"_joaat;
+                cmds->Data[i].CommandHash = "Fryterp23"_joaat;
         }
 }
 
@@ -292,8 +292,6 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             break;
 
         case "family3"_joaat: SetBuildingState (2, 0); break;
-
-        case "finale_heist_prepa"_joaat: CreateStingerRamp (); break;
         }
 }
 
@@ -356,29 +354,6 @@ MissionRandomizer_Commands::OnMissionEnd (bool pass, uint32_t origHash,
     MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD) = false;
 
     sm_ForcedDoorStates.clear ();
-}
-
-/*******************************************************/
-void
-MissionRandomizer_Commands::CreateStingerRamp ()
-{
-    const uint32_t FRY_MODEL = "stt_prop_ramp_jump_xs"_joaat;
-
-    static uint32_t fryObj      = -1;
-    uint32_t        fryModelIdx = CStreaming::GetModelIndex (FRY_MODEL);
-
-    if ("DOES_ENTITY_EXIST"_n(fryObj))
-        return;
-
-    if (!CStreaming::HasModelLoaded (fryModelIdx))
-        {
-            CStreaming::RequestModel (fryModelIdx, 0);
-            CStreaming::LoadAllObjects (false);
-        }
-
-    fryObj = "CREATE_OBJECT_NO_OFFSET"_n(FRY_MODEL, 400.1f, -1611.5f, 28.2919f,
-                                         false, false, false);
-    "SET_ENTITY_ROTATION"_n(fryObj, 0.0f, 0.0f, 49.1f, 1, true);
 }
 
 /*******************************************************/

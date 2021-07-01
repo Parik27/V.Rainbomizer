@@ -24,6 +24,7 @@ VehicleRandomizerHelper::GetLoadedVehSet ()
         [&cars] (int val) { cars.insert (val); });
     groups->mBoatsSet.for_each ([&cars] (int val) { cars.insert (val); });
     groups->mSpecialVehiclesSet.for_each ([&] (int val) { cars.insert (val); });
+    groups->mVehiclesSet6.for_each ([&] (int val) { cars.insert (val); });
 
     return cars;
 }

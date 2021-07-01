@@ -279,22 +279,27 @@ public:
             scrThread::GetGlobal<T> (nGlobalIdx) = value;
         }
 
-        void
+        bool
         Init ()
         {
+            if (nGlobalIdx)
+                return true;
+
             scrProgram *program = scrProgram::FindProgramByHash (m_nProgram);
             if (program)
-                Init (program);
+                return Init (program);
+
+            return false;
         }
 
-        void
+        bool
         Init (scrProgram *program)
         {
             if (nGlobalIdx)
-                return;
+                return true;
 
             if (program->m_nScriptHash != m_nProgram)
-                return;
+                return false;
 
             YscUtils utils (program);
             utils.FindCodePattern (m_Pattern, [&] (hook::pattern_match m) {
@@ -320,6 +325,8 @@ public:
                         m_Pattern.c_str (), m_PatternOffset);
                     bFailMessagePrinted = true;
                 }
+
+            return nGlobalIdx;
         }
     };
 };

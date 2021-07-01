@@ -1,577 +1,623 @@
-#include "scripts.hh"
-#include <CTheScripts.hh>
-#include "mission/missions.hh"
-#include "scrThread.hh"
-#include "server.hh"
+#include "base.hh"
+#include <map>
+
 #include "Utils.hh"
-#include <cstdint>
-#include <fmt/core.h>
-#include "mission/missions_YscUtils.hh"
+#include "common/common.hh"
 #include "common/logger.hh"
-#include "ttd.hh"
+#include "fmt/core.h"
+#include "imgui.h"
+#include "misc/cpp/imgui_stdlib.h"
+#include "rage.hh"
+#include "scrThread.hh"
+#include <array>
+#include <cstdint>
+#include <stdio.h>
+#include <time.h>
+#include "exceptions/exceptions_Mgr.hh"
 
-/*******************************************************/
-void
-to_json (nlohmann::json &j, const scrThread &thread)
+using WriteFunction = void (*) (FILE *, uint8_t *, uint64_t *, uint64_t *);
+
+inline void
+WriteStackArgs (FILE *file, uint64_t *SP, uint8_t num)
 {
-    j["Name"]  = std::string (thread.m_szScriptName);
-    j["Hash"]  = thread.m_Context.m_nScriptHash;
-    j["Id"]    = thread.m_Context.m_nThreadId;
-    j["State"] = int (thread.m_Context.m_nState);
-    j["IP"]    = thread.m_Context.m_nIp;
-    j["SP"]    = thread.m_Context.m_nSP;
+    fwrite (&num, 1, 1, file);
+    fwrite (SP - (num - 1), 8, num, file);
 }
 
-/*******************************************************/
+template <uint8_t Stack = 0, uint8_t IpBytes = 0, int8_t... Pointers>
 void
-to_json (nlohmann::json &j, const scrProgram &program)
+BasicOpcodeWrite (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
 {
-    j["ParameterCount"] = program.m_nParameterCount;
-    j["CodeSize"]       = program.m_nCodeSize;
-    j["StaticCount"]    = program.m_nStaticCount;
+    fwrite (&bytes, 8, 1, file);
+    fwrite (bytes, 1, IpBytes + 1, file);
+    fwrite (SP - (Stack - 1), 8, Stack, file);
+
+    (..., fwrite (reinterpret_cast<void *> (SP[-Pointers]), 8, 1, file));
 }
 
-/*******************************************************/
-void
-ScriptDebugInterface::SendThreadsList (uWS::HttpResponse<false> *res,
-                                       uWS::HttpRequest *        req)
+inline static void
+NativeWriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
 {
-    res->writeHeader ("Content-Type", "application/json");
-    res->writeHeader ("Access-Control-Allow-Origin", "*");
-    nlohmann::json threads = {};
+    BasicOpcodeWrite<0, 4> (file, bytes, SP, FSP);
+    WriteStackArgs (file, SP, bytes[1] >> 2);
+}
 
-    if (CTheScripts::aThreads)
+inline static void
+EnterWriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
+{
+    BasicOpcodeWrite<0, 5> (file, bytes, SP, FSP);
+    WriteStackArgs (file, SP - 1, bytes[1]);
+}
+
+inline static void
+LeaveWriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
+{
+    BasicOpcodeWrite<0, 5> (file, bytes, SP, FSP);
+
+    uint8_t stackOff = bytes[1];
+    uint8_t numRets  = bytes[2];
+    WriteStackArgs (file, SP, numRets);
+}
+
+template <uint32_t Stacks, int32_t... StringIndices>
+inline static void
+TextLabelFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
+{
+    BasicOpcodeWrite<Stacks, 1> (file, bytes, SP, FSP);
+
+    uint8_t bufferSize = bytes[1];
+    fwrite (&bufferSize, 1, 1, file);
+    (..., fwrite (reinterpret_cast<char *> (SP[-StringIndices]), 1, bufferSize,
+                  file));
+}
+
+enum class VariableType
+{
+    ARRAY,
+    STATIC,
+    LOCAL,
+    OFFSET,
+    GLOBAL
+};
+
+template <VariableType type, uint8_t size, uint8_t stackSize>
+inline static void
+VarWriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
+{
+    BasicOpcodeWrite<stackSize, size / 8> (file, bytes, SP, FSP);
+
+    uint32_t imm
+        = *reinterpret_cast<uint32_t *> (bytes + 1) & ((1 << size) - 1);
+    int16_t   simm16 = *reinterpret_cast<int16_t *> (bytes + 1);
+    uint64_t *ptr    = reinterpret_cast<uint64_t *> (SP[0]);
+
+    switch (type)
         {
-            for (auto i : *CTheScripts::aThreads)
-                {
-                    if (i->m_Context.m_nThreadId == 0
-                        || i->m_Context.m_nState == eScriptState::KILLED)
-                        continue;
+            // Array
+        case VariableType::ARRAY:
+            ptr += (imm * (static_cast<uint32_t> (SP[-1]) + 1));
+            break;
 
-                    threads.push_back (*i);
-                }
+            // Static
+        case VariableType::STATIC:
+            ptr = &scrThread::GetActiveThread ()->GetStaticVariable (imm);
+            break;
+
+            // Global
+        case VariableType::GLOBAL: ptr = &scrThread::GetGlobal (imm); break;
+        case VariableType::LOCAL: ptr = (FSP + imm); break;
+        case VariableType::OFFSET: ptr += size == 16 ? simm16 : imm;
         }
 
-    res->end (threads.dump ());
+    fwrite (&ptr, 8, 1, file);
+    fwrite (ptr, 8, 1, file);
 }
 
-/*******************************************************/
-void
-ScriptDebugInterface::SendThread (uWS::HttpResponse<false> *res,
-                                  uWS::HttpRequest *        req)
+inline void
+OffsetWriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
 {
-    res->writeHeader ("Content-Type", "application/json");
+    BasicOpcodeWrite<2, 0, 1> (file, bytes, SP, FSP);
+    uint64_t *ptr
+        = reinterpret_cast<uint64_t *> (SP[0]) + static_cast<uint32_t> (SP[-1]);
 
-    int        threadId = std::stoi (std::string (req->getParameter (0)));
-    scrThread *thread   = nullptr;
-
-    for (auto i : *CTheScripts::aThreads)
-        {
-            if (i->m_Context.m_nThreadId == 0
-                || i->m_Context.m_nState == eScriptState::KILLED)
-                continue;
-
-            if (i->m_Context.m_nThreadId == threadId)
-                {
-                    thread = i;
-                    break;
-                }
-        }
-
-    if (!thread)
-        {
-            return res->writeStatus ("404 Not Found")->end ();
-        }
-
-    nlohmann::json j       = *thread;
-    scrProgram *   program = thread->GetProgram ();
-
-    j["Stack"]
-        = std::vector<uint64_t> (thread->m_pStack,
-                                 &thread->m_pStack[thread->m_Context.m_nSP]);
-    j["Program"] = *program;
-    res->end (j.dump ());
+    fwrite (&ptr, 8, 1, file);
+    fwrite (ptr, 8, 1, file);
 }
 
-/*******************************************************/
-void
-ScriptDebugInterface::SendThreadStack (uWS::HttpResponse<false> *res,
-                                       uWS::HttpRequest *        req)
+inline void
+Load_N_WriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
 {
-    int threadId = std::stoi (std::string (req->getParameter (0)));
+    BasicOpcodeWrite<2, 0, 0> (file, bytes, SP, FSP);
 
-    if (auto captThread = LookupMap (m_Threads, threadId))
+    uint64_t *ptr      = reinterpret_cast<uint64_t *> (SP[0]);
+    uint32_t  numItems = SP[-1];
+
+    fwrite (&numItems, 8, 1, file);
+    for (uint64_t i = 0; i < numItems; i++, ptr++)
         {
-            res->write (std::string_view ((char *) captThread->m_Stack.get (),
-                                          captThread->m_nStackSize));
-        }
-
-    return res->writeStatus ("404 Not Found")->end ();
-}
-
-/*******************************************************/
-bool
-ScriptDebugInterface::HandleWebSocketRequests (
-    RainbomizerDebugServer::WebSocket *socket, nlohmann::json &req)
-{
-    if (req.at ("Type").get<std::string> () != "Request"
-        || req.at ("Topic").get<std::string> () != "Scripts")
-        return false;
-
-    uint32_t DataHash
-        = rage::atStringHash (req.at ("Data").get<std::string> ());
-
-    uint32_t threadId = 0;
-    if (req.count ("CapturedThread"))
-        threadId = req.at ("CapturedThread");
-
-    auto userData = static_cast<RainbomizerDebugServer::WebsocketUserData *> (
-        socket->getUserData ());
-
-    switch (DataHash)
-        {
-            case "invokenative"_joaat: {
-                if (threadId == 0)
-                    CallNativeNow (req, *userData);
-
-                else if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->m_NativeRequests.push_back ({*userData, req});
-
-                break;
-            }
-
-            case "set_global"_joaat: {
-                uint32_t globalIndex = req.at ("Index");
-                if (req.at ("Value").at ("Type") == "float")
-                    scrThread::GetGlobal<float> (globalIndex)
-                        = req.at ("Value").at ("Data").get<float> ();
-                else
-                    scrThread::GetGlobal (globalIndex)
-                        = req.at ("Value").at ("Data");
-
-                [[fallthrough]];
-            }
-            case "global"_joaat: {
-
-                uint32_t globalIndex = req.at ("Index");
-
-                std::string globalStr
-                    = fmt::format ("Global {} = {}/{}", globalIndex,
-                                   scrThread::GetGlobal (globalIndex),
-                                   scrThread::GetGlobal<float> (globalIndex));
-
-                userData->Send ({{"Type", "Response"},
-                                 {"Topic", "Scripts"},
-                                 {"Data", "Global"},
-                                 {"Response", globalStr}});
-                break;
-            }
-
-            case "set_static"_joaat: {
-                uint32_t index = req.at ("Index");
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    {
-                        auto thread = captThread->m_Thread;
-                        if (req.at ("Value").at ("Type") == "float")
-                            thread->GetStaticVariable<float> (index)
-                                = req.at ("Value").at ("Data").get<float> ();
-                        else
-                            thread->GetStaticVariable (index)
-                                = req.at ("Value").at ("Data");
-                    }
-                [[fallthrough]];
-            }
-            case "static"_joaat: {
-                uint32_t localIndex = req.at ("Index");
-
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    {
-                        auto thread = captThread->m_Thread;
-
-                        std::string str = fmt::format (
-                            "Static {} = {}/{}", localIndex,
-                            thread->GetStaticVariable (localIndex),
-                            thread->GetStaticVariable<float> (localIndex));
-
-                        userData->Send ({{"Type", "Response"},
-                                         {"Topic", "Scripts"},
-                                         {"Data", "Static"},
-                                         {"Response", str}});
-                    }
-
-                break;
-            }
-
-            case "set_local"_joaat: {
-                uint32_t index = req.at ("Index");
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    {
-                        auto thread = captThread->m_Thread;
-                        if (req.at ("Value").at ("Type") == "float")
-                            thread->GetLocalVariable<float> (index)
-                                = req.at ("Value").at ("Data").get<float> ();
-                        else
-                            thread->GetLocalVariable (index)
-                                = req.at ("Value").at ("Data");
-                    }
-                [[fallthrough]];
-            }
-            case "local"_joaat: {
-                uint32_t localIndex = req.at ("Index");
-
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    {
-                        auto thread = captThread->m_Thread;
-
-                        std::string str = fmt::format (
-                            "Local {} = {}/{}", localIndex,
-                            thread->GetLocalVariable (localIndex),
-                            thread->GetLocalVariable<float> (localIndex));
-
-                        userData->Send ({{"Type", "Response"},
-                                         {"Topic", "Scripts"},
-                                         {"Data", "Local"},
-                                         {"Response", str}});
-                    }
-                break;
-            }
-
-            case "capturethread"_joaat: {
-                uint32_t hash = rage::atStringHash (
-                    req.at ("ThreadName").get<std::string> ());
-
-                m_CaptureRequests.push_back (hash);
-                socket->subscribe (fmt::format ("scripts/capture/{:x}", hash));
-                break;
-            }
-            case "setbreakpoint"_joaat: {
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->AddBreakpoint (req.at ("Offset"));
-                break;
-            }
-            case "removebreakpoint"_joaat: {
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->RemoveBreakpoint (req.at ("Offset"));
-                break;
-            }
-            case "nextinstruction"_joaat: {
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->NextInstruction ();
-                break;
-            }
-            case "continue"_joaat: {
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->Continue ();
-                break;
-            }
-            case "break"_joaat: {
-                if (auto captThread = LookupMap (m_Threads, threadId))
-                    captThread->Break ();
-                break;
-            }
-        }
-
-    return true;
-}
-
-/*******************************************************/
-void
-ScriptDebugInterface::CallNativeNow (
-    nlohmann::json &req, RainbomizerDebugServer::WebsocketUserData data)
-{
-    std::string native   = req.at ("Native");
-    std::string response = "";
-
-    uint32_t nativeHash = rage::atLiteralStringHash (native);
-
-    if (!NativeManager::DoesNativeExist (nativeHash))
-        response = "Native not found - " + native;
-
-    else
-        {
-            scrThread::Info info{};
-            for (const auto &i : req.at ("NativeArgs"))
-                {
-                    switch (i.at ("Type").get<int> ())
-                        {
-                            // INT32
-                        case 0:
-                            info.PushArg<int> (i.at ("Data"));
-                            break;
-
-                            // FLOAT
-                        case 1: info.PushArg<float> (i.at ("Data"));
-                        }
-                }
-
-            NativeManager::InvokeNative (nativeHash, &info);
-
-            if (req.at ("ReturnType").get<int> () == 0)
-                response = std::to_string (info.GetReturn ());
-            else
-                response = std::to_string (info.GetReturn<float> ());
-        }
-
-    data.Send ({{"Type", "Response"},
-                {"Topic", "Scripts"},
-                {"Data", "InvokeNative"},
-                {"Response", response}});
-}
-
-/*******************************************************/
-void
-ScriptDebugInterface::Initialise (uWS::App &app)
-{
-    app.get ("/get/threads", SendThreadsList);
-    app.get ("/get/threads/:hash", SendThread);
-    app.get ("/get/threads/:hash/stack", SendThreadStack);
-
-    RainbomizerDebugServer::Get ().RegisterHandler (HandleWebSocketRequests);
-}
-
-/*******************************************************/
-void
-ScriptDebugInterface::CapturedThread::UpdateBreakpoints (scrThreadContext *ctx)
-{
-    if (!m_Program)
-        return;
-
-    for (auto &[offset, value] : m_Breakpoints)
-        {
-            if (value == CapturedThread::BREAKPOINT_OPCODE)
-                {
-                    uint8_t &code = m_Program->GetCodeByte<uint8_t> (offset);
-                    value         = std::exchange (code, BREAKPOINT_OPCODE);
-                }
+            fwrite (&ptr, 8, 1, file);
+            fwrite (ptr, 8, 1, file);
         }
 }
 
-/*******************************************************/
-void
-ScriptDebugInterface::CapturedThread::RemoveBreakpoint (uint64_t offset)
+inline void
+Store_N_WriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
 {
-    if (auto breakPoint = LookupMap (m_Breakpoints, offset))
-        {
-            if (!m_Program)
-                return;
+    BasicOpcodeWrite<2, 0, 0> (file, bytes, SP, FSP);
+    uint32_t numItems = SP[-1];
 
-            m_Program->GetCodeByte<uint8_t> (offset) = *breakPoint;
-        }
+    WriteStackArgs (file, SP - 2, numItems);
 }
 
-/*******************************************************/
-void
-ScriptDebugInterface::CapturedThread::BreakNow (scrThread *thread)
+static constexpr std::array<WriteFunction, 127> Opcodes = {{
+    BasicOpcodeWrite,                              // NOP
+    BasicOpcodeWrite<2>,                           // IADD
+    BasicOpcodeWrite<2>,                           // ISUB
+    BasicOpcodeWrite<2>,                           // IMUL
+    BasicOpcodeWrite<2>,                           // IDIV
+    BasicOpcodeWrite<2>,                           // IMOD
+    BasicOpcodeWrite<1>,                           // INOT
+    BasicOpcodeWrite<1>,                           // INEG
+    BasicOpcodeWrite<2>,                           // IEQ
+    BasicOpcodeWrite<2>,                           // INE
+    BasicOpcodeWrite<2>,                           // IGT
+    BasicOpcodeWrite<2>,                           // IGE
+    BasicOpcodeWrite<2>,                           // ILT
+    BasicOpcodeWrite<2>,                           // ILE
+    BasicOpcodeWrite<2>,                           // FADD
+    BasicOpcodeWrite<2>,                           // FSUB
+    BasicOpcodeWrite<2>,                           // FMUL
+    BasicOpcodeWrite<2>,                           // FDIV
+    BasicOpcodeWrite<2>,                           // FMOD
+    BasicOpcodeWrite<1>,                           // FNEG
+    BasicOpcodeWrite<1>,                           // FEQ
+    BasicOpcodeWrite<1>,                           // FNE
+    BasicOpcodeWrite<1>,                           // FGT
+    BasicOpcodeWrite<1>,                           // FGE
+    BasicOpcodeWrite<1>,                           // FLT
+    BasicOpcodeWrite<1>,                           // FLE
+    BasicOpcodeWrite<6>,                           // VADD
+    BasicOpcodeWrite<6>,                           // VSUB
+    BasicOpcodeWrite<6>,                           // VMUL
+    BasicOpcodeWrite<6>,                           // VDIV
+    BasicOpcodeWrite<3>,                           // VNEG
+    BasicOpcodeWrite<2>,                           // IAND
+    BasicOpcodeWrite<2>,                           // IOR
+    BasicOpcodeWrite<2>,                           // IXOR
+    BasicOpcodeWrite<1>,                           // I2F
+    BasicOpcodeWrite<1>,                           // F2I
+    BasicOpcodeWrite<1>,                           // F2V
+    BasicOpcodeWrite<0, 1>,                        // PUSH_CONST_U8
+    BasicOpcodeWrite<0, 2>,                        // PUSH_CONST_U8_U8
+    BasicOpcodeWrite<0, 3>,                        // PUSH_CONST_U8_U8_U8
+    BasicOpcodeWrite<0, 4>,                        // PUSH_CONST_U32
+    BasicOpcodeWrite<0, 4>,                        // PUSH_CONST_F
+    BasicOpcodeWrite<1>,                           // DUP
+    BasicOpcodeWrite<1>,                           // DROP
+    NativeWriteFunction,                           // NATIVE
+    EnterWriteFunction,                            // ENTER
+    LeaveWriteFunction,                            // LEAVE
+    BasicOpcodeWrite<1, 0, 0>,                     // LOAD
+    BasicOpcodeWrite<2, 0, 0>,                     // STORE
+    BasicOpcodeWrite<2, 0, 1>,                     // STORE_REV
+    Load_N_WriteFunction,                          // LOAD_N
+    Store_N_WriteFunction,                         // STORE_N
+    VarWriteFunction<VariableType::ARRAY, 8, 2>,   // ARRAY_U8
+    VarWriteFunction<VariableType::ARRAY, 8, 2>,   // ARRAY_U8_LOAD
+    VarWriteFunction<VariableType::ARRAY, 8, 3>,   // ARRAY_U8_STORE
+    VarWriteFunction<VariableType::LOCAL, 8, 0>,   // LOCAL_U8
+    VarWriteFunction<VariableType::LOCAL, 8, 0>,   // LOCAL_U8_LOAD
+    VarWriteFunction<VariableType::LOCAL, 8, 1>,   // LOCAL_U8_STORE
+    VarWriteFunction<VariableType::STATIC, 8, 0>,  // STATIC_U8
+    VarWriteFunction<VariableType::STATIC, 8, 0>,  // STATIC_U8_LOAD
+    VarWriteFunction<VariableType::STATIC, 8, 1>,  // STATIC_U8_STORE
+    BasicOpcodeWrite<1, 1>,                        // IADD_U8
+    BasicOpcodeWrite<1, 1>,                        // IMUL_U8
+    OffsetWriteFunction,                           // IOFFSET
+    VarWriteFunction<VariableType::OFFSET, 8, 1>,  // IOFFSET_U8
+    VarWriteFunction<VariableType::OFFSET, 8, 1>,  // IOFFSET_U8_LOAD
+    VarWriteFunction<VariableType::OFFSET, 8, 2>,  // IOFFSET_U8_STORE
+    BasicOpcodeWrite<1, 2>,                        // PUSH_CONST_S16
+    BasicOpcodeWrite<1, 2>,                        // IADD_S16
+    BasicOpcodeWrite<1, 2>,                        // IMUL_S16
+    VarWriteFunction<VariableType::OFFSET, 8, 1>,  // IOFFSET_S16
+    VarWriteFunction<VariableType::OFFSET, 8, 1>,  // IOFFSET_S16_LOAD
+    VarWriteFunction<VariableType::OFFSET, 8, 2>,  // IOFFSET_S16_STORE
+    VarWriteFunction<VariableType::ARRAY, 16, 2>,  // ARRAY_U16
+    VarWriteFunction<VariableType::ARRAY, 16, 2>,  // ARRAY_U16_LOAD
+    VarWriteFunction<VariableType::ARRAY, 16, 3>,  // ARRAY_U16_STORE
+    VarWriteFunction<VariableType::LOCAL, 8, 0>,   // LOCAL_U16
+    VarWriteFunction<VariableType::LOCAL, 8, 0>,   // LOCAL_U16_LOAD
+    VarWriteFunction<VariableType::LOCAL, 8, 1>,   // LOCAL_U16_STORE
+    VarWriteFunction<VariableType::STATIC, 16, 0>, // STATIC_U16
+    VarWriteFunction<VariableType::STATIC, 16, 0>, // STATIC_U16_LOAD
+    VarWriteFunction<VariableType::STATIC, 16, 1>, // STATIC_U16_STORE
+    VarWriteFunction<VariableType::GLOBAL, 16, 0>, // GLOBAL_U16
+    VarWriteFunction<VariableType::GLOBAL, 16, 0>, // GLOBAL_U16_LOAD
+    VarWriteFunction<VariableType::GLOBAL, 16, 1>, // GLOBAL_U16_STORE
+    BasicOpcodeWrite,                              // J
+    BasicOpcodeWrite<1>,                           // JZ
+    BasicOpcodeWrite<2>,                           // IEQ_JZ
+    BasicOpcodeWrite<2>,                           // INE_JZ
+    BasicOpcodeWrite<2>,                           // IGT_JZ
+    BasicOpcodeWrite<2>,                           // IGE_JZ
+    BasicOpcodeWrite<2>,                           // ILT_JZ
+    BasicOpcodeWrite<2>,                           // ILE_JZ
+    BasicOpcodeWrite,                              // CALL
+    VarWriteFunction<VariableType::GLOBAL, 24, 0>, // GLOBAL_U24
+    VarWriteFunction<VariableType::GLOBAL, 24, 0>, // GLOBAL_U24_LOAD
+    VarWriteFunction<VariableType::GLOBAL, 24, 1>, // GLOBAL_U24_STORE
+    BasicOpcodeWrite<0, 3>,                        // PUSH_CONST_U24
+    BasicOpcodeWrite<1>,                           // SWITCH
+    BasicOpcodeWrite,                              // STRING
+    TextLabelFunction<1, 0>,                       // STRINGHASH
+    TextLabelFunction<2, 0, 1>,                    // TEXT_LABEL_ASSIGN_STRING
+    TextLabelFunction<2, 0>,                       // TEXT_LABEL_ASSIGN_INT
+    TextLabelFunction<2, 0, 1>,                    // TEXT_LABEL_APPEND_STRING
+    TextLabelFunction<2, 0>,                       // TEXT_LABEL_APPEND_INT
+    BasicOpcodeWrite,                              // TEXT_LABEL_COPY
+    BasicOpcodeWrite,                              // CATCH
+    BasicOpcodeWrite,                              // THROW
+    BasicOpcodeWrite<1>,                           // CALLINDIRECT
+    BasicOpcodeWrite,                              // PUSH_CONST_M1
+    BasicOpcodeWrite,                              // PUSH_CONST_0
+    BasicOpcodeWrite,                              // PUSH_CONST_1
+    BasicOpcodeWrite,                              // PUSH_CONST_2
+    BasicOpcodeWrite,                              // PUSH_CONST_3
+    BasicOpcodeWrite,                              // PUSH_CONST_4
+    BasicOpcodeWrite,                              // PUSH_CONST_5
+    BasicOpcodeWrite,                              // PUSH_CONST_6
+    BasicOpcodeWrite,                              // PUSH_CONST_7
+    BasicOpcodeWrite,                              // PUSH_CONST_FM1
+    BasicOpcodeWrite,                              // PUSH_CONST_F0
+    BasicOpcodeWrite,                              // PUSH_CONST_F1
+    BasicOpcodeWrite,                              // PUSH_CONST_F2
+    BasicOpcodeWrite,                              // PUSH_CONST_F3
+    BasicOpcodeWrite,                              // PUSH_CONST_F4
+    BasicOpcodeWrite,                              // PUSH_CONST_F5
+    BasicOpcodeWrite,                              // PUSH_CONST_F6
+    BasicOpcodeWrite,                              // PUSH_CONST_F7
+}};
+
+class TTDFile
 {
-    nlohmann::json j;
-    j["Type"]   = "Update";
-    j["Topic"]  = "Scripts";
-    j["Data"]   = "ThreadBreak";
-    j["Thread"] = *thread;
-
-    for (uint32_t i = 0; i < thread->m_Context.m_nStackSize / 8; i++)
-        {
-            if (m_Stack[i] != thread->m_pStack[i])
-                {
-                    j["Stack"].push_back ({i, thread->m_pStack[i]});
-                    m_Stack[i] = thread->m_pStack[i];
-                }
-        }
-
-    RainbomizerDebugServer::Get ().Broadcast (
-        fmt::format ("scripts/threads/{}", thread->m_Context.m_nThreadId), j);
-
-    if (auto opcode = LookupMap (m_Breakpoints, thread->m_Context.m_nIp))
-        m_OverrideNextOpcode = *opcode;
-
-    m_eState          = CapturedThread::STOPPED;
-    m_NextScriptState = thread->m_Context.m_nState;
-}
-
-/*******************************************************/
-ScriptDebugInterface::CapturedThread::CapturedThread (scrThread *thread)
-{
-    m_Thread = thread;
-
-    m_Stack = std::make_unique<uint64_t[]> (thread->m_Context.m_nStackSize / 8);
-    memcpy (m_Stack.get (), thread->m_pStack, thread->m_Context.m_nStackSize);
-    m_nStackSize = thread->m_Context.m_nStackSize;
-
-    nlohmann::json j;
-    j["Type"]   = "Update";
-    j["Topic"]  = "Scripts";
-    j["Data"]   = "ScriptCaptured";
-    j["Thread"] = *thread;
-
-    RainbomizerDebugServer::Get ().Broadcast (
-        fmt::format ("scripts/capture/{:x}", thread->m_Context.m_nScriptHash),
-        j);
-}
-
-/*******************************************************/
-void
-ScriptDebugInterface::HandleCaptureRequests ()
-{
-    scrThread *thread = scrThread::GetActiveThread ();
-    for (auto it = m_CaptureRequests.begin (); it != m_CaptureRequests.end ();)
-        {
-            if (thread->m_Context.m_nScriptHash == *it)
-                {
-                    it = m_CaptureRequests.erase (it);
-                    m_Threads.emplace (thread->m_Context.m_nThreadId, thread);
-                    continue;
-                }
-
-            ++it;
-        }
-}
-
-class ScriptTempContext
-{
-public:
-    uint64_t *        stack;
-    uint64_t *        globals;
-    scrProgram *      program;
-    scrThreadContext *context;
-    uint64_t          Ip;
-
-    template <typename T = int>
-    inline T &
-    Pop ()
+    FILE *m_File = nullptr;
+    enum
     {
-        return *reinterpret_cast<T *> (stack--);
+        PAUSED,
+        CAPTURING_ALL,
+        CAPTURING_CFLOW,
+        CAPTURING_GLOBALS,
+        CAPTURING_LOCALS
+    } m_eState
+        = PAUSED;
+
+    void
+    WriteHeader (scrThread *thread, scrProgram *program)
+    {
+        char MagicNumber[] = "RBTTD";
+        fwrite (MagicNumber, 1, sizeof (MagicNumber), m_File);
+
+        fwrite (thread->m_szScriptName, 1, 64, m_File);
+        fwrite (&thread->m_Context.m_nThreadId, 4, 1, m_File);
+        fwrite (&thread->m_pStack, 8, 1, m_File);
+
+        uint32_t numPages = program->GetTotalPages (program->m_nCodeSize);
+        fwrite (&numPages, 4, 1, m_File);
+        fwrite (program->m_pCodeBlocks, 8, numPages, m_File);
+
+        fflush (m_File);
     }
 
-    template <typename T = int>
-    inline void
-    Push (T value)
+    void
+    WriteGlobals ()
     {
-        return *reinterpret_cast<T *> (stack++) = value;
+        const uint8_t NUM_GLOBALS = 64;
+
+        fwrite (scrThread::sm_Globals, 8, NUM_GLOBALS, m_File);
+        for (uint8_t i = 0; i < NUM_GLOBALS; i++)
+            {
+                Rainbomizer::Logger::LogMessage (
+                    "Writing globals: %x (size = %x)", scrThread::sm_Globals[i],
+                    scrThread::sm_GlobalSizes[i]);
+
+                fwrite (&scrThread::sm_GlobalSizes[i], 4, 1, m_File);
+                if (scrThread::sm_Globals[i] && scrThread::sm_GlobalSizes[i])
+                    fwrite (scrThread::sm_Globals[i], 1,
+                            scrThread::sm_GlobalSizes[i], m_File);
+            }
+    }
+
+    void
+    WriteStack (scrThread *thread)
+    {
+        fwrite (&thread->m_Context.m_nStackSize, 4, 1, m_File);
+        fwrite (thread->m_pStack, 8, thread->m_Context.m_nStackSize, m_File);
+    }
+
+    void
+    OpenFile (scrThread *thread, scrProgram *program)
+    {
+        if (m_File)
+            return;
+
+        m_File = Rainbomizer::Common::GetRainbomizerFile (
+            fmt::format ("{}_{}.{}.ttd", thread->m_szScriptName,
+                         thread->m_Context.m_nThreadId, time (nullptr)),
+            "wb", "ttd/");
+
+        WriteHeader (thread, program);
+        WriteGlobals ();
+        WriteStack (thread);
+    }
+
+    void
+    CloseFile ()
+    {
+        fclose (m_File);
+        m_File = nullptr;
+    }
+
+public:
+    bool
+    StartCapture (scrThread *thread, scrProgram *program, bool CFlowOnly,
+                  bool GlobalsOnly, bool LocalsOnly)
+    {
+        if (m_eState != PAUSED)
+            return true;
+
+        Rainbomizer::Logger::LogMessage ("Starting capture thread: %s",
+                                         thread->m_szScriptName);
+
+        if (CFlowOnly)
+            m_eState = CAPTURING_CFLOW;
+        else if (GlobalsOnly)
+            m_eState = CAPTURING_GLOBALS;
+        else if (LocalsOnly)
+            m_eState = CAPTURING_LOCALS;
+        else
+            m_eState = CAPTURING_ALL;
+
+        OpenFile (thread, program);
+        return false;
+    }
+
+    void
+    StopCapture ()
+    {
+        m_eState = PAUSED;
+        CloseFile ();
+    }
+
+    bool
+    ShouldWriteOpcode (YscOpCode op)
+    {
+        //#define ENABLE_TTD_DEBUG_WRITE_OPCODE
+#ifdef ENABLE_TTD_DEBUG_WRITE_OPCODE
+        Rainbomizer::Logger::LogMessage ("Attempting to write opcode: %d", op);
+#endif
+
+        switch (m_eState)
+            {
+            case CAPTURING_ALL: return true;
+            case PAUSED: return false;
+            case CAPTURING_CFLOW:
+                switch (op)
+                    {
+                    case NATIVE:
+                    case ENTER:
+                    case LEAVE:
+                    case LOAD:
+                    case STORE:
+                    case STORE_REV:
+
+                    default: return false;
+                    }
+            case CAPTURING_GLOBALS:
+                switch (op)
+                    {
+                    default: return false;
+                    }
+            case CAPTURING_LOCALS:
+                switch (op)
+                    {
+                    default: return false;
+                    }
+                break;
+            }
+
+        return true;
+    }
+
+    void
+    WriteOpcode (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
+    {
+        if (ShouldWriteOpcode (static_cast<YscOpCode> (*ip)))
+            {
+                Opcodes[*ip](m_File, ip, SP, FSP);
+
+#ifdef ENABLE_TTD_DEBUG_WRITE_OPCODE
+                Rainbomizer::Logger::LogMessage (
+                    "Successfully wrote opcode: %d", *ip);
+#endif
+            }
     }
 };
 
-static std::vector<uint8_t> mOpcodes;
-
-/*******************************************************/
-template <auto &O>
-eScriptState
-ScriptDebugInterface::RunThreadHook (uint64_t *stack, uint64_t *globals,
-                                     scrProgram *program, scrThreadContext *ctx)
+class TimeTravelDebugInterface : public DebugInterface
 {
-    eScriptState state = eScriptState::WAITING;
 
-    HandleCaptureRequests ();
-    TimeTravelDebugInterface::Process (stack, globals, program, ctx);
+    class TTDFileManager
+    {
+        inline static std::map<uint32_t, TTDFile> m_Files{};
 
-    if ((m_CapturedThread = LookupMap (m_Threads, ctx->m_nThreadId)))
+        uint32_t m_NumIterations = 0;
+
+    public:
+        TTDFileManager (uint32_t numIterations = 1)
+            : m_NumIterations (numIterations)
         {
-            m_CapturedThread->m_Program = program;
-            m_CapturedThread->m_Thread  = scrThread::GetActiveThread ();
-
-            m_CapturedThread->UpdateBreakpoints (ctx);
-            for (auto &[wsData, js] : m_CapturedThread->m_NativeRequests)
-                CallNativeNow (js, wsData);
-            m_CapturedThread->m_NativeRequests.clear ();
-
-            if (m_CapturedThread->m_eState != CapturedThread::STOPPED)
-                state = O (stack, globals, program, ctx);
-
-            if (m_CapturedThread->m_NextScriptState)
-                {
-                    ctx->m_nState = *m_CapturedThread->m_NextScriptState;
-                    m_CapturedThread->m_NextScriptState = std::nullopt;
-
-                    state = ctx->m_nState;
-                }
-        }
-    else
-        state = O (stack, globals, program, ctx);
-
-    return state;
-}
-
-/*******************************************************/
-void
-ScriptDebugInterface::HitBreakPoint (uint32_t, scrThread *thread)
-{
-    thread->m_Context.m_nIp--;
-    m_Threads.at (thread->m_Context.m_nThreadId).BreakNow (thread);
-}
-
-/*******************************************************/
-uint32_t
-ScriptDebugInterface::PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
-{
-    if (!m_bHookDisabled)
-        {
-            TimeTravelDebugInterface::ProcessOpcode (ip, SP, FSP);
         }
 
-    if (m_CapturedThread && !m_bHookDisabled)
+        ~TTDFileManager ()
         {
-            auto &context      = m_CapturedThread->m_Thread->m_Context;
-            auto  stack        = m_CapturedThread->m_Thread->m_pStack;
-            context.m_nSP      = uint64_t (SP - stack) + 1;
-            context.m_nFrameSP = uint64_t (FSP - stack);
-
-            return m_CapturedThread->GetOverriddenOpcode (*ip);
+            for (auto &i : m_Files)
+                i.second.StopCapture ();
         }
-    return *ip;
-}
 
-/*******************************************************/
-void
-ScriptDebugInterface::InitialisePerOpcodeHook ()
-{
-    const int CALL_OFFSET       = 23;
-    const int JMP_OFFSET        = 36;
-    const int ORIG_INSTRUCTIONS = 6;
+        bool
+        IsActive ()
+        {
+            return m_NumIterations != 0 && m_NumIterations-- != 0;
+        }
 
-    unsigned char Instructions[] = {
-        0x48, 0xff, 0xc7,             // INC     RDI
-        0x0f, 0xb6, 0x07,             // MOVZX   EAX,byte ptr [RDI]
-        0x41, 0x50,                   // PUSH    R8
-        0x41, 0x51,                   // PUSH    R9
-        0x41, 0x52,                   // PUSH    R10
-        0x41, 0x53,                   // PUSH    R11
-        0x48, 0x89, 0xf9,             // MOV     RCX,RDI
-        0x48, 0x89, 0xda,             // MOV     RDX,RBX
-        0x4d, 0x89, 0xd8,             // MOV     R8, R11
-        0xe8, 0x00, 0x00, 0x00, 0x00, // CALL    0x0
-        0x41, 0x5b,                   // POP     R11
-        0x41, 0x5a,                   // POP     R10
-        0x41, 0x59,                   // POP     R9
-        0x41, 0x58,                   // POP     R8
-        0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
+        bool
+        Activate (scrProgram *program)
+        {
+            if (!IsActive ())
+                return false;
+
+            auto thread = scrThread::GetActiveThread ();
+
+            m_CurrentFile = &m_Files[thread->m_Context.m_nThreadId];
+            m_CurrentFile->StartCapture (thread, program, false, false, false);
+
+            return true;
+        }
+
+        void
+        SetNumIterations (uint32_t iters)
+        {
+            this->m_NumIterations = iters;
+        }
     };
 
-    void *addr       = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 7e 0f 87");
-    auto  trampoline = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
-                          ->Pointer<decltype (Instructions)> ();
+    inline static std::map<uint32_t, TTDFileManager> m_Files{};
+    inline static TTDFile *                          m_CurrentFile = nullptr;
 
-    memcpy (trampoline, Instructions, sizeof (Instructions));
-    memcpy (trampoline, addr, ORIG_INSTRUCTIONS);
+    /*******************************************************/
+    static uint32_t
+    PerOpcodeHook (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
+    {
+        ProcessOpcode (ip, SP, FSP);
+        return *ip;
+    }
 
-    injector::MakeNOP (addr, ORIG_INSTRUCTIONS);
-    injector::MakeJMP (addr, trampoline);
-    injector::MakeJMP (&trampoline[0][JMP_OFFSET], (uint8_t *) addr + 5);
+    /*******************************************************/
+    void
+    InitialisePerOpcodeHook ()
+    {
+        const int CALL_OFFSET       = 23;
+        const int JMP_OFFSET        = 36;
+        const int ORIG_INSTRUCTIONS = 6;
 
-    RegisterHook (&trampoline[0][CALL_OFFSET], PerOpcodeHook);
-}
+        unsigned char Instructions[] = {
+            0x48, 0xff, 0xc7,             // INC     RDI
+            0x0f, 0xb6, 0x07,             // MOVZX   EAX,byte ptr [RDI]
+            0x41, 0x50,                   // PUSH    R8
+            0x41, 0x51,                   // PUSH    R9
+            0x41, 0x52,                   // PUSH    R10
+            0x41, 0x53,                   // PUSH    R11
+            0x48, 0x89, 0xf9,             // MOV     RCX,RDI
+            0x48, 0x89, 0xda,             // MOV     RDX,RBX
+            0x4d, 0x89, 0xd8,             // MOV     R8, R11
+            0xe8, 0x00, 0x00, 0x00, 0x00, // CALL    0x0
+            0x41, 0x5b,                   // POP     R11
+            0x41, 0x5a,                   // POP     R10
+            0x41, 0x59,                   // POP     R9
+            0x41, 0x58,                   // POP     R8
+            0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
+        };
 
-/*******************************************************/
-ScriptDebugInterface::ScriptDebugInterface ()
-{
+        void *addr = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 7e 0f 87");
+        auto trampoline = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
+                              ->Pointer<decltype (Instructions)> ();
 
-    RegisterHook ("2b fe 89 7a 14 33 c9 e8", 7, HitBreakPoint);
+        memcpy (trampoline, Instructions, sizeof (Instructions));
+        memcpy (trampoline, addr, ORIG_INSTRUCTIONS);
 
-    InitialiseAllComponents ();
+        injector::MakeNOP (addr, ORIG_INSTRUCTIONS);
+        injector::MakeJMP (addr, trampoline);
+        injector::MakeJMP (&trampoline[0][JMP_OFFSET], (uint8_t *) addr + 5);
 
-    REGISTER_HOOK ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
-                   RunThreadHook, eScriptState, uint64_t *, uint64_t *,
-                   scrProgram *, scrThreadContext *);
+        RegisterHook (&trampoline[0][CALL_OFFSET], PerOpcodeHook);
+    }
 
-    InitialisePerOpcodeHook ();
-}
+    void
+    Draw () override
+    {
+        static std::string threadName = "";
+        static int         iterations = 0;
+        bool               pause;
 
-ScriptDebugInterface scrDebIntf;
+        ImGui::InputText ("Thread Name", &threadName);
+        ImGui::InputInt ("Iterations", &iterations);
+
+        if (ImGui::Button ("Capture"))
+            {
+                ImGui::OpenPopup ("Capture?");
+            }
+        ImGui::SameLine ();
+        pause = ImGui::Button ("Pause");
+
+        if (ImGui::BeginPopupModal ("Capture?"))
+            {
+                ImGui::Text ("ARE YOU SURE?!?!?!?!!?!");
+                if (ImGui::Button ("Yes"))
+                    {
+                        m_Files[rage::atStringHash (threadName)]
+                            .SetNumIterations ((pause) ? 0 : iterations);
+
+                        ImGui::CloseCurrentPopup ();
+                    }
+
+                ImGui::SameLine ();
+                if (ImGui::Button ("No"))
+                    ImGui::CloseCurrentPopup ();
+
+                ImGui::EndPopup ();
+            }
+    }
+
+    void
+    Process (uint64_t *stack, uint64_t *globals, scrProgram *program,
+             scrThreadContext *ctx) override
+    {
+        Rainbomizer::ExceptionHandlerMgr::GetInstance ().Init ();
+
+        m_CurrentFile = nullptr;
+        if (auto file = LookupMap (m_Files, ctx->m_nScriptHash))
+            {
+                if (!file->Activate (program))
+                    {
+                        m_Files.erase (ctx->m_nScriptHash);
+                        Rainbomizer::Logger::LogMessage (
+                            "Finished tracing thread: %s",
+                            scrThread::GetActiveThread ()->m_szScriptName);
+                    }
+            }
+    }
+
+public:
+    static TimeTravelDebugInterface sm_Instance;
+
+    const char *
+    GetName () override
+    {
+        return "Time Travel";
+    }
+
+    static void
+    ProcessOpcode (uint8_t *ip, uint64_t *SP, uint64_t *FSP)
+    {
+        if (m_CurrentFile)
+            m_CurrentFile->WriteOpcode (ip, SP, FSP);
+    }
+    TimeTravelDebugInterface ()
+    {
+        InitialiseAllComponents ();
+        InitialisePerOpcodeHook ();
+    }
+};
+
+TimeTravelDebugInterface TimeTravelDebugInterface::sm_Instance{};

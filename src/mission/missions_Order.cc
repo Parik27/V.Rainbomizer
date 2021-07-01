@@ -11,8 +11,8 @@
 #include <vector>
 #include <random>
 
-#ifdef ENABLE_DEBUG_SERVER
-#include "debug/actions.hh"
+#ifdef ENABLE_DEBUG_MENU
+#include "debug/base.hh"
 #endif
 
 using MR = MissionRandomizer_Components;
@@ -39,15 +39,14 @@ MissionRandomizer_OrderManager::Process (scrProgram *      program,
     if (program->m_nScriptHash == "flow_controller"_joaat && ctx->m_nIp == 0)
         MR::sm_Cmds.AdjustMissionFlowCommands ();
 
-#ifdef ENABLE_DEBUG_SERVER
-    if (ActionsDebugInterface::sm_ReloadMissionsRequested)
+#ifdef ENABLE_DEBUG_MENU
+    if (DebugInterfaceManager::GetAction ("Reload Missions"))
         {
             uint32_t seed = static_cast<uint32_t> (
                 std::hash<std::string>{}(MR::Config ().Seed));
 
             InitialiseMissionsMap (seed);
             Update_gMissions ();
-            ActionsDebugInterface::sm_ReloadMissionsRequested = false;
         }
 #endif
 

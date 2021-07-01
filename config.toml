@@ -53,6 +53,8 @@ LogSpawnedVehicles = false # Logs all the spawned script vehicles
 RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
 
+TunableFile = "timecyc/default.dat"
+
 # CrazyMode = false # Not recommended, makes the game invisible.
 
 #######################################################

@@ -1,8 +1,11 @@
 #include "ParserUtils.hh"
 #include "Parser.hh"
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "common/logger.hh"
+#include <cstdint>
 #include <stdexcept>
+#include <stdio.h>
 #include <string>
 
 /*******************************************************/
@@ -110,4 +113,28 @@ ParserUtils::FindFieldBitset (parStructureStaticData *data, void *ptr,
 
     return ParserBitset (*enumField->m_pTranslationTable,
                          FindFieldPtr (data, ptr, hash));
+}
+
+parStructureStaticData *
+ParserUtils::FindStaticDataFromMemory (uint32_t hash)
+{
+    parStructureStaticData *out = nullptr;
+
+    uint8_t *hashBytes      = reinterpret_cast<uint8_t *> (&hash);
+    char     patternStr[16] = {0};
+    sprintf (patternStr, "%02x %02x %02x %02x", hashBytes[0], hashBytes[1],
+             hashBytes[2], hashBytes[3]);
+
+    hook::pattern p (patternStr);
+    if (p.size () == 1)
+        {
+            out                  = p.get (0).get<parStructureStaticData> ();
+            m_pStaticDatas[hash] = out;
+
+            return out;
+        }
+    else if (p.size () != 0)
+        assert (!"Ambiguous pattern results for parser static data");
+
+    throw std::runtime_error ("Unable to find parser static data");
 }

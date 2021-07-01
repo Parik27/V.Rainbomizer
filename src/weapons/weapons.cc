@@ -28,8 +28,8 @@ class WeaponRandomizer
 {
     static inline std::vector<uint32_t>           mValidWeapons;
     static inline std::discrete_distribution<int> mDistribution;
-    static inline bool                            mSkipNextWeaponRandomization;
-    static inline WeaponEquipMgr                  mEquipMgr;
+    static inline bool           mSkipNextWeaponRandomization = false;
+    static inline WeaponEquipMgr mEquipMgr;
 
     static inline std::unordered_map<uint32_t, uint32_t> mValidWeaponGroups;
 
@@ -144,8 +144,8 @@ class WeaponRandomizer
         static const std::array Patterns
             = {std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat)};
 
-        return scrThread::GetActiveThread ()
-               && !DoesElementExist (Patterns,
+        return !scrThread::GetActiveThread ()
+               || !DoesElementExist (Patterns,
                                      std::tuple (scrThread::GetActiveThread ()
                                                      ->m_Context.m_nScriptHash,
                                                  weapon));

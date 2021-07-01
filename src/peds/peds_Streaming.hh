@@ -1,12 +1,20 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <Utils.hh>
 #include <CStreaming.hh>
 #include <set>
 
 #include <common/common.hh>
+#include <common/logger.hh>
+
 #include <rage.hh>
+#include <CPopulation.hh>
+
+#include <ctime>
+
+#define RANDOMIZE_PED_GROUPS
 
 class PedRandomizer_Streaming
 {
@@ -29,6 +37,13 @@ class PedRandomizer_Streaming
     static uint32_t
     RandomizePedToLoad (CStreaming *str, bool p2)
     {
+#ifdef RANDOMIZE_PED_GROUPS
+        uint32_t ret = CStreaming_GetRandomPedToLoad (str, p2);
+
+        if ((ret & 0xFFFF) != 0xFFFF)
+            return ret;
+#endif
+
         const int MAX_TRIES = 16;
         for (int i = 0; i < MAX_TRIES; i++)
             {
@@ -59,7 +74,10 @@ class PedRandomizer_Streaming
 
         char line[256] = {0};
         while (fgets (line, 256, f))
-            sm_NsfwModels.push_back (rage::atStringHash (line));
+            {
+                line[strcspn (line, "\n")] = 0;
+                sm_NsfwModels.push_back (rage::atStringHash (line));
+            }
     }
 
     /*******************************************************/
@@ -74,6 +92,7 @@ class PedRandomizer_Streaming
         groups->mInAppropriatePedsSet.for_each (
             [&peds] (int val) { peds.insert (val); });
         groups->mCopsSet.for_each ([&peds] (int val) { peds.insert (val); });
+        groups->mPedsSet5.for_each ([&peds] (int val) { peds.insert (val); });
 
         // Remove invalid models
         for (auto hash : {"mp_headtargets"_joaat, "slod_large_quadped"_joaat,
@@ -95,6 +114,32 @@ class PedRandomizer_Streaming
                 peds.erase (CStreaming::GetModelIndex (hash));
     }
 
+    /*******************************************************/
+    template <auto &CPopGroupList__GetVehGroup>
+    static bool
+    RandomizePedGroups (CPopGroupList *grps, uint32_t name, uint32_t *out)
+    {
+        static constexpr std::array aExemptGroups = {"fish_"_joaat,
+                                                     "birds_city"_joaat,
+                                                     "birds_ground_city"_joaat,
+                                                     "birds_countryside"_joaat,
+                                                     "birds_ocean"_joaat,
+                                                     "birds_ground_ocean"_joaat,
+                                                     "fish"_joaat};
+
+        auto &PedHashes = Rainbomizer::Common::GetPedHashes ();
+        for (auto &grp : grps->pedGroups)
+            {
+                if (DoesElementExist (aExemptGroups, grp.Name))
+                    continue;
+
+                for (auto &model : grp.models)
+                    model.Name = GetRandomElement (PedHashes);
+            }
+
+        return CPopGroupList__GetVehGroup (grps, name, out);
+    }
+
 public:
     /*******************************************************/
     static void
@@ -107,7 +152,28 @@ public:
             "83 ec 20 80 3d ? ? ? ? 00 ? 8b f1 74 ? e8 ? ? ? ? eb ? e8", 22,
             RandomizePedToLoad, uint32_t, CStreaming *, bool);
 
+        injector::MakeNOP (
+            hook::get_pattern (
+                "e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8d ? ? ? ? ? ? 3b df 74 ? 0f b7 "
+                "47 08 66 39 43 08 74 ? 66 39 73 0a 74 ? ? 8b 0b e8 ? ? ? ? ? "
+                "8b d7 ? 8b cb e8 ? ? ? ? 66 41 39 ? ? ? ? ? 77 ? 66 41 39 ? ? "
+                "? ? ? 0f 86 ? ? ? ?"),
+            5);
+
+#ifdef RANDOMIZE_PED_GROUPS
+        REGISTER_HOOK ("ba fc 76 c4 68 e8", 5, RandomizePedGroups, bool,
+                       CPopGroupList *, uint32_t, uint32_t *);
+#endif
+
         sm_Initialised = true;
+    }
+
+    /*******************************************************/
+    static bool
+    IsNsfwModel (uint32_t idx)
+    {
+        return DoesElementExist (sm_NsfwModels,
+                                 CStreaming::GetModelByIndex (idx)->m_nHash);
     }
 
     /*******************************************************/

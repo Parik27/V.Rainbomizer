@@ -74,11 +74,17 @@ class TextCaseRandomizer
                         char *Str = reinterpret_cast<char *> (file)
                                     + file->Keys[i].DataOffset;
 
+                        bool inModifier
+                            = false; // stuff like ~HUD_COLOUR_RED~ or ~a~
                         for (int j = 0; Str[j] != 0; j++)
                             {
                                 char &c = Str[j];
+
+                                if (c == '~')
+                                    inModifier = !inModifier;
+
                                 if ((c >= 'a' && c <= 'z')
-                                    || (c >= 'A' && c <= 'Z'))
+                                    || (c >= 'A' && c <= 'Z') && !inModifier)
                                     {
                                         c = static_cast<char> (
                                             (RandomInt (1)) ? std::toupper (c)

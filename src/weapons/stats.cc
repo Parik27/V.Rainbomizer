@@ -1,12 +1,16 @@
 #include "CItemInfo.hh"
 #include "CStreaming.hh"
 #include "Utils.hh"
-#include "common/common.hh"
+#include "common/events.hh"
 #include "common/config.hh"
 #include "common/parser.hh"
 #include "common/logger.hh"
 #include <cstdint>
 #include <utility>
+
+#ifdef ENABLE_DEBUG_MENU
+#include <debug/base.hh>
+#endif
 
 // Ammo Info Randomizer
 // *******************************************************
@@ -80,6 +84,24 @@ class WeaponStatsRandomizer
 
 public:
     /*******************************************************/
+    static void
+    PrintWeaponList ()
+    {
+        for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
+            {
+                uint32_t outHash = 0;
+                bool     valid
+                    = info->Model
+                      && info->GetClassId (outHash) == "cweaponinfo"_joaat;
+
+                Rainbomizer::Logger::LogMessage (
+                    "classId => %x, modelId = %x, name = %x, value = %s",
+                    info->GetClassId (outHash), info->Model, info->Name,
+                    valid ? "true" : "false");
+            }
+    }
+
+    /*******************************************************/
     static bool
     HandleItemInfoRandomization (bool sample)
     {
@@ -101,20 +123,31 @@ public:
     }
 
     /*******************************************************/
+    static void
+    RandomizeWeaponStats (bool session)
+    {
+        if (!session)
+            return;
+
+        static bool sampled = HandleItemInfoRandomization (true);
+        HandleItemInfoRandomization (false);
+
+        PrintWeaponList ();
+    }
+
+    /*******************************************************/
     WeaponStatsRandomizer ()
     {
         if (!ConfigManager::ReadConfig ("WeaponStatsRandomizer"))
             return;
 
         // Randomize on game load
-        Rainbomizer::Common::AddInitCallback ([] (bool session) {
-            if (!session)
-                return;
+        Rainbomizer::Events ().OnInit += RandomizeWeaponStats;
 
-            static bool sampled = HandleItemInfoRandomization (true);
-            HandleItemInfoRandomization (false);
-        });
-
+#ifdef ENABLE_DEBUG_MENU
+        DebugInterfaceManager::AddAction ("Randomize Weapon Stats",
+                                          RandomizeWeaponStats);
+#endif
         InitialiseAllComponents ();
     }
 } _stats;
