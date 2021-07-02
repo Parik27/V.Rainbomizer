@@ -8,6 +8,7 @@
 #include <common/config.hh>
 #include <mutex>
 #include "weather_Timecycle.hh"
+#include <future>
 
 #ifdef ENABLE_DEBUG_MENU
 #include <debug/base.hh>
@@ -95,16 +96,42 @@ class WeatherRandomizer
     static void
     RandomizeTimecycles (bool restoreTimecycles)
     {
+        const int       COOLDOWN_TIME      = 60;
+        static uint32_t nLastRandomization = time (NULL);
+
         // Shouldn't happen? But maybe for like future updates if (unlikely) the
         // offset for pTimecycles changes.
         if (!tcManager::g_timeCycle->pTimecycles)
             return;
 
-        if (restoreTimecycles)
-            WeatherRandomizer_TunableManager::RestoreOriginalTimecycles ();
+#define ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
 
-        WeatherRandomizer_TunableManager::Initialise (Config ().TunableFile);
-        WeatherRandomizer_TunableManager::Randomize ();
+#ifdef ENABLE_TIMECYCLE_RANDOM_COOLDOWN
+        if (time (NULL) - nLastRandomization > COOLDOWN_TIME
+            && restoreTimecycles)
+            return;
+
+        nLastRandomization = time (NULL);
+#endif
+
+#ifdef ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
+        static std::future<void> future;
+
+        if (future.valid ())
+            future.wait ();
+
+        future = std::async (std::launch::async, [restoreTimecycles] {
+#endif
+            if (restoreTimecycles)
+                WeatherRandomizer_TunableManager::RestoreOriginalTimecycles ();
+
+            WeatherRandomizer_TunableManager::Initialise (
+                Config ().TunableFile);
+            WeatherRandomizer_TunableManager::Randomize ();
+
+#ifdef ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
+        });
+#endif
     }
 
 public:

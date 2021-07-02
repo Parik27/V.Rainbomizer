@@ -5,6 +5,7 @@
 #include "scrThread.hh"
 #include <Utils.hh>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <CScaleformMgr.hh>
 #include <string>
@@ -16,6 +17,23 @@ class ScaleformRandomizer
     /*******************************************************/
     inline static std::vector<std::string> m_MissionFailInsults;
     inline static std::vector<std::string> m_ScaleformStrings;
+
+    /*******************************************************/
+    static int
+    GetFailMessageStart (std::string &str)
+    {
+        for (int i = 0; i < str.size (); i++)
+            {
+                char ch = str[i];
+                if (isalpha (ch))
+                    return i;
+
+                else if (ch == '<')
+                    return str.find ("'>") + 2;
+            }
+
+        return 0;
+    }
 
     /*******************************************************/
     static void
@@ -44,16 +62,8 @@ class ScaleformRandomizer
             {
                 m_LastInsult = *string;
 
-                // This is done to include it in the fail text's <font> tag. A
-                // fallback in case it doesn't exist.
-
-                if (m_LastInsult.find ("'>") != m_LastInsult.npos)
-                    m_LastInsult.insert (m_LastInsult.find ("'>") + 2,
-                                         GetRandomElement (
-                                             m_MissionFailInsults));
-                else
-                    m_LastInsult = GetRandomElement (m_MissionFailInsults)
-                                   + m_LastInsult;
+                m_LastInsult.insert (GetFailMessageStart (m_LastInsult),
+                                     GetRandomElement (m_MissionFailInsults));
 
                 // Reset it if odds not right.
                 if (RandomInt (100) >= INSULT_ODDS)

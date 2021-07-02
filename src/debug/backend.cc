@@ -55,7 +55,7 @@ class DebugServerBackend
 {
     typedef void (*PresentCallback) (IDXGISwapChain *);
 
-    inline static bool bIsOpen = true;
+    inline static bool bIsOpen = false;
 
     /*******************************************************/
     // Stolen from
