@@ -350,6 +350,13 @@ public:
         return *sm_pActiveThread;
     }
 
+    static bool
+    CheckActiveThread (uint32_t hash)
+    {
+        return GetActiveThread ()
+               && GetActiveThread ()->m_Context.m_nScriptHash == hash;
+    }
+
     // Functions for stack manipulation
     template <typename T = uint64_t>
     void

@@ -182,6 +182,7 @@ public:
     aiTask *          CreateMotionTask (sMotionTaskData *set, bool lowLod);
     CVehicle *        GetVehicle ();
     uint32_t          GetMotionState ();
+    bool              SetMotionState (uint32_t motionState, bool now);
 };
 
 class CPedFactory

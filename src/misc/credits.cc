@@ -118,7 +118,7 @@ class RainbomizerCredits
 public:
     RainbomizerCredits ()
     {
-        if (!ConfigManager::ReadConfig ("RainbomizerCredits"))
+        if (true)
             return;
 
         REGISTER_HOOK ("0f 29 ? ? e8 ? ? ? ? 45 33 f6 44 38 35 ? ? ? ? 0f 84",

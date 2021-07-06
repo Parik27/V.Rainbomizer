@@ -9,6 +9,7 @@ CInventoryItem *(*CInventoryItemRepository__FindWeapon) (
 CPed *(*fwScriptGuidPool__GetPed) (uint32_t handle);
 CMotionTaskDataSet *(*CMotionTaskDataManager__FindByName) (uint32_t name);
 aiTask *(*CPed__CreateMotionTask) (CPed *, sMotionTaskData *, bool);
+bool *(*CPed__SetMotionState) (CPed *, uint32_t, bool);
 
 /*******************************************************/
 CInventoryItem *__cdecl CInventoryItemRepository::FindWeapon (uint32_t hash)
@@ -100,6 +101,13 @@ CPed::GetMotionState ()
 }
 
 /*******************************************************/
+bool
+CPed::SetMotionState (uint32_t motionState, bool now)
+{
+    return CPed__SetMotionState (this, motionState, now);
+}
+
+/*******************************************************/
 void
 CPedInventory::InitialisePatterns ()
 {
@@ -126,6 +134,9 @@ CPedInventory::InitialisePatterns ()
     ReadCall (hook::get_pattern (
                   "? 8b 52 08 45 8a c1 e8 ? ? ? ? ? 8b c0 ? 8b c0 ", 7),
               CPed__CreateMotionTask);
+
+    ReadCall (hook::get_pattern ("ba 43 ac 1a 55 ? 8b cf e8 ? ? ? ?", 8),
+              CPed__SetMotionState);
 
     //?? 8b 05 ?? ?? ?? ?? ?? 8b d9 ?? 8b ?? ?? ?? 8b 42 20 ?? 85 c0
     CPedFactory::sm_Instance = GetRelativeReference<CPedFactory *> (

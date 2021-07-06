@@ -1,6 +1,9 @@
+#include "Patterns/Patterns.hh"
+#include "injector/injector.hpp"
 #include "phBound.hh"
 #include <Utils.hh>
 #include <CPed.hh>
+#include <cstdint>
 
 /*******************************************************/
 /* Animal Fixes - Ped Randomizer fixes required for animals to work properly and
@@ -30,10 +33,10 @@ class PedRandomizer_AnimalFixes
     static void
     FixPoodleCrash (CPedWeaponManager *manager)
     {
-        /* This hook fixes the game crashing when a poodle is ran over. For some
-         * reason the only ped that's known to crash is a_c_poddle  */
-
+#define PED_RANDOMIZER_INCLUDE_ALL_PEDS_IN_POODLE_FIX
+#ifdef PED_RANDOMIZER_INCLUDE_ALL_PEDS_IN_POODLE_FIX
         return;
+#endif
 
         if (manager && manager->m_pPed && manager->m_pPed->m_pModelInfo)
             {
@@ -103,6 +106,13 @@ public:
             hook::get_pattern (
                 "75 ? ? 8b ? ? ? ? ? ? 85 c0 74 ? 44 38 60 0f 75", 18),
             2);
+
+        // Birds don't die immediately on hitting anything
+        injector::WriteMemory<uint16_t> (
+            hook::get_pattern (
+                "? 83 ? ? ? ? ? 00 0f 84 ? ? ? ? ? 8b cf e8 ? ? ? ? 8a 4f 36",
+                8),
+            0xe948);
 
         // This hook fixes a crash in CTaskUseScenario, where the ped bounds
         // type and include flags are accessed; In case of fish bounds, these

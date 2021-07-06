@@ -1,4 +1,6 @@
 #include "common/common.hh"
+#include "common/logger.hh"
+
 #include <Random.hh>
 #include <CTimecycle.hh>
 #include <HSL.hh>
@@ -291,9 +293,18 @@ struct WeatherRandomizer_Tunables
                 sscanf (line, " %s %s %n", fieldName, fieldType, &bytesRead);
 
                 if (fieldType == std::string ("FIELD_COL"))
-                    m_ColourFields.emplace_back (fieldName, &line[bytesRead]);
+                    {
+                        m_ColourFields.emplace_back (fieldName,
+                                                     &line[bytesRead]);
+                        if (m_ColourFields.back ().VariableIndex == -1)
+                            m_ColourFields.pop_back ();
+                    }
                 else if (fieldType == std::string ("FIELD"))
-                    m_Fields.emplace_back (fieldName, &line[bytesRead]);
+                    {
+                        m_Fields.emplace_back (fieldName, &line[bytesRead]);
+                        if (m_Fields.back ().VariableIndex == -1)
+                            m_Fields.pop_back ();
+                    }
             }
     }
 

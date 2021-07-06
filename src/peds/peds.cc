@@ -13,7 +13,6 @@
 #include "peds_Streaming.hh"
 #include "peds_PlayerFixes.hh"
 #include "peds_Swapper.hh"
-#include "peds_Stats.hh"
 
 class CPedFactory;
 
@@ -70,9 +69,11 @@ class PedRandomizer
             && IsPlayerModel (CStreaming::GetModelByIndex (model)))
             return model;
 
+#ifdef MOXI_BUILD
         if (scrThread::IsCurrentScriptAddon ()
             && PedRandomizer_Streaming::IsNsfwModel (model))
             return model;
+#endif
 
         // Forced Ped
         if (!Config ().ForcedPed.empty ())
@@ -122,7 +123,6 @@ class PedRandomizer
         PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
         PedRandomizer_PlayerFixes::UpdatePlayerHash ();
         PedRandomizer_PlayerFixes::RandomizeSpecialAbility (ped);
-        PedRandomizer_Stats::AddPedSpawn (newModel);
 
         return ped;
     }

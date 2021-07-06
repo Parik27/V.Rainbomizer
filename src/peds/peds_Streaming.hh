@@ -172,6 +172,7 @@ public:
     static bool
     IsNsfwModel (uint32_t idx)
     {
+        ReadNsfwModelsList ();
         return DoesElementExist (sm_NsfwModels,
                                  CStreaming::GetModelByIndex (idx)->m_nHash);
     }
