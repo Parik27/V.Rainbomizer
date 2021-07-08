@@ -40,7 +40,7 @@ class ScaleformRandomizer
     SetMissionFailInsult (ScaleformMethodStruct::ParamStruct &parameter,
                           bool useLastInsult = false)
     {
-        static const int INSULT_ODDS = 10;
+        static const int INSULT_ODDS = 5;
         ReadInsultsList ();
 
         if (m_MissionFailInsults.empty ())
@@ -124,7 +124,7 @@ class ScaleformRandomizer
             return;
 
         char line[1024] = {0};
-        while (fgets (line, 512, insultsFile))
+        while (fgets (line, 1024, insultsFile))
             {
                 line[strcspn (line, "\n")] = 0;
                 m_MissionFailInsults.push_back (line);

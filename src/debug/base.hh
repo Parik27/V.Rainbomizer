@@ -37,6 +37,7 @@ class DebugInterfaceManager
     inline static std::map<std::string, ActionCallback, std::less<>>
                        sm_ActionCbs;
     inline static bool m_BlockControls;
+    inline static bool m_EnableFloating = false;
 
 public:
     static void
@@ -70,7 +71,7 @@ public:
 
                 if (ImGui::BeginMenu ("Options"))
                     {
-
+                        ImGui::Checkbox ("Floating", &m_EnableFloating);
                         ImGui::EndMenu ();
                     }
 

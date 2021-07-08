@@ -17,11 +17,16 @@
 
 #include <CTheScripts.hh>
 
+#ifdef ENABLE_DEBUG_MENU
+#include <debug/motion.hh>
+#endif
+
 using namespace NativeLiterals;
 
 class PedRandomizer_AnimalMotion
 {
-    inline static bool bForceOriginalMotionNextTime = false;
+    inline static bool     bForceOriginalMotionNextTime = false;
+    inline static uint32_t nPreviousPlayerMotionState   = 0;
 
     /*******************************************************/
     static auto *
@@ -211,6 +216,15 @@ class PedRandomizer_AnimalMotion
         RandomMotionContext ctx (ped, data);
 
         FixAnimalSwimmingCrash (ctx);
+        if (ctx.Ped == CPedFactory::Get ()->pPlayer)
+            {
+                nPreviousPlayerMotionState = ctx.Ped->GetMotionState ();
+
+#ifdef ENABLE_DEBUG_MENU
+                MotionDebugInterface::SetLastKnownPlayerMotionState (
+                    nPreviousPlayerMotionState);
+#endif
+            }
 
         if (auto newMotion = OverrideWaterMotionForAnimals (ctx))
             data = newMotion;
@@ -272,7 +286,7 @@ class PedRandomizer_AnimalMotion
     {
         static bool playerAiming = false;
 
-        if (CPedFactory::Get ()->pPlayer->GetVehicle ())
+        if (nPreviousPlayerMotionState == "motionstate_invehicle"_joaat)
             return false;
 
         if (std::exchange (playerAiming, "IS_AIM_CAM_ACTIVE"_n())

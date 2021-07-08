@@ -12,10 +12,17 @@ class LoggerDebugInterface : public DebugInterface
     void
     Draw () override
     {
+        static bool bAutoscroll;
+
         if (ImGui::Button ("Clear"))
             buf.clear ();
 
+        ImGui::Checkbox ("Autoscroll", &bAutoscroll);
+
         ImGui::TextUnformatted (buf.begin (), buf.end ());
+
+        if (bAutoscroll && ImGui::GetScrollY () >= ImGui::GetScrollMaxY ())
+            ImGui::SetScrollHereY (1.0f);
     }
 
 public:

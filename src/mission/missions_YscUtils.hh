@@ -325,6 +325,12 @@ public:
                         m_Pattern.c_str (), m_PatternOffset);
                     bFailMessagePrinted = true;
                 }
+            else if (nGlobalIdx)
+                {
+                    Rainbomizer::Logger::LogMessage (
+                        "Found offset for global: %s (+%02d), %d",
+                        m_Pattern.c_str (), m_PatternOffset, nGlobalIdx);
+                }
 
             return nGlobalIdx;
         }

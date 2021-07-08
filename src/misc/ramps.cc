@@ -92,8 +92,6 @@ class RampRandomizer
     HandleScriptStart (uint32_t hash)
     {
         InitialiseRamps ();
-
-        Rainbomizer::Logger::LogMessage ("Script start: %x", hash);
         for (auto &i : sm_RampInfos)
             {
                 if (i.Thread == hash)

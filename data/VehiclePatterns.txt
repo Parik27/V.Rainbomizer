@@ -175,7 +175,7 @@ michael3	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N
 michael4	Stretch	4	Y	Y	N	Y	N	Y	N	Y	Y	Y	N	N					
 michael4	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 agency_heist1	Tailgater	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
-agency_heist1	Stanier	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	h=5.0				
+agency_heist1	Stanier	1	Y	Y	Y	Y	Y	Y	Y	N	Y	Y	Y	N	w=15.0+l=15.0+h=5.0				
 agency_heist1	AllVehicles	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 agency_heist2	Zion2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	w=15.0+l=15.0+h=15.0				
 agency_heist3a	Firetruk	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					

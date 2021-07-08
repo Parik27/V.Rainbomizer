@@ -575,6 +575,7 @@ public:
     bool
     Process (scrProgram *program, scrThreadContext *ctx)
     {
+        g_BoardInitStateBitset.Init (program);
         g_CurrentMission.Init (program);
         g_LastPassedMission.Init (program);
         g_LastPassedMissionTime.Init (program);

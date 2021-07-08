@@ -132,7 +132,6 @@ class WeaponRandomizer
             }
 
         InitialiseWeaponWeights ();
-        PrintWeaponList ();
         Rainbomizer::Logger::LogMessage ("Initialised %d valid weapons",
                                          mValidWeapons.size ());
     }
@@ -212,25 +211,6 @@ class WeaponRandomizer
 
         SET_CURRENT_PED_WEAPON784 (ped, mEquipMgr.GetWeaponToEquip (weaponHash),
                                    true);
-    }
-
-    /*******************************************************/
-    static void
-    PrintWeaponList ()
-    {
-        for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
-            {
-                uint32_t outHash = 0;
-                bool     valid
-                    = info->Model
-                      && info->GetClassId (outHash) == "cweaponinfo"_joaat
-                      && IsValidWeapon (*static_cast<CWeaponInfo *> (info));
-
-                Rainbomizer::Logger::LogMessage (
-                    "classId => %x, modelId = %x, name = %x, value = %s",
-                    info->GetClassId (outHash), info->Model, info->Name,
-                    valid ? "true" : "false");
-            }
     }
 
     /*******************************************************/

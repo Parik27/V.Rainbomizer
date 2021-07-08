@@ -69,6 +69,7 @@ class PedRandomizer
             && IsPlayerModel (CStreaming::GetModelByIndex (model)))
             return model;
 
+#define MOXI_BUILD
 #ifdef MOXI_BUILD
         if (scrThread::IsCurrentScriptAddon ()
             && PedRandomizer_Streaming::IsNsfwModel (model))

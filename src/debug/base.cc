@@ -26,7 +26,7 @@ DebugInterfaceManager::RunThreadHook (uint64_t *stack, uint64_t *globals,
             i->Process (stack, globals, program, ctx);
         }
 
-    if (m_BlockControls)
+    if (m_BlockControls && !m_EnableFloating)
         "DISABLE_ALL_CONTROL_ACTIONS"_n(0);
 }
 

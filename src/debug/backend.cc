@@ -104,8 +104,6 @@ class DebugServerBackend
             {
                 if (wParam == VK_F9)
                     {
-                        Rainbomizer::Logger::LogMessage ("F9 pressed");
-
                         bIsOpen                         = !bIsOpen;
                         ImGui::GetIO ().MouseDrawCursor = bIsOpen;
                         DebugInterfaceManager::SetControlsBlocked (bIsOpen);
