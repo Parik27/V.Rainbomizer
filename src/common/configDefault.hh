@@ -31,11 +31,11 @@ CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
-MusicRandomizer = true
+#MusicRandomizer = true
 WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
-HandlingRandomizer = true
+HandlingRandomizer = false
 
 #######################################################
 [ColourRandomizer]
@@ -53,6 +53,8 @@ LogSpawnedVehicles = false # Logs all the spawned script vehicles
 
 RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
+
+TunableFile = "Timecyc/Default.txt"
 
 # CrazyMode = false # Not recommended, makes the game invisible.
 
@@ -80,5 +82,5 @@ ForcedPed = ""
 ForcedClipset = ""
 
 EnableNSFWModels = false
-UseCutsceneModelsFile = false
+UseCutsceneModelsFile = true
 )";

@@ -57,4 +57,8 @@ public:
         REGISTER_HOOK ("8b f0 e8 ? ? ? ? 8a 54 ? ? 88 54", 2, RandomizeMusic,
                        rage::Sound *, audMetadataMgr *, uint32_t);
     }
-} music;
+}
+#ifdef ENABLE_MUSIC_RANDOMIZER
+music
+#endif
+    ;

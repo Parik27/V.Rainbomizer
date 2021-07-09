@@ -1,4 +1,7 @@
 #Thread	Model	PosX	PosY	PosZ	RotX	RotY	RotZ
 finale_heist_prepa	stt_prop_ramp_jump_xs	400.1	-1611.5	28.2919	0	0	49.1
 docks_setup	stt_prop_stunt_jump_loop	8.18598	-2542.3	11.455	0	0	-28.396
-armenian3	stt_prop_ramp_jump_xs	-810.946	160.515	71.2564	4.627	-9.001	18.905
+#armenian3	stt_prop_ramp_jump_xs	-810.946	160.515	71.2564	4.627	-9.001	18.905
+family2	prop_fnclink_02l	-2016.82	-1040.94	1.54198	-92.314	13.593	22.782
+armenian3	prop_fnclink_02l	-811.617	161.7	75.3843	90.714	17.849	-157.337
+armenian3	prop_fnclink_02l	-818.868	159.406	72.1768	90.714	17.849	-157.337

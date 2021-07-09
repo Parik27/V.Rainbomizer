@@ -468,12 +468,29 @@ MissionRandomizer_Flow::SetHeistFlowControlVariables ()
 }
 
 /*******************************************************/
+bool
+MissionRandomizer_Flow::ShouldSetVariables (scrThreadContext *ctx)
+{
+    if (!RandomizedMission || !OriginalMission)
+        return false;
+
+    if (ctx->m_nScriptHash == RandomizedMission->nHash)
+        return true;
+
+    switch (ctx->m_nScriptHash)
+        {
+        case "selector"_joaat:
+        case "building_controller"_joaat: return true;
+        }
+
+    return false;
+}
+
+/*******************************************************/
 void
 MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
 {
-    if (!RandomizedMission || !OriginalMission
-        || (ctx->m_nScriptHash != RandomizedMission->nHash
-            && ctx->m_nScriptHash != "selector"_joaat))
+    if (!ShouldSetVariables (ctx))
         return;
 
     MR::sm_Globals.g_CurrentMission.Set (RandomizedMission->nId);
@@ -485,9 +502,7 @@ MissionRandomizer_Flow::SetVariables (scrThreadContext *ctx)
 void
 MissionRandomizer_Flow::ClearVariables (scrThreadContext *ctx)
 {
-    if (!RandomizedMission || !OriginalMission
-        || (ctx->m_nScriptHash != RandomizedMission->nHash
-            && ctx->m_nScriptHash != "selector"_joaat))
+    if (!ShouldSetVariables (ctx))
         return;
 
     MR::sm_Order.ReapplyRandomMissionInfo (MR::sm_Globals.g_CurrentMission);

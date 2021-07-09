@@ -58,6 +58,7 @@ class MissionRandomizer_Flow
     void SetHeistFlowControlVariablesForMission ();
 
 public:
+    bool ShouldSetVariables (scrThreadContext *ctx);
     void SetVariables (scrThreadContext *ctx);
     void ClearVariables (scrThreadContext *ctx);
 
