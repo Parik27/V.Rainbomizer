@@ -83,8 +83,9 @@ class TextCaseRandomizer
                                 if (c == '~')
                                     inModifier = !inModifier;
 
-                                if ((c >= 'a' && c <= 'z')
-                                    || (c >= 'A' && c <= 'Z') && !inModifier)
+                                if (((c >= 'a' && c <= 'z')
+                                     || (c >= 'A' && c <= 'Z'))
+                                    && !inModifier)
                                     {
                                         c = static_cast<char> (
                                             (RandomInt (1)) ? std::toupper (c)

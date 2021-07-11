@@ -1,3 +1,5 @@
+#include <common/config.hh>
+
 #include "Utils.hh"
 
 #include "common/logger.hh"
@@ -44,6 +46,9 @@ class NewsRandomizer
 public:
     NewsRandomizer ()
     {
+        if (!ConfigManager::ReadConfig ("RainbomizerNews"))
+            return;
+
         REGISTER_HOOK ("41 b8 80 00 00 00 ? 8b ce e8 ? ? ? ? ? 8b f8 ", 9,
                        SetRainbowDomain, char *, char *, char *, uint32_t);
 

@@ -57,6 +57,16 @@ private:
     std::vector<ValueGroup> m_Groups;
 
     /*******************************************************/
+    bool
+    IsModelValid (Type hash)
+    {
+        if (ValidateFunction == nullptr)
+            return true;
+
+        return ValidateFunction (hash);
+    }
+
+    /*******************************************************/
     void
     Initialise ()
     {
@@ -81,17 +91,18 @@ private:
                 double weight     = 1.0;
                 char   model[256] = {0};
 
-                sscanf (line, "%s %lf", model, &weight);
-                if (fabs (weight - 1.0) > 0.1)
-                    Rainbomizer::Logger::LogMessage ("%s => %lf", model,
-                                                     weight);
+                sscanf (line, "%s %lf ", model, &weight);
 
                 Type value = rage::atStringHash (model);
-                if (!ValidateFunction || ValidateFunction (value))
+
+                if (IsModelValid (value))
                     {
                         m_Groups.back ().Values.push_back (value);
                         m_Groups.back ().Weights.push_back (weight);
                     }
+                else
+                    Rainbomizer::Logger::LogMessage ("Invalid model: %s",
+                                                     model);
             }
     }
 

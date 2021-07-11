@@ -68,6 +68,8 @@ It can be opened and modified with a text editing program such as Notepad++. Any
 #### Beta Testers
 
 - [Gibstack](https://www.twitch.tv/gibstack)
+- [Hugo_One](https://www.twitch.tv/hugo\_one)
+- [mo_xi](https://www.twitch.tv/mo\_xi)
 - [SpeedyFolf](https://www.twitch.tv/speedyfolf)
 
 <span id="contribute"></span>

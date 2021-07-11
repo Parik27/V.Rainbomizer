@@ -20,7 +20,7 @@ class RampRandomizer
         uint32_t Thread;
         uint32_t Model;
         Vector3  Pos;
-        Vector3  Rot;
+        Vector4  Rot;
         uint32_t ObjectHandle = -1;
 
         /*******************************************************/
@@ -46,7 +46,7 @@ class RampRandomizer
                 = "CREATE_OBJECT_NO_OFFSET"_n(Model, Pos.x, Pos.y, Pos.z, false,
                                               false, false);
 
-            "SET_ENTITY_ROTATION"_n(ObjectHandle, Rot.x, Rot.y, Rot.z, 1, true);
+            "SET_ENTITY_QUATERNION"_n(ObjectHandle, Rot.x, Rot.y, Rot.z, Rot.w);
         }
     };
 
@@ -75,10 +75,10 @@ class RampRandomizer
                 char ThreadName[256] = {0};
                 char ModelName[256]  = {0};
 
-                if (sscanf (line, "%s %s %f %f %f %f %f %f", ThreadName,
+                if (sscanf (line, "%s %s %f %f %f %f %f %f %f", ThreadName,
                             ModelName, &info.Pos.x, &info.Pos.y, &info.Pos.z,
-                            &info.Rot.x, &info.Rot.y, &info.Rot.z)
-                    != 8)
+                            &info.Rot.x, &info.Rot.y, &info.Rot.z, &info.Rot.w)
+                    != 9)
                     continue;
 
                 info.Thread = rage::atStringHash (ThreadName);

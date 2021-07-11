@@ -22,6 +22,9 @@ const char configDefault[] = R"(
 # General Configuration
 [Randomizers]
 
+RainbomizerNews = true
+RainbomizerCredits = true
+
 TrafficRandomizer = true
 DispatchRandomizer = true
 ColourRandomizer = true
@@ -31,11 +34,11 @@ CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
-#MusicRandomizer = true
 WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
+#MusicRandomizer = true
 
 #######################################################
 [ColourRandomizer]

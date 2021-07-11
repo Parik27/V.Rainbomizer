@@ -24,8 +24,9 @@ static std::array g_RainbomizerCreditsList
        CCreditItem{eCreditLineType::SPACE_MED},
        CCreditItem{eCreditLineType::JOB_MED, "Beta Testers"},
        CCreditItem{eCreditLineType::NAME_BIG, "Gibstack"},
+       CCreditItem{eCreditLineType::NAME_BIG, "Hugo_One"},
+       CCreditItem{eCreditLineType::NAME_BIG, "mo_xi"},
        CCreditItem{eCreditLineType::NAME_BIG, "SpeedyFolf"},
-       CCreditItem{eCreditLineType::NAME_BIG, "Parik"},
        CCreditItem{eCreditLineType::SPACE_MED},
        CCreditItem{eCreditLineType::SPACE_BIG}};
 
@@ -109,24 +110,29 @@ class RainbomizerCredits
     static char *
     FixJobTitles (CText *tex, char *label)
     {
-        Rainbomizer::Logger::LogMessage (label);
-
         char *ret = CText__GetText (tex, label);
-        return label;
+
+        if (!ret || ret[0] == '\0')
+            return label;
+
+        return ret;
     }
 
 public:
     RainbomizerCredits ()
     {
-        if (true)
+        if (!ConfigManager::ReadConfig ("RainbomizerCredits"))
             return;
 
         REGISTER_HOOK ("0f 29 ? ? e8 ? ? ? ? 45 33 f6 44 38 35 ? ? ? ? 0f 84",
                        4, ReplaceCreditsArray, void, void *);
 
-        REGISTER_HOOK ("e8 ? ? ? ? eb ? 66 44 39 74 03 10 74 ? ? 8b 44 03 08 "
-                       "eb ? ? 8d 05 ? ? ? ? f3 0f 10 0d ? ? ? ? f3 0f 10",
-                       0, FixJobTitles, char *, CText *, char *);
+        REGISTER_HOOK (
+            "e8 ? ? ? ? eb ? 66 44 39 74 03 10 74 ? ? 8b 44 03 08 eb ? ? 8d 05 "
+            "? ? ? ? f3 0f 10 05 ? ? ? ? f3 0f 10 55 7c f3 0f 10 4d 78 ? 8d 4d "
+            "68 be 01 00 00 00 ? 8b ? 40 88 74 ? 30 f3 0f 11 44 ? 28 f3 0f 10 "
+            "05 ? ? ? ? ? 89 4c ? 20",
+            0, FixJobTitles, char *, CText *, char *);
 
         REGISTER_HOOK_JMP (
             "8d 0d ? ? ? ? ? 8d ? ? 20 01 00 00 ? 8b ? ? 41 0f 28 ? ? 41 0f 28 "

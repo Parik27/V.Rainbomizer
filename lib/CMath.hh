@@ -59,5 +59,5 @@ typedef Vector3_t<float> Vector3;
 
 struct Vector4 : Vector3
 {
-    float __pad;
+    float w;
 };
