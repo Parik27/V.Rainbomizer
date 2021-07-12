@@ -15,6 +15,7 @@
 #include "vehicle_common.hh"
 #include "common/config.hh"
 #include <CPools.hh>
+#include <CTheScripts.hh>
 
 #ifdef ENABLE_DEBUG_MENU
 #include "debug/base.hh"
@@ -251,19 +252,35 @@ class ScriptVehicleRandomizer
             .Activate ();
     }
 
+    /* This function makes it so the force applied to the vehicle at the end of
+     * finalec2 is high enough so that it doesn't get stuck */
+    /*******************************************************/
+    static void
+    FixFinaleC2Physics (scrThread::Info *info)
+    {
+        if (scrThread::CheckActiveThread ("finalec2"_joaat))
+            info->GetArg<float> (4) = 75.0f;
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
+#define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func, true> ()
+
         if (!ConfigManager::ReadConfig (
                 "ScriptVehicleRandomizer",
                 std::pair ("LogSpawnedVehicles",
                            &Config ().LogSpawnedVehicles)))
             return;
 
+        HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
+
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
+
+#undef HOOK
     }
 };
 

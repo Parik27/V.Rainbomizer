@@ -36,12 +36,15 @@ class PedRandomizer
     {
         static struct Config
         {
-            std::string ForcedPed             = "";
-            std::string ForcedClipset         = "";
-            uint32_t    ForcedPedHash         = -1;
-            bool        EnableNSFWModels      = false;
-            bool        RandomizePlayer       = true;
-            bool        UseCutsceneModelsFile = false;
+            std::string ForcedPed               = "";
+            std::string ForcedClipset           = "";
+            uint32_t    ForcedPedHash           = -1;
+            bool        EnableNSFWModels        = false;
+            bool        RandomizePlayer         = true;
+            bool        RandomizePeds           = true;
+            bool        RandomizeSpecialAbility = true;
+            bool        IncludeUnusedAbilities  = false;
+            bool        UseCutsceneModelsFile   = true;
         } m_Config;
 
         return m_Config;
@@ -62,18 +65,29 @@ class PedRandomizer
     }
 
     /*******************************************************/
+    static bool
+    ShouldRandomizePedModel (uint32_t model)
+    {
+        if (IsPlayerModel (CStreaming::GetModelByIndex (model)))
+            {
+                if (!Config ().RandomizePlayer)
+                    return false;
+            }
+        else if (!Config ().RandomizePeds)
+            return false;
+
+        if (PedRandomizer_Streaming::IsPedBlacklisted (model))
+            return false;
+
+        return true;
+    }
+
+    /*******************************************************/
     static uint32_t
     GetRandomPedModel (uint32_t model)
     {
-        if (!Config ().RandomizePlayer
-            && IsPlayerModel (CStreaming::GetModelByIndex (model)))
+        if (!ShouldRandomizePedModel (model))
             return model;
-
-#ifdef MOXI_BUILD
-        if (scrThread::IsCurrentScriptAddon ()
-            && PedRandomizer_Streaming::IsNsfwModel (model))
-            return model;
-#endif
 
         // Forced Ped
         if (!Config ().ForcedPed.empty ())
@@ -122,7 +136,9 @@ class PedRandomizer
         PedRandomizerCompatibility::SetRandomizingPed (nullptr);
         PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
         PedRandomizer_PlayerFixes::UpdatePlayerHash ();
-        PedRandomizer_PlayerFixes::RandomizeSpecialAbility (ped);
+        PedRandomizer_PlayerFixes::SetSpecialAbility (
+            ped, Config ().RandomizeSpecialAbility,
+            Config ().IncludeUnusedAbilities);
 
         return ped;
     }
@@ -167,9 +183,14 @@ public:
         if (!ConfigManager::ReadConfig (
                 "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
                 std::pair ("RandomizePlayer", &Config ().RandomizePlayer),
+                std::pair ("RandomizePeds", &Config ().RandomizePeds),
                 std::pair ("UseCutsceneModelsFile",
                            &Config ().UseCutsceneModelsFile),
-                std::pair ("ForcedClipset", &Config ().ForcedClipset)))
+                std::pair ("ForcedClipset", &Config ().ForcedClipset),
+                std::pair ("RandomizeSpecialAbility",
+                           &Config ().RandomizeSpecialAbility),
+                std::pair ("IncludeUnusedAbilities",
+                           &Config ().IncludeUnusedAbilities)))
             return;
 
         if (Config ().ForcedPed.size ())

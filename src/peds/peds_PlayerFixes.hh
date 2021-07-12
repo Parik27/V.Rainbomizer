@@ -15,6 +15,9 @@
 #include <rage.hh>
 #include <utility>
 
+#include <CTheScripts.hh>
+#include <CStreaming.hh>
+
 #include "common/ysc.hh"
 
 struct fwRefAwareBase;
@@ -27,11 +30,15 @@ class PedRandomizer_PlayerFixes
 {
     inline static bool                           sm_Initialised = false;
     inline static std::array<CModelIndices *, 3> sm_PlayerIdxPtr;
+    inline static std::array<uint32_t, 3>        sm_OrigPlayerAbility;
 
     /*******************************************************/
     static int
-    GetRandomSpecialAbility ()
+    GetRandomSpecialAbility (bool unused)
     {
+        if (!unused)
+            return GetRandomElement (sm_OrigPlayerAbility);
+
         static unsigned int numSpecialAbilities = 0;
         if (numSpecialAbilities == 0)
             {
@@ -197,7 +204,7 @@ public:
         // Hook to reset the saved player model during saving to make sure
         // you don't get a random player on loading without Rainbomizer and
         // (more importantly) to prevent softlocks and crashes this causes.
-        // Pattern from Robot (insert u word here)
+        // Pattern from Robot (don't insert u word here)
         REGISTER_JMP_HOOK (12,
                            "? 89 5c ? ? 55 56 57 41 54 41 55 41 56 41 57 ? 8d "
                            "? ? d9 ? 81 ec 90 00 00 00 ? 8b ? ? ? ? ? 33 f6 ? "
@@ -227,14 +234,79 @@ public:
                            RemoveJewelrySetupClothesRequirement);
         YscCodeEdits::Add ("Remove Michael4 Clothes Requirement",
                            RemoveMichael4ClothesRequirement);
+
+#define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func> ()
+        HOOK ("SPECIAL_ABILITY_UNLOCK", FixSpecialAbilityLock);
+        HOOK ("SPECIAL_ABILITY_LOCK", FixSpecialAbilityLock);
+#undef HOOK
     }
 
     /*******************************************************/
     static void
-    RandomizeSpecialAbility (CPed *ped)
+    InitSpecialAbilityValues ()
     {
+        static bool bInitialised = false;
+        if (std::exchange (bInitialised, true))
+            return;
+
+        InitialisePlayerIndicesPointers ();
+
+        int i = 0;
+        for (auto hash :
+             {"player_zero"_joaat, "player_one"_joaat, "player_two"_joaat})
+            {
+                auto *model = CStreaming::GetModelByIndex<CPedModelInfo> (
+                    GetPlayerModelIndexPtr (hash)->nIndex);
+
+                sm_OrigPlayerAbility[i++]
+                    = model->GetInitInfo ().m_nSpecialAbility;
+            }
+    }
+
+    /*******************************************************/
+    static unsigned int
+    GetOrigSpecialAbility (CPed *ped)
+    {
+        InitSpecialAbilityValues ();
+        auto *model = PedRandomizerCompatibility::GetOriginalModel (ped);
+        if (!model)
+            return 0;
+
+        switch (model->m_nHash)
+            {
+            case "player_zero"_joaat: return sm_OrigPlayerAbility[0];
+            case "player_one"_joaat: return sm_OrigPlayerAbility[1];
+            case "player_two"_joaat: return sm_OrigPlayerAbility[2];
+            }
+
+        return 0;
+    }
+
+    /*******************************************************/
+    static void
+    SetSpecialAbility (CPed *ped, bool randomize, bool unused)
+    {
+        InitSpecialAbilityValues ();
         auto model = static_cast<CPedModelInfo *> (ped->m_pModelInfo);
-        model->GetInitInfo ().m_nSpecialAbility = GetRandomSpecialAbility ();
+        if (randomize)
+            model->GetInitInfo ().m_nSpecialAbility
+                = GetRandomSpecialAbility (unused);
+        else
+            model->GetInitInfo ().m_nSpecialAbility
+                = GetOrigSpecialAbility (ped);
+    }
+
+    /*******************************************************/
+    static void
+    FixSpecialAbilityLock (scrThread::Info *info, bool before)
+    {
+        if (before)
+            {
+                InitialisePlayerIndicesPointers ();
+                ResetPlayerHashChanges ();
+            }
+        else
+            UpdatePlayerHash ();
     }
 
     /*******************************************************/

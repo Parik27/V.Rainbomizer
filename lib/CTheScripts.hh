@@ -105,6 +105,17 @@ public:
 
 class NativeCallbackMgr
 {
+    using CombinedCallbackFunc = void (*) (scrThread::Info *, bool);
+
+    template <uint32_t hash, CombinedCallbackFunc cb>
+    static void
+    Trampoline (scrThread::Info *info)
+    {
+        cb (info, true);
+        NativeManager::InvokeNative (hash, info);
+        cb (info, false);
+    }
+
     template <uint32_t hash, NativeManager::NativeFunc cb, bool before>
     static void
     Trampoline (scrThread::Info *info)
@@ -121,9 +132,16 @@ class NativeCallbackMgr
 public:
     template <uint32_t hash, NativeManager::NativeFunc cb, bool before>
     static void
-    InitCallback ()
+    Add ()
     {
         NativeManager::HookNative (hash, Trampoline<hash, cb, before>);
+    }
+
+    template <uint32_t hash, CombinedCallbackFunc cb>
+    static void
+    Add ()
+    {
+        NativeManager::HookNative (hash, Trampoline<hash, cb>);
     }
 };
 

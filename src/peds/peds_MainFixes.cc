@@ -77,18 +77,6 @@ class PedRandomizer_MainFixes
         info->GetArg<bool> (1) = true;
     }
 
-    // Most important function ever written by 123robot
-    // Literally can't complete game without it Kappa
-    // Unless you have Mission Randomizer and don't get that mission Kappa
-    /*******************************************************/
-    static void
-    FixFinaleC2OrWhateverKappa (scrThread::Info *info)
-    {
-        if (scrThread::GetActiveThread ()->m_Context.m_nScriptHash
-            == "finalec2"_joaat)
-            info->GetArg<float> (4) = 75.0f;
-    }
-
 public:
     /*******************************************************/
     PedRandomizer_MainFixes ()
@@ -97,12 +85,10 @@ public:
         "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
         "IS_PED_MODEL"_n.Hook (FixIsPedModelNative);
 
-#define HOOK(native, func)                                                     \
-    NativeCallbackMgr::InitCallback<native##_joaat, func, true> ()
+#define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func, true> ()
 
         HOOK ("SET_PED_AI_BLIP_NOTICE_RANGE", AdjustAiBlipNoticeRange);
         HOOK ("SET_PED_AI_BLIP_FORCED_ON", AdjustAiBlipForcedOn);
-        HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2OrWhateverKappa);
 
         REGISTER_HOOK (
             "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,

@@ -592,8 +592,7 @@ public:
     void
     Initialise ()
     {
-#define HOOK(native, func)                                                     \
-    NativeCallbackMgr::InitCallback<native##_joaat, func, true> ()
+#define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func, true> ()
 #define s_StoreSaveGlobals(...) StoreSaveGlobals<__VA_ARGS__>
 
         HOOK ("REGISTER_BOOL_TO_SAVE", s_StoreSaveGlobals (bool));

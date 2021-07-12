@@ -22,7 +22,9 @@ class PedRandomizer_Streaming
     inline static auto sm_LastStreamedPedTime = time (NULL);
 
     inline static std::vector<uint32_t> sm_NsfwModels;
-    inline static bool                  sm_NsfwModelsInitialised = false;
+    inline static std::vector<uint32_t> sm_BlacklistModels;
+    inline static bool                  sm_NsfwModelsInitialised      = false;
+    inline static bool                  sm_BlacklistModelsInitialised = false;
 
     /*******************************************************/
     static uint32_t
@@ -60,14 +62,14 @@ class PedRandomizer_Streaming
 
     /*******************************************************/
     static void
-    ReadNsfwModelsList ()
+    ReadModelsList (const std::string &file, std::vector<uint32_t> &out,
+                    bool &outInitialised)
     {
-        if (sm_NsfwModelsInitialised)
+        if (outInitialised)
             return;
-        sm_NsfwModelsInitialised = true;
+        outInitialised = true;
 
-        FILE *f
-            = Rainbomizer::Common::GetRainbomizerDataFile ("NSFW_Models.txt");
+        FILE *f = Rainbomizer::Common::GetRainbomizerDataFile (file);
 
         if (!f)
             return;
@@ -76,7 +78,7 @@ class PedRandomizer_Streaming
         while (fgets (line, 256, f))
             {
                 line[strcspn (line, "\n")] = 0;
-                sm_NsfwModels.push_back (rage::atStringHash (line));
+                out.push_back (rage::atStringHash (line));
             }
     }
 
@@ -109,7 +111,10 @@ class PedRandomizer_Streaming
             }
 
         // Remove NSFW models
-        if (!includeNsfw && (ReadNsfwModelsList (), true))
+        if (!includeNsfw
+            && (ReadModelsList ("NSFW_Models.txt", sm_NsfwModels,
+                                sm_NsfwModelsInitialised),
+                true))
             for (auto hash : sm_NsfwModels)
                 peds.erase (CStreaming::GetModelIndex (hash));
     }
@@ -170,10 +175,11 @@ public:
 
     /*******************************************************/
     static bool
-    IsNsfwModel (uint32_t idx)
+    IsPedBlacklisted (uint32_t idx)
     {
-        ReadNsfwModelsList ();
-        return DoesElementExist (sm_NsfwModels,
+        ReadModelsList ("PedsBlacklist.txt", sm_BlacklistModels,
+                        sm_BlacklistModelsInitialised);
+        return DoesElementExist (sm_BlacklistModels,
                                  CStreaming::GetModelByIndex (idx)->m_nHash);
     }
 

@@ -38,7 +38,6 @@ WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
-#MusicRandomizer = true
 
 #######################################################
 [ColourRandomizer]
@@ -59,7 +58,7 @@ RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
 
 TunableFile = "Timecyc/Default.txt"
 
-# CrazyMode = false # Not recommended, makes the game invisible.
+RandomizeEveryFade = true
 
 #######################################################
 [VoiceLineRandomizer]
@@ -80,6 +79,10 @@ EnableFastSkips = false # Mission skips will be enabled after failing the missio
 [PedRandomizer]
 
 RandomizePlayer = true
+RandomizePeds = true
+
+RandomizeSpecialAbility = true
+IncludeUnusedAbilities = false # sprint boost, aimbot and two abilities that don't work (+ any other R* may decide to add and not use in the future).
 
 ForcedPed = ""
 ForcedClipset = ""

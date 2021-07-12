@@ -26,6 +26,7 @@ class WeatherRandomizer
             bool        RandomizeWeather   = true;
             bool        RandomizeTimecycle = true;
             bool        CrazyMode          = false;
+            bool        RandomizeEveryFade = true;
             std::string TunableFile        = "Timecyc/Default.txt";
         } sm_Config;
 
@@ -96,42 +97,24 @@ class WeatherRandomizer
     static void
     RandomizeTimecycles (bool restoreTimecycles)
     {
-        const int       COOLDOWN_TIME      = 60;
-        static uint32_t nLastRandomization = time (NULL);
-
         // Shouldn't happen? But maybe for like future updates if (unlikely) the
         // offset for pTimecycles changes.
         if (!tcManager::g_timeCycle->pTimecycles)
             return;
 
-#define ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
-
-#ifdef ENABLE_TIMECYCLE_RANDOM_COOLDOWN
-        if (time (NULL) - nLastRandomization > COOLDOWN_TIME
-            && restoreTimecycles)
-            return;
-
-        nLastRandomization = time (NULL);
-#endif
-
-#ifdef ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
         static std::future<void> future;
 
         if (future.valid ())
             future.wait ();
 
         future = std::async (std::launch::async, [restoreTimecycles] {
-#endif
             if (restoreTimecycles)
                 WeatherRandomizer_TunableManager::RestoreOriginalTimecycles ();
 
             WeatherRandomizer_TunableManager::Initialise (
                 Config ().TunableFile);
             WeatherRandomizer_TunableManager::Randomize ();
-
-#ifdef ENABLE_TIMECYCLE_ASYNC_RANDOMIZATION
         });
-#endif
     }
 
 public:
@@ -142,7 +125,9 @@ public:
                 "WeatherRandomizer",
                 std::pair ("RandomizeWeather", &Config ().RandomizeWeather),
                 std::pair ("RandomizeTimecycle", &Config ().RandomizeTimecycle),
-                std::pair ("TunableFile", &Config ().TunableFile)))
+                std::pair ("TunableFile", &Config ().TunableFile),
+                std::pair ("RandomizeEveryFade",
+                           &Config ().RandomizeEveryFade)))
             return;
 
         InitialiseAllComponents ();
@@ -157,15 +142,19 @@ public:
         if (Config ().RandomizeWeather)
             {
                 Rainbomizer::Events ().OnInit += std::bind (RandomizeWeather);
-                Rainbomizer::Events ().OnFade += RandomizeWeather;
+
+                if (Config ().RandomizeEveryFade)
+                    Rainbomizer::Events ().OnFade += RandomizeWeather;
             }
 
         if (Config ().RandomizeTimecycle)
             {
                 Rainbomizer::Events ().OnInit
                     += std::bind (RandomizeTimecycles, false);
-                Rainbomizer::Events ().OnFade
-                    += std::bind (RandomizeTimecycles, true);
+
+                if (Config ().RandomizeEveryFade)
+                    Rainbomizer::Events ().OnFade
+                        += std::bind (RandomizeTimecycles, true);
             }
     }
 } _weather;
