@@ -12,6 +12,8 @@ armenian2	Bagger	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N
 armenian2	Bison	1	Y	Y	Y	Y	Y	Y	N	Y	N	Y	N	N	w=4.0+l=9.0+h=4.0				
 armenian2	Penumbra	1	Y	Y	Y	Y	Y	Y	N	Y	N	Y	N	N					
 armenian3	Bjxl	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
+armenian3	Tailgater	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
+armenian3	Premier	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
 franklin0	Speedo	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	no_rotors				
 family1	Sentinel2	2	N	N	N	N	N	N	N	N	N	N	N	N					
 family1	Phantom	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Tr3				
@@ -154,6 +156,8 @@ finale_heist2b	Frogger	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N
 finale_heist2b	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N					
 finale_heist2b	Police3	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finale_heist2b	Fbi2	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	N	N					
+finale_heist2b	Polmav	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	N	N					
+finale_heist2b	Police	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finale_heist2b	AllVehicles	4	Y	N	N	N	N	N	N	N	N	Y	N	N	x=-166+y=-621+z=31				
 michael1	Tailgater	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 michael1	Cuban800	1	N	N	N	N	C	C	C	N	N	C	N	N	w=20.0+l=21.0+h=3.0+flying	13	-48.5	0	
@@ -298,9 +302,9 @@ mission_triggerer_d	Gauntlet	1	N	N	N	N	N	N	N	N	N	N	N	N
 mission_triggerer_a	Baller	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=5				
 mission_triggerer_a	Schwarzer	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=5				
 mission_triggerer_a	Bullet	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=5				
-mission_triggerer_a	Bjxl	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
-mission_triggerer_a	Taligate	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
-mission_triggerer_a	Premier	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
+mission_triggerer_a	Bjxl	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
+mission_triggerer_a	Tailgater	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
+mission_triggerer_a	Premier	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
 mission_triggerer_a	Bison2	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 freemode	Kosatka	1	N	N	N	N	N	N	N	N	N	N	N	N					
 launcher_racing	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+no_rotors				
@@ -323,3 +327,5 @@ re_drunkdriver	Baller2	4	Y	Y	N	N	N	Y	N	N	N	Y	N	N
 bailbond1	Landstalker	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 bailbond2	Bison	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
 bailbond2	Bison2	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
+vehicle_gen_controller	Buffalo2	4	N	N	N	N	N	N	N	N	N	N	N	N					
+vehicle_gen_controller	Bagger	2	N	N	N	N	N	N	N	N	N	N	N	N					

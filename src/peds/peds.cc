@@ -99,14 +99,19 @@ class PedRandomizer
                     return id;
 
                 CStreaming::RequestModel (id, 0);
-                return model;
+                CStreaming::LoadAllObjects (false);
+
+                if (!CStreaming::HasModelLoaded (id))
+                    return model;
+
+                return id;
             }
 
         // Random Ped
         uint32_t randomPed = PedRandomizer_Streaming::GetRandomLoadedPed (
             Config ().EnableNSFWModels);
 
-        if (randomPed != -1)
+        if (randomPed != -1u)
             return randomPed;
 
         return model;

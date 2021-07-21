@@ -17,7 +17,6 @@
 #include "sysMemoryAllocator.hh"
 #include "ParserUtils.hh"
 #include "CHandlingDataMgr.hh"
-#include "CLoadingScreens.hh"
 #include "phBound.hh"
 #include "CTask.hh"
 #include "CModelIndices.hh"
@@ -130,7 +129,6 @@ InitialiseAllComponents ()
     tcManager::InitialisePatterns ();
     sysUseAllocator::InitialisePatterns ();
     CHandlingDataMgr::InitialisePatterns ();
-    CLoadingScreens::InitialisePatterns ();
     phBound::InitialisePatterns ();
     aiTask::InitialisePatterns ();
     CModelIndices::InitialisePatterns ();

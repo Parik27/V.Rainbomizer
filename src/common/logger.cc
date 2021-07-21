@@ -103,9 +103,9 @@ class DisplayBuildVersion
 public:
     DisplayBuildVersion ()
     {
-        RegisterHook (
-            "? 8d ? ? ? ? ? ? 8d ? ? 30 ? 8b c0 e8 ? ? ? ? ? 8d ? ? 30 b2 01",
-            15, rage__formatf6eb9, AppendBuildVersion);
+        RegisterHook ("8d ? ? ? ? ? ? 8d ? ? ? ? 8b c0 e8 ? ? ? ? ? 8d ? ? ? "
+                      "b2 01 e8 ? ? ? ? ? 8d ",
+                      14, rage__formatf6eb9, AppendBuildVersion);
     }
 } _display;
 

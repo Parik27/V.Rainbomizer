@@ -89,7 +89,7 @@ public:
     {
         for (CItemInfo *i : CWeaponInfoManager::sm_Instance->aItemInfos)
             {
-                if (i->Model != -1 && i->Model)
+                if (i->Model != -1u && i->Model)
                     sm_WeaponModelRandomizer.RandomizeObject (i->Name,
                                                               i->Model);
 

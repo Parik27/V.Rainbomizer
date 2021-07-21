@@ -41,7 +41,7 @@ public:
     Set (uint32_t hash, bool value)
     {
         uint32_t translated = Translate (hash);
-        if (translated != -1)
+        if (translated != -1u)
             pData->Set (translated, value);
     }
 

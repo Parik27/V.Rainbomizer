@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1.5)
 project(rainbomizer_v)
 
+include(cmake/Minhook.cmake)
+
 option(ENABLE_DEBUG_MENU "Enables an imgui-menu for debugging purposes")
 
 # C++20
@@ -46,7 +48,7 @@ endif()
 
 # Properties
 set_target_properties("rainbomizer" PROPERTIES SUFFIX ".asi")
-target_link_libraries("rainbomizer" PUBLIC dbghelp)
+target_link_libraries("rainbomizer" PUBLIC dbghelp minhook)
 target_compile_definitions("rainbomizer" PUBLIC NOMINMAX)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 

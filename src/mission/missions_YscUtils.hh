@@ -381,6 +381,7 @@ public:
             case YscOpCode::ILT_JZ:
             case YscOpCode::ILE_JZ:
                 pPatternResult += *Get<uint16_t> (offset + 1) + (offset + 3);
+                break;
 
             default: bOperationFailed = true; break;
             }

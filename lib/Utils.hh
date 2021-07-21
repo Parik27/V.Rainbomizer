@@ -7,6 +7,7 @@
 #include <vector>
 #include <utility>
 #include <optional>
+#include <algorithm>
 
 template <typename Func, typename Addr>
 void

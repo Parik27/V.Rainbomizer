@@ -11,7 +11,6 @@
 #include <regex>
 #include <string.h>
 #include <utility>
-#include <vcruntime_string.h>
 
 class NewsRandomizer
 {

@@ -101,7 +101,7 @@ struct WeatherRandomizer_Tunables
 
         Data (char *fieldName, char *data)
         {
-            uint32_t bytesRead  = 0;
+            int bytesRead       = 0;
             this->VariableIndex = GetIndexFromFieldName (fieldName);
 
             sscanf (&data[bytesRead], " %d %n", &Type, &bytesRead);
@@ -251,7 +251,7 @@ struct WeatherRandomizer_Tunables
 
         DataColour (char *fieldName, char *data)
         {
-            uint32_t bytesRead  = 0;
+            int bytesRead       = 0;
             this->VariableIndex = GetIndexFromFieldName (fieldName);
 
             sscanf (&data[bytesRead], " %d %n", &Type, &bytesRead);
@@ -282,7 +282,7 @@ struct WeatherRandomizer_Tunables
         m_ColourFields.clear ();
 
         char     line[2048] = {0};
-        uint32_t bytesRead  = 0;
+        int      bytesRead  = 0;
         while (fgets (line, 2048, f))
             {
                 line[strcspn (line, "\n")] = 0;
@@ -296,13 +296,13 @@ struct WeatherRandomizer_Tunables
                     {
                         m_ColourFields.emplace_back (fieldName,
                                                      &line[bytesRead]);
-                        if (m_ColourFields.back ().VariableIndex == -1)
+                        if (m_ColourFields.back ().VariableIndex == -1u)
                             m_ColourFields.pop_back ();
                     }
                 else if (fieldType == std::string ("FIELD"))
                     {
                         m_Fields.emplace_back (fieldName, &line[bytesRead]);
-                        if (m_Fields.back ().VariableIndex == -1)
+                        if (m_Fields.back ().VariableIndex == -1u)
                             m_Fields.pop_back ();
                     }
             }
@@ -383,9 +383,6 @@ public:
     static void
     Randomize ()
     {
-        WeatherRandomizer_Tunables::sm_Random.GetEngine ().seed (
-            static_cast<unsigned int> (time (NULL)));
-
         GetTunable ().Randomize ();
     }
 };

@@ -5,7 +5,7 @@
 
 template <typename Engine = std::mt19937> class RandomUtils
 {
-    Engine m_Engine;
+    Engine m_Engine{(unsigned int) time (NULL)};
 
 public:
     Engine &

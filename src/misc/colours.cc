@@ -9,6 +9,7 @@
 #include <map>
 #include <stdexcept>
 #include "common/events.hh"
+#include <MinHook.h>
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
 uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
@@ -111,6 +112,25 @@ class ColoursRandomizer
             SetNewHudColour (idx, col.r, col.g, col.b, col.a);
     }
 
+    /*******************************************************/
+    void
+    InitialiseCarColourHooks ()
+    {
+        MH_Initialize ();
+
+        void *addr = hook::get_pattern (
+            "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7);
+        addr = injector::GetBranchDestination (addr).get<void> ();
+
+        MH_STATUS res = MH_CreateHook (
+            static_cast<LPVOID> (addr),
+            reinterpret_cast<LPVOID> (RandomizeVehicleColour),
+            reinterpret_cast<LPVOID *> (
+                &CCustomShaderEffectVehicle_SetForVehicle_134));
+
+        MH_EnableHook (MH_ALL_HOOKS);
+    }
+
 public:
     /*******************************************************/
     ColoursRandomizer ()
@@ -135,16 +155,7 @@ public:
         // Car Colours
         // ---------
         if (RandomizeCarColours)
-            {
-                void *addr = hook::get_pattern (
-                    "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7);
-
-                RegisterJmpHook<13> (
-                    injector::GetBranchDestination (addr).get<void> (),
-                    CCustomShaderEffectVehicle_SetForVehicle_134,
-                    RandomizeVehicleColour);
-                // RegisterHook (addr, RandomizeVehicleColour);
-            }
+            InitialiseCarColourHooks ();
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;
     }

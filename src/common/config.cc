@@ -1,6 +1,7 @@
 #include <string>
 #define CPPTOML_NO_RTTI
 
+#include <limits>
 #include "config.hh"
 #include "cpptoml/cpptoml.h"
 #include <cstdlib>

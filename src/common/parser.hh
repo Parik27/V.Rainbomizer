@@ -12,6 +12,7 @@
 #include <array>
 #include <unordered_map>
 #include <utility>
+#include <Utils.hh>
 
 /* A randomizer to randomize a field between its min/max value */
 template <typename T> class RangedRandomizer
@@ -41,7 +42,7 @@ public:
     }
 };
 
-template <const char *FileName, auto ValidateFunction = nullptr>
+template <const char *FileName, auto *ValidateFunction = nullptr>
 class DataFileBasedModelRandomizer
 {
     using Type = uint32_t;
@@ -60,10 +61,10 @@ private:
     bool
     IsModelValid (Type hash)
     {
-        if (ValidateFunction == nullptr)
+        if constexpr (ValidateFunction == nullptr)
             return true;
-
-        return ValidateFunction (hash);
+        else
+            return ValidateFunction (hash);
     }
 
     /*******************************************************/

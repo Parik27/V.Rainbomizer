@@ -117,7 +117,7 @@ public:
         // This hook fixes a crash in CTaskUseScenario, where the ped bounds
         // type and include flags are accessed; In case of fish bounds, these
         // type and include flags are not allocated causing a crash.
-        REGISTER_HOOK ("0f 29 40 30 e8 ? ? ? ? b2 01 ? 8b cf e8", 4,
+        REGISTER_HOOK ("0f 29 18 0f 29 50 10 0f 29 48 20 0f 29 40 30 e8", 15,
                        AllocateTypeAndIncludeFlagsForFishBounds, void,
                        phBoundComposite *, bool, bool);
 

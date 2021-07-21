@@ -67,7 +67,6 @@ public:
 
     float16 () : value (0){};
     float16 (uint16_t val) : value (val){};
-    float16 (const float16 &other) : value (other.value){};
     float16 (float val) : value (from_float (val).value){};
 
     float

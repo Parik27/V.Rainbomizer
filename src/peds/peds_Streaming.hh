@@ -205,7 +205,7 @@ public:
 
         if (time (NULL) - sm_LastStreamedPedTime > TIMEOUT)
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < PEDS_TO_LOAD; i++)
                     CStreaming::RequestModel (GetRandomPedIndex (), 0);
                 sm_LastStreamedPedTime = time (NULL);
             }

@@ -48,7 +48,7 @@ class PedRandomizerSkeletonFixes
     Fix_crSkeleton_SetGlobalMtx (crSkeleton *skelly, uint32_t id,
                                  rage::Mat34V *mat)
     {
-        if (id == -1 || !skelly)
+        if (id == -1u || !skelly)
             return;
 
         crSkeleton_SetGlobalMtx (skelly, id, mat);
@@ -63,7 +63,7 @@ class PedRandomizerSkeletonFixes
         if (!skelly)
             return;
 
-        if (id == -1)
+        if (id == -1u)
             id = 0;
 
         crSkeleton_GetGlobalMtx (skelly, id, mat);
@@ -75,7 +75,7 @@ class PedRandomizerSkeletonFixes
     FixSkeletonBoneCrashes (CPed *ped, uint16_t boneId)
     {
         uint32_t bone = CPed_GetBoneIndex (ped, boneId);
-        if (bone == -1)
+        if (bone == -1u)
             return 0;
 
         return bone;

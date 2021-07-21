@@ -6,16 +6,20 @@
 #include <Natives.hh>
 #include <CutSceneManager.hh>
 #include <CTheScripts.hh>
-#include <CLoadingScreens.hh>
 #include <Utils.hh>
 #include <scrThread.hh>
 #include <rage.hh>
 
+#include "mission/missions_Globals.hh"
 #include "missions.hh"
 
 #include <map>
 #include <random>
 #include <cstdint>
+
+#ifdef ENABLE_DEBUG_MENU
+#include <debug/base.hh>
+#endif
 
 using namespace NativeLiterals;
 
@@ -62,6 +66,17 @@ class MissionRandomizer
         return state;
     }
 
+    /*******************************************************/
+    static void
+    ChangeToPlayer (ePlayerIndex idx)
+    {
+        MissionRandomizer_PlayerSwitcher::Context ctx;
+        ctx.destPlayer     = idx;
+        ctx.noSetPos       = true;
+        ctx.transitionType = ctx.NO_TRANSITION;
+        Components::sm_PlayerSwitcher.BeginSwitch (ctx);
+    }
+
 public:
     /*******************************************************/
     MissionRandomizer ()
@@ -83,5 +98,17 @@ public:
 
         Rainbomizer::Events ().OnInit +=
             [] (bool) { Components::sm_Flow.Reset (); };
+
+#ifdef ENABLE_DEBUG_MENU
+        DebugInterfaceManager::AddAction (
+            "Change to Franklin",
+            std::bind (ChangeToPlayer, ePlayerIndex::PLAYER_FRANKLIN));
+        DebugInterfaceManager::AddAction (
+            "Change to Michael",
+            std::bind (ChangeToPlayer, ePlayerIndex::PLAYER_MICHAEL));
+        DebugInterfaceManager::AddAction (
+            "Change to Trevor",
+            std::bind (ChangeToPlayer, ePlayerIndex::PLAYER_TREVOR));
+#endif
     }
 } missions;
