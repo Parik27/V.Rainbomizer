@@ -3,8 +3,8 @@ w_lr_firework
 w_lr_homing
 w_lr_rpg
 w_pi_flaregun
-
 w_lr_grenadelauncher
+
 w_ar_advancedrifle
 w_ar_advancedrifle_luxe
 w_ar_assaultrifle
@@ -3098,6 +3098,46 @@ prop_afsign_amun
 as_prop_as_laptop_01a
 xm_prop_x17_para_sp_s
 sum_prop_sum_power_cell
+tr_prop_tr_sand_01a
+tr_prop_tr_coke_powder_01a
+tr_prop_tr_clipboard_ta_01a
+tr_prop_tr_car_keys_01a
+tr_prop_tr_container_01a
+tr_prop_tr_adv_case_01a
+tr_p_para_bag_tr_s_01a
+tr_prop_tr_flipjam_01a
+tr_prop_tr_folder_mc_01a
+tr_prop_tr_carry_box_01a
+tr_prop_tr_bag_thermite_01a
+tr_prop_tr_military_pickup_01a
+tr_prop_tr_swipe_card_01a
+tr_prop_tr_chest_01a
+tr_prop_tr_med_table_01a
+tr_prop_tr_photo_car_01a
+tr_prop_tr_corp_servercln_01a
+tr_prop_tr_blueprt_01a
+tr_prop_tr_truktrailer_01a
+tr_prop_tr_trophy_camhedz_01a
+tr_prop_tr_usb_drive_02a
+tr_prop_tr_file_cylinder_01a
+tr_prop_tr_ser_storage_01a
+tr_prop_tr_acc_pass_01a
+tr_prop_tr_sand_01b
+tr_prop_tr_bag_clothing_01a
+tr_prop_tr_laptop_jimmy
+tr_prop_tr_sand_cs_01a
+tr_prop_tr_sand_cs_01b
+tr_prop_tr_bag_bombs_01a
+tr_prop_tr_bag_flipjam_01a
+tr_prop_tr_bag_grinder_01a
+tr_prop_tr_usb_drive_01a
+tr_prop_tr_notice_01a
+tr_prop_tr_clipboard_sh_01a
+tr_prop_tr_clipboard_tr_01a
+tr_prop_tr_table_vault_01a
+tr_prop_tr_table_vault_01b
+tr_prop_tr_control_unit_01a
+tr_prop_tr_flipjam_01b
 
 w_am_baseball
 w_am_flare
@@ -3279,7 +3319,7 @@ hei_prop_heist_cash_pile
 hei_prop_heist_docs_01
 hei_prop_heist_drill
 hei_prop_heist_drug_tub_01
-hei_prop_heist_gold_bar	1.5
+hei_prop_heist_gold_bar	50
 hei_prop_heist_pc_01
 hei_prop_heist_pic_01
 hei_prop_heist_pic_02
@@ -3475,7 +3515,7 @@ h4_prop_h4_med_bag_01b
 h4_prop_h4_michael_backpack
 h4_prop_h4_npc_phone
 h4_prop_h4_photo_fire_01a
-h4_prop_h4_photo_fire_01b	2
+h4_prop_h4_photo_fire_01b	100
 h4_prop_h4_pouch_01a
 h4_prop_h4_pumpshotgunh4
 h4_p_cs_rope05x
@@ -3509,7 +3549,7 @@ h4_prop_battle_decanter_03_s
 h4_prop_battle_fan
 h4_prop_battle_glowstick_01
 h4_prop_battle_headphones_dj
-h4_prop_battle_hobby_horse	1.2
+h4_prop_battle_hobby_horse	75
 h4_prop_battle_ice_bucket
 h4_prop_battle_mic
 h4_prop_battle_rotarymixer_01a
@@ -3542,7 +3582,7 @@ h4_prop_h4_pillow_01a
 h4_prop_h4_pillow_02a
 h4_prop_h4_pillow_03a
 h4_prop_h4_valet_01a
-h4_prop_h4_loch_monster	1.4
+h4_prop_h4_loch_monster	90
 h4_prop_h4_cash_bon_01a
 h4_prop_h4_weed_bud_02b
 imp_prop_ie_carelev01
@@ -5424,7 +5464,7 @@ bkr_prop_meth_tray_01b
 bkr_prop_meth_tray_02a
 bkr_prop_cashtrolley_01a
 bkr_prop_clubhouse_offchair_01a
-prop_xmas_tree_int	2
+prop_xmas_tree_int	100
 p_para_bag_xmas_s
 xm_prop_x17_bag_01a
 xm_prop_x17_bag_01b
@@ -5551,9 +5591,9 @@ gr_prop_gr_rsply_crate04a
 gr_prop_gr_rsply_crate04b
 ch_prop_ch_bloodymachete_01a
 vw_prop_vw_offchair_03
-sm_prop_smug_havok	1.4
+sm_prop_smug_havok	90
 stt_prop_lives_bottle
-sum_prop_ac_alienhead_01a	1.2
+sum_prop_ac_alienhead_01a	50
 prop_wheelchair_01_s
 p_watch_05
 prop_cs_server_drive
@@ -5635,3 +5675,51 @@ prop_barrel_01a
 v_ilev_bk_closedsign
 imp_prop_impexp_offchair_01a
 prop_bread_rack_01
+tr_prop_tr_sand_01a
+tr_prop_tr_coke_powder_01a
+tr_prop_tr_clipboard_ta_01a
+tr_prop_tr_car_keys_01a
+tr_prop_tr_container_01a
+tr_prop_tr_container_01b
+tr_prop_tr_container_01c
+tr_prop_tr_container_01d
+tr_prop_tr_container_01e
+tr_prop_tr_container_01f
+tr_prop_tr_container_01g
+tr_prop_tr_container_01h
+tr_prop_tr_container_01i
+tr_prop_tr_adv_case_01a
+tr_p_para_bag_tr_s_01a
+tr_prop_tr_flipjam_01a
+tr_prop_tr_folder_mc_01a
+tr_prop_tr_carry_box_01a
+tr_prop_tr_bag_thermite_01a
+tr_prop_tr_military_pickup_01a
+tr_prop_tr_swipe_card_01a
+tr_prop_tr_chest_01a
+tr_prop_tr_med_table_01a
+tr_prop_tr_photo_car_01a
+tr_prop_tr_corp_servercln_01a
+tr_prop_tr_blueprt_01a
+tr_prop_tr_truktrailer_01a
+tr_prop_tr_trophy_camhedz_01a
+tr_prop_tr_usb_drive_02a
+tr_prop_tr_file_cylinder_01a
+tr_prop_tr_ser_storage_01a
+tr_prop_tr_acc_pass_01a
+tr_prop_tr_sand_01b
+tr_prop_tr_bag_clothing_01a
+tr_prop_tr_laptop_jimmy
+tr_prop_tr_sand_cs_01a
+tr_prop_tr_sand_cs_01b
+tr_prop_tr_bag_bombs_01a
+tr_prop_tr_bag_flipjam_01a
+tr_prop_tr_bag_grinder_01a
+tr_prop_tr_usb_drive_01a
+tr_prop_tr_notice_01a
+tr_prop_tr_clipboard_sh_01a
+tr_prop_tr_clipboard_tr_01a
+tr_prop_tr_table_vault_01a
+tr_prop_tr_table_vault_01b
+tr_prop_tr_control_unit_01a
+tr_prop_tr_flipjam_01b

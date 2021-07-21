@@ -6,7 +6,6 @@ cs_barry
 cs_beverly
 cs_brad
 cs_bradcadaver
-cs_carbuyer
 cs_casey
 cs_chengsr
 cs_chrisformage
@@ -87,7 +86,6 @@ csb_car3guy2
 csb_chef
 csb_chin_goon
 csb_cletus
-csb_cop
 csb_customer
 csb_denise_friend
 csb_fos_rep
@@ -139,7 +137,7 @@ csb_chef2
 csb_money
 csb_paige
 csb_popov
-csb_rashcoskvi
+csb_rashcosvki
 csb_undercover
 csb_mp_agent14
 cs_jimmydisanto2
@@ -173,6 +171,12 @@ csb_juanstrickler
 csb_miguelmadrazo
 csb_mjo
 csb_sss
+csb_avischwartzman_02
+csb_drugdealer
+csb_hao_02
+csb_mimi
+csb_moodyman_02
+csb_sessanta
 player_zero
 player_one
 player_two
