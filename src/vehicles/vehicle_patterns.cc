@@ -181,6 +181,9 @@ ScriptVehiclePattern::ReadFlag (const std::string &flag)
     else if (flag == "no_rotors")
         mFlags.NoRotors = true;
 
+    else if (flag == "no_wait")
+        mFlags.NoWait = true;
+
     else if (flag.find ("can_attach") == 0)
         mFlags.AttachVehicle
             = rage::atStringHash (flag.substr (sizeof ("can_attach")));

@@ -101,9 +101,6 @@ private:
                         m_Groups.back ().Values.push_back (value);
                         m_Groups.back ().Weights.push_back (weight);
                     }
-                else
-                    Rainbomizer::Logger::LogMessage ("Invalid model: %s",
-                                                     model);
             }
     }
 

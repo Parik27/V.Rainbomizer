@@ -44,21 +44,13 @@ class MissionRandomizer
     RunThreadHook (uint64_t *stack, uint64_t *globals, scrProgram *program,
                    scrThreadContext *ctx)
     {
-        eScriptState state    = ctx->m_nState;
-        static bool  blocking = false;
-        if (Components::Process (program, ctx))
+        eScriptState state = ctx->m_nState;
+        if (Components::Process (program, ctx)
+            || Components::IsScriptAllowedOnPause (ctx->m_nScriptHash))
             {
-                if (blocking)
-                    Rainbomizer::Logger::LogMessage ("Stopped blocking");
-                blocking = false;
                 Components::sm_Flow.SetVariables (ctx);
                 state = scrThread_Runff6 (stack, globals, program, ctx);
                 Components::sm_Flow.ClearVariables (ctx);
-            }
-        else if (!blocking)
-            {
-                Rainbomizer::Logger::LogMessage ("Started blocking");
-                blocking = true;
             }
 
         Components::Process (program, ctx);
@@ -92,6 +84,7 @@ public:
         InitialiseAllComponents ();
 
         Components::sm_Globals.Initialise ();
+        Components::sm_CodeFixes.Initialise ();
 
         RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
                       scrThread_Runff6, RunThreadHook);

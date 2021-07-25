@@ -9,9 +9,13 @@
 #include "missions_Cmds.hh"
 
 #include "common/common.hh"
+#include <cstdint>
+#include <vector>
 
 class MissionRandomizer_Components
 {
+    inline static std::vector<uint32_t> sm_ScriptsAllowedInPause;
+
     template <auto &...Components> class ComponentSet
     {
     public:
@@ -43,6 +47,21 @@ public:
     Process (scrProgram *program, scrThreadContext *ctx)
     {
         return ComponentList::Process (program, ctx);
+    }
+
+    static bool
+    IsScriptAllowedOnPause (uint32_t name)
+    {
+        bool allowed = DoesElementExist (sm_ScriptsAllowedInPause, name);
+        sm_ScriptsAllowedInPause.clear ();
+
+        return allowed;
+    }
+
+    static void
+    AllowScriptOnPauseThisFrame (uint32_t name)
+    {
+        sm_ScriptsAllowedInPause.push_back (name);
     }
 
     static auto &

@@ -68,7 +68,7 @@ docks_heistb	Packer	2	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Armytrailer
 docks_heistb	Submersible	1	N	N	N	N	N	N	N	N	Y	Y	N	N					
 docks_heistb	Armytrailer	0	N	N	N	N	N	N	N	N	N	N	N	N					
 docks_heistb	Buzzard	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
-fbi2	Oracle2	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=40.0+l=40.0+h=40				
+fbi2	Oracle2	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=40.0+l=40.0+h=40+no_wait				
 fbi2	Frogger	4	N	N	N	N	Y	Y	Y	N	N	N	N	N	w=40.0+l=40.0+h=40				
 fbi2	Buzzard	2	N	N	N	N	Y	Y	Y	N	N	N	N	N					
 fbi3	Oracle2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
@@ -169,6 +169,7 @@ carsteal4	Sheriff	2	N	N	N	N	N	N	N	N	N	N	N	N
 carsteal4	Jb700	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 carsteal4	Packer	2	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Tr4				
 carsteal4	Tr4	0	N	N	N	N	N	N	N	N	N	N	N	N					
+solomon3	Cogcabrio	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 solomon3	Jet	1	N	N	N	N	N	N	N	N	N	N	N	N	PARIK			10	
 family6	Sentinel2	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 franklin2	Taligate	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=2.5				
@@ -327,5 +328,8 @@ re_drunkdriver	Baller2	4	Y	Y	N	N	N	Y	N	N	N	Y	N	N
 bailbond1	Landstalker	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 bailbond2	Bison	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
 bailbond2	Bison2	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
-vehicle_gen_controller	Buffalo2	4	N	N	N	N	N	N	N	N	N	N	N	N					
-vehicle_gen_controller	Bagger	2	N	N	N	N	N	N	N	N	N	N	N	N					
+vehicle_gen_controller	Buffalo2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+vehicle_gen_controller	Bagger	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+vehicle_gen_controller	Tailgater	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+vehicle_gen_controller	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+taxilauncher	Taxi	4	N	N	N	N	N	N	N	N	N	N	N	N					

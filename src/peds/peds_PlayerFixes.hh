@@ -150,7 +150,7 @@ class PedRandomizer_PlayerFixes
 
         uint8_t return_0x1[] = {0x6f, 0x2e, 0x00, 0x01};
 
-        ops.Init ("2d 00 03 00 ? 2c ? 00 74 71 5d ? ? ? 39 02 38 02 6e");
+        ops.Init ("2d 00 03 00 ? 2c ? ? ? ? 5d ? ? ? 39 02 38 02 6e");
         ops.WriteBytes (/*Offset=*/5, return_0x1);
 
         return true;

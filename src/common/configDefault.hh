@@ -80,6 +80,7 @@ EnableFastSkips = false # Mission skips will be enabled after failing the missio
 
 RandomizePlayer = true
 RandomizePeds = true
+RandomizeCutscenePeds = true # only if UseCutsceneModelsFile is enabled
 
 RandomizeSpecialAbility = true
 IncludeUnusedAbilities = false # sprint boost, aimbot and two abilities that don't work (+ any other R* may decide to add and not use in the future).

@@ -24,6 +24,4 @@ class MissionRandomizer_CodeFixes
 
 public:
     void Initialise ();
-
-    MissionRandomizer_CodeFixes () { Initialise (); }
 };

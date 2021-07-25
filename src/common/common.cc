@@ -49,7 +49,7 @@ Common::InitialiseHashes ()
 }
 
 /*******************************************************/
-const std::vector<int> &
+const std::vector<uint32_t> &
 Common::GetVehicleHashes ()
 {
     if (!mHashesInitialised)
@@ -122,7 +122,7 @@ Common::GetRainbomizerDataFile (const std::string &name,
 }
 
 /*******************************************************/
-const std::vector<int> &
+const std::vector<uint32_t> &
 Common::GetPedHashes ()
 {
     if (!mHashesInitialised)

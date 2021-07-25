@@ -16,6 +16,8 @@
 #include "common/config.hh"
 #include <CPools.hh>
 #include <CTheScripts.hh>
+#include "mission/missions_YscUtils.hh"
+#include <common/ysc.hh>
 
 #ifdef ENABLE_DEBUG_MENU
 #include "debug/base.hh"
@@ -40,6 +42,12 @@ class ScriptVehicleRandomizer
 
         return m_Config;
     }
+
+    struct PatternResult
+    {
+        uint32_t Hash   = 0;
+        bool     NoWait = false;
+    };
 
     /*******************************************************/
     static void
@@ -123,10 +131,11 @@ class ScriptVehicleRandomizer
     }
 
     /*******************************************************/
-    static uint32_t
+    static PatternResult
     GetRandomHashForVehicle (uint32_t hash, Vector3 &coords)
     {
-        const int MIN_FREE_SLOTS = 25;
+        const int     MIN_FREE_SLOTS = 25;
+        PatternResult result;
 
         uint32_t scrHash
             = scrThread::GetActiveThread ()->m_Context.m_nScriptHash;
@@ -145,8 +154,13 @@ class ScriptVehicleRandomizer
                 for (auto &i : mPatterns[scrHash])
                     {
                         if (i.MatchVehicle (hash, coords))
-                            return (returnLoaded) ? i.GetRandomLoaded (coords)
-                                                  : i.GetRandom (coords);
+                            {
+                                result.Hash   = (returnLoaded)
+                                                    ? i.GetRandomLoaded (coords)
+                                                    : i.GetRandom (coords);
+                                result.NoWait = i.GetFlags ().NoWait;
+                                return result;
+                            }
                     }
             }
 
@@ -160,10 +174,12 @@ class ScriptVehicleRandomizer
                 {
                     const auto &indices
                         = Rainbomizer::Common::GetVehicleHashes ();
-                    return GetRandomElement (indices);
+                    result.Hash = GetRandomElement (indices);
+                    return result;
                 }
 
-            return CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
+            result.Hash = CStreaming::GetModelByIndex (randomLoaded)->m_nHash;
+            return result;
         }
     }
 
@@ -172,9 +188,10 @@ class ScriptVehicleRandomizer
     RandomizeScriptVehicle (uint32_t &hash, Vector3_native *coords,
                             float heading, bool isNetwork, bool thisScriptCheck)
     {
-        auto     thread       = scrThread::GetActiveThread ();
-        uint32_t originalHash = hash;
-        Vector3  pos          = {coords->x, coords->y, coords->z};
+        auto          thread       = scrThread::GetActiveThread ();
+        uint32_t      originalHash = hash;
+        Vector3       pos          = {coords->x, coords->y, coords->z};
+        PatternResult patternResult;
 
         if (!thread || !thread->IsYscScript ())
             return true;
@@ -190,12 +207,14 @@ class ScriptVehicleRandomizer
             }
         else
             {
-                hash = GetRandomHashForVehicle (hash, pos);
+                patternResult = GetRandomHashForVehicle (hash, pos);
+                hash          = patternResult.Hash;
+
                 if (Config ().LogSpawnedVehicles)
                     Rainbomizer::Logger::LogMessage (
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "
-                        "%.2f",
+                        "%.2f %s",
                         scrThread::GetActiveThread ()->m_szScriptName,
                         scrThread::GetActiveThread ()->m_Context.m_nIp, hash,
                         CStreaming::GetModelByHash<CVehicleModelInfo> (hash)
@@ -204,7 +223,8 @@ class ScriptVehicleRandomizer
                         CStreaming::GetModelByHash<CVehicleModelInfo> (
                             originalHash)
                             ->GetGameName (),
-                        coords->x, coords->y, coords->z);
+                        coords->x, coords->y, coords->z,
+                        patternResult.NoWait ? "without waiting" : "");
             }
 
         uint32_t index = CStreaming::GetModelIndex (hash);
@@ -214,10 +234,21 @@ class ScriptVehicleRandomizer
         // native until the state is set back to Running
         if (!CStreaming::HasModelLoaded (index))
             {
-                REQUEST_MODEL (hash);
-                thread->m_Context.m_nState = eScriptState::WAITING;
-                mThreadWaits[thread->m_Context.m_nScriptHash] = hash;
-                return false;
+                if (!patternResult.NoWait)
+                    {
+                        REQUEST_MODEL (hash);
+                        thread->m_Context.m_nState = eScriptState::WAITING;
+                        mThreadWaits[thread->m_Context.m_nScriptHash] = hash;
+                        return false;
+                    }
+                else
+                    {
+                        REQUEST_MODEL (hash);
+                        CStreaming::LoadAllObjects (false);
+
+                        if (!CStreaming::HasModelLoaded (index))
+                            hash = originalHash;
+                    }
             }
 
         coords->x = pos.x;
@@ -262,6 +293,19 @@ class ScriptVehicleRandomizer
             info->GetArg<float> (4) = 75.0f;
     }
 
+    /*******************************************************/
+    static bool
+    FixMichael2MissionDisruption (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("mission_triggerer_d"_joaat))
+            return false;
+
+        ops.Init ("6e 6e 6e 6e 6e 2c ? ? ? 20 56 ? ? 6f 2e 00 01 6e 2e 00 01");
+        ops.Write (10, YscOpCode::J);
+
+        return true;
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
@@ -279,6 +323,9 @@ public:
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
+
+        YscCodeEdits::Add ("Fix michael2 Mission disruption",
+                           FixMichael2MissionDisruption);
 
 #undef HOOK
     }

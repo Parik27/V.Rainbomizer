@@ -13,14 +13,14 @@ class Common
 {
     static inline bool mHashesInitialised = false;
 
-    static inline std::vector<int> mVehicleHashes;
-    static inline std::vector<int> mPedHashes;
+    static inline std::vector<uint32_t> mVehicleHashes;
+    static inline std::vector<uint32_t> mPedHashes;
 
     static void InitialiseHashes ();
 
 public:
-    static const std::vector<int> &GetVehicleHashes ();
-    static const std::vector<int> &GetPedHashes ();
+    static const std::vector<uint32_t> &GetVehicleHashes ();
+    static const std::vector<uint32_t> &GetPedHashes ();
 
     static std::string GetRainbomizerFileName (const std::string &name,
                                                const std::string &subdirs = "");

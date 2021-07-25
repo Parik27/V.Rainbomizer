@@ -12,7 +12,7 @@ light_artificial_int_down_intensity FIELD 0  1 0.5
 light_artificial_int_up_intensity FIELD 0  1 0.5
 light_artificial_ext_down_intensity FIELD 0  1 0.5
 light_artificial_ext_up_intensity FIELD 0  1 0.5
-ped_light_mult FIELD 3  0 1
+ped_light_mult FIELD 0  1 0.5
 ped_light_direction_x FIELD 0  1 0.5
 ped_light_direction_y FIELD 0  1 0.5
 ped_light_direction_z FIELD 0  1 0.5
@@ -51,9 +51,9 @@ postfx_exposure_max FIELD 0  1 0.5
 postfx_bright_pass_thresh_width FIELD 0  1 0.5
 postfx_bright_pass_thresh FIELD 0  1 0.5
 postfx_intensity_bloom FIELD 0  1 0.5
-postfx_correct_cutoff FIELD 3  0.7 1
+postfx_correct_cutoff FIELD 0  1 0.5
 postfx_shift_cutoff FIELD 0  1 0.5
-postfx_desaturation FIELD 3  0.5 2
+postfx_desaturation FIELD 3  0.8 1.4
 postfx_noise FIELD 0  1 0.5
 postfx_noise_size FIELD 0  1 0.5
 postfx_tonemap_filmic_override_dark FIELD 0  1 0.5
@@ -180,10 +180,10 @@ sky_cloud_shadow_strength FIELD 1  1 0.5
 sky_cloud_gen_density_offset FIELD 1  1 0.5
 sky_cloud_offset FIELD 1  1 0.5
 sky_cloud_overall_strength FIELD 1  1 0.5
-sky_cloud_overall_color FIELD 1  1 0.5
+sky_cloud_overall_color FIELD 0  1 0.5
 sky_cloud_edge_strength FIELD 1  1 0.5
 sky_cloud_fadeout FIELD 1  1 0.5
-sky_cloud_hdr FIELD 1  1 0.5
+sky_cloud_hdr FIELD 0  1 0.5
 sky_cloud_dither_strength FIELD 1  1 0.5
 sky_small_cloud_detail_strength FIELD 1  1 0.5
 sky_small_cloud_detail_scale FIELD 1  1 0.5
@@ -313,26 +313,26 @@ lod_mult_slod1 FIELD 0  1 0.5
 lod_mult_slod2 FIELD 0  1 0.5
 lod_mult_slod3 FIELD 0  1 0.5
 lod_mult_slod4 FIELD 0  1 0.5
-light_dir_col_r FIELD_COL 6
-light_directional_amb_col_r FIELD_COL 6
-light_natural_amb_down_col_r FIELD_COL 6
-light_natural_amb_up_col_r FIELD_COL 6
-light_artificial_int_down_col_r FIELD_COL 6
-light_artificial_int_up_col_r FIELD_COL 6
-light_artificial_ext_down_col_r FIELD_COL 6
-light_artificial_ext_up_col_r FIELD_COL 6
-ped_light_col_r FIELD_COL 6
-light_ray_col_r FIELD_COL 6
-postfx_correct_col_r FIELD_COL 4 0 360 0.3 0.5 0.5 0.7
-postfx_shift_col_r FIELD_COL 4 0 360 0 1 0 1
+light_dir_col_r FIELD_COL 0
+light_directional_amb_col_r FIELD_COL 0
+light_natural_amb_down_col_r FIELD_COL 0
+light_natural_amb_up_col_r FIELD_COL 0
+light_artificial_int_down_col_r FIELD_COL 0
+light_artificial_int_up_col_r FIELD_COL 0
+light_artificial_ext_down_col_r FIELD_COL 0
+light_artificial_ext_up_col_r FIELD_COL 0
+ped_light_col_r FIELD_COL 0
+light_ray_col_r FIELD_COL 0
+postfx_correct_col_r FIELD_COL 0
+postfx_shift_col_r FIELD_COL 0
 postfx_tonemap_filmic_b FIELD_COL 0
 postfx_vignetting_col_r FIELD_COL 0
 postfx_grad_top_col_r FIELD_COL 0
 postfx_grad_middle_col_r FIELD_COL 0
 postfx_grad_bottom_col_r FIELD_COL 0
-nv_colorLum_r FIELD_COL 6
-nv_colorLowLum_r FIELD_COL 6
-nv_colorHighLum_r FIELD_COL 6
+nv_colorLum_r FIELD_COL 0
+nv_colorLowLum_r FIELD_COL 0
+nv_colorHighLum_r FIELD_COL 0
 sky_zenith_col_r FIELD_COL 6
 sky_zenith_transition_col_r FIELD_COL 6
 sky_azimuth_east_col_r FIELD_COL 6
@@ -342,12 +342,12 @@ sky_plane_r FIELD_COL 6
 sky_sun_col_r FIELD_COL 6
 sky_sun_disc_col_r FIELD_COL 6
 sky_moon_col_r FIELD_COL 6
-sky_cloud_mid_col_r FIELD_COL 4 0 360 0 1 0 1
-sky_cloud_base_col_r FIELD_COL 4 0 360 0 1 0 1
-sky_cloud_shadow_col_r FIELD_COL 4 0 360 0 1 0 1
-sky_small_cloud_col_r FIELD_COL 4 0 360 0 1 0 1
-fog_near_col_r FIELD_COL 6
-fog_col_r FIELD_COL 6
-fog_moon_col_r FIELD_COL 6
-fog_east_col_r FIELD_COL 6
+sky_cloud_mid_col_r FIELD_COL 6
+sky_cloud_base_col_r FIELD_COL 6
+sky_cloud_shadow_col_r FIELD_COL 6
+sky_small_cloud_col_r FIELD_COL 6
+fog_near_col_r FIELD_COL 0
+fog_col_r FIELD_COL 0
+fog_moon_col_r FIELD_COL 0
+fog_east_col_r FIELD_COL 0
 fog_haze_col_r FIELD_COL 0

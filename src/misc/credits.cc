@@ -128,7 +128,7 @@ class RainbomizerCredits
         static CText_GetText_Prototype orig;
 
         p.for_each_result ([] (hook::pattern_match res) {
-            RegisterHook (res.get<void> (), orig, FixJobTitles<orig>);
+            RegisterHook (res.get<void> (23), orig, FixJobTitles<orig>);
         });
     }
 

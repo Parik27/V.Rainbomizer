@@ -10,11 +10,13 @@
 #include "mission/missions_Cmds.hh"
 #include "missions.hh"
 #include "scrThread.hh"
+#include "CTheScripts.hh"
 #include <cstdint>
 #include <stdio.h>
 #include <utility>
 
 using MR = MissionRandomizer_Components;
+using namespace NativeLiterals;
 
 /*******************************************************/
 auto
@@ -189,6 +191,9 @@ MissionRandomizer_Flow::HandleCurrentMissionChanges ()
 bool
 MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
 {
+    if (ctx->m_nScriptHash == "flow_controller"_joaat)
+        SetHeistFlowControlVariables ();
+
     if (ctx->m_nScriptHash != "code_controller"_joaat || ctx->m_nIp != 0)
         return true;
 

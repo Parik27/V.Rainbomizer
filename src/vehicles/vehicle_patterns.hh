@@ -34,6 +34,7 @@ class ScriptVehiclePattern
         bool Flying : 1;
         bool CanTow : 1;
         bool NoRotors : 1;
+        bool NoWait : 1;
 
         uint32_t AttachVehicle = 0; // hash
     } mFlags;
@@ -106,6 +107,12 @@ public:
         return static_cast<uint32_t> (m_aCache.size ());
     }
 
+    auto
+    GetFlags () const
+    {
+        return mFlags;
+    }
+
     bool DoesVehicleMatchPattern (uint32_t hash);
     void Cache ();
 
@@ -120,5 +127,5 @@ public:
 
     bool MatchVehicle (uint32_t hash, const Vector3 &coords);
 
-    ScriptVehiclePattern () : mFlags{false, false, false, 0} {}
+    ScriptVehiclePattern () : mFlags{false, false, false, false, 0} {}
 };

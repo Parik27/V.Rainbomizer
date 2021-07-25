@@ -1,14 +1,18 @@
 #include "missions_Cmds.hh"
 
-#include "CStreaming.hh"
 #include "common/logger.hh"
 #include "mission/missions_Funcs.hh"
 #include "mission/missions_Globals.hh"
 #include "missions.hh"
+
 #include "rage.hh"
+#include <CTheScripts.hh>
+#include "CStreaming.hh"
+
 #include <cstdint>
 
 using MR = MissionRandomizer_Components;
+using namespace NativeLiterals;
 
 /*******************************************************/
 void

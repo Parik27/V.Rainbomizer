@@ -5,8 +5,12 @@
 #include <Utils.hh>
 #include <cstdint>
 
+#include <CTheScripts.hh>
+
 // Required for MR::sm_Globals
 #include "mission/missions.hh"
+
+using namespace NativeLiterals;
 
 class gameSkeleton;
 

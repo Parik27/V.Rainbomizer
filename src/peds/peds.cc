@@ -22,7 +22,8 @@ CPed *(*CPedFactory_CreateNonCopPed_5c6) (CPedFactory *, uint8_t *, uint32_t,
 class PedRandomizer
 {
     inline static std::mutex CreatePedMutex;
-    inline static bool       bSkipNextPedRandomization = false;
+    inline static bool       bSkipNextPedRandomization     = false;
+    inline static uint32_t   nForcedModelNextRandomization = -1u;
 
     constexpr static const char PedsFileName[] = "CutsceneModelsPeds.txt";
     using CutsPedsRandomizer
@@ -42,6 +43,7 @@ class PedRandomizer
             bool        EnableNSFWModels        = false;
             bool        RandomizePlayer         = true;
             bool        RandomizePeds           = true;
+            bool        RandomizeCutscenePeds   = true;
             bool        RandomizeSpecialAbility = true;
             bool        IncludeUnusedAbilities  = false;
             bool        UseCutsceneModelsFile   = true;
@@ -86,6 +88,9 @@ class PedRandomizer
     static uint32_t
     GetRandomPedModel (uint32_t model)
     {
+        if (nForcedModelNextRandomization != -1u)
+            return std::exchange (nForcedModelNextRandomization, -1u);
+
         if (!ShouldRandomizePedModel (model))
             return model;
 
@@ -159,7 +164,8 @@ class PedRandomizer
         // Randomize model (remember model here is the idx, so convert to hash)
         uint32_t hash = CStreaming::GetModelHash (model);
 
-        if (!sm_Randomizer.RandomizeObject (hash))
+        if (!Config ().RandomizeCutscenePeds
+            || !sm_Randomizer.RandomizeObject (hash))
             return CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
 
         // Load the new model
@@ -171,10 +177,7 @@ class PedRandomizer
             }
 
         if (CStreaming::HasModelLoaded (newModel))
-            {
-                model                     = newModel;
-                bSkipNextPedRandomization = true;
-            }
+            nForcedModelNextRandomization = newModel;
 
         // Spawn the ped
         CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
@@ -189,6 +192,8 @@ public:
                 "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
                 std::pair ("RandomizePlayer", &Config ().RandomizePlayer),
                 std::pair ("RandomizePeds", &Config ().RandomizePeds),
+                std::pair ("RandomizeCutscenePeds",
+                           &Config ().RandomizeCutscenePeds),
                 std::pair ("UseCutsceneModelsFile",
                            &Config ().UseCutsceneModelsFile),
                 std::pair ("ForcedClipset", &Config ().ForcedClipset),
