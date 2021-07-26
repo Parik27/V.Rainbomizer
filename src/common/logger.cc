@@ -7,7 +7,8 @@
 #ifndef NDEBUG
 #define RAINBOMIZER_BUILD "Debug Build: " __DATE__ " " __TIME__
 #else
-#define RAINBOMIZER_BUILD "Build v0.1 - Beta: " __DATE__ " " __TIME__
+#define RAINBOMIZER_BUILD "Release v1.0: " __DATE__ " " __TIME__
+#define RAINBOMIZER_BUILD_SHORT "Release v1.0"
 #endif
 
 constexpr int RAINBOMIZER_BUILD_NUMBER =
@@ -96,8 +97,13 @@ class DisplayBuildVersion
     AppendBuildVersion (char *out, char const *format, char *build,
                         char *version)
     {
+#ifndef NDEBUG
         return rage__formatf6eb9 (out, "Rainbomizer Build %d   Build %s",
                                   RAINBOMIZER_BUILD_NUMBER + 1, version);
+#else
+        return rage__formatf6eb9 (out, "Rainbomizer %s   Build %s",
+                                  RAINBOMIZER_BUILD_SHORT, version);
+#endif
     }
 
 public:

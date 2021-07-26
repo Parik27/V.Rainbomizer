@@ -60,6 +60,14 @@ class MissionRandomizer
 
     /*******************************************************/
     static void
+    FixInfiniteLoading (bool)
+    {
+        "DO_SCREEN_FADE_IN"_n(0);
+        "SET_GAME_PAUSED"_n(0);
+    }
+
+    /*******************************************************/
+    static void
     ChangeToPlayer (ePlayerIndex idx)
     {
         MissionRandomizer_PlayerSwitcher::Context ctx;
@@ -102,6 +110,8 @@ public:
         DebugInterfaceManager::AddAction (
             "Change to Trevor",
             std::bind (ChangeToPlayer, ePlayerIndex::PLAYER_TREVOR));
+        DebugInterfaceManager::AddAction ("Fix Infinite Loading",
+                                          FixInfiniteLoading);
 #endif
     }
 } missions;
