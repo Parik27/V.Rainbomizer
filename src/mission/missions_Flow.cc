@@ -485,7 +485,8 @@ MissionRandomizer_Flow::ShouldSetVariables (scrThreadContext *ctx)
     switch (ctx->m_nScriptHash)
         {
         case "selector"_joaat:
-        case "building_controller"_joaat: return true;
+        case "building_controller"_joaat:
+        case "replay_controller"_joaat: return true;
         }
 
     return false;

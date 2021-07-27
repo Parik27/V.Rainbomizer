@@ -216,6 +216,31 @@ MissionRandomizer_CodeFixes::ApplyBuildingStatePatch (YscUtilsOps &utils)
 }
 
 /*******************************************************/
+bool
+MissionRandomizer_CodeFixes::ApplyReplayControllerFix (YscUtilsOps &utils)
+{
+    /* This patch fixes softlock on failing finale_intro (randomized or
+     * original) */
+
+    if (!utils.IsAnyOf ("replay_controller"_joaat))
+        return false;
+
+    uint8_t shellCode[]
+        = {uint8_t (YscOpCode::GLOBAL_U24_LOAD), 0x00, 0x00, 0x00};
+
+    utils.Init (
+        "2d 00 ? ? ? 5d ? ? ? 56 ? ? 5e ? ? ? 40 ? 6e 5d ? ? ? 39 ? 38");
+    utils.NOP (/*Offset=*/12, /*Size=*/11);
+
+    uint32_t globalIdx = MR::sm_Globals.g_CurrentMission.GetIndex ();
+    memcpy (&shellCode[1], &globalIdx, 3);
+
+    utils.WriteBytes (/*Offset=*/12, shellCode);
+
+    return true;
+}
+
+/*******************************************************/
 void
 MissionRandomizer_CodeFixes::Initialise ()
 {
@@ -228,4 +253,6 @@ MissionRandomizer_CodeFixes::Initialise ()
     YscCodeEdits::Add ("Quick Skips Patch", ApplyQuickSkipsPatch);
     YscCodeEdits::Add ("Solomon Cam Fix", ApplySolomonCamFix);
     YscCodeEdits::Add ("Building State Patch", ApplyBuildingStatePatch);
+    YscCodeEdits::Add ("Replay Controller Softlock Fix",
+                       ApplyReplayControllerFix);
 }

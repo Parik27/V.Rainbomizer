@@ -256,6 +256,12 @@ public:
             return &scrThread::GetGlobal<T> (nGlobalIdx);
         }
 
+        uint32_t
+        GetIndex ()
+        {
+            return nGlobalIdx;
+        }
+
         T *
         operator-> ()
         {
