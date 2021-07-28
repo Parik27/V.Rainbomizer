@@ -82,24 +82,6 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
     return true;
 }
 
-// /*******************************************************/
-// bool
-// MissionRandomizer_CodeFixes::ApplyPedComponentVariation (YscUtilsOps &utils)
-// {
-//     static constexpr uint8_t return_1[] = {
-//         0x6f,          // PUSH_CONST_1
-//         0x2e, 0x3, 0x1 // LEAVE 0x3, 0x1
-//     };
-
-//     if (!utils.IsAnyOf ("lester1"_joaat))
-//         return false;
-
-//     utils.Init ("38 0e 25 ? 08 2a 06 56 ? ?");
-//     utils.NOP (/*Offset=*/7, /*Size=*/3);
-
-//     return true;
-// }
-
 /*******************************************************/
 bool
 MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)

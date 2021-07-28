@@ -268,7 +268,7 @@ public:
     GetOrigSpecialAbility (CPed *ped)
     {
         InitSpecialAbilityValues ();
-        auto *model = PedRandomizerCompatibility::GetOriginalModel (ped);
+        auto *model = PedRandomizer_Compatibility::GetOriginalModel (ped);
         if (!model)
             return 0;
 
@@ -320,7 +320,7 @@ public:
         if (!player)
             return;
 
-        auto *model = PedRandomizerCompatibility::GetOriginalModel (player);
+        auto *model = PedRandomizer_Compatibility::GetOriginalModel (player);
         if (!model)
             return;
 

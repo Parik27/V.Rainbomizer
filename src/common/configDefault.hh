@@ -90,4 +90,13 @@ ForcedClipset = ""
 
 EnableNSFWModels = false
 UseCutsceneModelsFile = true
+
+# Missions like Lamar Down, Big Score Heist and other major shootout missions disable
+# new peds to be loaded, which causes a significant hit to the ped variety in the mission
+# (normally resulting in too many player models). This makes it so that doesn't happen.
+EnableNoLowBudget = true
+
+# This option makes it so enemy blips are always visible. This helps when the enemies are
+# randomized into a small animal that's difficult to locate
+EnableBlipsAlwaysVisible = true
 )";

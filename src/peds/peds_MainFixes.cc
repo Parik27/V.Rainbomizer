@@ -1,101 +1,112 @@
+#include "peds_MainFixes.hh"
+#include "peds_Compatibility.hh"
+#include "peds.hh"
+
 #include <CPed.hh>
 #include <Utils.hh>
 #include <CTheScripts.hh>
 #include <CutSceneManager.hh>
 
-#include "peds_Compatibility.hh"
-#include "scrThread.hh"
-
 using namespace NativeLiterals;
 
+using PR = PedRandomizer_Components;
+
 /*******************************************************/
-/* Cutscene and Script Fixes - Fixes required for Ped Randomizer to function
- * properly without softlocking the game in major ways. The fixes include
- * register entity fixes for cutscene ped randomizer and returning the original
- * ped model for scripts. */
-/*******************************************************/
-class PedRandomizer_MainFixes
+void
+PedRandomizer_MainFixes::Nop (scrThread::Info *info)
 {
-    /*******************************************************/
-    static uint32_t
-    FixupScriptEntityModel (uint32_t guid)
-    {
-        CPed *ped = static_cast<CPed *> (fwScriptGuid::GetBaseFromGuid (guid));
+}
 
-        if (!ped || !ped->m_pModelInfo)
-            return 0;
+/*******************************************************/
+void
+PedRandomizer_MainFixes::AdjustAiBlipForcedOn (scrThread::Info *info)
+{
+    info->GetArg<bool> (1) = true;
+}
+void
+PedRandomizer_MainFixes::AdjustAiBlipNoticeRange (scrThread::Info *info)
+{
+    info->GetArg<float> (1) = -1.0f;
+}
 
-        return PedRandomizerCompatibility::GetOriginalModel (ped)->m_nHash;
-    }
+/*******************************************************/
+void
+PedRandomizer_MainFixes::FixIsPedModelNative (scrThread::Info *info)
+{
+    info->GetReturn ()
+        = FixupScriptEntityModel (info->GetArg (0)) == info->GetArg (1);
+}
 
-    /*******************************************************/
-    static void
-    FixupScriptEntityModel (scrThread::Info *info)
-    {
-        info->GetReturn () = FixupScriptEntityModel (info->GetArg (0));
-    }
+/*******************************************************/
+void
+PedRandomizer_MainFixes::FixupScriptEntityModel (scrThread::Info *info)
+{
+    info->GetReturn () = FixupScriptEntityModel (info->GetArg (0));
+}
 
-    /*******************************************************/
-    template <auto &CutSceneManager_RegisterEntity>
-    static void
-    CorrectRegisterEntity (CutSceneManager *mgr, CEntity *entity,
-                           uint32_t *handle, uint32_t *modelHash, bool p5,
-                           bool p6, bool p7, uint32_t p8)
-    {
-        if (entity
-            && entity->m_pModelInfo->GetType ()
-                   == eModelInfoType::MODEL_INFO_PED)
-            {
-                *modelHash = PedRandomizerCompatibility::GetOriginalModel (
-                                 static_cast<CPed *> (entity))
-                                 ->m_nHash;
-            }
+/*******************************************************/
+uint32_t
+PedRandomizer_MainFixes::FixupScriptEntityModel (uint32_t guid)
+{
+    CPed *ped = static_cast<CPed *> (fwScriptGuid::GetBaseFromGuid (guid));
 
-        CutSceneManager_RegisterEntity (mgr, entity, handle, modelHash, p5, p6,
-                                        p7, p8);
-    }
+    if (!ped || !ped->m_pModelInfo)
+        return 0;
 
-    /*******************************************************/
-    static void
-    FixIsPedModelNative (scrThread::Info *info)
-    {
-        info->GetReturn ()
-            = FixupScriptEntityModel (info->GetArg (0)) == info->GetArg (1);
-    }
+    return PedRandomizer_Compatibility::GetOriginalModel (ped)->m_nHash;
+}
 
-    /*******************************************************/
-    static void
-    AdjustAiBlipNoticeRange (scrThread::Info *info)
-    {
-        info->GetArg<float> (1) = -1.0f;
-    }
+/*******************************************************/
+template <auto &CutSceneManager_RegisterEntity>
+void
+PedRandomizer_MainFixes::CorrectRegisterEntity (CutSceneManager *mgr,
+                                                CEntity *        entity,
+                                                uint32_t *       handle,
+                                                uint32_t *modelHash, bool p5,
+                                                bool p6, bool p7, uint32_t p8)
+{
+    if (entity
+        && entity->m_pModelInfo->GetType () == eModelInfoType::MODEL_INFO_PED)
+        {
+            *modelHash = PedRandomizer_Compatibility::GetOriginalModel (
+                             static_cast<CPed *> (entity))
+                             ->m_nHash;
+        }
 
-    /*******************************************************/
-    static void
-    AdjustAiBlipForcedOn (scrThread::Info *info)
-    {
-        info->GetArg<bool> (1) = true;
-    }
+    CutSceneManager_RegisterEntity (mgr, entity, handle, modelHash, p5, p6, p7,
+                                    p8);
+}
 
-public:
-    /*******************************************************/
-    PedRandomizer_MainFixes ()
-    {
-        // Fix for scripts where a certain hash is required for a certain ped.
-        "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
-        "IS_PED_MODEL"_n.Hook (FixIsPedModelNative);
+/*******************************************************/
+void
+PedRandomizer_MainFixes::Initialise ()
+{
+    // Fix for scripts where a certain hash is required for a certain ped.
+    "GET_ENTITY_MODEL"_n.Hook (FixupScriptEntityModel);
+    "IS_PED_MODEL"_n.Hook (FixIsPedModelNative);
+
+    // Some missions disable additional peds streaming leaving only 4 or so in
+    // memory. This makes it so that doesn't happen.
+    if (PR::Config ().EnableNoLowBudget)
+        {
+            "SET_PED_POPULATION_BUDGET"_n.Hook (Nop);
+            "SET_REDUCE_PED_MODEL_BUDGET"_n.Hook (Nop);
+        }
 
 #define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func, true> ()
 
-        HOOK ("SET_PED_AI_BLIP_NOTICE_RANGE", AdjustAiBlipNoticeRange);
-        HOOK ("SET_PED_AI_BLIP_FORCED_ON", AdjustAiBlipForcedOn);
-
-        REGISTER_HOOK (
-            "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
-            CorrectRegisterEntity, void, CutSceneManager *, CEntity *,
-            uint32_t *, uint32_t *, bool, bool, bool, uint32_t);
+    // With animals, it can sometimes be hard to pinpoint where a small animal
+    // is. This makes it so blips are always visible.
+    if (PR::Config ().EnableBlipsAlwaysVisible)
+        {
+            HOOK ("SET_PED_AI_BLIP_NOTICE_RANGE", AdjustAiBlipNoticeRange);
+            HOOK ("SET_PED_AI_BLIP_FORCED_ON", AdjustAiBlipForcedOn);
+        }
 
 #undef HOOK
-    }
 
-} peds_MainFixes;
+    REGISTER_HOOK (
+        "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
+        CorrectRegisterEntity, void, CutSceneManager *, CEntity *, uint32_t *,
+        uint32_t *, bool, bool, bool, uint32_t);
+}

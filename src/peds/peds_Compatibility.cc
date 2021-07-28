@@ -9,7 +9,7 @@
 
 /*******************************************************/
 CPedModelInfo *
-PedRandomizerCompatibility::GetOriginalModel (CPed *ped)
+PedRandomizer_Compatibility::GetOriginalModel (CPed *ped)
 {
     auto *model = ped->m_pModelInfo;
     if (!model)
@@ -28,7 +28,7 @@ PedRandomizerCompatibility::GetOriginalModel (CPed *ped)
 }
 
 bool
-PedRandomizerCompatibility::IsPlayerModel (uint32_t model)
+PedRandomizer_Compatibility::IsPlayerModel (uint32_t model)
 {
     switch (model)
         {
