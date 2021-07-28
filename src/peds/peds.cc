@@ -1,3 +1,5 @@
+#include "peds.hh"
+
 #include <cstdint>
 #include <mutex>
 #include <utility>
@@ -9,10 +11,8 @@
 
 #include "CModelInfo.hh"
 #include "common/logger.hh"
-#include "peds_Compatibility.hh"
-#include "peds_Streaming.hh"
-#include "peds_PlayerFixes.hh"
-#include "peds_Swapper.hh"
+
+#include <CStreaming.hh>
 
 class CPedFactory;
 
@@ -21,36 +21,14 @@ CPed *(*CPedFactory_CreateNonCopPed_5c6) (CPedFactory *, uint8_t *, uint32_t,
 
 class PedRandomizer
 {
+    using PR = PedRandomizer_Components;
+
     inline static std::mutex CreatePedMutex;
-    inline static bool       bSkipNextPedRandomization     = false;
-    inline static uint32_t   nForcedModelNextRandomization = -1u;
 
     constexpr static const char PedsFileName[] = "CutsceneModelsPeds.txt";
     using CutsPedsRandomizer
         = DataFileBasedModelRandomizer<PedsFileName,
                                        CStreaming::GetModelByHash<>>;
-
-    using ModelSwapper = PedRandomizer_ModelSwapper;
-
-    static auto &
-    Config ()
-    {
-        static struct Config
-        {
-            std::string ForcedPed               = "";
-            std::string ForcedClipset           = "";
-            uint32_t    ForcedPedHash           = -1;
-            bool        EnableNSFWModels        = false;
-            bool        RandomizePlayer         = true;
-            bool        RandomizePeds           = true;
-            bool        RandomizeCutscenePeds   = true;
-            bool        RandomizeSpecialAbility = true;
-            bool        IncludeUnusedAbilities  = false;
-            bool        UseCutsceneModelsFile   = true;
-        } m_Config;
-
-        return m_Config;
-    }
 
     /*******************************************************/
     static bool
@@ -72,10 +50,10 @@ class PedRandomizer
     {
         if (IsPlayerModel (CStreaming::GetModelByIndex (model)))
             {
-                if (!Config ().RandomizePlayer)
+                if (!PR::Config ().RandomizePlayer)
                     return false;
             }
-        else if (!Config ().RandomizePeds)
+        else if (!PR::Config ().RandomizePeds)
             return false;
 
         if (PedRandomizer_Streaming::IsPedBlacklisted (model))
@@ -88,17 +66,17 @@ class PedRandomizer
     static uint32_t
     GetRandomPedModel (uint32_t model)
     {
-        if (nForcedModelNextRandomization != -1u)
-            return std::exchange (nForcedModelNextRandomization, -1u);
+        if (PR::nForcedModelNextRandomization != -1u)
+            return std::exchange (PR::nForcedModelNextRandomization, -1u);
 
         if (!ShouldRandomizePedModel (model))
             return model;
 
         // Forced Ped
-        if (!Config ().ForcedPed.empty ())
+        if (!PR::Config ().ForcedPed.empty ())
             {
                 uint32_t id = CStreaming::GetModelIndex (
-                    rage::atStringHash (Config ().ForcedPed));
+                    rage::atStringHash (PR::Config ().ForcedPed));
 
                 if (CStreaming::HasModelLoaded (id))
                     return id;
@@ -114,7 +92,7 @@ class PedRandomizer
 
         // Random Ped
         uint32_t randomPed = PedRandomizer_Streaming::GetRandomLoadedPed (
-            Config ().EnableNSFWModels);
+            PR::Config ().EnableNSFWModels);
 
         if (randomPed != -1u)
             return randomPed;
@@ -128,27 +106,27 @@ class PedRandomizer
     RandomizePed (CPedFactory *fac, uint8_t *p2, uint32_t model, uint64_t p4,
                   uint8_t p5)
     {
-        if (std::exchange (bSkipNextPedRandomization, false))
+        if (std::exchange (PR::bSkipNextPedRandomization, false))
             return CPedFactory__CreatePed (fac, p2, model, p4, p5);
 
         const std::lock_guard g (CreatePedMutex);
         PedRandomizer_Streaming::Process ();
 
-        uint32_t           newModel = GetRandomPedModel (model);
-        const ModelSwapper swap (newModel, model);
-        swap.OverrideClipset (Config ().ForcedClipset);
+        uint32_t          newModel = GetRandomPedModel (model);
+        const PR::Swapper swap (newModel, model);
+        swap.OverrideClipset (PR::Config ().ForcedClipset);
 
-        PedRandomizerCompatibility::SetRandomizingPed (
+        PedRandomizer_Compatibility::SetRandomizingPed (
             CStreaming::GetModelByIndex<CPedModelInfo> (model));
 
         CPed *ped = CPedFactory__CreatePed (fac, p2, newModel, p4, p5);
 
-        PedRandomizerCompatibility::SetRandomizingPed (nullptr);
-        PedRandomizerCompatibility::AddRandomizedPed (ped, model, newModel);
-        PedRandomizer_PlayerFixes::UpdatePlayerHash ();
-        PedRandomizer_PlayerFixes::SetSpecialAbility (
-            ped, Config ().RandomizeSpecialAbility,
-            Config ().IncludeUnusedAbilities);
+        PR::Compatibility::SetRandomizingPed (nullptr);
+        PR::Compatibility::AddRandomizedPed (ped, model, newModel);
+        PR::PlayerFixes::UpdatePlayerHash ();
+        PR::PlayerFixes::SetSpecialAbility (
+            ped, PR::Config ().RandomizeSpecialAbility,
+            PR::Config ().IncludeUnusedAbilities);
 
         return ped;
     }
@@ -164,7 +142,7 @@ class PedRandomizer
         // Randomize model (remember model here is the idx, so convert to hash)
         uint32_t hash = CStreaming::GetModelHash (model);
 
-        if (!Config ().RandomizeCutscenePeds
+        if (!PR::Config ().RandomizeCutscenePeds
             || !sm_Randomizer.RandomizeObject (hash))
             return CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
 
@@ -177,7 +155,7 @@ class PedRandomizer
             }
 
         if (CStreaming::HasModelLoaded (newModel))
-            nForcedModelNextRandomization = newModel;
+            PR::nForcedModelNextRandomization = newModel;
 
         // Spawn the ped
         CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
@@ -188,23 +166,21 @@ public:
     PedRandomizer ()
     {
         std::string ForcedPed;
+#define OPTION(option) std::pair (#option, &PR::Config ().option)
+
         if (!ConfigManager::ReadConfig (
-                "PedRandomizer", std::pair ("ForcedPed", &Config ().ForcedPed),
-                std::pair ("RandomizePlayer", &Config ().RandomizePlayer),
-                std::pair ("RandomizePeds", &Config ().RandomizePeds),
-                std::pair ("RandomizeCutscenePeds",
-                           &Config ().RandomizeCutscenePeds),
-                std::pair ("UseCutsceneModelsFile",
-                           &Config ().UseCutsceneModelsFile),
-                std::pair ("ForcedClipset", &Config ().ForcedClipset),
-                std::pair ("RandomizeSpecialAbility",
-                           &Config ().RandomizeSpecialAbility),
-                std::pair ("IncludeUnusedAbilities",
-                           &Config ().IncludeUnusedAbilities)))
+                "PedRandomizer", OPTION (ForcedPed), OPTION (RandomizePlayer),
+                OPTION (RandomizeCutscenePeds), OPTION (UseCutsceneModelsFile),
+                OPTION (ForcedClipset), OPTION (RandomizeSpecialAbility),
+                OPTION (IncludeUnusedAbilities),
+                OPTION (EnableAnimalMotionFixes), OPTION (EnableAnimalFixes),
+                OPTION (EnablePlayerFixes), OPTION (EnableMainFixes),
+                OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible)))
             return;
 
-        if (Config ().ForcedPed.size ())
-            Config ().ForcedPedHash = rage::atStringHash (Config ().ForcedPed);
+        if (PR::Config ().ForcedPed.size ())
+            PR::Config ().ForcedPedHash
+                = rage::atStringHash (PR::Config ().ForcedPed);
 
         InitialiseAllComponents ();
 
@@ -213,7 +189,7 @@ public:
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
 
-        if (Config ().UseCutsceneModelsFile)
+        if (PR::Config ().UseCutsceneModelsFile)
             REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
                            RandomizeCutscenePeds, void,
                            class CCutsceneAnimatedActorEntity *, uint32_t,
@@ -224,7 +200,6 @@ public:
             RandomizePed, CPed *, CPedFactory *, uint8_t *, uint32_t, uint64_t,
             uint8_t);
 
-        PedRandomizer_Streaming::Initialise ();
-        PedRandomizer_PlayerFixes::Initialise ();
+        PR::Initialise ();
     }
 } peds;

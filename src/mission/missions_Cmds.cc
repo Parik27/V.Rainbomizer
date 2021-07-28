@@ -295,6 +295,10 @@ MissionRandomizer_Commands::OnMissionStart (uint32_t origHash,
             SetMoney (std::max (11000u, GetMoney ()));
             break;
 
+        case "finalea"_joaat:
+            "GIVE_WEAPON_TO_PED"_n("PLAYER_PED_ID"_n(), "weapon_pistol"_joaat,
+                                   25, 1, 1);
+
         case "family3"_joaat: SetBuildingState (2, 0); break;
         }
 }

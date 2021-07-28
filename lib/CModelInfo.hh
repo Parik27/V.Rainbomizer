@@ -120,7 +120,7 @@ public:
     uint32_t m_nAmbientClipsForFlee;
     uint8_t  field_0x234[12];
 
-    // This struct is obviously not in the original game, but it's just to make
+    // This struct is not in the original game, but it's just to make
     // it easier to increase patch compatibility without getting a pattern for
     // each one of these type. It's unlikely that any field will be added in the
     // middle of these fields.

@@ -6,7 +6,7 @@
 
 class CPed;
 
-class PedRandomizerCompatibility
+class PedRandomizer_Compatibility
 {
     inline static std::map<CPed *, std::pair<uint32_t, uint32_t>>
         sm_PedModelFixupMap;
@@ -40,4 +40,5 @@ public:
     }
 
     friend class PedRandomizer;
+    friend class PedRandomizer_AnimalFixes;
 };

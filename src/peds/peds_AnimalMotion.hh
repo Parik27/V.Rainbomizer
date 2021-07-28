@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CModelInfo.hh"
 #include "CStreaming.hh"
 #include "Utils.hh"
@@ -51,9 +53,9 @@ class PedRandomizer_AnimalMotion
         GetOriginalModel (CPed *ped)
         {
             auto *model
-                = PedRandomizerCompatibility::GetCurrentPedRandomizing ();
+                = PedRandomizer_Compatibility::GetCurrentPedRandomizing ();
             return model ? model
-                         : PedRandomizerCompatibility::GetOriginalModel (ped);
+                         : PedRandomizer_Compatibility::GetOriginalModel (ped);
         }
 
         /*******************************************************/
@@ -342,7 +344,8 @@ class PedRandomizer_AnimalMotion
 
 public:
     /*******************************************************/
-    PedRandomizer_AnimalMotion ()
+    static void
+    Initialise ()
     {
         InitialiseAllComponents ();
 
@@ -354,4 +357,4 @@ public:
                        ImproveAnimalMotion, aiTask *, CPed *, sMotionTaskData *,
                        bool);
     }
-} animlMo;
+};

@@ -124,20 +124,9 @@ class PedRandomizer_Streaming
     static bool
     RandomizePedGroups (CPopGroupList *grps, uint32_t name, uint32_t *out)
     {
-        static constexpr std::array aExemptGroups = {"fish_"_joaat,
-                                                     "birds_city"_joaat,
-                                                     "birds_ground_city"_joaat,
-                                                     "birds_countryside"_joaat,
-                                                     "birds_ocean"_joaat,
-                                                     "birds_ground_ocean"_joaat,
-                                                     "fish"_joaat};
-
         auto &PedHashes = Rainbomizer::Common::GetPedHashes ();
         for (auto &grp : grps->pedGroups)
             {
-                if (DoesElementExist (aExemptGroups, grp.Name))
-                    continue;
-
                 for (auto &model : grp.models)
                     model.Name = GetRandomElement (PedHashes);
             }
@@ -210,4 +199,6 @@ public:
                 sm_LastStreamedPedTime = time (NULL);
             }
     }
+
+    friend class LoadedPedDebugInterface;
 };

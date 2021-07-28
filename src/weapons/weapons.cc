@@ -140,8 +140,10 @@ class WeaponRandomizer
     static bool
     ShouldRandomizeWeapon (uint32_t weapon)
     {
-        static const std::array Patterns
-            = {std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat)};
+        static const std::array Patterns = {
+            std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat),
+            std::tuple ("finalea"_joaat, "weapon_pistol"_joaat),
+        };
 
         return !scrThread::GetActiveThread ()
                || !DoesElementExist (Patterns,
@@ -161,7 +163,7 @@ class WeaponRandomizer
             return weapon;
 
         bool isPlayer
-            = PedRandomizerCompatibility::GetOriginalModel (weapons->m_pPed)
+            = PedRandomizer_Compatibility::GetOriginalModel (weapons->m_pPed)
                   ->m_bIsPlayerType;
 
         // Don't randomize the weapon if it's given to the player
