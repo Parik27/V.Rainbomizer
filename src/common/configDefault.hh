@@ -38,6 +38,7 @@ WeatherRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
+PlayerSwitchSceneRandomizer = false
 
 #######################################################
 [ColourRandomizer]
