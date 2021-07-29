@@ -25,7 +25,7 @@ class PedRandomizer_AnimalFixes
     static aiTask *FixFallingPeds (CPed *_this, CPed *ped,
                                    bool *spawningPreference);
 
-    void FixLadderClimbAsAnimal ();
+    static void FixLadderClimbAsAnimal ();
 
 public:
     static void Initialise ();

@@ -21,6 +21,7 @@
 #include "CTask.hh"
 #include "CModelIndices.hh"
 #include "CCredits.hh"
+#include "CAmbientModelSets.hh"
 
 #include "Utils.hh"
 
@@ -133,6 +134,7 @@ InitialiseAllComponents ()
     aiTask::InitialisePatterns ();
     CModelIndices::InitialisePatterns ();
     CCreditArray::InitialisePatterns ();
+    CAmbientModelSetsManager::InitialisePatterns ();
 
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();

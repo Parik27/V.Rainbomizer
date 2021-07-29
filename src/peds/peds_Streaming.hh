@@ -11,6 +11,7 @@
 
 #include <rage.hh>
 #include <CPopulation.hh>
+#include <CAmbientModelSets.hh>
 
 #include <ctime>
 
@@ -125,9 +126,20 @@ class PedRandomizer_Streaming
     RandomizePedGroups (CPopGroupList *grps, uint32_t name, uint32_t *out)
     {
         auto &PedHashes = Rainbomizer::Common::GetPedHashes ();
+
+        // Pop Groups
         for (auto &grp : grps->pedGroups)
             {
                 for (auto &model : grp.models)
+                    model.Name = GetRandomElement (PedHashes);
+            }
+
+        // Ambient Model Sets (used for Scenarios)
+        for (auto &models : CAmbientModelSetsManager::Get ()
+                                ->aSets[AMBIENT_PED_MODEL_SET]
+                                .ModelSets)
+            {
+                for (auto &model : models->Models)
                     model.Name = GetRandomElement (PedHashes);
             }
 
