@@ -63,7 +63,7 @@ class PedRandomizer_PlayerFixes
     CorrectPlayerObjIdx (CutSceneManager *mgr)
     {
         CPed *          player = CPedFactory::Get ()->pPlayer;
-        CBaseModelInfo *model  = PedRandomizerCompatibility::GetOriginalModel (
+        CBaseModelInfo *model  = PedRandomizer_Compatibility::GetOriginalModel (
             CPedFactory::Get ()->pPlayer);
 
         // Restore original model for this function and change it back after
@@ -179,7 +179,7 @@ class PedRandomizer_PlayerFixes
     {
         CPlayerPedSaveStructure__PreSave (save);
 
-        uint32_t origHash = PedRandomizerCompatibility::GetOriginalModel (
+        uint32_t origHash = PedRandomizer_Compatibility::GetOriginalModel (
                                 CPedFactory::Get ()->pPlayer)
                                 ->m_nHash;
 

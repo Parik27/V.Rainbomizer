@@ -246,7 +246,7 @@ MissionRandomizer_PlayerSwitcher::CheckCurrentPlayer (ePlayerIndex index)
         == int (eCharacter::_))
         {
             uint32_t hash     = 0;
-            auto *playerModel = PedRandomizerCompatibility::GetOriginalModel (
+            auto *playerModel = PedRandomizer_Compatibility::GetOriginalModel (
                 CPedFactory::Get ()->pPlayer);
 
             switch (index)
