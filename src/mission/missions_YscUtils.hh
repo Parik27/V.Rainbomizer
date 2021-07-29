@@ -364,6 +364,22 @@ public:
         pPatternResult = ptr;
     }
 
+    /* Initialise the UtilsOps to a certain pattern for further operations */
+    void
+    Init (uint32_t ip)
+    {
+        uint8_t *ptr   = &GetProgram ()->GetCodeByte<uint8_t> (ip);
+        pPatternResult = ptr;
+    }
+
+    uint32_t
+    GetWorkingIp ()
+    {
+        if (pPatternResult)
+            return GetCodeOffset (pPatternResult);
+        return -1u;
+    }
+
     /* Reinitialises the UtilsOps to the branch destination at offset of stored
      * ptr */
     void
