@@ -34,7 +34,7 @@ public:
             bool        EnableMainFixes          = true;
             bool        EnableNoLowBudget        = true;
             bool        EnableBlipsAlwaysVisible = true;
-
+            int         OddsOfPlayerModels       = 20;
         } m_Config;
 
         return m_Config;

@@ -49,16 +49,12 @@ class ColoursRandomizer
     static void
     RestoreVehicleColourData (CCustomShaderEffectVehicle *shader, CVehicle *veh)
     {
-        try
+        if (auto *data = LookupMap (mColourData, veh))
             {
-                auto & data    = mColourData.at (veh);
                 CARGB *colours = shader->GetColours ();
 
                 for (int i = 0; i < 4; i++)
-                    colours[i] = data.OriginalColours[i];
-            }
-        catch (...)
-            {
+                    colours[i] = data->OriginalColours[i];
             }
     }
 

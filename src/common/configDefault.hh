@@ -20,6 +20,7 @@ const char configDefault[] = R"(
 #######################################################
 
 # General Configuration
+# Refer to the readme to get the description of all the randomizers.
 [Randomizers]
 
 RainbomizerNews = true
@@ -99,4 +100,8 @@ EnableNoLowBudget = true
 # This option makes it so enemy blips are always visible. This helps when the enemies are
 # randomized into a small animal that's difficult to locate
 EnableBlipsAlwaysVisible = true
+
+# Reduce the odds of the player models being considered to spawn
+# (from 0 (no player models) to 100 (some player models))
+OddsOfPlayerModels = 20
 )";

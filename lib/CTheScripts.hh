@@ -76,7 +76,7 @@ public:
     static inline void
     InvokeNative (uint32_t hash, scrThread::Info *info)
     {
-        if (!m_ScriptHookInfo.bAvailable)
+        if (!IsScriptHookAvailable ())
             return;
 
         m_ScriptHookInfo.mNatives.at (hash).func (info);
@@ -86,6 +86,12 @@ public:
     DoesNativeExist (uint32_t hash)
     {
         return m_ScriptHookInfo.mNatives.count (hash);
+    }
+
+    static bool
+    IsScriptHookAvailable ()
+    {
+        return m_ScriptHookInfo.bAvailable;
     }
 
     template <typename Ret, typename... Args>

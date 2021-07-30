@@ -38,11 +38,6 @@ class PedRandomizer_ModelSwapper
         SWAP_FIELD (GetInitInfo ().m_nDecisionMakerName);
         SWAP_FIELD (GetInitInfo ().m_nNavCapabilitiesName);
 
-#ifdef FLYING_BIRDS
-        SWAP_FIELD (m_nMovementClipSet);
-        SWAP_FIELD (GetInitInfo ().m_nMotionTaskDataSetName);
-#endif
-
 #undef SWAP_FIELD
     }
 
