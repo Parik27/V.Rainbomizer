@@ -12,6 +12,7 @@
 #include <audEngine.hh>
 #include <thread>
 #include <common/config.hh>
+#include <CTheScripts.hh>
 
 class audScriptAudioEntity;
 class audSpeechSound;
@@ -54,7 +55,11 @@ class VoiceLineRandomizer
     static bool
     ShouldRandomizeVoiceLine (uint32_t hash)
     {
-        return true;
+        return std::find_if (std::begin (mSounds), std::end (mSounds),
+                             [hash] (const SoundPair &sound) {
+                                 return sound.soundHash == hash;
+                             })
+               != std::end (mSounds);
     }
 
     /*******************************************************/
@@ -65,11 +70,9 @@ class VoiceLineRandomizer
                                uint32_t, uint8_t, uint8_t, uint8_t)
     {
         if (mSounds.size () > 0
-            && ShouldRandomizeVoiceLine (rage::atStringHash (subtitle)))
+            && ShouldRandomizeVoiceLine (rage::atPartialStringHash (sound)))
             {
                 auto &newSound = GetRandomElement (mSounds);
-                if (strstr (sound, "SFX_") == sound)
-                    return true;
 
                 subtitle = newSound.subtitle.c_str ();
                 mAudioPairs[rage::atPartialStringHash (sound)] = &newSound;
