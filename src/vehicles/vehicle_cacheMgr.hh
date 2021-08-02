@@ -16,6 +16,7 @@ class VehicleModelInfoCacheMgr
 public:
     void GenerateCache ();
     bool ReadCacheFile (FILE *file);
+    bool WriteCacheFile ();
     void InitCache ();
 
     VehicleModelInfoCacheMgr () { InitCache (); }

@@ -5,8 +5,32 @@
 #include <CModelInfo.hh>
 #include <CStreaming.hh>
 #include <cstdio>
+#include <stdio.h>
 
 const uint32_t CacheVersion = 1;
+
+/*******************************************************/
+bool
+VehicleModelInfoCacheMgr::WriteCacheFile ()
+{
+    FILE *cacheFile
+        = Rainbomizer::Common::GetRainbomizerDataFile ("VehInfo.cache", "wb");
+
+    if (!cacheFile)
+        return false;
+
+    auto &hashes = Rainbomizer::Common::GetVehicleHashes ();
+    fwrite (&CacheVersion, 4, 1, cacheFile);
+
+    for (auto hash : hashes)
+        {
+            fwrite (&hash, 4, 1, cacheFile);
+            fwrite (&mBoundsCache[hash], sizeof (Vector3), 1, cacheFile);
+        }
+
+    fclose (cacheFile);
+    return true;
+}
 
 /*******************************************************/
 void
@@ -15,10 +39,6 @@ VehicleModelInfoCacheMgr::GenerateCache ()
     auto  timestamp = clock ();
     auto &hashes    = Rainbomizer::Common::GetVehicleHashes ();
 
-    FILE *cacheFile
-        = Rainbomizer::Common::GetRainbomizerDataFile ("VehInfo.cache", "wb");
-
-    fwrite (&CacheVersion, 4, 1, cacheFile);
     for (auto hash : hashes)
         {
             uint32_t           modelId;
@@ -26,7 +46,7 @@ VehicleModelInfoCacheMgr::GenerateCache ()
                 = CStreaming::GetModelAndIndexByHash<CVehicleModelInfo> (
                     hash, modelId);
 
-            if (!modelInfo)
+            if (!modelInfo || mBoundsCache.count (hash))
                 continue;
 
             bool deleteModel = false;
@@ -37,19 +57,15 @@ VehicleModelInfoCacheMgr::GenerateCache ()
                     deleteModel = true;
                 }
 
-            mBoundsCache[hash] = modelInfo->m_vecMax - modelInfo->m_vecMin;
-            fwrite (&hash, 4, 1, cacheFile);
-            fwrite (&mBoundsCache[hash], sizeof (Vector3), 1, cacheFile);
-
             if (deleteModel)
                 CStreaming::DeleteModel (modelId);
         }
 
-    fclose (cacheFile);
-
     Rainbomizer::Logger::LogMessage (
         "Cached model info in %.2f seconds",
         1.0f * (static_cast<float> (clock () - timestamp) / CLOCKS_PER_SEC));
+
+    WriteCacheFile ();
 }
 
 /*******************************************************/

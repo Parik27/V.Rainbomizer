@@ -2,7 +2,7 @@
 #																X	Y	Z	
 prologue1	Rancherxl2	4	Y	Y	N	Y	Y	Y	Y	N	N	Y	N	N					
 armenian1	Rapidgt2	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=10				
-armenian1	Buffalo2	2	Y	Y	N	N	N	N	N	N	N	Y	N	N					
+armenian1	Buffalo2	2	Y	Y	N	N	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=3				
 armenian1	Ninef2	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=10				
 armenian1	Bjxl	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 armenian2	Baller	1	Y	Y	Y	Y	N	N	N	N	N	Y	Y	Y	w=5.0+l=5.0+h=5				

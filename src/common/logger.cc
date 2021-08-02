@@ -1,5 +1,6 @@
 #include "logger.hh"
 #include "common.hh"
+#include <cstdlib>
 #include <ctime>
 #include <windows.h>
 #include <Utils.hh>
@@ -51,8 +52,13 @@ Logger::GetLogFile ()
                                                 "logs/");
             if (!mFile)
                 {
-                    MessageBox (NULL, "Unable to open log file", "Error",
-                                MB_ICONHAND);
+                    MessageBox (NULL,
+                                "Failed to open log file for writing.\n\nAllow "
+                                "write permissions for the GTA V Directory to "
+                                "allow Rainbomizer to work properly.\n\nRight "
+                                "click on the Game Folder > Properties > "
+                                "General > Uncheck Read Only.",
+                                "Error", MB_ICONHAND);
                     mFile = stdout;
                 }
 

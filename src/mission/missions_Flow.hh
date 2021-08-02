@@ -51,8 +51,6 @@ class MissionRandomizer_Flow
     bool OnMissionStart ();
     bool OnMissionEnd (bool passed);
 
-    void LogPlayerPos (bool start);
-
     void SetFlowControlVariableForHeist (eHeistId id, bool approach);
     void SetHeistFlowControlVariables ();
     void SetHeistFlowControlVariablesForMission ();
