@@ -30,12 +30,38 @@ VehicleRandomizerHelper::GetLoadedVehSet ()
 }
 
 /*******************************************************/
+void
+VehicleRandomizerHelper::AdjustSetBasedOnSettings (std::set<uint32_t> &set)
+{
+    if (!Settings::Trains)
+        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_TRAIN"_joaat> (set);
+
+    if (!Settings::Boats)
+        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_BOAT"_joaat> (set);
+
+    if (!Settings::Helis)
+        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_HELI"_joaat,
+                                  "VEHICLE_TYPE_BLIMP"_joaat> (set);
+
+    if (!Settings::Planes)
+        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_PLANE"_joaat> (set);
+
+    for (auto hash : Settings::Disabled)
+        set.erase (CStreaming::GetModelIndex (hash));
+
+    if (Settings::DisabledPtr)
+        for (auto hash : *Settings::DisabledPtr)
+            set.erase (CStreaming::GetModelIndex (hash));
+
+    Settings::Reset ();
+}
+
+/*******************************************************/
 uint32_t
-VehicleRandomizerHelper::GetRandomLoadedVehIndex (uint32_t *outNum, bool trains)
+VehicleRandomizerHelper::GetRandomLoadedVehIndex (uint32_t *outNum)
 {
     std::set<uint32_t> cars = GetLoadedVehSet ();
-    if (!trains)
-        RemoveVehicleTypesFromSet<"VEHICLE_TYPE_TRAIN"_joaat> (cars);
+    AdjustSetBasedOnSettings (cars);
 
     if (outNum)
         *outNum = static_cast<uint32_t> (cars.size ());

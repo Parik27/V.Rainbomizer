@@ -40,6 +40,16 @@ PedRandomizer = true
 HandlingRandomizer = false
 
 #######################################################
+[TrafficRandomizer]
+
+# Enable this if you're having frame drops because of big planes exploding.
+DisableBigVehicles = false
+
+EnablePlanes = true
+EnableHelis = true
+EnableBoats = true # Don't be a boat hater, keep this enabled :wink:
+
+#######################################################
 [ColourRandomizer]
 
 RandomizeHudColours = true

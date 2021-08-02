@@ -6,16 +6,70 @@
 #include <CMath.hh>
 #include "common/common.hh"
 #include <set>
+#include <stdio.h>
+#include <string.h>
 #include "common/config.hh"
 #include "vehicle_common.hh"
 
 class TrafficRandomizer
 {
     /*******************************************************/
+    static auto &
+    Config ()
+    {
+        static struct Config
+        {
+            bool EnablePlanes = true;
+            bool EnableHelis  = true;
+            bool EnableBoats  = true;
+
+            bool DisableBigVehicles = false;
+        } m_Config;
+
+        return m_Config;
+    }
+
+    /*******************************************************/
+    static std::vector<uint32_t> *
+    GetBigVehiclesList ()
+    {
+        if (!Config ().DisableBigVehicles)
+            return nullptr;
+
+        static bool                  bInitialised = false;
+        static std::vector<uint32_t> aList;
+
+        if (bInitialised)
+            return &aList;
+
+        bInitialised = true;
+
+        FILE *f
+            = Rainbomizer::Common::GetRainbomizerDataFile ("BigVehicles.txt");
+
+        if (!f)
+            return &aList;
+
+        char line[256] = {0};
+        while (fgets (line, 256, f))
+            {
+                line[strcspn (line, "\n")] = 0;
+                aList.push_back (rage::atStringHash (line));
+            }
+
+        return &aList;
+    }
+
+    /*******************************************************/
     static bool
     RandomizeCarToSpawn (uint32_t *modelId, uint32_t *spawnList, Vector3 *pos,
                          bool param_4)
     {
+        VehicleRandomizerHelper::Settings::Boats       = Config ().EnableBoats;
+        VehicleRandomizerHelper::Settings::Helis       = Config ().EnableHelis;
+        VehicleRandomizerHelper::Settings::Planes      = Config ().EnablePlanes;
+        VehicleRandomizerHelper::Settings::DisabledPtr = GetBigVehiclesList ();
+
         *modelId = VehicleRandomizerHelper::GetRandomLoadedVehIndex ();
         if (*modelId == -1u)
             *modelId = 65535;
@@ -48,8 +102,17 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
-        if (!ConfigManager::ReadConfig ("TrafficRandomizer"))
+        if (!ConfigManager::ReadConfig (
+                "TrafficRandomizer",
+                std::pair ("EnablePlanes", &Config ().EnablePlanes),
+                std::pair ("EnableHelis", &Config ().EnableHelis),
+                std::pair ("EnableBoats", &Config ().EnableBoats),
+                std::pair ("DisableBigVehicles",
+                           &Config ().DisableBigVehicles)))
             return;
+
+        if (!Config ().EnableBoats)
+            Rainbomizer::Logger::LogMessage ("Boat hater detected!!");
 
         InitialiseAllComponents ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();

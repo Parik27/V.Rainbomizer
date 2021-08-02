@@ -12,7 +12,6 @@
 #include <audEngine.hh>
 #include <thread>
 #include <common/config.hh>
-#include <CTheScripts.hh>
 
 class audScriptAudioEntity;
 class audSpeechSound;

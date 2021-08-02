@@ -3,12 +3,37 @@
 #include "CStreaming.hh"
 #include <cstdint>
 #include <set>
+#include <vector>
 
 struct scrProgram;
 
 class VehicleRandomizerHelper
 {
 public:
+    struct Settings
+    {
+        inline static bool Trains = false;
+        inline static bool Helis  = true;
+        inline static bool Planes = true;
+        inline static bool Boats  = true;
+
+        inline static std::vector<uint32_t>        Disabled;
+        inline static const std::vector<uint32_t> *DisabledPtr = nullptr;
+
+        static void
+        Reset ()
+        {
+            Trains = false;
+            Helis  = true;
+            Planes = true;
+            Boats  = true;
+
+            Disabled.clear ();
+
+            DisabledPtr = nullptr;
+        }
+    };
+
     static std::set<uint32_t> GetLoadedVehSet ();
 
     /*******************************************************/
@@ -52,8 +77,9 @@ public:
             }
     }
 
-    static uint32_t GetRandomLoadedVehIndex (uint32_t *outNum = nullptr,
-                                             bool      trains = false);
+    static void AdjustSetBasedOnSettings (std::set<uint32_t> &set);
+
+    static uint32_t GetRandomLoadedVehIndex (uint32_t *outNum = nullptr);
 
     static void InitialiseDLCDespawnFix ();
 };
