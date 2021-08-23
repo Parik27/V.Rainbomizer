@@ -2,7 +2,7 @@
 #																X	Y	Z	
 prologue1	Rancherxl2	4	Y	Y	N	Y	Y	Y	Y	N	N	Y	N	N					
 armenian1	Rapidgt2	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=10				
-armenian1	Buffalo2	2	Y	Y	N	N	N	N	N	N	N	Y	N	N					
+armenian1	Buffalo2	2	Y	Y	N	N	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=3				
 armenian1	Ninef2	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=5.0+l=5.0+h=10				
 armenian1	Bjxl	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 armenian2	Baller	1	Y	Y	Y	Y	N	N	N	N	N	Y	Y	Y	w=5.0+l=5.0+h=5				
@@ -109,7 +109,7 @@ exile3	Premier	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N
 exile3	Dinghy2	2	N	N	N	N	N	N	N	Y	Y	N	N	N					
 exile3	Buzzard	1	N	N	N	N	Y	Y	Y	N	N	N	N	N					
 exile3	Sadler	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	Y	N					
-rural_bank_setup	Premier	4	N	N	N	N	N	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
+rural_bank_setup	Premier	4	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0		
 rural_bank_setup	Ruffian	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=5.0+l=10.0+h=4.0				
 rural_bank_setup	Tailgater	3	Y	Y	N	Y	N	N	N	N	N	Y	N	N					
 rural_bank_prep1	Barracks	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					

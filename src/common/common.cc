@@ -2,10 +2,12 @@
 #include "common.hh"
 #include "CStreaming.hh"
 #include "CModelInfo.hh"
+#include <cstring>
 #include <filesystem>
 #include "logger.hh"
 #include <rage.hh>
 #include <Natives.hh>
+#include <system_error>
 
 void (*gameSkeleton__Init) (gameSkeleton *, uint32_t);
 
@@ -94,7 +96,10 @@ Common::GetRainbomizerFileName (const std::string &name,
 {
     std::string baseDir
         = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str ());
-    std::filesystem::create_directories (baseDir);
+
+    std::error_code ec;
+    std::filesystem::create_directories (baseDir, ec);
+
     return baseDir + name;
 }
 
@@ -115,8 +120,8 @@ Common::GetRainbomizerDataFile (const std::string &name,
     FILE *f = GetRainbomizerFile (name, mode, "data/");
 
     if (!f)
-        Logger::LogMessage ("Failed to read Rainbomizer data file: data/%s",
-                            name.c_str ());
+        Logger::LogMessage ("Failed to read Rainbomizer data file: data/%s: %s",
+                            name.c_str (), std::strerror (errno));
 
     return f;
 }

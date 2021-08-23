@@ -85,7 +85,8 @@ class PedRandomizer_Streaming
 
     /*******************************************************/
     static void
-    PopulateLoadedPedsSet (std::set<uint32_t> &peds, bool includeNsfw)
+    PopulateLoadedPedsSet (std::set<uint32_t> &peds, bool includeNsfw,
+                           bool includePlayers = true)
     {
         auto groups = CStreaming::sm_Instance;
 
@@ -107,7 +108,7 @@ class PedRandomizer_Streaming
              {"player_one"_joaat, "player_zero"_joaat, "player_two"_joaat})
             {
                 auto index = CStreaming::GetModelIndex (hash);
-                if (CStreaming::HasModelLoaded (index))
+                if (includePlayers && CStreaming::HasModelLoaded (index))
                     peds.insert (index);
             }
 
@@ -186,10 +187,10 @@ public:
 
     /*******************************************************/
     static uint32_t
-    GetRandomLoadedPed (bool includeNsfw = false)
+    GetRandomLoadedPed (bool includeNsfw = false, bool includePlayer = true)
     {
         std::set<uint32_t> peds;
-        PopulateLoadedPedsSet (peds, includeNsfw);
+        PopulateLoadedPedsSet (peds, includeNsfw, includePlayer);
 
         if (peds.size () < 1)
             return -1;

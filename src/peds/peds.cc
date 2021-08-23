@@ -10,6 +10,7 @@
 #include <scrThread.hh>
 
 #include "CModelInfo.hh"
+#include "Utils.hh"
 #include "common/logger.hh"
 
 #include <CStreaming.hh>
@@ -92,7 +93,8 @@ class PedRandomizer
 
         // Random Ped
         uint32_t randomPed = PedRandomizer_Streaming::GetRandomLoadedPed (
-            PR::Config ().EnableNSFWModels);
+            PR::Config ().EnableNSFWModels,
+            RandomInt (100) < PR::Config ().OddsOfPlayerModels);
 
         if (randomPed != -1u)
             return randomPed;
@@ -175,7 +177,8 @@ public:
                 OPTION (IncludeUnusedAbilities),
                 OPTION (EnableAnimalMotionFixes), OPTION (EnableAnimalFixes),
                 OPTION (EnablePlayerFixes), OPTION (EnableMainFixes),
-                OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible)))
+                OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible),
+                OPTION (OddsOfPlayerModels)))
             return;
 
         if (PR::Config ().ForcedPed.size ())

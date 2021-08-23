@@ -20,6 +20,7 @@ const char configDefault[] = R"(
 #######################################################
 
 # General Configuration
+# Refer to the readme to get the description of all the randomizers.
 [Randomizers]
 
 RainbomizerNews = true
@@ -39,6 +40,16 @@ MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
+
+#######################################################
+[TrafficRandomizer]
+
+# Enable this if you're having frame drops because of big planes exploding.
+DisableBigVehicles = false
+
+EnablePlanes = true
+EnableHelis = true
+EnableBoats = true # Don't be a boat hater, keep this enabled :wink:
 
 #######################################################
 [ColourRandomizer]
@@ -100,4 +111,8 @@ EnableNoLowBudget = true
 # This option makes it so enemy blips are always visible. This helps when the enemies are
 # randomized into a small animal that's difficult to locate
 EnableBlipsAlwaysVisible = true
+
+# Reduce the odds of the player models being considered to spawn
+# (from 0 (no player models) to 100 (some player models))
+OddsOfPlayerModels = 20
 )";

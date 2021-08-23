@@ -25,7 +25,7 @@ class NewsRandomizer
                 if (strstr (prefix, "/news/"))
                     {
                         buff = out;
-                        strncpy (buff, "local.parik.eu.org", outLen);
+                        strncpy (buff, "news.rainbomizer.com", outLen);
                     }
             }
 

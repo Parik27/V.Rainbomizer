@@ -140,7 +140,6 @@ MissionRandomizer_Flow::PreMissionStart ()
 
     nPlayerIndexBeforeMission = MR::sm_Globals.GetCurrentPlayer ();
 
-    LogPlayerPos (true);
     MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (true));
 
     nLastPassedMissionTime    = MR::sm_Globals.g_LastPassedMissionTime;
@@ -283,22 +282,6 @@ MissionRandomizer_Flow::OnMissionStart ()
 }
 
 /*******************************************************/
-void
-MissionRandomizer_Flow::LogPlayerPos (bool start)
-{
-    FILE *f    = (start) ? mStartCoordsFile : mEndCoordsFile;
-    auto *info = (start) ? OriginalMission : RandomizedMission;
-
-    Vector3_native pos = NativeManager::InvokeNative<Vector3_native> (
-        "GET_ENTITY_COORDS"_joaat, "PLAYER_PED_ID"_n(), 0);
-    float heading = "GET_ENTITY_HEADING"_n("PLAYER_PED_ID"_n());
-
-    fprintf (f, "%s: %f %f %f %f\n", info->Data.sName, pos.x, pos.y, pos.z,
-             heading);
-    fflush (f);
-}
-
-/*******************************************************/
 bool
 MissionRandomizer_Flow::OnMissionEnd (bool pass)
 {
@@ -313,10 +296,7 @@ MissionRandomizer_Flow::OnMissionEnd (bool pass)
         nLastPassedMissionTime);
 
     if (pass)
-        {
-            LogPlayerPos (false);
-            MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (false));
-        }
+        MR::sm_PlayerSwitcher.BeginSwitch (GenerateSwitcherContext (false));
     else
         {
 #if (0)
