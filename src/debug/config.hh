@@ -11,7 +11,7 @@
 class ConfigDebugInterface : public DebugInterface
 {
 public:
-    using Type = std::variant<int *, std::string *, bool *>;
+    using Type = std::variant<int *, std::string *, bool *, double *>;
 
 private:
     inline static std::map<std::string, Type> sm_ConfigOptions;
@@ -34,6 +34,8 @@ private:
 
                         if constexpr (std::is_same_v<T, int *>)
                             ImGui::InputInt ("", arg);
+                        else if constexpr (std::is_same_v<T, double *>)
+                            ImGui::InputDouble ("", arg);
                         else if constexpr (std::is_same_v<T, std::string *>)
                             ImGui::InputText ("", arg);
                         else if constexpr (std::is_same_v<T, bool *>)

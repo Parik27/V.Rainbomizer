@@ -23,11 +23,12 @@ class WeatherRandomizer
     {
         static struct Config
         {
-            bool        RandomizeWeather   = true;
-            bool        RandomizeTimecycle = true;
-            bool        CrazyMode          = false;
-            bool        RandomizeEveryFade = true;
-            std::string TunableFile        = "Timecyc/Default.txt";
+            bool        RandomizeWeather       = true;
+            bool        RandomizeTimecycle     = true;
+            bool        CrazyMode              = false;
+            bool        RandomizeEveryFade     = true;
+            double      RandomizeTimecycleOdds = 80.0;
+            std::string TunableFile            = "Timecyc/Default.txt";
         } sm_Config;
 
         return sm_Config;
@@ -113,7 +114,9 @@ class WeatherRandomizer
 
             WeatherRandomizer_TunableManager::Initialise (
                 Config ().TunableFile);
-            WeatherRandomizer_TunableManager::Randomize ();
+
+            if (RandomFloat (1000) < Config ().RandomizeTimecycleOdds * 10.0f)
+                WeatherRandomizer_TunableManager::Randomize (); 
         });
     }
 
@@ -126,6 +129,8 @@ public:
                 std::pair ("RandomizeWeather", &Config ().RandomizeWeather),
                 std::pair ("RandomizeTimecycle", &Config ().RandomizeTimecycle),
                 std::pair ("TunableFile", &Config ().TunableFile),
+                std::pair ("RandomizeTimecycleOdds",
+                           &Config ().RandomizeTimecycleOdds),
                 std::pair ("RandomizeEveryFade",
                            &Config ().RandomizeEveryFade)))
             return;
