@@ -131,6 +131,14 @@ private:
     float __pad[2];
 };
 
+class Vec3f
+{
+public:
+    float x;
+    float y;
+    float z;
+};
+
 class Vec3V
 {
 public:

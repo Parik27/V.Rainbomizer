@@ -145,7 +145,7 @@ class PedRandomizer
         uint32_t hash = CStreaming::GetModelHash (model);
 
         if (!PR::Config ().RandomizeCutscenePeds
-            || !ShouldRandomizePedModel (hash)
+            || !ShouldRandomizePedModel (model)
             || !sm_Randomizer.RandomizeObject (hash))
             return CCutsceneAnimatedActorEntity__CreatePed (entity, model, p3);
 
