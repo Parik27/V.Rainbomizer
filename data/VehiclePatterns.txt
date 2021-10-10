@@ -74,6 +74,7 @@ fbi2	Buzzard	2	N	N	N	N	Y	Y	Y	N	N	N	N	N
 fbi3	Oracle2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
 fbi3	Bodhi2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
 family5	Tailgater	2	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
+family5	Premier	2	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
 franklin1	Speedo	4	Y	Y	N	N	N	Y	N	N	N	N	N	N	w=15.0+l=15.0+h=15				
 carsteal1	F620	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20				
 carsteal1	Policeb	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=1.4+l=1.65+h=4.18+x=2682+y=5131+z=43				
@@ -95,6 +96,7 @@ fbi4	Trash	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N
 fbi4	Towtruck	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
 fbi4	Stockade	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 fbi4	Premier	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	N					
+fbi4	Tailgater	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	N					
 fbi4_prep2	Towtruck	1	N	N	N	N	N	N	N	N	N	N	N	N					
 fbi4_prep1	Trash	1	N	N	N	N	N	N	N	N	N	N	N	N					
 exile1	Duster	1	N	N	N	N	Y	N	N	N	N	N	N	N	w=17.0+l=15.0+h=6.0+flying	-14	28	0	
@@ -105,13 +107,14 @@ exile2	Baller	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0
 exile2	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N	flying				
 exile2	Dubsta	4	Y	Y	N	N	Y	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0+no_rotors				
 exile3	Sanchez	1	C	Y	Y	Y	C	C	C	N	N	C	N	N	w=3.0+l=7.0+h=3.0	20	-91	0	
+exile3	Tailgater	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 exile3	Premier	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 exile3	Dinghy2	2	N	N	N	N	N	N	N	Y	Y	N	N	N					
 exile3	Buzzard	1	N	N	N	N	Y	Y	Y	N	N	N	N	N					
 exile3	Sadler	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	Y	N					
-rural_bank_setup	Premier	4	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0		
+rural_bank_setup	Premier	3	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 rural_bank_setup	Ruffian	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=5.0+l=10.0+h=4.0				
-rural_bank_setup	Tailgater	3	Y	Y	N	Y	N	N	N	N	N	Y	N	N					
+rural_bank_setup	Tailgater	3	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 rural_bank_prep1	Barracks	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 rural_bank_prep1	Crusader	4	Y	Y	N	Y	Y	Y	N	N	N	Y	N	N					
 rural_bank_heist	Burrito3	4	Y	Y	N	Y	Y	Y	N	N	N	Y	N	N	w=5.0+l=14.0+h=4.0	16.5	-47.7	0	
@@ -128,6 +131,7 @@ fbi5a	Trflat	0	Y	N	N	N	Y	Y	Y	Y	Y	Y	Y	Y
 fbi5a	Bodhi2	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 fbi5a	Barracks	2	N	N	N	N	N	N	N	N	N	N	N	N					
 finale_heist1	Tailgater	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0+no_rotors	-30	-3.5	0	
+finale_heist1	Premier	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0+no_rotors				
 finale_heist1	Bodhi2	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20				
 finale_heist1	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N	flying				
 finale_heist_prepb	Packer	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Armytrailer2				
@@ -158,8 +162,9 @@ finale_heist2b	Police3	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N
 finale_heist2b	Fbi2	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	N	N					
 finale_heist2b	Polmav	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	N	N					
 finale_heist2b	Police	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
-finale_heist2b	AllVehicles	4	Y	N	N	N	N	N	N	N	N	Y	N	N	x=-166+y=-621+z=31				
+finale_heist2b	AllVehicles	4	Y	N	N	N	N	N	N	N	N	Y	N	N	x=-166+y=-621+z=31+w=15.0+l=15.0+h=15.0				
 michael1	Tailgater	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
+michael1	Premier	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 michael1	Cuban800	1	N	N	N	N	C	C	C	N	N	C	N	N	w=20.0+l=21.0+h=3.0+flying	13	-48.5	0	
 michael1	Asea2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 michael1	Burrito5	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
@@ -180,6 +185,7 @@ michael3	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N
 michael4	Stretch	4	Y	Y	N	Y	N	Y	N	Y	Y	Y	N	N					
 michael4	Mesa3	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 agency_heist1	Tailgater	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
+agency_heist1	Premier	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 agency_heist1	Stanier	1	Y	Y	Y	Y	Y	Y	Y	N	Y	Y	Y	N	w=15.0+l=15.0+h=5.0				
 agency_heist1	AllVehicles	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 agency_heist2	Zion2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	w=15.0+l=15.0+h=15.0				
@@ -192,12 +198,14 @@ finalea	Buffalo2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N
 finalea	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	N					
 finaleb	Buffalo2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 finaleb	Tailgater	1	Y	Y	Y	Y	N	N	N	Y	Y	Y	Y	N	w=15.0+l=15.0+h=15.0				
+finaleb	Premier	1	Y	Y	Y	Y	N	N	N	Y	Y	Y	Y	N	w=15.0+l=15.0+h=15.0				
 finalec1	Fbi2	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finalec1	Mesa3	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finalec1	Buzzard	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 finalec1	Bagger	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finalec2	Bagger	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
 finalec2	Tailgater	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+finalec2	Premier	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 finalec2	Bodhi2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 finalec2	Cavalcade	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
 finalec2	Washington	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
@@ -307,11 +315,17 @@ mission_triggerer_a	Bjxl	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0
 mission_triggerer_a	Tailgater	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
 mission_triggerer_a	Premier	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=7.0+l=5.0+h=5.0				
 mission_triggerer_a	Bison2	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+mission_triggerer_a	Fbi2	4	Y	Y	N	Y	Y	Y	Y	N	N	Y	N	N					
+mission_triggerer_a	Boxville3	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
+mission_triggerer_a	Burrito2	1	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 freemode	Kosatka	1	N	N	N	N	N	N	N	N	N	N	N	N					
 launcher_racing	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N	w=5.0+l=5.0+h=5+no_rotors				
 launcher_nigel	Speedo	4	N	N	N	N	N	N	N	N	N	N	N	N					
-player_timetable_scene	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y					
-player_timetable_scene	Buffalo2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y					
+player_timetable_scene	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+player_timetable_scene	Buffalo2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+player_timetable_scene	Premier	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+player_timetable_scene	Bagger	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+player_timetable_scene	Tailgater	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
 launcher_fanatic	Scorcher	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 launcher_fanatic	Tribike	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 me_jimmy1	Landstalker	4	Y	N	N	N	N	N	N	N	N	Y	N	N					
@@ -330,6 +344,9 @@ bailbond2	Bison	4	Y	N	N	N	N	Y	N	N	N	Y	N	N
 bailbond2	Bison2	4	Y	N	N	N	N	Y	N	N	N	Y	N	N					
 vehicle_gen_controller	Buffalo2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
 vehicle_gen_controller	Bagger	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
+vehicle_gen_controller	Premier	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
 vehicle_gen_controller	Tailgater	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
 vehicle_gen_controller	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N					
 taxilauncher	Taxi	4	N	N	N	N	N	N	N	N	N	N	N	N					
+hao1	AllVehicles	1	Y	Y	Y	Y	N	Y	N	Y	N	N	N	N					
+mission_race	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N					

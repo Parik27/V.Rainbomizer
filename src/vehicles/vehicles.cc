@@ -306,6 +306,19 @@ class ScriptVehicleRandomizer
         return true;
     }
 
+    /*******************************************************/
+    static bool
+    FixPilotSchoolHeliChallenge (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("pilot_school"_joaat))
+            return false;
+
+        ops.Init ("2c ? ? ? 2c ? ? ? 78 18 1f 2a 56");
+        ops.NOP (/*offset=*/12, 3);
+
+        return true;
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
@@ -326,6 +339,9 @@ public:
 
         YscCodeEdits::Add ("Fix michael2 Mission disruption",
                            FixMichael2MissionDisruption);
+
+        YscCodeEdits::Add ("Pilot School Helicopter Challenge Fix",
+                           FixPilotSchoolHeliChallenge);
 
 #undef HOOK
     }
