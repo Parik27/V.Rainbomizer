@@ -350,3 +350,7 @@ vehicle_gen_controller	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N
 taxilauncher	Taxi	4	N	N	N	N	N	N	N	N	N	N	N	N					
 hao1	AllVehicles	1	Y	Y	Y	Y	N	Y	N	Y	N	N	N	N					
 mission_race	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N					
+triathlonsp	Frogger	1	N	N	N	N	N	N	N	N	N	N	N	N					
+triathlonsp	Tribike3	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
+triathlonsp	Tribike2	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
+triathlonsp	Tribike	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					

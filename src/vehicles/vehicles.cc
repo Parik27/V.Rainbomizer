@@ -319,11 +319,24 @@ class ScriptVehicleRandomizer
         return true;
     }
 
+    /*******************************************************/
+    static void
+    RemoveTriathlonFailState (scrThread::Info *info)
+    {
+        if (scrThread::CheckActiveThread ("triathlonsp"_joaat))
+            {
+                if (info->GetArg (1) == "tribike"_joaat)
+                    info->GetReturn () = true;
+            }
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
     {
 #define HOOK(native, func) NativeCallbackMgr::Add<native##_joaat, func, true> ()
+#define HOOK_A(native, func)                                                   \
+    NativeCallbackMgr::Add<native##_joaat, func, false> ()
 
         if (!ConfigManager::ReadConfig (
                 "ScriptVehicleRandomizer",
@@ -332,6 +345,8 @@ public:
             return;
 
         HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
+        HOOK_A ("IS_VEHICLE_MODEL", RemoveTriathlonFailState);
+        HOOK_A ("IS_PED_IN_MODEL", RemoveTriathlonFailState);
 
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
