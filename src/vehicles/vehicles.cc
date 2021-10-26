@@ -330,6 +330,24 @@ class ScriptVehicleRandomizer
             }
     }
 
+    /*******************************************************/
+    static bool
+    Fanatic3LeaveVehicleFix (YscUtilsOps &ops)
+    {
+        if (!ops.IsAnyOf ("fanatic3"_joaat))
+            return false;
+
+        static constexpr uint8_t return_1[] = {
+            0x6f,          // PUSH_CONST_1
+            0x2e, 0x1, 0x1 // LEAVE 0x1, 0x1
+        };
+
+        ops.Init ("2d 01 03 00 ? 38 ? 28 54 9c 77 43 08 ");
+        ops.WriteBytes (/*Offset=*/5, return_1);
+
+        return true;
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
@@ -357,6 +375,9 @@ public:
 
         YscCodeEdits::Add ("Pilot School Helicopter Challenge Fix",
                            FixPilotSchoolHeliChallenge);
+
+        YscCodeEdits::Add ("Fanatic3 Leave Vehicle Fix",
+                           Fanatic3LeaveVehicleFix);
 
 #undef HOOK
     }

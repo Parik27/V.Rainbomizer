@@ -65,7 +65,9 @@ LogSpawnedVehicles = false # Logs all the spawned script vehicles
 [WeatherRandomizer]
 
 RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
+
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
+RandomizeTimecycleOdds = 40
 
 TunableFile = "Timecyc/Default.txt"
 
