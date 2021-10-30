@@ -107,6 +107,8 @@ public:
                 return info.GetReturn<Ret> ();
             }
     }
+
+    friend class ScriptHookCompatibility;
 };
 
 class NativeCallbackMgr

@@ -9,7 +9,7 @@
 #include <map>
 #include <stdexcept>
 #include "common/events.hh"
-#include <MinHook.h>
+#include <common/minhook.hh>
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
 uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
@@ -112,19 +112,13 @@ class ColoursRandomizer
     void
     InitialiseCarColourHooks ()
     {
-        MH_Initialize ();
-
         void *addr = hook::get_pattern (
             "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7);
         addr = injector::GetBranchDestination (addr).get<void> ();
 
-        MH_STATUS res = MH_CreateHook (
-            static_cast<LPVOID> (addr),
-            reinterpret_cast<LPVOID> (RandomizeVehicleColour),
-            reinterpret_cast<LPVOID *> (
-                &CCustomShaderEffectVehicle_SetForVehicle_134));
-
-        MH_EnableHook (MH_ALL_HOOKS);
+        MinHookWrapper::RegisterHook (
+            addr, CCustomShaderEffectVehicle_SetForVehicle_134,
+            RandomizeVehicleColour);
     }
 
 public:
