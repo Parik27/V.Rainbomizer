@@ -54,7 +54,7 @@ ConfigManager::ParseDefaultConfig ()
 /*******************************************************/
 ConfigManager::ConfigManager (const std::string &file)
 {
-    m_pConfig = ParseDefaultConfig ();
+    m_pDefaultConfig = ParseDefaultConfig ();
     try
         {
             m_pConfig = cpptoml::parse_file (
@@ -66,6 +66,8 @@ ConfigManager::ConfigManager (const std::string &file)
 
             if (!DoesFileExist (file))
                 WriteDefaultConfig (file);
+
+            m_pConfig = m_pDefaultConfig;
         }
 }
 
@@ -108,9 +110,11 @@ void
 ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
                           T &out)
 {
-    auto table = m_pConfig->get_table (tableName);
+    auto table    = m_pConfig->get_table (tableName);
+    auto defTable = m_pDefaultConfig->get_table (tableName);
     if (table)
-        out = table->get_as<T> (key).value_or (out);
+        out = table->get_as<T> (key).value_or (
+            (defTable) ? defTable->get_as<T> (key).value_or (out) : out);
 
 #ifdef ENABLE_DEBUG_MENU
     ConfigDebugInterface::AddConfigOption (tableName + '.' + key, &out);
