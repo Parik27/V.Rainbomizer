@@ -10,6 +10,7 @@
 #include <time.h>
 #include <vector>
 #include <array>
+#include <numeric>
 
 struct WeatherRandomizer_Tunables
 {
@@ -359,6 +360,31 @@ public:
     {
         for (int i = 0; i < tcConfig::ms_cycleInfo->Size; i++)
             RestoreTimecycle (tcManager::g_timeCycle->pTimecycles[i], i);
+    }
+
+    static void
+    RandomizeTimesamples ()
+    {
+        int NUM_TIMESAMPLES = tcConfig::ms_cycleInfo->Size * 2 * 13;
+
+        std::vector<int> v (NUM_TIMESAMPLES);
+        std::iota (std::begin (v), std::end (v), 0);
+        std::shuffle (std::begin (v), std::end (v),
+                      WeatherRandomizer_Tunables::sm_Random.GetEngine ());
+
+        auto convertTimesamplesToPtr = [] (int idx) {
+            int timecycle = idx / 26;
+            int offset    = idx % 26;
+            return (&tcManager::g_timeCycle->pTimecycles[timecycle]
+                         .Regions[0]
+                         .TimeSamples[0])
+                   + offset;
+        };
+
+        for (int i = 0; i < NUM_TIMESAMPLES; i++)
+            {
+                *convertTimesamplesToPtr (i) = *convertTimesamplesToPtr (v[i]);
+            }
     }
 
     static WeatherRandomizer_Tunables &
