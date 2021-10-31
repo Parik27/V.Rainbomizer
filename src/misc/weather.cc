@@ -25,8 +25,8 @@ class WeatherRandomizer
         bool        RandomizeTimecycle     = true;
         bool        CrazyMode              = false;
         bool        RandomizeEveryFade     = true;
-        double      RandomizeTimeOdds      = 80.0;
-        double      RandomizeTimecycleOdds = 80.0;
+        double      RandomizeTimeOdds      = 75.0;
+        double      RandomizeTimecycleOdds = 25.0;
         std::string TunableFile            = "Timecyc/Default.txt";
     }
     RB_C_CONFIG_END

@@ -149,6 +149,9 @@ public:
             return;
 
         FILE *f = fopen (MENYOO_CONFIG_PATH, "w");
+        if (!f)
+            return;
+
         fwrite (buffer.data (), 1, buffer.size (), f);
 
         fclose (f);
