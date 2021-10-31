@@ -20,16 +20,8 @@ class ScaleformRandomizer
     inline static std::vector<std::string> m_ScaleformStrings;
 
     // Config
-    static auto &
-    Config ()
-    {
-        static struct Config
-        {
-            int FailMessageOdds = 20;
-        } sm_Config;
-
-        return sm_Config;
-    }
+    RB_C_CONFIG_START { int FailMessageOdds = 20; }
+    RB_C_CONFIG_END
 
     /*******************************************************/
     static int
@@ -150,10 +142,7 @@ public:
     /*******************************************************/
     ScaleformRandomizer ()
     {
-        if (!ConfigManager::ReadConfig ("ScaleformRandomizer",
-                                        std::pair ("FailMessageOdds",
-                                                   &Config ().FailMessageOdds)))
-            return;
+        RB_C_DO_CONFIG ("ScaleformRandomizer", FailMessageOdds);
 
         InitialiseAllComponents ();
         REGISTER_HOOK ("89 74 ? ? e8 ? ? ? ? ? 8b cd ? 8b d0 e8", 4,

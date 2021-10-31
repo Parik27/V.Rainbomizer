@@ -505,6 +505,11 @@ public:
         "2d 01 03 00 ? 5f ? ? ? 38 ? 2c ? ? ? 2e 01 01", 6,
         "jewelry_heist"_joaat};
 
+    // Used for finalec1 (we don't want that :eye:)
+    YscUtils::ScriptGlobal<uint32_t> g_SkipNextMissionPassScreen{
+        "2d 01 07 00 ? 6e 39 03 38 ? 25 1a 57 ? ? 6f 54", 17,
+        "flow_controller"_joaat, YscUtils::GLOBAL_U16};
+
     // I dunno what other function this global serves other than making
     // mission_triggerer force you into walking, so yeah :P
     YscUtils::ScriptGlobal<uint32_t> g_ForceWalking{
@@ -584,6 +589,7 @@ public:
         g_Missions.Init (program);
         g_MissionRepeatInfo.Init (program);
         g_MissionRepeatInfo2.Init (program);
+        g_SkipNextMissionPassScreen.Init (program);
 
         return true;
     }

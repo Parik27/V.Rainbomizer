@@ -107,6 +107,7 @@ MissionRandomizer_Flow::InitStatWatcherForRandomizedMission ()
         "Initialising Stat Watcher for mission: %d", rId);
 
     YscFunctions::InitStatWatcherForMission (rId);
+    MR::sm_Globals.g_SkipNextMissionPassScreen.Set (false);
     rDef_curr->nMissionFlags = prevFlags;
 
     Rainbomizer::Logger::LogMessage (

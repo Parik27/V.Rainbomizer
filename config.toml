@@ -34,13 +34,13 @@ CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
-WeatherRandomizer = true
+TimecycleRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
 
 #######################################################
-[WeatherRandomizer]
+[TimecycleRandomizer]
 
 RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.

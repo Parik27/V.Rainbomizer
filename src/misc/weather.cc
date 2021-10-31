@@ -18,22 +18,18 @@ class WeatherRandomizer
 {
 
     // Config
-    static auto &
-    Config ()
+    /*******************************************************/
+    RB_C_CONFIG_START
     {
-        static struct Config
-        {
-            bool        RandomizeWeather       = true;
-            bool        RandomizeTimecycle     = true;
-            bool        CrazyMode              = false;
-            bool        RandomizeEveryFade     = true;
-            double      RandomizeTimeOdds      = 80.0;
-            double      RandomizeTimecycleOdds = 80.0;
-            std::string TunableFile            = "Timecyc/Default.txt";
-        } sm_Config;
-
-        return sm_Config;
+        bool        RandomizeWeather       = true;
+        bool        RandomizeTimecycle     = true;
+        bool        CrazyMode              = false;
+        bool        RandomizeEveryFade     = true;
+        double      RandomizeTimeOdds      = 80.0;
+        double      RandomizeTimecycleOdds = 80.0;
+        std::string TunableFile            = "Timecyc/Default.txt";
     }
+    RB_C_CONFIG_END
 
     /*******************************************************/
     static void
@@ -134,17 +130,9 @@ public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        if (!ConfigManager::ReadConfig (
-                "WeatherRandomizer",
-                std::pair ("RandomizeWeather", &Config ().RandomizeWeather),
-                std::pair ("RandomizeTimecycle", &Config ().RandomizeTimecycle),
-                std::pair ("TunableFile", &Config ().TunableFile),
-                std::pair ("RandomizeTimecycleOdds",
-                           &Config ().RandomizeTimecycleOdds),
-                std::pair ("RandomizeTimeOdds", &Config ().RandomizeTimeOdds),
-                std::pair ("RandomizeEveryFade",
-                           &Config ().RandomizeEveryFade)))
-            return;
+        RB_C_DO_CONFIG ("TimecycleRandomizer", RandomizeWeather,
+                        RandomizeTimecycle, TunableFile, RandomizeTimecycleOdds,
+                        RandomizeTimeOdds, RandomizeEveryFade);
 
         InitialiseAllComponents ();
 

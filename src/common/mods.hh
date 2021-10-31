@@ -7,7 +7,7 @@ class ModCompatibility
     static bool &
     GetShouldRandomizeMods ()
     {
-        static bool sm_bRandomizeMods = false;
+        static bool sm_bRandomizeMods = true;
 
         return sm_bRandomizeMods;
     }

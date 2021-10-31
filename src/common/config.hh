@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "config_Macros.hh"
 
 namespace cpptoml {
 class table;

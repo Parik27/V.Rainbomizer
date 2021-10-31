@@ -216,6 +216,7 @@ public:
 
     enum PatternIdiom
     {
+        GLOBAL_U16,
         GLOBAL_U24,
         GLOBAL_U24_IOFFSET_S16
     };
@@ -311,6 +312,10 @@ public:
             utils.FindCodePattern (m_Pattern, [&] (hook::pattern_match m) {
                 switch (m_PatternIdiom)
                     {
+                    case GLOBAL_U16: // GLOBAL_U16_* <imm16>
+                        nGlobalIdx = *m.get<uint16_t> (m_PatternOffset);
+                        break;
+
                     case GLOBAL_U24: // GLOBAL_U24_* <imm24>
                         nGlobalIdx
                             = *m.get<uint32_t> (m_PatternOffset) & 0xFFFFFF;
