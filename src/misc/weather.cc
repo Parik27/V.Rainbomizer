@@ -18,21 +18,18 @@ class WeatherRandomizer
 {
 
     // Config
-    static auto &
-    Config ()
+    /*******************************************************/
+    RB_C_CONFIG_START
     {
-        static struct Config
-        {
-            bool        RandomizeWeather       = true;
-            bool        RandomizeTimecycle     = true;
-            bool        CrazyMode              = false;
-            bool        RandomizeEveryFade     = true;
-            double      RandomizeTimecycleOdds = 80.0;
-            std::string TunableFile            = "Timecyc/Default.txt";
-        } sm_Config;
-
-        return sm_Config;
+        bool        RandomizeWeather       = true;
+        bool        RandomizeTimecycle     = true;
+        bool        CrazyMode              = false;
+        bool        RandomizeEveryFade     = true;
+        double      RandomizeTimeOdds      = 75.0;
+        double      RandomizeTimecycleOdds = 25.0;
+        std::string TunableFile            = "Timecyc/Default.txt";
     }
+    RB_C_CONFIG_END
 
     /*******************************************************/
     static void
@@ -108,15 +105,24 @@ class WeatherRandomizer
         if (future.valid ())
             future.wait ();
 
+        static std::array TimecyclePresets = {
+            "Timecyc/Default.txt",
+            "Timecyc/Alternative.txt",
+            "Timecyc/SkyAndColours.txt",
+            "Timecyc/SkyOnly.txt",
+        };
+
         future = std::async (std::launch::async, [restoreTimecycles] {
             if (restoreTimecycles)
                 WeatherRandomizer_TunableManager::RestoreOriginalTimecycles ();
 
             WeatherRandomizer_TunableManager::Initialise (
-                Config ().TunableFile);
+                GetRandomElement (TimecyclePresets));
 
             if (RandomFloat (1000) < Config ().RandomizeTimecycleOdds * 10.0f)
-                WeatherRandomizer_TunableManager::Randomize (); 
+                WeatherRandomizer_TunableManager::Randomize ();
+            else if (RandomFloat (1000) < Config ().RandomizeTimeOdds * 10.0f)
+                WeatherRandomizer_TunableManager::RandomizeTimesamples ();
         });
     }
 
@@ -124,16 +130,9 @@ public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        if (!ConfigManager::ReadConfig (
-                "WeatherRandomizer",
-                std::pair ("RandomizeWeather", &Config ().RandomizeWeather),
-                std::pair ("RandomizeTimecycle", &Config ().RandomizeTimecycle),
-                std::pair ("TunableFile", &Config ().TunableFile),
-                std::pair ("RandomizeTimecycleOdds",
-                           &Config ().RandomizeTimecycleOdds),
-                std::pair ("RandomizeEveryFade",
-                           &Config ().RandomizeEveryFade)))
-            return;
+        RB_C_DO_CONFIG ("TimecycleRandomizer", RandomizeWeather,
+                        RandomizeTimecycle, TunableFile, RandomizeTimecycleOdds,
+                        RandomizeTimeOdds, RandomizeEveryFade);
 
         InitialiseAllComponents ();
 

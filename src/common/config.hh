@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include "config_Macros.hh"
 
 namespace cpptoml {
 class table;
@@ -12,6 +13,7 @@ class table;
 class ConfigManager
 {
     std::shared_ptr<cpptoml::table> m_pConfig;
+    std::shared_ptr<cpptoml::table> m_pDefaultConfig;
 
     ConfigManager (){};
 

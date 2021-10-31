@@ -241,7 +241,7 @@ barry3c	Towtruck	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_tow
 launcher_barry	Emperor2	1	Y	N	N	N	N	N	N	N	N	Y	N	N					
 launcher_barry	Towtruck	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_tow				
 paparazzo1	Pcj	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N					
-paparazzo1	Stretch	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
+paparazzo1	Stretch	4	Y	Y	N	Y	N	Y	N	Y	N	Y	N	N					
 paparazzo2	Fq2	4	Y	Y	Y	Y	N	Y	Y	Y	Y	Y	Y	N	w=20.0+l=20.0+h=20.0				
 paparazzo2	Rapidgt2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 paparazzo2	Landstalker	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
@@ -350,3 +350,7 @@ vehicle_gen_controller	Bodhi2	1	Y	Y	Y	Y	Y	N	Y	Y	Y	Y	N	N
 taxilauncher	Taxi	4	N	N	N	N	N	N	N	N	N	N	N	N					
 hao1	AllVehicles	1	Y	Y	Y	Y	N	Y	N	Y	N	N	N	N					
 mission_race	Seashark	1	N	N	N	N	N	N	N	Y	N	Y	N	N					
+triathlonsp	Frogger	1	N	N	N	N	N	N	N	N	N	N	N	N					
+triathlonsp	Tribike3	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
+triathlonsp	Tribike2	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
+triathlonsp	Tribike	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					

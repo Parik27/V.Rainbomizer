@@ -6,6 +6,7 @@
 
 #include <common/config.hh>
 #include <common/parser.hh>
+#include <common/mods.hh>
 
 #include <scrThread.hh>
 
@@ -49,6 +50,9 @@ class PedRandomizer
     static bool
     ShouldRandomizePedModel (uint32_t model)
     {
+        if (!ModCompatibility::ShouldRandomize ())
+            return false;
+
         if (IsPlayerModel (CStreaming::GetModelByIndex (model)))
             {
                 if (!PR::Config ().RandomizePlayer)

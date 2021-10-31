@@ -81,13 +81,8 @@ public:
     /*******************************************************/
     MissionRandomizer ()
     {
-        if (!ConfigManager::ReadConfig (
-                "MissionRandomizer", std::pair ("Seed", &Config ().Seed),
-                std::pair ("ForceSeedOnSaves", &Config ().ForceSeedOnSaves),
-                std::pair ("ForcedMission", &Config ().ForcedMission),
-                std::pair ("EnableFastSkips", &Config ().EnableFastSkips),
-                std::pair ("LogMissionOrder", &Config ().LogMissionOrder)))
-            return;
+        RB_C_DO_CONFIG ("MissionRandomizer", Seed, ForceSeedOnSaves,
+                        ForcedMission, EnableFastSkips, LogMissionOrder);
 
         InitialiseAllComponents ();
 

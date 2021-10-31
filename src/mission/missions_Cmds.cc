@@ -356,10 +356,12 @@ void
 MissionRandomizer_Commands::OnMissionEnd (bool pass, uint32_t origHash,
                                           uint32_t randHash)
 {
-    MR::sm_Globals.GetMfFlag (FLAG_H_JEWEL_PRIME_BOARD)  = false;
-    MR::sm_Globals.GetMfFlag (FLAG_H_AGENCY_PRIME_BOARD) = false;
-    MR::sm_Globals.GetMfFlag (FLAG_H_DOCKS_PRIME_BOARD)  = false;
-    MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD) = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_JEWEL_PRIME_BOARD)   = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_AGENCY_PRIME_BOARD)  = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_DOCKS_PRIME_BOARD)   = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_FINALE_PRIME_BOARD)  = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_RURAL_LOAD_MIKE_WIN) = false;
+    MR::sm_Globals.GetMfFlag (FLAG_H_RURAL_LOAD_TREV_WIN) = false;
 
     sm_ForcedDoorStates.clear ();
 }

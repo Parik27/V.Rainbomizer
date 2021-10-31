@@ -2,6 +2,7 @@
 
 #include <iterator>
 #include <random>
+#include <ctime>
 
 template <typename Engine = std::mt19937> class RandomUtils
 {

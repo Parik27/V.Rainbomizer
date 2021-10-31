@@ -124,4 +124,6 @@ public:
                                scrProgram *program, scrThreadContext *ctx);
 
     DebugInterfaceManager ();
+
+    friend class ActionDebugInterface;
 };

@@ -262,7 +262,6 @@ public:
 
     public:
         Info (Info const &) = delete;
-        Info &operator= (Info const &) = delete;
 
         template <typename T = uint64_t>
         inline T &

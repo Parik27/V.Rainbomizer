@@ -34,11 +34,38 @@ CutSceneRandomizer = true
 ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
-WeatherRandomizer = true
+TimecycleRandomizer = true
 MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
+
+#######################################################
+[TimecycleRandomizer]
+
+RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
+RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
+
+#######################################################
+# """"FILTER/LIGHTING""""" HATERS LOOK HERE (Spoiler Alert: There's no """FILTER""")
+#######################################################
+# These control how random the timecycles are gonna be.
+
+# The first setting is how many times out of 100 the sky is gonna be randomised through presets.
+# So this includes everything from just the skies having random moons all the way to crazy wacky super-dark pink sky
+RandomizeTimecycleOdds = 25
+
+# This second setting is how many times out of 100 (WHEN THE TIMECYCLE IS NOT RANDOM),
+# the non-randomized timecycle uses a timesample from a different NORMAL timecycle.
+# So if it's supposed to be clear and night time, it may be cloudy and day time.
+RandomizeTimeOdds = 75
+
+#######################################################
+[ModCompatibility]
+
+# If you don't want weapons and peds spawned by trainers/other mods to be random,
+# disable this option. Vehicles spawned by mods are never randomized.
+RandomizeMods = true
 
 #######################################################
 [TrafficRandomizer]
@@ -62,12 +89,6 @@ RandomizeCarColours = true
 LogSpawnedVehicles = false # Logs all the spawned script vehicles
 
 #######################################################
-[WeatherRandomizer]
-
-RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
-
-RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
-RandomizeTimecycleOdds = 80
 
 TunableFile = "Timecyc/Default.txt"
 

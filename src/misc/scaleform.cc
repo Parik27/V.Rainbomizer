@@ -1,5 +1,6 @@
 #include "CTheScripts.hh"
 #include "common/common.hh"
+#include "common/config.hh"
 #include "common/logger.hh"
 #include "rage.hh"
 #include "scrThread.hh"
@@ -17,6 +18,10 @@ class ScaleformRandomizer
     /*******************************************************/
     inline static std::vector<std::string> m_MissionFailInsults;
     inline static std::vector<std::string> m_ScaleformStrings;
+
+    // Config
+    RB_C_CONFIG_START { int FailMessageOdds = 20; }
+    RB_C_CONFIG_END
 
     /*******************************************************/
     static int
@@ -40,7 +45,6 @@ class ScaleformRandomizer
     SetMissionFailInsult (ScaleformMethodStruct::ParamStruct &parameter,
                           bool useLastInsult = false)
     {
-        static const int INSULT_ODDS = 5;
         ReadInsultsList ();
 
         if (m_MissionFailInsults.empty ())
@@ -66,7 +70,7 @@ class ScaleformRandomizer
                                      GetRandomElement (m_MissionFailInsults));
 
                 // Reset it if odds not right.
-                if (RandomInt (100) >= INSULT_ODDS)
+                if (RandomInt (100) >= Config ().FailMessageOdds)
                     m_LastInsult = "";
             }
 
@@ -138,6 +142,8 @@ public:
     /*******************************************************/
     ScaleformRandomizer ()
     {
+        RB_C_DO_CONFIG ("ScaleformRandomizer", FailMessageOdds);
+
         InitialiseAllComponents ();
         REGISTER_HOOK ("89 74 ? ? e8 ? ? ? ? ? 8b cd ? 8b d0 e8", 4,
                        RandomizeScaleformMethod, void *, void *, int, uint64_t,
