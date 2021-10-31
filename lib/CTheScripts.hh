@@ -48,7 +48,13 @@ private:
     static auto &
     GetHookedNativesList ()
     {
-        static std::unordered_map<uint32_t, NativeFunc> List;
+        struct HookInfo
+        {
+            NativeFunc Cb;
+            bool       HookScriptHook;
+        };
+
+        static std::unordered_map<uint32_t, HookInfo> List;
         return List;
     }
 
@@ -68,9 +74,10 @@ public:
     static void Initialise ();
 
     static void
-    HookNative (uint32_t hash, NativeFunc hookedFunc)
+    HookNative (uint32_t hash, NativeFunc hookedFunc,
+                bool HookScriptHook = false)
     {
-        GetHookedNativesList ()[hash] = hookedFunc;
+        GetHookedNativesList ()[hash] = {hookedFunc, HookScriptHook};
     }
 
     static inline void
@@ -140,16 +147,17 @@ class NativeCallbackMgr
 public:
     template <uint32_t hash, NativeManager::NativeFunc cb, bool before>
     static void
-    Add ()
+    Add (bool scriptHook = false)
     {
-        NativeManager::HookNative (hash, Trampoline<hash, cb, before>);
+        NativeManager::HookNative (hash, Trampoline<hash, cb, before>,
+                                   scriptHook);
     }
 
     template <uint32_t hash, CombinedCallbackFunc cb>
     static void
-    Add ()
+    Add (bool scriptHook = false)
     {
-        NativeManager::HookNative (hash, Trampoline<hash, cb>);
+        NativeManager::HookNative (hash, Trampoline<hash, cb>, scriptHook);
     }
 };
 

@@ -58,7 +58,10 @@ NativeManager::FindNativesTableWidth (uint64_t *table)
 uint32_t
 NativeManager::GetJoaatHashFromCmdHash (uint64_t hash)
 {
-    return NativeTranslationMap.at (hash);
+    if (auto joaatHash = LookupMap (NativeTranslationMap, hash))
+        return *joaatHash;
+
+    return -1;
 }
 
 /*******************************************************/
@@ -113,7 +116,7 @@ NativeManager::ProcessNativeHooks (scrProgram *program)
                                 m_Operations.push_back (
                                     {reinterpret_cast<NativeFunc *> (
                                          &program->m_pNativesPointer[i]),
-                                     hooked});
+                                     hooked.Cb});
                         }
                 }
         }

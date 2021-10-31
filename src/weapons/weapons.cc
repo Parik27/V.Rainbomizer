@@ -9,6 +9,7 @@
 #include "common/config.hh"
 #include "common/common.hh"
 #include "common/logger.hh"
+#include "common/mods.hh"
 #include "exceptions/exceptions_Mgr.hh"
 #include "peds/peds_Compatibility.hh"
 
@@ -145,11 +146,12 @@ class WeaponRandomizer
             std::tuple ("finalea"_joaat, "weapon_pistol"_joaat),
         };
 
-        return !scrThread::GetActiveThread ()
-               || !DoesElementExist (Patterns,
-                                     std::tuple (scrThread::GetActiveThread ()
-                                                     ->m_Context.m_nScriptHash,
-                                                 weapon));
+        return ModCompatibility::ShouldRandomize ()
+               && (!scrThread::GetActiveThread ()
+                   || !DoesElementExist (
+                       Patterns, std::tuple (scrThread::GetActiveThread ()
+                                                 ->m_Context.m_nScriptHash,
+                                             weapon)));
     }
 
     /*******************************************************/

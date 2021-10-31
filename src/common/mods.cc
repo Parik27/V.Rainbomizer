@@ -1,9 +1,12 @@
-#include <CTheScripts.hh>
-#include <common/minhook.hh>
 #include <optional>
-#include <Utils.hh>
-#include <common/logger.hh>
 #include <string>
+
+#include <common/minhook.hh>
+#include <common/config.hh>
+#include <common/logger.hh>
+
+#include <CTheScripts.hh>
+#include <Utils.hh>
 
 #include "mods.hh"
 
@@ -38,11 +41,10 @@ class ScriptHookCompatibility
             = LookupMap (NativeManager::GetHookedNativesList (), joaatHash))
             {
                 sm_Ctx.Valid = true;
-                sm_Ctx.func  = *hook;
+                sm_Ctx.func  = hook->Cb;
 
                 return;
             }
-
         nativeInit (hash);
     }
 
@@ -62,38 +64,37 @@ class ScriptHookCompatibility
     static void *
     NativeCallHook ()
     {
+        static uint64_t                   ret;
         ModCompatibility::InModScriptRAII inModScript;
 
         if (!sm_Ctx.Valid)
             return nativeCall ();
 
         sm_Ctx.func (&sm_Ctx.info);
+        ret = sm_Ctx.info.GetReturn () & 0xFFFFFFFF;
 
-        void *rt = sm_Ctx.info.GetReturn<void *> ();
-        sm_Ctx.Reset ();
-
-        return rt;
+        return &ret;
     }
 
 public:
-    ScriptHookCompatibility ()
+    static void
+    Initialise ()
     {
         HMODULE scriptHook = LoadLibrary (TEXT ("ScriptHookV.dll"));
-        if (scriptHook)
+        if (!scriptHook)
             return;
 
         Rainbomizer::Logger::LogMessage (
             "Initialising ScriptHook compatibility hooks");
 
-        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "nativeInit", NativeInitHook,
-                              void, uint64_t);
-        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "nativePush64", NativePushHook,
-                              void, uint64_t);
-        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "nativeCall", NativeCallHook,
-                              void *);
+        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "?nativeInit@@YAX_K@Z",
+                              NativeInitHook, void, uint64_t);
+        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "?nativePush64@@YAX_K@Z",
+                              NativePushHook, void, uint64_t);
+        REGISTER_MH_HOOK_API ("ScriptHookV.dll", "?nativeCall@@YAPEA_KXZ",
+                              NativeCallHook, void *);
     }
-
-} g_ScriptHookCompatibility;
+};
 
 /*******************************************************/
 /*Because so many people apparently use Menyoo, I make sure that it doesn't
@@ -106,7 +107,7 @@ class MenyooConfigObliterator
         = "menyooStuff/menyooConfig.ini";
 
 public:
-    std::string
+    static std::string
     ReadAndUpdateConfig ()
     {
         FILE *f = fopen (MENYOO_CONFIG_PATH, "r");
@@ -139,7 +140,8 @@ public:
     }
 
     /*******************************************************/
-    MenyooConfigObliterator ()
+    static void
+    Initialise ()
     {
         std::string buffer = ReadAndUpdateConfig ();
 
@@ -151,5 +153,33 @@ public:
 
         fclose (f);
     }
+};
 
-} g_MenyooConfigObliterator;
+/*******************************************************/
+ModCompatibility::ModCompatibility ()
+{
+    bool MenyooConfigObliterator = true;
+    bool ScriptHookHook          = true;
+
+    if (!ConfigManager::ReadConfig (
+            "ModCompatibility",
+            std::pair ("MenyooConfigEdit", &MenyooConfigObliterator),
+            std::pair ("ScriptHookEdit", &ScriptHookHook),
+            std::pair ("RandomizeMods", &GetShouldRandomizeMods ())))
+        return;
+
+    if (MenyooConfigObliterator)
+        MenyooConfigObliterator::Initialise ();
+
+    if (ScriptHookHook)
+        ScriptHookCompatibility::Initialise ();
+
+    if (!GetShouldRandomizeMods () && !ScriptHookHook)
+        {
+            Rainbomizer::Logger::LogMessage (
+                "Randomize mods disabled, but ScriptHookCompatibility not "
+                "initialised");
+        }
+}
+
+ModCompatibility g_ModCompatibility;
