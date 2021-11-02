@@ -138,6 +138,8 @@ public:
         if (!ConfigManager::ReadConfig ("RainbomizerCredits"))
             return;
 
+        InitialiseAllComponents ();
+
         REGISTER_HOOK ("8a d9 0f 29 ? ? ? 8d 0d ? ? ? ? 0f 29 ? ? e8 ? ? ? ?",
                        17, ReplaceCreditsArray, void, void *);
 

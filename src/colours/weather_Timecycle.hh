@@ -282,8 +282,8 @@ struct WeatherRandomizer_Tunables
         m_Fields.clear ();
         m_ColourFields.clear ();
 
-        char     line[2048] = {0};
-        int      bytesRead  = 0;
+        char line[2048] = {0};
+        int  bytesRead  = 0;
         while (fgets (line, 2048, f))
             {
                 line[strcspn (line, "\n")] = 0;

@@ -287,7 +287,7 @@ public:
 
         template <typename... Args> Info (Args... args)
         {
-            m_Ret  = (void **) &m_StackSpace[16];
+            m_Ret  = (void **) &m_StackSpace[128];
             m_Args = (void **) &m_StackSpace[0];
             m_Argc = 0;
             (..., PushArg (args));

@@ -26,6 +26,13 @@ class ColoursRandomizer
     inline static std::map<CVehicle *, VehicleColourData> mColourData;
     inline static std::map<uint32_t, CARGB>               mHudCols;
 
+    RB_C_CONFIG_START
+    {
+        bool RandomizeHudColours = true;
+        bool RandomizeCarColours = true;
+    }
+    RB_C_CONFIG_END
+
     /*******************************************************/
     static void
     SetNewHudColour (int index, int r, int g, int b, int a)
@@ -89,8 +96,7 @@ class ColoursRandomizer
                 using Rainbomizer::HSL;
                 for (int i = 0; i < 4; i++)
                     mColourData[veh].RandomColours[i]
-                        = HSL (RandomFloat (360.0f), 1.0f, RandomFloat (1.0f))
-                              .ToARGB ();
+                        = HSL (RandomFloat (360.0f), 1.0f, RandomFloat (1.0f));
             }
 
         for (int i = 0; i < 4; i++)
@@ -103,7 +109,6 @@ class ColoursRandomizer
     static void
     RandomizeOnFade ()
     {
-        Rainbomizer::Logger::LogMessage ("Randomizing Colours on Fade");
         for (const auto &[idx, col] : mHudCols)
             SetNewHudColour (idx, col.r, col.g, col.b, col.a);
     }
@@ -112,12 +117,9 @@ class ColoursRandomizer
     void
     InitialiseCarColourHooks ()
     {
-        void *addr = hook::get_pattern (
-            "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7);
-        addr = injector::GetBranchDestination (addr).get<void> ();
-
-        MinHookWrapper::RegisterHook (
-            addr, CCustomShaderEffectVehicle_SetForVehicle_134,
+        MinHookWrapper::HookBranchDestination (
+            "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7,
+            CCustomShaderEffectVehicle_SetForVehicle_134,
             RandomizeVehicleColour);
     }
 
@@ -125,26 +127,20 @@ public:
     /*******************************************************/
     ColoursRandomizer ()
     {
-        static bool RandomizeHudColours = true;
-        static bool RandomizeCarColours = true;
-
-        if (!ConfigManager::ReadConfig (
-                "ColourRandomizer",
-                std::pair ("RandomizeHudColours", &RandomizeHudColours),
-                std::pair ("RandomizeCarColours", &RandomizeCarColours)))
-            return;
+        RB_C_DO_CONFIG ("ColourRandomizer", RandomizeHudColours,
+                        RandomizeCarColours);
 
         InitialiseAllComponents ();
 
         // Hud Colours
         // ----------
-        if (RandomizeHudColours)
+        if (Config ().RandomizeHudColours)
             RegisterHook ("8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,
                           CHud__SetHudColour, SetNewHudColour);
 
         // Car Colours
         // ---------
-        if (RandomizeCarColours)
+        if (Config ().RandomizeCarColours)
             InitialiseCarColourHooks ();
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;

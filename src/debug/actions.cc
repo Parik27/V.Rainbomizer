@@ -7,13 +7,13 @@ class ActionDebugInterface : public DebugInterface
     void
     Draw () override
     {
-        for (auto &i : DebugInterfaceManager::sm_Actions)
+        for (auto &i : DebugInterfaceManager::GetActions ())
             {
                 if (ImGui::Button (i.first.c_str ()))
                     i.second = true;
             }
 
-        for (auto &i : DebugInterfaceManager::sm_ActionCbs)
+        for (auto &i : DebugInterfaceManager::GetActionCbs ())
             {
                 if (ImGui::Button (i.first.c_str ()))
                     i.second (true);

@@ -4,6 +4,7 @@
 #include <algorithm>
 
 namespace Rainbomizer {
+
 struct HSL
 {
     float h;
@@ -14,11 +15,11 @@ struct HSL
 
     HSL (float h, float s, float l) : h (h), s (s), l (l){};
 
-    HSL (CARGB input)
+    HSL (const ColorFloat &input)
     {
-        float R = input.r / 255.0f;
-        float G = input.g / 255.0f;
-        float B = input.b / 255.0f;
+        float R = input.r;
+        float G = input.g;
+        float B = input.b;
 
         float Xmax = std::max ({R, G, B});
         float Xmin = std::min ({R, G, B});
@@ -40,8 +41,8 @@ struct HSL
             this->s = C / (1 - (fabs (2 * Xmax - C - 1)));
     }
 
-    CARGB
-    ToARGB () const
+    ColorFloat
+    ToColorFloat () const
     {
         auto f = [this] (float n) {
             float k = fmod ((n + (this->h / 30)), 12);
@@ -51,10 +52,17 @@ struct HSL
                   - a
                         * std::max (-1.0f,
                                     std::min (k - 3, std::min (9 - k, 1.0f)));
-            return static_cast<unsigned char> (f * 255);
+            return f;
         };
 
-        return CARGB (255, f (0), f (8), f (4));
+        return ColorFloat{f (0), f (8), f (4)};
     }
+
+    CARGB
+    ToARGB () const { return ToColorFloat ().ToARGB (); }
+
+    operator CARGB () const { return ToARGB (); }
+
+    operator ColorFloat () const { return ToColorFloat (); }
 };
 } // namespace Rainbomizer

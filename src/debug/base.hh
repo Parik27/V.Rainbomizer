@@ -32,10 +32,27 @@ class DebugInterfaceManager
 {
     using ActionCallback = std::function<void (bool)>;
 
-    inline static std::vector<DebugInterface *>            m_DebugInterfaces;
-    inline static std::map<std::string, bool, std::less<>> sm_Actions;
-    inline static std::map<std::string, ActionCallback, std::less<>>
-                       sm_ActionCbs;
+    static auto &
+    GetDebugInterfaces ()
+    {
+        static std::vector<DebugInterface *> m_DebugInterfaces;
+        return m_DebugInterfaces;
+    }
+
+    static auto &
+    GetActions ()
+    {
+        static std::map<std::string, bool, std::less<>> sm_Actions;
+        return sm_Actions;
+    }
+
+    static auto &
+    GetActionCbs ()
+    {
+        static std::map<std::string, ActionCallback, std::less<>> sm_ActionCbs;
+        return sm_ActionCbs;
+    }
+
     inline static bool m_BlockControls;
     inline static bool m_EnableFloating = false;
 
@@ -47,7 +64,7 @@ public:
             {
                 if (ImGui::BeginMenu ("Interfaces"))
                     {
-                        for (auto i : m_DebugInterfaces)
+                        for (auto i : GetDebugInterfaces ())
                             if (ImGui::MenuItem (i->GetName ()))
                                 i->m_bOpen = true;
 
@@ -56,13 +73,13 @@ public:
 
                 if (ImGui::BeginMenu ("Actions"))
                     {
-                        for (auto &i : sm_Actions)
+                        for (auto &i : GetActions ())
                             if (ImGui::MenuItem (i.first.c_str ()))
                                 i.second = true;
 
                         ImGui::Separator ();
 
-                        for (auto &i : sm_ActionCbs)
+                        for (auto &i : GetActionCbs ())
                             if (ImGui::MenuItem (i.first.c_str ()))
                                 i.second (true);
 
@@ -84,7 +101,7 @@ public:
     {
         DrawDashboard ();
 
-        for (auto i : m_DebugInterfaces)
+        for (auto i : GetDebugInterfaces ())
             {
                 if (!i->m_bOpen)
                     continue;
@@ -98,20 +115,20 @@ public:
     static bool
     GetAction (std::string_view name)
     {
-        auto [obj, set] = sm_Actions.emplace (name, false);
+        auto [obj, set] = GetActions ().emplace (name, false);
         return std::exchange (obj->second, false);
     }
 
     static void
     AddAction (std::string_view name, ActionCallback cb)
     {
-        sm_ActionCbs.emplace (name, cb);
+        GetActionCbs ().emplace (name, cb);
     }
 
     static void
     RegisterInterface (DebugInterface &intf)
     {
-        m_DebugInterfaces.push_back (&intf);
+        GetDebugInterfaces ().push_back (&intf);
     }
 
     static void

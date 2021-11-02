@@ -21,7 +21,7 @@ DebugInterfaceManager::RunThreadHook (uint64_t *stack, uint64_t *globals,
                                       scrProgram *      program,
                                       scrThreadContext *ctx)
 {
-    for (auto i : m_DebugInterfaces)
+    for (auto i : GetDebugInterfaces ())
         {
             i->Process (stack, globals, program, ctx);
         }

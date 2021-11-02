@@ -39,6 +39,7 @@ class RespawnRandomizer
     }
 
     inline static std::vector<Vector3> sm_CoordsList;
+    inline static bool                 sm_Initialised = false;
 
     /*******************************************************/
     static bool
@@ -101,6 +102,8 @@ class RespawnRandomizer
                 ops.Write (16, YscOpCode::PUSH_CONST_0);
                 ops.Write (17, YscOpCode::NOP);
             }
+
+        sm_Initialised = true;
         return true;
     }
 
@@ -109,7 +112,7 @@ class RespawnRandomizer
     RunThreadHook (uint64_t *, uint64_t *, scrProgram *prog,
                    scrThreadContext *ctx)
     {
-        if (ctx->m_nScriptHash != "respawn_controller"_joaat)
+        if (ctx->m_nScriptHash != "respawn_controller"_joaat || !sm_Initialised)
             return;
 
         YscUtilsOps ops (prog);

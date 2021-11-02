@@ -31,6 +31,7 @@ include_directories(include lib src)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
   src/common/*.cc
   src/exceptions/*.cc
+  src/colours/*.cc
   src/misc/*.cc
   src/mission/*.cc
   src/sounds/*.cc

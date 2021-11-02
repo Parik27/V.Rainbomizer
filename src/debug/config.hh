@@ -14,13 +14,19 @@ public:
     using Type = std::variant<int *, std::string *, bool *, double *>;
 
 private:
-    inline static std::map<std::string, Type> sm_ConfigOptions;
+    static auto &
+    GetConfigOptions ()
+    {
+        static std::map<std::string, Type> sm_ConfigOptions;
+        return sm_ConfigOptions;
+    }
+
     static ConfigDebugInterface               sm_Instance;
 
     void
     Draw () override
     {
-        for (auto i : sm_ConfigOptions)
+        for (auto i : GetConfigOptions ())
             {
                 ImGui::Columns (2);
 
@@ -52,7 +58,7 @@ public:
     static void
     AddConfigOption (std::string_view path, T *data)
     {
-        sm_ConfigOptions[std::string (path)] = data;
+        GetConfigOptions ()[std::string (path)] = data;
     }
 
     const char *

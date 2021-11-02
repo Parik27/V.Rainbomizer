@@ -130,12 +130,29 @@ public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        RB_C_DO_CONFIG ("TimecycleRandomizer", RandomizeWeather,
-                        RandomizeTimecycle, TunableFile, RandomizeTimecycleOdds,
-                        RandomizeTimeOdds, RandomizeEveryFade);
+        Rainbomizer::Logger::LogMessage (
+            "Hi Fry, there should be a million more messages like this");
 
+        if (!ConfigManager ::ReadConfig (
+                "TimecycleRandomizer",
+                std ::make_pair ("RandomizeWeather",
+                                 &Config ().RandomizeWeather),
+                std ::make_pair ("RandomizeTimecycle",
+                                 &Config ().RandomizeTimecycle),
+                std ::make_pair ("TunableFile", &Config ().TunableFile),
+                std ::make_pair ("RandomizeTimecycleOdds",
+                                 &Config ().RandomizeTimecycleOdds),
+                std ::make_pair ("RandomizeTimeOdds",
+                                 &Config ().RandomizeTimeOdds),
+                std ::make_pair ("RandomizeEveryFade",
+                                 &Config ().RandomizeEveryFade)))
+            return;
+        ;
+
+        Rainbomizer::Logger::LogMessage ("Initialising all components");
         InitialiseAllComponents ();
 
+        Rainbomizer::Logger::LogMessage ("Adding actions components");
 #ifdef ENABLE_DEBUG_MENU
         DebugInterfaceManager::AddAction ("Randomize Weather",
                                           std::bind (RandomizeWeather));
@@ -143,14 +160,17 @@ public:
                                           RandomizeTimecycles);
 #endif
 
+        Rainbomizer::Logger::LogMessage ("Checking weather components");
         if (Config ().RandomizeWeather)
             {
                 Rainbomizer::Events ().OnInit += std::bind (RandomizeWeather);
 
+                Rainbomizer::Logger::LogMessage ("Checking Every Fade");
                 if (Config ().RandomizeEveryFade)
                     Rainbomizer::Events ().OnFade += RandomizeWeather;
             }
 
+        Rainbomizer::Logger::LogMessage ("Checking Timecycle");
         if (Config ().RandomizeTimecycle)
             {
                 Rainbomizer::Events ().OnInit
@@ -160,5 +180,6 @@ public:
                     Rainbomizer::Events ().OnFade
                         += std::bind (RandomizeTimecycles, true);
             }
+        Rainbomizer::Logger::LogMessage ("Conclude");
     }
 } _weather;

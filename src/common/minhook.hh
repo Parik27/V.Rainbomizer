@@ -3,6 +3,7 @@
 #include <MinHook.h>
 #include <string_view>
 #include <utility>
+#include <Utils.hh>
 
 class MinHookWrapper
 {
@@ -17,6 +18,17 @@ class MinHookWrapper
     }
 
 public:
+    template <typename O, typename F>
+    static void
+    HookBranchDestination (std::string_view pattern, uint32_t off, O &origFunc,
+                           F hookedFunc, bool enable = true)
+    {
+        void *addr = hook::get_pattern (pattern, off);
+        addr       = injector::GetBranchDestination (addr).get<void> ();
+
+        RegisterHook (addr, origFunc, hookedFunc, enable);
+    }
+
     template <typename O, typename F>
     static void
     RegisterHook (void *addr, O &origFunc, F hookedFunc, bool enable = true)
@@ -51,4 +63,19 @@ public:
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         MinHookWrapper::RegisterHookApi (L##modName, modProc, F, function<F>); \
+    }
+
+/*******************************************************/
+#define REGISTER_MH_HOOK_BRANCH(pattern, off, function, ret, ...)              \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        MinHookWrapper::HookBranchDestination (pattern, off, F, function<F>);  \
+    }
+
+/*******************************************************/
+#define REGISTER_MH_HOOK(pattern, off, function, ret, ...)                     \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        MinHookWrapper::RegisterHook (hook::get_pattern (pattern, off), F,     \
+                                      function<F>);                            \
     }
