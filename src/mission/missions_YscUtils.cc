@@ -37,7 +37,7 @@ YscUtils::GetCodeOffset (uint8_t *code)
     uint32_t offset = -1;
     m_pProgram->ForEachCodePage (
         [&] (int blockId, uint8_t *block, size_t size) {
-            if (code - block >= 0 && code - block <= scrProgram::PAGE_SIZE)
+            if (code - block >= 0 && code - block <= size)
                 offset = blockId * scrProgram::PAGE_SIZE + (code - block);
         });
 
