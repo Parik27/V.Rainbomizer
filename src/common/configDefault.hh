@@ -40,6 +40,8 @@ MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
+RespawnRandomizer = true
+LightRandomizer = true
 
 #######################################################
 [TimecycleRandomizer]
@@ -138,4 +140,14 @@ EnableBlipsAlwaysVisible = true
 # Reduce the odds of the player models being considered to spawn
 # (from 0 (no player models) to 100 (some player models))
 OddsOfPlayerModels = 20
+
+#######################################################
+[LightRandomizer]
+
+# Set to 0 if you want all lights to be same colours.
+# Setting it to a high value means light colours change more slowly over distance.
+LightShiftFrequency = 1.0
+
+# 0-100, with 0 being lights are never random to 100 being lights are always random.
+RandomizeOdds = 85.0
 )";

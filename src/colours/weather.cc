@@ -130,9 +130,6 @@ public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        Rainbomizer::Logger::LogMessage (
-            "Hi Fry, there should be a million more messages like this");
-
         if (!ConfigManager ::ReadConfig (
                 "TimecycleRandomizer",
                 std ::make_pair ("RandomizeWeather",
@@ -149,10 +146,8 @@ public:
             return;
         ;
 
-        Rainbomizer::Logger::LogMessage ("Initialising all components");
         InitialiseAllComponents ();
 
-        Rainbomizer::Logger::LogMessage ("Adding actions components");
 #ifdef ENABLE_DEBUG_MENU
         DebugInterfaceManager::AddAction ("Randomize Weather",
                                           std::bind (RandomizeWeather));
@@ -160,7 +155,6 @@ public:
                                           RandomizeTimecycles);
 #endif
 
-        Rainbomizer::Logger::LogMessage ("Checking weather components");
         if (Config ().RandomizeWeather)
             {
                 Rainbomizer::Events ().OnInit += std::bind (RandomizeWeather);
@@ -170,7 +164,6 @@ public:
                     Rainbomizer::Events ().OnFade += RandomizeWeather;
             }
 
-        Rainbomizer::Logger::LogMessage ("Checking Timecycle");
         if (Config ().RandomizeTimecycle)
             {
                 Rainbomizer::Events ().OnInit
@@ -180,6 +173,5 @@ public:
                     Rainbomizer::Events ().OnFade
                         += std::bind (RandomizeTimecycles, true);
             }
-        Rainbomizer::Logger::LogMessage ("Conclude");
     }
 } _weather;

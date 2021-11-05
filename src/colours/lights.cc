@@ -43,8 +43,8 @@ class LightsRandomizer
 {
     RB_C_CONFIG_START
     {
-        double LightShiftFrequency = 10.0f;
-        double RandomizeOdds       = 75.0f;
+        double LightShiftFrequency = 1.0f;
+        double RandomizeOdds       = 85.0f;
     }
     RB_C_CONFIG_END
 
