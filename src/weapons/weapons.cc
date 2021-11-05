@@ -141,10 +141,13 @@ class WeaponRandomizer
     static bool
     ShouldRandomizeWeapon (uint32_t weapon)
     {
-        static const std::array Patterns = {
-            std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat),
-            std::tuple ("finalea"_joaat, "weapon_pistol"_joaat),
-        };
+        static const std::array Patterns
+            = {std::tuple ("franklin1"_joaat, "weapon_assaultrifle"_joaat),
+               std::tuple ("finalea"_joaat, "weapon_pistol"_joaat),
+               std::tuple ("agency_heist3b"_joaat,
+                           "weapon_grenadelauncher_smoke"_joaat),
+               std::tuple ("agency_heist3b"_joaat,
+                           "weapon_smokegrenade"_joaat)};
 
         return ModCompatibility::ShouldRandomize ()
                && (!scrThread::GetActiveThread ()
