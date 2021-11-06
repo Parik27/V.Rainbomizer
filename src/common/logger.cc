@@ -49,15 +49,10 @@ Logger::GetLogFile ()
     if (!mFile)
         {
             mFile = Common::GetRainbomizerFile (GetTimeNow () + ".txt", "a+",
-                                                "logs/");
+                                                "logs/", true);
             if (!mFile)
                 {
-                    MessageBox (NULL,
-                                "Failed to open log file for writing.\n\nAllow "
-                                "write permissions for the GTA V Directory to "
-                                "allow Rainbomizer to work properly.\n\nRight "
-                                "click on the Game Folder > Properties > "
-                                "General > Uncheck Read Only.",
+                    MessageBox (NULL, "Failed to open log file for writing.",
                                 "Error", MB_ICONHAND);
                     mFile = stdout;
                 }

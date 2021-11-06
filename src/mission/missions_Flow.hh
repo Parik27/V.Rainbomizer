@@ -13,11 +13,6 @@
 
 class MissionRandomizer_Flow
 {
-    FILE *mStartCoordsFile
-        = Rainbomizer::Common::GetRainbomizerFile ("startCoords.txt", "a");
-    FILE *mEndCoordsFile
-        = Rainbomizer::Common::GetRainbomizerFile ("endCoords.txt", "a");
-
     const MissionInfo *OriginalMission   = nullptr;
     const MissionInfo *RandomizedMission = nullptr;
 

@@ -92,10 +92,14 @@ GetGameDirRelativePathA (const char *subpath)
 /*******************************************************/
 std::string
 Common::GetRainbomizerFileName (const std::string &name,
-                                const std::string &subdirs)
+                                const std::string &subdirs, bool temp)
 {
     std::string baseDir
         = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str ());
+
+    if (temp)
+        baseDir = std::filesystem::temp_directory_path ().string ()
+                  + "/rainbomizer/" + subdirs;
 
     std::error_code ec;
     std::filesystem::create_directories (baseDir, ec);
@@ -106,10 +110,16 @@ Common::GetRainbomizerFileName (const std::string &name,
 /*******************************************************/
 FILE *
 Common::GetRainbomizerFile (const std::string &name, const std::string &mode,
-                            const std::string &subdirs)
+                            const std::string &subdirs, bool tempFallback)
 {
-    return fopen (GetRainbomizerFileName (name, subdirs).c_str (),
-                  mode.c_str ());
+    FILE *file = fopen (GetRainbomizerFileName (name, subdirs).c_str (),
+                        mode.c_str ());
+
+    if (!file && tempFallback)
+        return fopen (GetRainbomizerFileName (name, subdirs, true).c_str (),
+                      mode.c_str ());
+
+    return file;
 }
 
 /*******************************************************/
