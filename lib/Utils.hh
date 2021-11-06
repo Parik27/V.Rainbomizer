@@ -29,8 +29,9 @@ size_t       RandomSize (size_t max);
 float        RandomFloat (float min, float max);
 float        RandomFloat (float max);
 unsigned int RandomWeighed (const std::vector<double> &weights);
+bool         RandomBool (float Odds, float Precision = 1.0f);
 
-void   InitialiseAllComponents ();
+void InitialiseAllComponents ();
 
 /*******************************************************/
 /* Returns a random element from a container           */

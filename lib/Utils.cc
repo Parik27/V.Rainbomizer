@@ -82,6 +82,13 @@ RandomFloat (float max)
 }
 
 /*******************************************************/
+bool
+RandomBool (float Odds, float Precision)
+{
+    return RandomFloat (100.0f * Precision) < (Odds * Precision);
+}
+
+/*******************************************************/
 void
 MakeJMP64 (injector::memory_pointer_tr at, injector::memory_pointer_raw dest)
 {

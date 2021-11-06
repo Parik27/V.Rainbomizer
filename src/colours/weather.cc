@@ -21,15 +21,23 @@ class WeatherRandomizer
     /*******************************************************/
     RB_C_CONFIG_START
     {
-        bool        RandomizeWeather       = true;
-        bool        RandomizeTimecycle     = true;
-        bool        CrazyMode              = false;
-        bool        RandomizeEveryFade     = true;
-        double      RandomizeTimeOdds      = 75.0;
-        double      RandomizeTimecycleOdds = 25.0;
-        std::string TunableFile            = "Timecyc/Default.txt";
+        bool RandomizeWeather   = true;
+        bool RandomizeTimecycle = true;
+        bool RandomSnow         = true;
+        bool CrazyMode          = false;
+        bool RandomizeEveryFade = true;
+
+        double RandomizeTimeOdds      = 75.0;
+        double RandomizeTimecycleOdds = 25.0;
+
+        double ThunderstormOdds = 2.0;
+        double RainOdds         = 5.0;
+        double SnowOdds         = 90.0;
     }
     RB_C_CONFIG_END
+
+    inline static bool  bEnableSnow        = false;
+    inline static void *CRenderer_SnowPass = nullptr;
 
     /*******************************************************/
     static void
@@ -53,15 +61,16 @@ class WeatherRandomizer
 #define RANDOMIZE_FIELD(field)                                                 \
     std::swap (type.field, GetRandomWeather ().field);
 
+                type.Rain      = RandomBool (Config ().RainOdds) ? 1.0f : 0.0f;
+                type.Lightning = RandomBool (Config ().ThunderstormOdds);
+
                 RANDOMIZE_FIELD (Sun)
                 RANDOMIZE_FIELD (Cloud)
                 RANDOMIZE_FIELD (WindMin)
                 RANDOMIZE_FIELD (WindMax)
-                RANDOMIZE_FIELD (Rain)
                 RANDOMIZE_FIELD (Snow)
                 RANDOMIZE_FIELD (SnowMist)
                 RANDOMIZE_FIELD (Fog)
-                RANDOMIZE_FIELD (Lightning)
                 RANDOMIZE_FIELD (Sandstorm)
                 RANDOMIZE_FIELD (DropSettingIndex)
                 RANDOMIZE_FIELD (MistSettingIndex)
@@ -100,6 +109,8 @@ class WeatherRandomizer
         if (!tcManager::g_timeCycle->pTimecycles)
             return;
 
+        bEnableSnow = RandomBool (Config ().SnowOdds);
+
         static std::future<void> future;
 
         if (future.valid ())
@@ -119,32 +130,44 @@ class WeatherRandomizer
             WeatherRandomizer_TunableManager::Initialise (
                 GetRandomElement (TimecyclePresets));
 
-            if (RandomFloat (1000) < Config ().RandomizeTimecycleOdds * 10.0f)
+            if (RandomBool (Config ().RandomizeTimecycleOdds, 10.0f))
                 WeatherRandomizer_TunableManager::Randomize ();
-            else if (RandomFloat (1000) < Config ().RandomizeTimeOdds * 10.0f)
+            else if (RandomBool (Config ().RandomizeTimeOdds, 10.0f))
                 WeatherRandomizer_TunableManager::RandomizeTimesamples ();
         });
+    }
+
+    /*******************************************************/
+    template <auto &DC_CallFunction>
+    static void
+    SnowHook (void *Function)
+    {
+        if (bEnableSnow)
+            DC_CallFunction (CRenderer_SnowPass);
+
+        DC_CallFunction (Function);
+    }
+
+    /*******************************************************/
+    void
+    InitialiseSnowHooks ()
+    {
+        constexpr const char *Pattern
+            = "? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? ? ? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? "
+              "? ? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? ? ? 8d ? ? ? 8d ? ? ? 8d 0d";
+
+        CRenderer_SnowPass = GetRelativeReference<void> (Pattern, 3, 7);
+        REGISTER_HOOK (Pattern, 23, SnowHook, void, void *);
     }
 
 public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        if (!ConfigManager ::ReadConfig (
-                "TimecycleRandomizer",
-                std ::make_pair ("RandomizeWeather",
-                                 &Config ().RandomizeWeather),
-                std ::make_pair ("RandomizeTimecycle",
-                                 &Config ().RandomizeTimecycle),
-                std ::make_pair ("TunableFile", &Config ().TunableFile),
-                std ::make_pair ("RandomizeTimecycleOdds",
-                                 &Config ().RandomizeTimecycleOdds),
-                std ::make_pair ("RandomizeTimeOdds",
-                                 &Config ().RandomizeTimeOdds),
-                std ::make_pair ("RandomizeEveryFade",
-                                 &Config ().RandomizeEveryFade)))
-            return;
-        ;
+        RB_C_DO_CONFIG ("TimecycleRandomizer", RandomizeWeather,
+                        RandomizeTimecycle, RandomizeTimecycleOdds,
+                        RandomizeTimeOdds, RandomizeEveryFade, RainOdds,
+                        ThunderstormOdds, RandomSnow, SnowOdds);
 
         InitialiseAllComponents ();
 
@@ -155,11 +178,13 @@ public:
                                           RandomizeTimecycles);
 #endif
 
+        if (Config ().RandomSnow)
+            InitialiseSnowHooks ();
+
         if (Config ().RandomizeWeather)
             {
                 Rainbomizer::Events ().OnInit += std::bind (RandomizeWeather);
 
-                Rainbomizer::Logger::LogMessage ("Checking Every Fade");
                 if (Config ().RandomizeEveryFade)
                     Rainbomizer::Events ().OnFade += RandomizeWeather;
             }

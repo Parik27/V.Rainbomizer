@@ -37,6 +37,7 @@ class ScriptHookCompatibility
         uint32_t joaatHash = NativeManager::GetJoaatHashFromCmdHash (hash);
         sm_Ctx.Reset ();
 
+#if (0)
         if (auto hook
             = LookupMap (NativeManager::GetHookedNativesList (), joaatHash))
             {
@@ -45,6 +46,7 @@ class ScriptHookCompatibility
 
                 return;
             }
+#endif
         nativeInit (hash);
     }
 
