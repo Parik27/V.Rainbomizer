@@ -109,8 +109,6 @@ class WeatherRandomizer
         if (!tcManager::g_timeCycle->pTimecycles)
             return;
 
-        bEnableSnow = RandomBool (Config ().SnowOdds);
-
         static std::future<void> future;
 
         if (future.valid ())
@@ -179,7 +177,11 @@ public:
 #endif
 
         if (Config ().RandomSnow)
-            InitialiseSnowHooks ();
+            {
+                InitialiseSnowHooks ();
+                Rainbomizer::Events ().OnFade +=
+                    [] () { bEnableSnow = RandomBool (Config ().SnowOdds); };
+            }
 
         if (Config ().RandomizeWeather)
             {
