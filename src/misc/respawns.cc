@@ -61,12 +61,18 @@ class RespawnRandomizer
         char line[512] = {0};
         while (fgets (line, 512, f))
             {
+                constexpr Vector3 offset
+                    = {5.32516471875, 3.58871494336, 0.13737890136};
+
                 Vector3 pos;
                 line[strcspn (line, "\n")] = 0;
 
                 if (sscanf (line, "%f %f %f", &pos.x, &pos.y, &pos.z) != 3)
                     continue;
 
+                pos.x += offset.x;
+                pos.y += offset.y;
+                pos.z += offset.z;
                 sm_CoordsList.push_back (pos);
             }
 

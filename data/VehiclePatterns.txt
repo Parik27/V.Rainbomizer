@@ -84,7 +84,7 @@ carsteal1	Cheetah	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=10.0+l=20.0+h=20
 carsteal2	Polmav	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 carsteal2	Buffalo2	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	N	w=30.0+l=30.0+h=20.0				
 carsteal2	Ztype	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=3.0+l=13.0+h=3.4				
-carsteal3	Jb700	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=15+no_rotors				
+carsteal3	Jb700	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=15.0+l=15.0+h=8+no_rotors				
 carsteal1	AllVehicles	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	w=8.0+l=100.0+h=100.0				
 martin1	Burrito3	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15+no_rotors				
 martin1	Burrito3	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15+no_rotors				
@@ -101,7 +101,7 @@ fbi4_prep2	Towtruck	1	N	N	N	N	N	N	N	N	N	N	N	N
 fbi4_prep1	Trash	1	N	N	N	N	N	N	N	N	N	N	N	N					
 exile1	Duster	1	N	N	N	N	Y	N	N	N	N	N	N	N	w=17.0+l=15.0+h=6.0+flying	-14	28	0	
 exile1	Cargoplane	1	N	N	N	N	N	N	N	N	N	N	N	N					
-exile1	Lazer	1	N	N	N	N	Y	Y	Y	N	N	N	N	N					
+exile1	Lazer	1	N	N	N	N	Y	N	N	N	N	N	N	N					
 exile2	Bodhi2	2	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 exile2	Baller	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 exile2	Frogger2	4	N	N	N	N	N	Y	Y	N	N	N	N	N	flying				
@@ -147,7 +147,7 @@ finale_heist2a	Dubsta	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N
 finale_heist2a	Burrito3	2	Y	Y	Y	Y	Y	Y	N	N	N	Y	N	N					
 finale_heist2a	Stockade	4	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 finale_heist2a	Mesa3	4	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
-finale_heist2a	Gauntlet	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=3.0+l=6.0+h=6.0				
+finale_heist2a	Gauntlet	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N	w=3.0+l=6.0+h=5.0				
 finale_heist2a	Cavalcade2	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
 finale_heist2a	Packer	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Trailers3				
 finale_heist2a	Trailers3	0	N	N	N	N	N	N	N	N	N	N	N	N					
@@ -209,7 +209,7 @@ finalec2	Premier	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N
 finalec2	Bodhi2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
 finalec2	Cavalcade	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
 finalec2	Washington	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
-finalec2	Tornado	1	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	no_rotors				
+finalec2	Tornado	1	Y	N	N	N	N	N	N	N	N	Y	N	N	no_rotors				
 assassin_valet	Fbi2	4	Y	Y	N	Y	N	Y	N	N	N	Y	N	N					
 assassin_valet	Washington	2	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 assassin_valet	Taxi	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
@@ -354,3 +354,5 @@ triathlonsp	Frogger	1	N	N	N	N	N	N	N	N	N	N	N	N
 triathlonsp	Tribike3	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
 triathlonsp	Tribike2	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
 triathlonsp	Tribike	1	Y	Y	Y	Y	Y	N	N	N	N	Y	N	N					
+launcher_hao	Penumbra	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					
+launcher_hao	Ruiner	1	Y	Y	Y	Y	N	N	N	N	N	Y	N	N					

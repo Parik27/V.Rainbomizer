@@ -2,7 +2,9 @@
 #include <common/events.hh>
 #include <common/minhook.hh>
 
+#ifdef ENABLE_DEBUG_MENU
 #include <debug/base.hh>
+#endif
 
 #include "HSL.hh"
 #include "CARGB.hh"

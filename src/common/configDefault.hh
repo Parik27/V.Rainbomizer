@@ -48,6 +48,11 @@ LightRandomizer = true
 
 RandomizeWeather = true # Randomize the weather (properties like sun, rain, etc.)
 RandomizeTimecycle = true # Randomize the appearance of the sky/ground.
+RandomSnow = true # snowy LS
+
+RainOdds = 5.0
+ThunderstormOdds = 1.0
+SnowOdds = 5.0 # snowy LS
 
 #######################################################
 # """"FILTER/LIGHTING""""" HATERS LOOK HERE (Spoiler Alert: There's no """FILTER""")
