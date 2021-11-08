@@ -3,7 +3,7 @@
 
 # Rainbomizer: V 🌈
 
-<a href="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg"> <img src="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg?width=933&height=513"></a>
+<a href="https://media.discordapp.net/attachments/821138024192278640/906978373333581864/20211107183741_1.jpg"> <img src="https://media.discordapp.net/attachments/821138024192278640/906978373333581864/20211107183741_1.jpg"></a>
 
 A modification for Grand Theft Auto V that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
@@ -20,6 +20,12 @@ A modification for Grand Theft Auto V that randomizes various aspects of the gam
 <span id="features"></span>
 ## Features
 
+New Features
+- 💡 **(NEW) Light Randomizer** - Randomizes all light colours in the game.
+- 🏥 **(NEW) Respawn Randomizer** - Randomizes where you respawn.
+- 🎥 **(NEW) Switch Scene Randomizer** - Randomizes the scene played when you switch to a different character.
+
+Features
 - :helicopter: **Traffic Randomizer** - Randomizes cars that spawn in traffic. 
 - :blue_car: **Mission Vehicle Randomizer** - Randomizes vehicles you are given in missions, making sure that the vehicle you're given is usable for that mission.
 - :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD, and more. 
