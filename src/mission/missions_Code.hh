@@ -12,6 +12,7 @@
 class MissionRandomizer_CodeFixes
 {
     /*******************************************************/
+    static bool ApplyProloguePlayerResetFix (YscUtilsOps &utils);
     static bool ApplyStatWatcherFix (YscUtilsOps &utils);
     static bool ApplyCreditsFix_FinaleAB (YscUtilsOps &utils);
     static bool ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils);

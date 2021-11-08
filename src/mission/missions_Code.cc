@@ -223,9 +223,27 @@ MissionRandomizer_CodeFixes::ApplyReplayControllerFix (YscUtilsOps &utils)
 }
 
 /*******************************************************/
+bool
+MissionRandomizer_CodeFixes::ApplyProloguePlayerResetFix (YscUtilsOps &utils)
+{
+    /* This patch fixes randomized Prologue resetting player */
+    // 6f 2c 04 ? ? 2c ? ? ? 2c ? ? ? 56 ? ? 50 ? ? 6f 2c 08 ? ? 5d ? ? ?
+
+    if (!utils.IsAnyOf ("prologue1"_joaat))
+        return false;
+
+    utils.Init ("6f 2c 04 ? ? 2c ? ? ? 2c ? ? ? 56 ? ? 50 ? ? 6f 2c 08 ? ? 5d");
+    utils.NOP (/*Offset=*/16, /*Size=*/12);
+
+    return true;
+}
+
+/*******************************************************/
 void
 MissionRandomizer_CodeFixes::Initialise ()
 {
+    YscCodeEdits::Add ("Prologue Player Reset Fix",
+                       ApplyProloguePlayerResetFix);
     YscCodeEdits::Add ("Stat Watcher Fix", ApplyStatWatcherFix);
     YscCodeEdits::Add ("Finale A/B Credits Fix", ApplyCreditsFix_FinaleAB);
     YscCodeEdits::Add ("Finale C Credits Fix", ApplyCreditsFix_FinaleC2);
