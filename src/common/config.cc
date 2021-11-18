@@ -112,9 +112,29 @@ ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
 {
     auto table    = m_pConfig->get_table (tableName);
     auto defTable = m_pDefaultConfig->get_table (tableName);
-    if (table)
-        out = table->get_as<T> (key).value_or (
-            (defTable) ? defTable->get_as<T> (key).value_or (out) : out);
+    if (table && table->contains (key))
+        out = table->get_as<T> (key).value_or (out);
+    else if (defTable)
+        out = defTable->get_as<T> (key).value_or (out);
+
+#ifdef DEBUG_CONFIG_OPTIONS
+    std::ostringstream ss;
+    ss << "\nConfig option: " << tableName << "." << key;
+    ss << "\nChosen value : " << out;
+    ss << "\nHas config table : " << table;
+    ss << "\nHas default table : " << defTable;
+    ss << "\nConfig has key: " << (table ? table->contains (key) : false);
+    ss << "\nDefault has key: "
+       << (defTable ? defTable->contains (key) : false);
+    if (table && table->contains (key))
+        ss << "\nConfig value: " << table->get_as<T> (key).value_or (out);
+    if (defTable && defTable->contains (key))
+        ss << "\nDefault Config value: "
+           << defTable->get_as<T> (key).value_or (out);
+    ss << "\n";
+
+    Rainbomizer::Logger::LogMessage ("%s", ss.str ().c_str ());
+#endif
 
 #ifdef ENABLE_DEBUG_MENU
     ConfigDebugInterface::AddConfigOption (tableName + '.' + key, &out);
