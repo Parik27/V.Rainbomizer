@@ -82,7 +82,9 @@ class EventTriggerer
     {
         if (ctx->m_nScriptHash == "main"_joaat)
             {
-                if (std::exchange (bScreenFadedOut, "IS_SCREEN_FADED_OUT"_n())
+                if (std::exchange (bScreenFadedOut,
+                                   "IS_SCREEN_FADED_OUT"_n()
+                                       || "IS_PLAYER_SWITCH_IN_PROGRESS"_n())
                         != bScreenFadedOut
                     && bScreenFadedOut)
                     Events ().OnFade ();

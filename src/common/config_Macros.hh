@@ -54,7 +54,7 @@
         return;
 
 #define RB_C_DO_CONFIG_NO_OPTIONS(Name)                                        \
-    if (!ConfigManager::ReadConfig (Name)     \
+    if (!ConfigManager::ReadConfig (Name))                                     \
         return;
 
 #define RB_C_CONFIG_START                                                      \
