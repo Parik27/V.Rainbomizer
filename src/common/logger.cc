@@ -8,8 +8,8 @@
 #ifndef NDEBUG
 #define RAINBOMIZER_BUILD "Debug Build: " __DATE__ " " __TIME__
 #else
-#define RAINBOMIZER_BUILD "Release v2.0: " __DATE__ " " __TIME__
-#define RAINBOMIZER_BUILD_SHORT "Release v2.0"
+#define RAINBOMIZER_BUILD "Release v2.1: " __DATE__ " " __TIME__
+#define RAINBOMIZER_BUILD_SHORT "Release v2.1"
 #endif
 
 constexpr int RAINBOMIZER_BUILD_NUMBER =

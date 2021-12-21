@@ -102,7 +102,7 @@ VehicleRandomizerHelper::InitialiseDLCDespawnFix ()
         if (!ops.IsAnyOf ("shop_controller"_joaat))
             return false;
 
-        ops.Init ("2d 01 08 00 ? 38 00 5d ? ? ? 06 56 ? ? 2e 01 00");
+        ops.Init ("2d ? ? 00 ? 38 00 5d ? ? ? 06 56 ? ? 2e 01 00");
         ops.NOP (/*Offset=*/12, 3);
 
         return true;
