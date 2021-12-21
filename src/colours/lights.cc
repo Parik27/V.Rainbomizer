@@ -136,7 +136,13 @@ public:
     /*******************************************************/
     LightsRandomizer ()
     {
-        RB_C_DO_CONFIG ("LightRandomizer", LightShiftFrequency, RandomizeOdds);
+        if (!ConfigManager ::ReadConfig (
+                "LightRandomizer",
+                std::make_pair ("LightShiftFrequency",
+                                &Config ().LightShiftFrequency),
+                std::make_pair ("RandomizeOdds", &Config ().RandomizeOdds)))
+            return;
+        ;
 
         InitialiseAllComponents ();
 

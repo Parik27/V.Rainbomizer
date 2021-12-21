@@ -127,8 +127,14 @@ public:
     /*******************************************************/
     ColoursRandomizer ()
     {
-        RB_C_DO_CONFIG ("ColourRandomizer", RandomizeHudColours,
-                        RandomizeCarColours);
+        if (!ConfigManager ::ReadConfig (
+                "ColourRandomizer",
+                std::make_pair ("RandomizeHudColours",
+                                &Config ().RandomizeHudColours),
+                std::make_pair ("RandomizeCarColours",
+                                &Config ().RandomizeCarColours)))
+            return;
+        ;
 
         InitialiseAllComponents ();
 

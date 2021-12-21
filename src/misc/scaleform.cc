@@ -142,7 +142,11 @@ public:
     /*******************************************************/
     ScaleformRandomizer ()
     {
-        RB_C_DO_CONFIG ("ScaleformRandomizer", FailMessageOdds);
+        if (!ConfigManager ::ReadConfig (
+                "ScaleformRandomizer",
+                std::make_pair ("FailMessageOdds", &Config ().FailMessageOdds)))
+            return;
+        ;
 
         InitialiseAllComponents ();
         REGISTER_HOOK ("89 74 ? ? e8 ? ? ? ? ? 8b cd ? 8b d0 e8", 4,

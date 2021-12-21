@@ -162,10 +162,25 @@ public:
     /*******************************************************/
     WeatherRandomizer ()
     {
-        RB_C_DO_CONFIG ("TimecycleRandomizer", RandomizeWeather,
-                        RandomizeTimecycle, RandomizeTimecycleOdds,
-                        RandomizeTimeOdds, RandomizeEveryFade, RainOdds,
-                        ThunderstormOdds, RandomSnow, SnowOdds);
+        if (!ConfigManager ::ReadConfig (
+                "TimecycleRandomizer",
+                std::make_pair ("RandomizeWeather",
+                                &Config ().RandomizeWeather),
+                std::make_pair ("RandomizeTimecycle",
+                                &Config ().RandomizeTimecycle),
+                std::make_pair ("RandomizeTimecycleOdds",
+                                &Config ().RandomizeTimecycleOdds),
+                std::make_pair ("RandomizeTimeOdds",
+                                &Config ().RandomizeTimeOdds),
+                std::make_pair ("RandomizeEveryFade",
+                                &Config ().RandomizeEveryFade),
+                std::make_pair ("RainOdds", &Config ().RainOdds),
+                std::make_pair ("ThunderstormOdds",
+                                &Config ().ThunderstormOdds),
+                std::make_pair ("RandomSnow", &Config ().RandomSnow),
+                std::make_pair ("SnowOdds", &Config ().SnowOdds)))
+            return;
+        ;
 
         InitialiseAllComponents ();
 
