@@ -55,4 +55,8 @@ public:
             "0f 44 ca 41 8b d0 ? 8d 05 ? ? ? ? e8 ? ? ? ? ? 83 c4 38 c3 ", 13,
             MoveCloudCache, void, char *, int, char *, const char *, char *);
     }
-} news;
+}
+#ifdef BUILD_NEWS_RANDOMIZER
+news
+#endif
+    ;

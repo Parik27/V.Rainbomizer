@@ -13,6 +13,10 @@
 #include <thread>
 #include <common/config.hh>
 
+#ifdef ENABLE_DEBUG_MENU
+#include <debug/base.hh>
+#endif
+
 class audScriptAudioEntity;
 class audSpeechSound;
 
@@ -39,26 +43,152 @@ class VoiceLineRandomizer
     inline static std::unordered_map<uint32_t, std::string>       mSubtitles;
     inline static std::vector<SoundPair>                          mSounds;
 
-    static auto &
-    Config ()
+    struct State
     {
-        static struct Config
+        enum
         {
-            bool IncludeDLCLines = true;
-        } m_Config;
+            TrulyRandom,
+            OrderedRandom,
+            SomeRandom,
+            EasterEgg,
+            NoRandom
+        } inline static Type;
 
-        return m_Config;
+        inline static size_t NextTypeUpdate = 0;
+
+        // Ordered Random state variables
+        inline static size_t   CurrentSeq;
+        inline static uint64_t PrevSeqUpdate = 0;
+
+        const SoundPair *CurrentPair        = nullptr;
+        const SoundPair *EasterEggVoiceLine = nullptr;
+
+        void
+        SetState (decltype (Type) type, int duration)
+        {
+            Type           = type;
+            NextTypeUpdate = time (NULL) + duration;
+        }
+
+        State (){};
+
+    } inline static sm_State;
+
+    // Read config file for descriptions
+    RB_C_CONFIG_START
+    {
+        int TrulyRandomDuration   = 15;
+        int OrderedRandomDuration = 45;
+        int SomeRandomDuration    = 15;
+        int NoRandomDuration      = 15;
+
+        int PercentageRandomOnSomeRandom   = 65;
+        int OrderedDialogueChangeFrequency = 20;
+
+        bool IncludeDLCLines = true;
     }
+    RB_C_CONFIG_END
 
     /*******************************************************/
     static bool
     ShouldRandomizeVoiceLine (uint32_t hash)
     {
-        return std::find_if (std::begin (mSounds), std::end (mSounds),
-                             [hash] (const SoundPair &sound) {
-                                 return sound.soundHash == hash;
-                             })
-               != std::end (mSounds);
+        const auto &res
+            = std::find_if (std::begin (mSounds), std::end (mSounds),
+                            [hash] (const SoundPair &sound) {
+                                return sound.soundHash == hash;
+                            });
+
+        if (res != std::end (mSounds))
+            sm_State.CurrentPair = &*res;
+
+        return sm_State.CurrentPair != nullptr;
+    }
+
+    /*******************************************************/
+    static void
+    UpdateState ()
+    {
+        const float EASTER_EGG_ODDS     = 0.5f; // 1 in 200
+        const int   EASTER_EGG_DURATION = 60;
+
+        // Wait for next update
+        if (time (NULL) < sm_State.NextTypeUpdate)
+            return;
+
+        if (RandomBool (EASTER_EGG_ODDS))
+            return sm_State.SetState (State::EasterEgg, EASTER_EGG_DURATION);
+
+        // Initialise weights from duration for now
+        static std::vector<double> Weights
+            = {{static_cast<double> (Config ().TrulyRandomDuration),
+                static_cast<double> (Config ().OrderedRandomDuration),
+                static_cast<double> (Config ().SomeRandomDuration),
+                static_cast<double> (Config ().NoRandomDuration)}};
+
+#define SET_STATE_CASE(idx, name)                                              \
+    case idx: sm_State.SetState (State::name, Config ().name##Duration); break
+
+        switch (RandomWeighed (Weights))
+            {
+                SET_STATE_CASE (0, TrulyRandom);
+                SET_STATE_CASE (1, OrderedRandom);
+                SET_STATE_CASE (2, SomeRandom);
+                SET_STATE_CASE (3, NoRandom);
+            }
+#undef SET_STATE_CASE
+    }
+
+    /*******************************************************/
+    static const auto &
+    GetRandomSoundPair ()
+    {
+        UpdateState ();
+
+        switch (sm_State.Type)
+            {
+                /* Return a completely random voice line */
+                case State::TrulyRandom: {
+                    return GetRandomElement (mSounds);
+                }
+
+                /* Return random dialogues in order defined in VoiceLines.txt */
+                case State::OrderedRandom: {
+                    if (time (NULL) - sm_State.PrevSeqUpdate
+                        > Config ().OrderedDialogueChangeFrequency)
+                        {
+                            sm_State.CurrentSeq = RandomSize (mSounds.size ());
+                            sm_State.PrevSeqUpdate = time (NULL);
+                        }
+                    else
+                        {
+                            sm_State.CurrentSeq
+                                = (sm_State.CurrentSeq + 1) % mSounds.size ();
+                        }
+                    return mSounds[sm_State.CurrentSeq];
+                }
+
+                /* Random a percentage of time */
+                case State::SomeRandom: {
+                    if (RandomBool (Config ().PercentageRandomOnSomeRandom))
+                        return GetRandomElement (mSounds);
+                    [[fallthrough]];
+                }
+
+                /* Not random */
+                case State::NoRandom: {
+                    return *sm_State.CurrentPair;
+                }
+
+                /* Same voice line repeating */
+                case State::EasterEgg: {
+                    if (!sm_State.EasterEggVoiceLine)
+                        sm_State.EasterEggVoiceLine
+                            = &GetRandomElement (mSounds);
+
+                    return *sm_State.EasterEggVoiceLine;
+                }
+            }
     }
 
     /*******************************************************/
@@ -71,7 +201,7 @@ class VoiceLineRandomizer
         if (mSounds.size () > 0
             && ShouldRandomizeVoiceLine (rage::atPartialStringHash (sound)))
             {
-                auto &newSound = GetRandomElement (mSounds);
+                auto &newSound = GetRandomSoundPair ();
 
                 subtitle = newSound.subtitle.c_str ();
                 mAudioPairs[rage::atPartialStringHash (sound)] = &newSound;
@@ -256,10 +386,11 @@ public:
     /*******************************************************/
     VoiceLineRandomizer ()
     {
-        if (!ConfigManager::ReadConfig (
-                "VoiceLineRandomizer", // ----------------------------------
-                std::pair ("IncludeDLCLines", &Config ().IncludeDLCLines)))
-            return;
+        RB_C_DO_CONFIG ("VoiceLineRandomizer", IncludeDLCLines,
+                        TrulyRandomDuration, OrderedRandomDuration,
+                        SomeRandomDuration, NoRandomDuration,
+                        PercentageRandomOnSomeRandom,
+                        OrderedDialogueChangeFrequency);
 
         InitialiseAllComponents ();
         InitialiseHooks ();
@@ -268,5 +399,18 @@ public:
             if (session)
                 InitialiseSoundsList ();
         };
+
+#ifdef ENABLE_DEBUG_MENU
+#define ADD_SET_STATE_ACTIONS(action)                                          \
+    DebugInterfaceManager::AddAction ("Set State to " #action, [] (bool) {     \
+        sm_State.SetState (State::action, 60);                                 \
+    });
+
+        ADD_SET_STATE_ACTIONS (TrulyRandom);
+        ADD_SET_STATE_ACTIONS (SomeRandom);
+        ADD_SET_STATE_ACTIONS (EasterEgg);
+        ADD_SET_STATE_ACTIONS (NoRandom);
+        ADD_SET_STATE_ACTIONS (OrderedRandom);
+#endif
     }
 } voices;

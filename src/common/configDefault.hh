@@ -23,7 +23,6 @@ const char configDefault[] = R"(
 # Refer to the readme to get the description of all the randomizers.
 [Randomizers]
 
-RainbomizerNews = true
 RainbomizerCredits = true
 
 TrafficRandomizer = true
@@ -42,6 +41,41 @@ HandlingRandomizer = false
 SwitchSceneRandomizer = false
 RespawnRandomizer = true
 LightRandomizer = true
+
+#######################################################
+[VoiceLineRandomizer]
+
+# Whether to include DLC lines in randomization. Set to false if you don't want to hear
+# DLC voice lines.
+IncludeDLCLines = true
+
+# Voice Line Randomizer has 4 states it can be in:
+# It can either be:
+#
+# 1. Completely Random (voice lines have a completely random order)
+# 2. Ordered Random (consecutive voice lines are from the same dialogue sequence)
+# 3. Some Random (voice lines are normal except some random lines)
+# 4. No Random (all voice lines are normal).
+#
+# Each of these 4 state is randomly chosen and stays for a duration which can be
+# configured. This duration also decides how likely they are to be chosen. (i.e longer
+# durations means more likely to be chosen).
+#
+# All durations are in seconds
+
+TrulyRandomDuration = 15
+OrderedRandomDuration = 45
+SomeRandomDuration = 15
+NoRandomDuration = 15
+
+# During Some Random state, this option decides how likely a voice line is to be randomized.
+# If you set this to 100, it behaves the same as TrulyRandom.
+# 0 is the same as NoRandom
+PercentageRandomOnSomeRandom = 65
+
+# How many seconds before the ordered dialogue is re-randomized to a different sequence.
+# If you set this to 0, it behaves the same as TrulyRandom.
+OrderedDialogueChangeFrequency = 20
 
 #######################################################
 [TimecycleRandomizer]
@@ -101,11 +135,6 @@ LogSpawnedVehicles = false # Logs all the spawned script vehicles
 TunableFile = "Timecyc/Default.txt"
 
 RandomizeEveryFade = true
-
-#######################################################
-[VoiceLineRandomizer]
-
-IncludeDLCLines = true # Includes DLC lines in randomization
 
 #######################################################
 [MissionRandomizer]
