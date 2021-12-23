@@ -60,6 +60,8 @@ class VoiceLineRandomizer
         inline static size_t   CurrentSeq;
         inline static uint64_t PrevSeqUpdate = 0;
 
+        inline static bool SameSpeakerEnabled = false;
+
         const SoundPair *CurrentPair        = nullptr;
         const SoundPair *EasterEggVoiceLine = nullptr;
 
@@ -81,9 +83,11 @@ class VoiceLineRandomizer
         int OrderedRandomDuration = 45;
         int SomeRandomDuration    = 15;
         int NoRandomDuration      = 15;
+        ;
 
         int PercentageRandomOnSomeRandom   = 65;
         int OrderedDialogueChangeFrequency = 20;
+        int SameSpeakerPercentage          = 75;
 
         bool IncludeDLCLines = true;
     }
@@ -109,15 +113,22 @@ class VoiceLineRandomizer
     static void
     UpdateState ()
     {
-        const float EASTER_EGG_ODDS     = 0.5f; // 1 in 200
+        const float EASTER_EGG_ODDS     = 0.1f; // 1 in 1000
         const int   EASTER_EGG_DURATION = 60;
 
         // Wait for next update
         if (time (NULL) < sm_State.NextTypeUpdate)
             return;
 
+        sm_State.SameSpeakerEnabled
+            = RandomBool (Config ().SameSpeakerPercentage);
+
         if (RandomBool (EASTER_EGG_ODDS))
-            return sm_State.SetState (State::EasterEgg, EASTER_EGG_DURATION);
+            {
+                sm_State.EasterEggVoiceLine = nullptr;
+                return sm_State.SetState (State::EasterEgg,
+                                          EASTER_EGG_DURATION);
+            }
 
         // Initialise weights from duration for now
         static std::vector<double> Weights
@@ -141,6 +152,27 @@ class VoiceLineRandomizer
 
     /*******************************************************/
     static const auto &
+    GetRandomSoundPairNoState ()
+    {
+        if (!sm_State.SameSpeakerEnabled)
+            return GetRandomElement (mSounds);
+
+        /* Return voice line from same speaker */
+        std::vector<SoundPair *> validLines;
+        for (auto &i : mSounds)
+            {
+                if (i.bankHash == sm_State.CurrentPair->bankHash)
+                    validLines.push_back (&i);
+            }
+
+        if (validLines.size ())
+            return *GetRandomElement (validLines);
+
+        return *sm_State.CurrentPair;
+    }
+
+    /*******************************************************/
+    static const auto &
     GetRandomSoundPair ()
     {
         UpdateState ();
@@ -149,7 +181,7 @@ class VoiceLineRandomizer
             {
                 /* Return a completely random voice line */
                 case State::TrulyRandom: {
-                    return GetRandomElement (mSounds);
+                    return GetRandomSoundPairNoState ();
                 }
 
                 /* Return random dialogues in order defined in VoiceLines.txt */
@@ -171,7 +203,7 @@ class VoiceLineRandomizer
                 /* Random a percentage of time */
                 case State::SomeRandom: {
                     if (RandomBool (Config ().PercentageRandomOnSomeRandom))
-                        return GetRandomElement (mSounds);
+                        return GetRandomSoundPairNoState ();
                     [[fallthrough]];
                 }
 
@@ -182,9 +214,9 @@ class VoiceLineRandomizer
 
                 /* Same voice line repeating */
                 case State::EasterEgg: {
-                    if (!sm_State.EasterEggVoiceLine)
+                    if (!sm_State.EasterEggVoiceLine || RandomBool (5.0f))
                         sm_State.EasterEggVoiceLine
-                            = &GetRandomElement (mSounds);
+                            = &GetRandomSoundPairNoState ();
 
                     return *sm_State.EasterEggVoiceLine;
                 }
@@ -397,6 +429,8 @@ public:
                                 &Config ().SomeRandomDuration),
                 std::make_pair ("NoRandomDuration",
                                 &Config ().NoRandomDuration),
+                std::make_pair ("SameSpeakerPercentage",
+                                &Config ().SameSpeakerPercentage),
                 std::make_pair ("PercentageRandomOnSomeRandom",
                                 &Config ().PercentageRandomOnSomeRandom),
                 std::make_pair ("OrderedDialogueChangeFrequency",

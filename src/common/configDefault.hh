@@ -68,6 +68,13 @@ OrderedRandomDuration = 45
 SomeRandomDuration = 15
 NoRandomDuration = 15
 
+# Percentage of times the conversation will have random voice lines from the same character
+# (For Example, Franklin voice lines will always be other Franklin voice lines)
+# 100 means that all voice lines will be from the same character
+# 0 means that all voice lines will be random
+# Note: It doesn't apply to OrderedRandom state.
+SameSpeakerPercentage = 75
+
 # During Some Random state, this option decides how likely a voice line is to be randomized.
 # If you set this to 100, it behaves the same as TrulyRandom.
 # 0 is the same as NoRandom
