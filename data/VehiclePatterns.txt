@@ -45,9 +45,12 @@ trevor2	Gburrito	1	Y	Y	Y	Y	Y	Y	Y	Y	N	Y	N	N
 trevor2	Hexer	1	Y	Y	Y	Y	Y	Y	N	Y	N	Y	N	N					
 trevor2	Maverick	1	N	N	N	N	N	Y	Y	N	N	N	N	N					
 trevor2	Dinghy	1	N	N	N	N	N	n	n	y	N	N	N	N					
-trevor2	Cuban800	1	N	N	N	N	Y	N	N	N	N	N	N	N	w=30.0+l=30.0+h=30.0				
+trevor2	Cuban800	1	N	N	N	N	Y	N	N	N	N	N	N	N	w=26.0+l=26.0+h=30.0				
 family4	Dilettante	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N	N					
 family4	Phantom	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N					
+family4	Schafter2	2	Y	Y	Y	Y	N	N	N	N	N	N	N	N	w=3.0+l=13.0+h=3.4				
+family4	Sentinel	2	Y	Y	Y	Y	N	N	N	N	N	N	N	N	w=3.0+l=13.0+h=3.4				
+family4	TVTrailer	2	Y	Y	Y	Y	N	N	N	Y	N	Y	N	Y	w=3.0+l=13.0+h=3.4				
 docks_setup	Bodhi2	4	Y	Y	N	Y	N	N	N	N	N	Y	N	N	w=5.0+l=15.0+h=2.2	0	12	0	
 docks_setup	Handler	1	N	N	N	N	N	N	N	N	N	N	N	N					
 docks_setup	Hauler	1	Y	N	N	N	N	N	N	N	N	N	N	N	can_attach=Docktrailer				
@@ -69,7 +72,10 @@ docks_heistb	Submersible	1	N	N	N	N	N	N	N	N	Y	Y	N	N
 docks_heistb	Armytrailer	0	N	N	N	N	N	N	N	N	N	N	N	N					
 docks_heistb	Buzzard	1	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N					
 fbi2	Oracle2	2	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=40.0+l=40.0+h=40+no_wait				
+fbi2	Bagger	2	N	Y	Y	N	N	N	N	N	N	N	N	N					
 fbi2	Frogger	4	N	N	N	N	Y	Y	Y	N	N	N	N	N	w=40.0+l=40.0+h=40				
+fbi2	fbi2	2	Y	Y	Y	Y	N	N	N	N	N	N	N	N	w=3.0+l=13.0+h=3.4				
+fbi2	UtilliTruck3	2	Y	Y	Y	Y	N	N	N	N	N	N	N	N	w=3.0+l=13.0+h=3.4				
 fbi2	Buzzard	2	N	N	N	N	Y	Y	Y	N	N	N	N	N					
 fbi3	Oracle2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
 fbi3	Bodhi2	2	Y	Y	Y	Y	N	Y	N	N	N	Y	N	N	w=14.0+l=23.0+h=23				
@@ -165,7 +171,7 @@ finale_heist2b	Police	4	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	Y	N
 finale_heist2b	AllVehicles	4	Y	N	N	N	N	N	N	N	N	Y	N	N	x=-166+y=-621+z=31+w=15.0+l=15.0+h=15.0				
 michael1	Tailgater	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 michael1	Premier	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
-michael1	Cuban800	1	N	N	N	N	C	C	C	N	N	C	N	N	w=20.0+l=21.0+h=3.0+flying	13	-48.5	0	
+michael1	Cuban800	1	N	N	N	N	C	N	N	N	N	N	N	N	w=20.0+l=21.0+h=3.0+flying	13	-48.5	0	
 michael1	Asea2	1	Y	Y	Y	Y	Y	Y	Y	N	N	Y	N	N	w=15.0+l=15.0+h=15.0				
 michael1	Burrito5	4	Y	Y	N	Y	Y	Y	Y	Y	Y	Y	Y	N					
 michael3	Buzzard	1	N	N	N	N	N	Y	N	N	N	N	N	N					
