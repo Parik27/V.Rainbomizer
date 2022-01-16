@@ -6,7 +6,7 @@
 #include <vector>
 
 struct scrProgram;
-struct scrThreadContext;
+class scrThreadContext;
 
 namespace Rainbomizer {
 

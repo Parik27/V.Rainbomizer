@@ -32,16 +32,12 @@ class ScriptVehicleRandomizer
                                      std::vector<ScriptVehiclePattern>>
         mPatterns;
 
-    static auto &
-    Config ()
+    RB_C_CONFIG_START
     {
-        static struct Config
-        {
-            bool LogSpawnedVehicles = false;
-        } m_Config;
-
-        return m_Config;
+        bool        LogSpawnedVehicles = false;
+        std::string ForcedVehicle      = "";
     }
+    RB_C_CONFIG_END
 
     struct PatternResult
     {
@@ -200,6 +196,22 @@ class ScriptVehicleRandomizer
         // mod doesn't try to change the model it was supposed to load.
         // Additional fail-safes are ideal, but aren't important
         static std::unordered_map<uint32_t, uint32_t> mThreadWaits;
+
+#ifdef ENABLE_DEBUG_MENU
+        if (DebugInterfaceManager::GetAction ("Skip Vehicle Randomization"))
+            {
+                if (mThreadWaits.count (thread->m_Context.m_nScriptHash))
+                    {
+                        Rainbomizer::Logger::LogMessage (
+                            "Next Vehicle: %x -> %x", hash,
+                            mThreadWaits[thread->m_Context.m_nScriptHash]);
+                    }
+
+                mThreadWaits.clear ();
+                return true;
+            }
+#endif
+
         if (mThreadWaits.count (thread->m_Context.m_nScriptHash))
             {
                 hash = mThreadWaits[thread->m_Context.m_nScriptHash];
@@ -209,6 +221,9 @@ class ScriptVehicleRandomizer
             {
                 patternResult = GetRandomHashForVehicle (hash, pos);
                 hash          = patternResult.Hash;
+
+                if (Config ().ForcedVehicle.size ())
+                    hash = rage::atStringHash (Config ().ForcedVehicle);
 
                 if (Config ().LogSpawnedVehicles)
                     Rainbomizer::Logger::LogMessage (
@@ -264,8 +279,6 @@ class ScriptVehicleRandomizer
     IsVehDriveableHook (void *p1, bool p2, bool p3, bool p4)
     {
         return true;
-
-        // return CVehicle__IsVehDriveable4137 (p1, p2, p3, p4);
     }
 
     /*******************************************************/
@@ -356,11 +369,8 @@ public:
 #define HOOK_A(native, func)                                                   \
     NativeCallbackMgr::Add<native##_joaat, func, false> ()
 
-        if (!ConfigManager::ReadConfig (
-                "ScriptVehicleRandomizer",
-                std::pair ("LogSpawnedVehicles",
-                           &Config ().LogSpawnedVehicles)))
-            return;
+        RB_C_DO_CONFIG ("ScriptVehicleRandomizer", LogSpawnedVehicles,
+                        ForcedVehicle);
 
         HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
         HOOK_A ("IS_VEHICLE_MODEL", RemoveTriathlonFailState);

@@ -82,9 +82,10 @@ public:
     GetModelIndex (uint32_t hash)
     {
         uint32_t index = -1;
-        GetModelAndIndexByHash (hash, index);
+        if (!GetModelAndIndexByHash (hash, index))
+            return -1;
 
-        return index;
+        return index & 0xFFFF;
     }
 
     static inline uint32_t

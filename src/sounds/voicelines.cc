@@ -418,25 +418,11 @@ public:
     /*******************************************************/
     VoiceLineRandomizer ()
     {
-        if (!ConfigManager ::ReadConfig (
-                "VoiceLineRandomizer",
-                std::make_pair ("IncludeDLCLines", &Config ().IncludeDLCLines),
-                std::make_pair ("TrulyRandomDuration",
-                                &Config ().TrulyRandomDuration),
-                std::make_pair ("OrderedRandomDuration",
-                                &Config ().OrderedRandomDuration),
-                std::make_pair ("SomeRandomDuration",
-                                &Config ().SomeRandomDuration),
-                std::make_pair ("NoRandomDuration",
-                                &Config ().NoRandomDuration),
-                std::make_pair ("SameSpeakerPercentage",
-                                &Config ().SameSpeakerPercentage),
-                std::make_pair ("PercentageRandomOnSomeRandom",
-                                &Config ().PercentageRandomOnSomeRandom),
-                std::make_pair ("OrderedDialogueChangeFrequency",
-                                &Config ().OrderedDialogueChangeFrequency)))
-            return;
-        ;
+        RB_C_DO_CONFIG ("VoiceLineRandomizer", IncludeDLCLines,
+                        TrulyRandomDuration, OrderedRandomDuration,
+                        SomeRandomDuration, NoRandomDuration,
+                        SameSpeakerPercentage, PercentageRandomOnSomeRandom,
+                        OrderedDialogueChangeFrequency);
 
         InitialiseAllComponents ();
         InitialiseHooks ();

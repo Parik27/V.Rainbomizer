@@ -15,13 +15,13 @@ if (TARGET example64)
     PROPERTIES EXCLUDE_FROM_ALL true)
 endif()
 
-target_sources("rainbomizer" PUBLIC ${SOURCES})
-target_compile_definitions("rainbomizer" PRIVATE -DENABLE_DEBUG_SERVER)
-target_precompile_headers("rainbomizer" PRIVATE
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCES})
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DENABLE_DEBUG_SERVER)
+target_precompile_headers(${PROJECT_NAME} PRIVATE
   <nlohmann/json.hpp>
   <App.h>
   )
-target_link_libraries ("rainbomizer" PUBLIC
+target_link_libraries (${PROJECT_NAME} PUBLIC
   uWebSockets
   nlohmann_json::nlohmann_json
   fmt)

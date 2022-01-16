@@ -326,15 +326,15 @@ struct atFixedArray : public atArrayBase<T[Size]>
 struct atString
 {
     char *m_szString;
-    short m_nLength;
-    short m_nCapacity;
+    unsigned short m_nLength;
+    unsigned short m_nCapacity;
 
     atString () = default;
 
     atString (const char *str)
     {
         m_szString  = const_cast<char *> (str);
-        m_nLength   = strlen (str);
+        m_nLength   = static_cast<unsigned short> (strlen (str));
         m_nCapacity = m_nLength;
     }
 };

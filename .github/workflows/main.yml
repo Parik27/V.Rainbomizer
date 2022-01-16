@@ -22,7 +22,7 @@ jobs:
         nmake
         mkdir output
         mkdir output/rainbomizer
-        cp rainbomizer.asi output/V.Rainbomizer.asi
+        cp V.Rainbomizer.asi output/V.Rainbomizer.asi
         cp -r ../data output/rainbomizer/data/
         rm output/rainbomizer/data/update.sh
         rm output/rainbomizer/data/README.md
