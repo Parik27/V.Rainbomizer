@@ -27,7 +27,8 @@ RainbomizerCredits = true
 
 TrafficRandomizer = true
 DispatchRandomizer = true
-ColourRandomizer = true
+HudRandomizer = true
+VehicleAppearanceRandomizer = true
 WeaponRandomizer = true
 WeaponStatsRandomizer = true
 CutSceneRandomizer = true
@@ -127,10 +128,14 @@ EnableHelis = true
 EnableBoats = true # Don't be a boat hater, keep this enabled :wink:
 
 #######################################################
-[ColourRandomizer]
+[VehicleAppearanceRandomizer]
 
-RandomizeHudColours = true
 RandomizeCarColours = true
+RandomizeCarUpgrades = true
+
+# Value of 50 = 50% of cars will have random horn/armour
+RandomizeHornOdds = 45
+RandomizeArmourOdds = 45
 
 #######################################################
 [ScriptVehicleRandomizer]

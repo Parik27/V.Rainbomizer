@@ -20,6 +20,8 @@ class fwScriptGuid
 {
 public:
     static CEntity *GetBaseFromGuid (uint32_t guid);
+
+    static uint32_t CreateGuid (CEntity *entity);
 };
 
 /* Utility Classes */

@@ -3,11 +3,13 @@
 #include "Utils.hh"
 #include "NativeTranslationTable.hh"
 #include "common/events.hh"
+#include <cstdint>
 #include <memory>
 
 #include <windows.h>
 
 CEntity *(*fwScriptGuid_GetBaseFromGuid) (uint32_t) = nullptr;
+uint32_t (*fwScriptGuid_CreateGuid) (CEntity *)     = nullptr;
 
 /*******************************************************/
 std::unique_ptr<NativeManager::NativeFunc[]>
@@ -177,8 +179,20 @@ CTheScripts::InitialisePatterns ()
                      "83 f9 ff 74 ? ? 8b 0d ? ? ? ? 44 8b c1 ? 8b"),
                  fwScriptGuid_GetBaseFromGuid);
 
+    ConvertCall (hook::get_pattern (
+                     "48 F7 F9 49 8B 48 08 48 63 D0 C1 E0 08 0F B6 1C 11 03 D8",
+                     -0x68),
+                 fwScriptGuid_CreateGuid);
+
     Rainbomizer::Events ().OnInit +=
         [] (bool) { NativeManager::Initialise (); };
+}
+
+/*******************************************************/
+uint32_t
+fwScriptGuid::CreateGuid (CEntity *entity)
+{
+    return fwScriptGuid_CreateGuid (entity);
 }
 
 /*******************************************************/

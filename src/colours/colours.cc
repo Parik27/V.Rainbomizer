@@ -1,37 +1,21 @@
-#include <CHud.hh>
-#include <Utils.hh>
-#include "CARGB.hh"
-#include "common/config.hh"
-#include "HSL.hh"
-#include "common/logger.hh"
-#include <CVehicle.hh>
-#include <cstdint>
 #include <map>
-#include <stdexcept>
+#include <cstdint>
+
+#include <Utils.hh>
+
+#include <HSL.hh>
+#include <CHud.hh>
+#include <CARGB.hh>
+
+#include "common/logger.hh"
 #include "common/events.hh"
-#include <common/minhook.hh>
+#include "common/config.hh"
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
-uint32_t (*CCustomShaderEffectVehicle_SetForVehicle_134) (
-    CCustomShaderEffectVehicle *, CVehicle *);
 
-class ColoursRandomizer
+class HudRandomizer
 {
-    struct VehicleColourData
-    {
-        CARGB OriginalColours[4];
-        CARGB RandomColours[4];
-    };
-
-    inline static std::map<CVehicle *, VehicleColourData> mColourData;
-    inline static std::map<uint32_t, CARGB>               mHudCols;
-
-    RB_C_CONFIG_START
-    {
-        bool RandomizeHudColours = true;
-        bool RandomizeCarColours = true;
-    }
-    RB_C_CONFIG_END
+    inline static std::map<uint32_t, CARGB> mHudCols;
 
     /*******************************************************/
     static void
@@ -54,100 +38,24 @@ class ColoursRandomizer
 
     /*******************************************************/
     static void
-    RestoreVehicleColourData (CCustomShaderEffectVehicle *shader, CVehicle *veh)
-    {
-        if (auto *data = LookupMap (mColourData, veh))
-            {
-                CARGB *colours = shader->GetColours ();
-
-                for (int i = 0; i < 4; i++)
-                    colours[i] = data->OriginalColours[i];
-            }
-    }
-
-    /*******************************************************/
-    static bool
-    StoreVehicleColourData (CCustomShaderEffectVehicle *shader, CVehicle *veh)
-    {
-        auto & data    = mColourData[veh];
-        CARGB *colours = shader->GetColours ();
-
-        bool changed = false;
-        for (int i = 0; i < 4; i++)
-            if (std::exchange (data.OriginalColours[i], colours[i])
-                != colours[i])
-                changed = true;
-
-        return changed;
-    }
-
-    /*******************************************************/
-    static uint32_t
-    RandomizeVehicleColour (CCustomShaderEffectVehicle *shader, CVehicle *veh)
-    {
-        RestoreVehicleColourData (shader, veh);
-
-        uint32_t ret
-            = CCustomShaderEffectVehicle_SetForVehicle_134 (shader, veh);
-        CARGB *colours = shader->GetColours ();
-
-        if (StoreVehicleColourData (shader, veh))
-            {
-                using Rainbomizer::HSL;
-                for (int i = 0; i < 4; i++)
-                    mColourData[veh].RandomColours[i]
-                        = HSL (RandomFloat (360.0f), 1.0f, RandomFloat (1.0f));
-            }
-
-        for (int i = 0; i < 4; i++)
-            colours[i] = mColourData[veh].RandomColours[i];
-
-        return ret;
-    }
-
-    /*******************************************************/
-    static void
     RandomizeOnFade ()
     {
         for (const auto &[idx, col] : mHudCols)
             SetNewHudColour (idx, col.r, col.g, col.b, col.a);
     }
 
-    /*******************************************************/
-    void
-    InitialiseCarColourHooks ()
-    {
-        MinHookWrapper::HookBranchDestination (
-            "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7,
-            CCustomShaderEffectVehicle_SetForVehicle_134,
-            RandomizeVehicleColour);
-    }
-
 public:
     /*******************************************************/
-    ColoursRandomizer ()
+    HudRandomizer ()
     {
-        if (!ConfigManager ::ReadConfig (
-                "ColourRandomizer",
-                std::make_pair ("RandomizeHudColours",
-                                &Config ().RandomizeHudColours),
-                std::make_pair ("RandomizeCarColours",
-                                &Config ().RandomizeCarColours)))
+        if (!ConfigManager::ReadConfig ("HudRandomizer"))
             return;
-        ;
 
         InitialiseAllComponents ();
 
         // Hud Colours
-        // ----------
-        if (Config ().RandomizeHudColours)
-            RegisterHook ("8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,
-                          CHud__SetHudColour, SetNewHudColour);
-
-        // Car Colours
-        // ---------
-        if (Config ().RandomizeCarColours)
-            InitialiseCarColourHooks ();
+        RegisterHook ("8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,
+                      CHud__SetHudColour, SetNewHudColour);
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;
     }

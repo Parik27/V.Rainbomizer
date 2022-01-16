@@ -22,7 +22,7 @@ class ConfigManager
 
     template <typename T>
     void ReadValue (const std::string &tableName, const std::string &key,
-                    T &out);
+                    T &out, bool tmp = false);
 
     bool GetIsEnabled (const std::string &name);
 

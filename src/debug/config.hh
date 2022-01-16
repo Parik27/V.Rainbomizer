@@ -11,22 +11,23 @@
 class ConfigDebugInterface : public DebugInterface
 {
 public:
-    using Type = std::variant<int *, std::string *, bool *, double *>;
+    using Type        = std::variant<int *, std::string *, bool *, double *>;
+    using ConfigGroup = std::map<std::string, Type>;
 
 private:
     static auto &
     GetConfigOptions ()
     {
-        static std::map<std::string, Type> sm_ConfigOptions;
-        return sm_ConfigOptions;
+        static std::map<std::string, ConfigGroup> sm_ConfigGroups;
+        return sm_ConfigGroups;
     }
 
     static ConfigDebugInterface               sm_Instance;
 
     void
-    Draw () override
+    DrawConfigGroup (ConfigGroup &group)
     {
-        for (auto i : GetConfigOptions ())
+        for (auto &i : group)
             {
                 ImGui::Columns (2);
 
@@ -53,12 +54,27 @@ private:
             }
     }
 
+    void
+    Draw () override
+    {
+        for (auto &i : GetConfigOptions ())
+            {
+                if (ImGui::CollapsingHeader (i.first.c_str ()))
+                    {
+                        ImGui::PushID (i.first.c_str ());
+                        DrawConfigGroup (i.second);
+                        ImGui::PopID ();
+                    }
+            }
+    }
+
 public:
     template <typename T>
     static void
-    AddConfigOption (std::string_view path, T *data)
+    AddConfigOption (const std::string &tableName, const std::string &key,
+                     T *data)
     {
-        GetConfigOptions ()[std::string (path)] = data;
+        GetConfigOptions ()[tableName][key] = data;
     }
 
     const char *

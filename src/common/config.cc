@@ -96,8 +96,8 @@ ConfigManager::GetIsEnabled (const std::string &name)
     // Enabled key takes precedence over main table key.
 
     bool enabled = true;
-    ReadValue ("Randomizers", name, enabled);
-    ReadValue (name, "Enabled", enabled);
+    ReadValue ("Randomizers", name, enabled, true);
+    ReadValue (name, "Enabled", enabled, true);
 
     Rainbomizer::Logger::LogMessage ("%s: %s", name.c_str (),
                                      (enabled) ? "Yes" : "No");
@@ -108,7 +108,7 @@ ConfigManager::GetIsEnabled (const std::string &name)
 template <typename T>
 void
 ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
-                          T &out)
+                          T &out, bool tmp)
 {
     auto table    = m_pConfig->get_table (tableName);
     auto defTable = m_pDefaultConfig->get_table (tableName);
@@ -137,13 +137,15 @@ ConfigManager::ReadValue (const std::string &tableName, const std::string &key,
 #endif
 
 #ifdef ENABLE_DEBUG_MENU
-    ConfigDebugInterface::AddConfigOption (tableName + '.' + key, &out);
+    if (!tmp)
+        ConfigDebugInterface::AddConfigOption (tableName, key, &out);
 #endif
 }
 
 #define READ_VALUE_ADD_TYPE(type)                                              \
-    template void ConfigManager::ReadValue<type> (                             \
-        const std::string &tableName, const std::string &key, type &out);
+    template void ConfigManager::ReadValue<type> (const std::string &,         \
+                                                  const std::string &, type &, \
+                                                  bool);
 
 READ_VALUE_ADD_TYPE (bool)
 READ_VALUE_ADD_TYPE (int)
