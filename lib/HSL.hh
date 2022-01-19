@@ -1,3 +1,5 @@
+#pragma once
+
 #include "CMath.hh"
 #include "CARGB.hh"
 #include <cmath>

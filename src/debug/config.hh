@@ -51,6 +51,8 @@ private:
                     i.second);
                 ImGui::PopID ();
                 ImGui::NextColumn ();
+
+                ImGui::Columns ();
             }
     }
 

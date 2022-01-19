@@ -143,6 +143,68 @@ public:
     }
 };
 
+// Data file containing strings
+template <const char *FileName> class DataFileSourcedRandomizer
+{
+    using Type = std::string;
+
+private:
+    struct ValueGroup
+    {
+        std::vector<Type>   Values;
+        std::vector<double> Weights;
+    };
+
+    bool       m_Initialised = false;
+    ValueGroup m_List;
+
+    /*******************************************************/
+    void
+    Initialise ()
+    {
+        if (std::exchange (m_Initialised, true))
+            return;
+
+        FILE *file = Rainbomizer::Common::GetRainbomizerDataFile (FileName);
+        if (!file)
+            return;
+
+        char line[512] = {0};
+        while (fgets (line, 512, file))
+            {
+                if (strlen (line) < 3)
+                    continue;
+
+                double weight     = 1.0;
+                char   model[256] = {0};
+
+                sscanf (line, "%s %lf ", model, &weight);
+
+                m_List.Values.push_back (model);
+                m_List.Weights.push_back (weight);
+            }
+    }
+
+public:
+    /*******************************************************/
+    bool
+    RandomizeObject (Type &out)
+    {
+        Initialise ();
+
+        if (m_List.Values.size ())
+            out = m_List.Values[RandomWeighed (m_List.Weights)];
+
+        return m_List.Values.size ();
+    }
+
+    /*******************************************************/
+    void
+    AddSample (const Type value)
+    {
+    }
+};
+
 template <typename T, T... Values> class ConstantValues
 {
     constexpr static std::array<T, sizeof...(Values)> m_Values{Values...};
@@ -341,8 +403,8 @@ public:
     void
     AddSample (T *base, uint32_t hash)
     {
-        std::apply ([base,
-                     hash] (auto &...x) { (..., AddSample (x, base, hash)); },
+        std::apply ([base, hash,
+                     this] (auto &...x) { (..., AddSample (x, base, hash)); },
                     randomizers);
     }
 
@@ -350,7 +412,7 @@ public:
     void
     RandomizeObject (T *base, uint32_t hash)
     {
-        std::apply ([base, hash] (
+        std::apply ([base, hash, this] (
                         auto &...x) { (..., RandomizeObject (x, base, hash)); },
                     randomizers);
     }

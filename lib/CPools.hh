@@ -22,6 +22,13 @@ public:
         return m_nCount & 0x3fffffff;
     }
 
+    /* Returns number of free slots in the pool */
+    uint32_t
+    GetFree ()
+    {
+        return m_nMaxElements - GetCount ();
+    }
+
     // Because why not, right? :P
     class CPoolIterator
     {
@@ -138,16 +145,25 @@ public:
 static_assert (sizeof (CPool<void *>) == 40);
 
 struct CVehicleStruct;
+struct CVehicleStreamRequestGfx;
 
 class CPools
 {
 public:
-    static CPool<CVehicleStruct> **g_pVehicleStructPool;
+    inline static CPool<CVehicleStruct> **g_pVehicleStructPool;
+    inline static CPool<CVehicleStreamRequestGfx> *
+        *g_pVehicleStreamRequestGfxPool;
 
     inline static CPool<CVehicleStruct> *&
     GetVehicleStructPool ()
     {
         return *g_pVehicleStructPool;
+    };
+
+    inline static auto *&
+    GetVehicleStreamRequestGxtPool ()
+    {
+        return *g_pVehicleStreamRequestGfxPool;
     };
 
     static void InitialisePatterns ();

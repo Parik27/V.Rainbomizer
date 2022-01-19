@@ -11,6 +11,8 @@ CPools::InitialisePatterns ()
 
     g_pVehicleStructPool = GetRelativeReference<CPool<CVehicleStruct> *> (
         "c7 44 ? ? ? ? ? ? 83 64 ? ? 00 e8 ? ? ? ? ? 89 ? ? ? ? ? eb", 21, 25);
-}
 
-CPool<CVehicleStruct> **CPools::g_pVehicleStructPool;
+    g_pVehicleStreamRequestGfxPool
+        = GetRelativeReference<CPool<CVehicleStreamRequestGfx> *> (
+            "8b 15 ? ? ? ? ? 8b ? ? 83 c1 10 e8 ? ? ? ? ? 8b 0d", 21, 25);
+}
