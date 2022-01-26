@@ -1,4 +1,5 @@
 #include "peds.hh"
+#include "clothes_Queue.hh"
 
 #include <cstdint>
 #include <mutex>
@@ -13,6 +14,7 @@
 #include "CModelInfo.hh"
 #include "Utils.hh"
 #include "common/logger.hh"
+#include "peds/clothes_Queue.hh"
 
 #include <CStreaming.hh>
 
@@ -133,6 +135,8 @@ class PedRandomizer
         PR::PlayerFixes::SetSpecialAbility (
             ped, PR::Config ().RandomizeSpecialAbility,
             PR::Config ().IncludeUnusedAbilities);
+
+        ClothesRandomizer_Queue::Add (ped);
 
         return ped;
     }
