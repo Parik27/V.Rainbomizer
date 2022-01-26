@@ -102,6 +102,8 @@ private:
                         m_Groups.back ().Weights.push_back (weight);
                     }
             }
+
+        fclose(file);
     }
 
 public:
@@ -183,6 +185,8 @@ private:
                 m_List.Values.push_back (model);
                 m_List.Weights.push_back (weight);
             }
+
+        fclose (file);
     }
 
 public:

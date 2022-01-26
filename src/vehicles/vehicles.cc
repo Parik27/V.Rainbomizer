@@ -124,6 +124,7 @@ class ScriptVehicleRandomizer
                 mPatterns[rage::atStringHash (threadName)].push_back (
                     std::move (pattern));
             }
+        fclose (file);
     }
 
     /*******************************************************/

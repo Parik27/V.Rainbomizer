@@ -101,7 +101,9 @@ VehicleModelInfoCacheMgr::InitCache ()
         = Rainbomizer::Common::GetRainbomizerDataFile ("VehInfo.cache", "rb");
 
     if (!cacheFile || !ReadCacheFile (cacheFile))
-        return GenerateCache ();
+        GenerateCache ();
+
+    fclose (cacheFile);
 }
 
 /*******************************************************/

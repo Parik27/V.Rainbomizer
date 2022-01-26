@@ -307,6 +307,8 @@ struct WeatherRandomizer_Tunables
                             m_Fields.pop_back ();
                     }
             }
+
+        fclose (f);
     }
 
     void

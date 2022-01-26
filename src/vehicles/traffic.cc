@@ -24,6 +24,7 @@ class TrafficRandomizer
             bool EnableBoats  = true;
 
             bool DisableBigVehicles = false;
+            bool DisableLoadingTraffic = false;
         } m_Config;
 
         return m_Config;
@@ -57,6 +58,7 @@ class TrafficRandomizer
                 aList.push_back (rage::atStringHash (line));
             }
 
+        fclose (f);
         return &aList;
     }
 
@@ -80,6 +82,9 @@ class TrafficRandomizer
     /*******************************************************/
     static uint32_t __fastcall RandomizeCarToLoad (CStreaming *inst)
     {
+        if (Config ().DisableLoadingTraffic)
+            return 65535;
+
         auto &vehicles = Rainbomizer::Common::GetVehicleHashes ();
         for (int i = 0; i < 16; i++)
             {
@@ -102,14 +107,8 @@ public:
     /*******************************************************/
     TrafficRandomizer ()
     {
-        if (!ConfigManager::ReadConfig (
-                "TrafficRandomizer",
-                std::pair ("EnablePlanes", &Config ().EnablePlanes),
-                std::pair ("EnableHelis", &Config ().EnableHelis),
-                std::pair ("EnableBoats", &Config ().EnableBoats),
-                std::pair ("DisableBigVehicles",
-                           &Config ().DisableBigVehicles)))
-            return;
+        RB_C_DO_CONFIG ("TrafficRandomizer", EnablePlanes, EnableHelis,
+                        EnableBoats, DisableBigVehicles, DisableLoadingTraffic);
 
         if (!Config ().EnableBoats)
             Rainbomizer::Logger::LogMessage ("Boat hater detected!!");

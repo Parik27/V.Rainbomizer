@@ -135,6 +135,7 @@ class ScaleformRandomizer
                 m_MissionFailInsults.back () += ' ';
             }
 
+        fclose (insultsFile);
         return;
     }
 

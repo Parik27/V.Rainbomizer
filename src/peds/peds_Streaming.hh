@@ -81,6 +81,8 @@ class PedRandomizer_Streaming
                 line[strcspn (line, "\n")] = 0;
                 out.push_back (rage::atStringHash (line));
             }
+
+        fclose (f);
     }
 
     /*******************************************************/

@@ -480,6 +480,7 @@ struct TimecycleRandomizerTunables
                             }
                     }
             }
+        fclose (file);
     }
 };
 

@@ -85,6 +85,8 @@ class RampRandomizer
                 info.Model  = rage::atStringHash (ModelName);
                 sm_RampInfos.push_back (info);
             }
+
+        fclose (f);
     }
 
     /*******************************************************/

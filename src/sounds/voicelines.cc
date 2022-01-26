@@ -410,6 +410,7 @@ class VoiceLineRandomizer
                                         rage::atPartialStringHash (context),
                                         subtitle});
             }
+        fclose (soundsFile);
         Rainbomizer::Logger::LogMessage ("Initialised %d voice lines",
                                          mSubtitles.size ());
     }

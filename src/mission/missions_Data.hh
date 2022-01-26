@@ -108,5 +108,7 @@ public:
                     Rainbomizer::Logger::LogMessage (
                         "Error reading Missions.txt line: %s", line);
             }
+
+        fclose (file);
     }
 };
