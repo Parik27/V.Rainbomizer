@@ -11,8 +11,8 @@
 
 #include <rage.hh>
 #include <CPopulation.hh>
-#include <CAmbientModelSets.hh>
 
+#include <common/streaming.hh>
 #include <ctime>
 
 #define RANDOMIZE_PED_GROUPS
@@ -123,31 +123,6 @@ class PedRandomizer_Streaming
                 peds.erase (CStreaming::GetModelIndex (hash));
     }
 
-    /*******************************************************/
-    template <auto &CPopGroupList__GetVehGroup>
-    static bool
-    RandomizePedGroups (CPopGroupList *grps, uint32_t name, uint32_t *out)
-    {
-        auto &PedHashes = Rainbomizer::Common::GetPedHashes ();
-
-        // Pop Groups
-        for (auto &grp : grps->pedGroups)
-            {
-                for (auto &model : grp.models)
-                    model.Name = GetRandomElement (PedHashes);
-            }
-
-        // Ambient Model Sets (used for Scenarios)
-        for (auto &models : CAmbientModelSetsManager::Get ()
-                                ->aSets[AMBIENT_PED_MODEL_SET]
-                                .ModelSets)
-            {
-                for (auto &model : models->Models)
-                    model.Name = GetRandomElement (PedHashes);
-            }
-
-        return CPopGroupList__GetVehGroup (grps, name, out);
-    }
 
 public:
     /*******************************************************/
@@ -170,8 +145,7 @@ public:
             5);
 
 #ifdef RANDOMIZE_PED_GROUPS
-        REGISTER_HOOK ("ba fc 76 c4 68 e8", 5, RandomizePedGroups, bool,
-                       CPopGroupList *, uint32_t, uint32_t *);
+        ModelsListRandomizer::Initialise(true, false);
 #endif
 
         sm_Initialised = true;
@@ -215,5 +189,5 @@ public:
             }
     }
 
-    friend class LoadedPedDebugInterface;
+    friend class LoadedEntityDebugInterface;
 };

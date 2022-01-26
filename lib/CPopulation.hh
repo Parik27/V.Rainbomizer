@@ -1,3 +1,5 @@
+#pragma once
+
 #include <rage.hh>
 
 struct CPopulationGroup
@@ -12,7 +14,7 @@ struct CPopulationGroup
 
     uint32_t       Name;
     uint32_t       field_0x4;
-    atArray<Model> models;
+    atArray<Model> Models;
     uint8_t        field_0x14;
     uint8_t        field_0x15;
     uint8_t        field_0x16;

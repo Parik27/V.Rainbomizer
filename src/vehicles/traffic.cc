@@ -10,6 +10,7 @@
 #include <string.h>
 #include "common/config.hh"
 #include "vehicle_common.hh"
+#include "common/streaming.hh"
 
 class TrafficRandomizer
 {
@@ -115,6 +116,7 @@ public:
 
         InitialiseAllComponents ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
+        ModelsListRandomizer::Initialise (false, true);
 
         // Actuall spawning of the vehicle
         MakeJMP64 (hook::get_pattern (

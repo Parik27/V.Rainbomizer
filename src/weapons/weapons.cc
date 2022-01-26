@@ -64,8 +64,8 @@ class WeaponRandomizer
                                 total_probabilities++;
                             }
                     }
+                fclose (file);
             }
-        fclose (file);
 
         double base_probability = 0.01;
 

@@ -58,13 +58,13 @@ class CarGeneratorRandomizer
         if (Config().Enable)
             {
                 *vehicleGroup = 0;
-        
+
                 // Remove flags that make it spawn ambulance/firetruck/police car
                 flags &= (~(0b11001100));
 
                 // 0 to get the engine to randomize them (still need a way to
                 // control the randomness).
-                
+
                 // If you set the model hash directly here, the randomness
                 // doesn't work as intended. (I'm guessing some sort of conflict
                 // or bounds checks by the game)
