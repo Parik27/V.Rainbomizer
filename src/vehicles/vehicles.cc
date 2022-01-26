@@ -307,6 +307,15 @@ class ScriptVehicleRandomizer
             info->GetArg<float> (4) = 75.0f;
     }
 
+    static void
+    FixFinaleHeistPrepdHelicopter (scrThread::Info *info)
+    {
+        if (scrThread::CheckActiveThread ("finale_heist_prepd"_joaat))
+            {
+                info->GetArg<float> (5) = -5.0f;
+            }
+    }
+
     /*******************************************************/
     static bool
     FixMichael2MissionDisruption (YscUtilsOps &ops)
@@ -373,6 +382,7 @@ public:
         RB_C_DO_CONFIG ("ScriptVehicleRandomizer", LogSpawnedVehicles,
                         ForcedVehicle);
 
+        HOOK ("ATTACH_ENTITY_TO_ENTITY", FixFinaleHeistPrepdHelicopter);
         HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
         HOOK_A ("IS_VEHICLE_MODEL", RemoveTriathlonFailState);
         HOOK_A ("IS_PED_IN_MODEL", RemoveTriathlonFailState);
