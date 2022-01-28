@@ -268,6 +268,7 @@ MissionRandomizer_Flow::OnMissionStart ()
 
     if ("GET_IS_LOADING_SCREEN_ACTIVE"_n())
         {
+            "TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME"_n("startup_positioning");
             "SHUTDOWN_LOADING_SCREEN"_n();
             "DO_SCREEN_FADE_IN"_n(3000);
         }
