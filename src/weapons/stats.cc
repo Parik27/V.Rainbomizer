@@ -1,16 +1,25 @@
+#include "CEntity.hh"
 #include "CItemInfo.hh"
+#include "CModelInfo.hh"
 #include "CStreaming.hh"
 #include "Utils.hh"
 #include "common/events.hh"
 #include "common/config.hh"
+#include "common/minhook.hh"
 #include "common/parser.hh"
 #include "common/logger.hh"
+#include "scrThread.hh"
 #include <cstdint>
+#include <ctime>
 #include <utility>
+
+#include <CTheScripts.hh>
 
 #ifdef ENABLE_DEBUG_MENU
 #include <debug/base.hh>
 #endif
+
+using namespace NativeLiterals;
 
 // Ammo Info Randomizer
 // *******************************************************
@@ -116,8 +125,67 @@ public:
     }
 
     /*******************************************************/
+    template <auto &CProjectileEntity__PreSim>
+    static int
+    ProjectilePhysicsFix (CEntity *p1, float p2, bool p3, int p4)
+    {
+        /* Fixes a crash caused by delayed loading of the physics object for a
+         * rocket projectile. This adds a null pointer check that R* forgot ..
+         */
+
+        if (!p1->m_phInst)
+            {
+                Rainbomizer::Logger::LogMessage (
+                    "Projectile Physics Instance not loaded: %x",
+                    p1->m_pModelInfo->m_nHash);
+
+                return 2;
+            }
+
+        return CProjectileEntity__PreSim (p1, p2, p3, p4);
+    }
+
+    /*******************************************************/
+    static void
+    FixShootsAtCoord (scrThread::Info *ctx)
+    {
+        auto ped = ctx->GetArg (0);
+
+        uint32_t weap      = "GET_SELECTED_PED_WEAPON"_n(ped);
+        auto    *weapModel = CStreaming::GetModelByHash (weap);
+
+        static constexpr std::array BlackListedWeapons
+            = {"prop_space_pistol"_joaat, "prop_space_rifle"_joaat,
+               "ch_prop_collectibles_limb_01a"_joaat};
+
+        // We know this can happen with these weapons, so exit without logging
+        if (DoesElementExist (BlackListedWeapons, weap))
+            return;
+
+        // In all other cases (e.g., it gets called for melee weapons randomized
+        // into props), exit with a log message at a cooldown (so as to not spam
+        // the log more than necessary).
+        if (!weapModel
+            || weapModel->GetType () != eModelInfoType::MODEL_INFO_WEAPON)
+            {
+                const int   LOG_COOLDOWN = 5;
+                static auto lastPrint    = 0;
+
+                if (time (NULL) - lastPrint > LOG_COOLDOWN)
+                    Rainbomizer::Logger::LogMessage (
+                        "SET_PED_SHOOTS_AT_COORD called for non-weapon model: "
+                        "%x %p",
+                        weap, weapModel);
+                return;
+            }
+
+        NativeManager::InvokeNative ("SET_PED_SHOOTS_AT_COORD"_joaat, ctx);
+    }
+
+    /*******************************************************/
     WeaponStatsRandomizer ()
     {
+
         if (!ConfigManager::ReadConfig ("WeaponStatsRandomizer"))
             return;
 
@@ -128,6 +196,10 @@ public:
         DebugInterfaceManager::AddAction ("Randomize Weapon Stats",
                                           RandomizeWeaponStats);
 #endif
+        REGISTER_MH_HOOK (
+            "? 0f 28 e1 ? 8b 41 30 b9 ff ff 00 00 66 39 48 18 75 ?", -0x56,
+            ProjectilePhysicsFix, int, CEntity *, float, bool, int);
+
         InitialiseAllComponents ();
     }
 } _stats;

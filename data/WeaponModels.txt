@@ -68,9 +68,6 @@ w_pi_flaregun
 w_ar_heavyrifleh
 w_sb_microsmg_las
 w_sg_pumpshotgun_chs
-prop_space_pistol
-prop_space_rifle
-ch_prop_collectibles_limb_01a
 
 w_ar_advancedrifle
 w_ar_advancedrifle_luxe
@@ -226,9 +223,6 @@ w_lr_firework
 w_lr_homing
 w_lr_rpg
 w_pi_flaregun
-prop_space_pistol
-prop_space_rifle
-ch_prop_collectibles_limb_01a
 
 w_me_bat
 w_me_battleaxe
