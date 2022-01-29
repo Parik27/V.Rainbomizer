@@ -7,6 +7,7 @@
 #include "logger.hh"
 #include <rage.hh>
 #include <Natives.hh>
+#include <cstdlib>
 #include <system_error>
 
 void (*gameSkeleton__Init) (gameSkeleton *, uint32_t);
@@ -96,6 +97,16 @@ Common::GetRainbomizerFileName (const std::string &name,
 {
     std::string baseDir
         = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str ());
+
+    if (!std::filesystem::exists (baseDir))
+        {
+            MessageBox (NULL,
+                        "Failed to locate Rainbomizer Data "
+                        "Directory.\n\nPlease reinstall the mod following "
+                        "the instructions in the README.",
+                        "You fool!", MB_ICONHAND);
+            abort ();
+        }
 
     if (temp)
         baseDir = std::filesystem::temp_directory_path ().string ()
