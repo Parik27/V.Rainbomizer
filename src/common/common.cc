@@ -98,13 +98,13 @@ Common::GetRainbomizerFileName (const std::string &name,
     std::string baseDir
         = GetGameDirRelativePathA (("rainbomizer/" + subdirs).c_str ());
 
-    if (!std::filesystem::exists (baseDir))
+    if (!std::filesystem::exists (GetGameDirRelativePathA ("rainbomizer/")))
         {
             MessageBox (NULL,
                         "Failed to locate Rainbomizer Data "
                         "Directory.\n\nPlease reinstall the mod following "
                         "the instructions in the README.",
-                        "You fool!", MB_ICONHAND);
+                        "Installation Validation Error", MB_ICONHAND);
             abort ();
         }
 
