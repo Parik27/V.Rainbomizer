@@ -2,7 +2,7 @@ const char configDefault[] = R"(
 ########################################################
 
 # Rainbomizer for V
-# Copyright (C) 2020-2021 - Parik
+# Copyright (C) 2020-2022 - Parik
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ const char configDefault[] = R"(
 
 RainbomizerCredits = true
 
+CarGeneratorRandomizer = true
+ClothesRandomizer = true
 TrafficRandomizer = true
 DispatchRandomizer = true
 HudRandomizer = true
@@ -134,6 +136,7 @@ RandomizeCarColours = true
 RandomizeCarUpgrades = true
 
 # Value of 50 = 50% of cars will have random horn/armour
+RandomizeLicensePlateOdds = 75
 RandomizeHornOdds = 45
 RandomizeArmourOdds = 45
 
@@ -195,5 +198,4 @@ OddsOfPlayerModels = 20
 LightShiftFrequency = 1.0
 
 # 0-100, with 0 being lights are never random to 100 being lights are always random.
-RandomizeOdds = 85.0
-)";
+RandomizeOdds = 85.0)";

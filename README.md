@@ -3,7 +3,7 @@
 
 # Rainbomizer: V 🌈
 
-<a href="https://media.discordapp.net/attachments/821138024192278640/906978373333581864/20211107183741_1.jpg"> <img src="https://media.discordapp.net/attachments/821138024192278640/906978373333581864/20211107183741_1.jpg"></a>
+<a href="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg"> <img src="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg?width=933&height=513"></a>
 
 A modification for Grand Theft Auto V that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
@@ -21,14 +21,14 @@ A modification for Grand Theft Auto V that randomizes various aspects of the gam
 ## Features
 
 New Features
-- 💡 **(NEW) Light Randomizer** - Randomizes all light colours in the game.
-- 🏥 **(NEW) Respawn Randomizer** - Randomizes where you respawn.
-- 🎥 **(NEW) Switch Scene Randomizer** - Randomizes the scene played when you switch to a different character.
+- 🔧 **Vehicles Appearance Randomizer**: Randomizes vehicle colours and upgrades like license plates, paintjobs, armour, etc.
+- 🏎️ **Parked Car Randomizer**: Randomizes vehicles parked around the map including boats and planes.
+- 👚 **Clothes Randomizer**: Randomizes the clothes and props the peds spawn with.
 
 Features
 - :helicopter: **Traffic Randomizer** - Randomizes cars that spawn in traffic. 
 - :blue_car: **Mission Vehicle Randomizer** - Randomizes vehicles you are given in missions, making sure that the vehicle you're given is usable for that mission.
-- :rainbow: **Colour Randomizer** - Randomizes colours of various in-game elements, including cars, the HUD, and more. 
+- :rainbow: **HUD Colour Randomizer** - Randomizes colours of various in-game elements, the HUD, blips and more. 
 - :page_with_curl: **Mission Randomizer** - Randomizes order of missions in-game. Upon completion of a mission, the game progresses as if you completed the original mission.
 - :gun: **Weapon Randomizer** - Randomizes weapons given to the enemies.
 - :sound: **Sounds Randomizer** - Randomizes dialogue and sound effects played in-game.
@@ -40,6 +40,10 @@ Features
 - :tractor: **Handling Randomizer** - Randomizes the handling of all vehicles.
 - :rocket: **Weapon Stats Randomizer** - Randomizes weapon stats such as fire rate, range, etc. of all weapons.
 - :oncoming_police_car: **Dispatch Randomizer** - Randomizes all dispatched police cars, ambulances, helicopters, and boats.
+- 💡 **Light Randomizer** - Randomizes all light colours in the game.
+- 🏥 **Respawn Randomizer** - Randomizes where you respawn.
+- 🎥 **Switch Scene Randomizer** - Randomizes the scene played when you switch to a different character.
+
 
 <span id="installation"></span>
 ## Installation
