@@ -104,9 +104,12 @@ class VoiceLineRandomizer
                             });
 
         if (res != std::end (mSounds))
-            sm_State.CurrentPair = &*res;
+            {
+                sm_State.CurrentPair = &*res;
+                return true;
+            }
 
-        return sm_State.CurrentPair != nullptr;
+        return false;
     }
 
     /*******************************************************/
