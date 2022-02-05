@@ -35,6 +35,13 @@ class CarGeneratorRandomizer
     }
 
     /*******************************************************/
+    static bool
+    ShouldRandomize (uint32_t modelHash)
+    {
+        return modelHash != "gauntlet"_joaat;
+    }
+    
+    /*******************************************************/
     template <auto &CCarGen__Init>
     static void
     RandomizeCarGenerator (CCarGen *p1, float x, float y, float z, float rotX,
@@ -55,7 +62,7 @@ class CarGeneratorRandomizer
             p20, p21, p22);
 #endif
 
-        if (Config().Enable)
+        if (Config().Enable && ShouldRandomize (modelHash))
             {
                 *vehicleGroup = 0;
 

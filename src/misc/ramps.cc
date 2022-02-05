@@ -36,9 +36,9 @@ class RampRandomizer
             if ("DOES_ENTITY_EXIST"_n(ObjectHandle))
                 return;
 
-            if (!CStreaming::HasModelLoaded (Model))
+            if (!CStreaming::HasModelLoaded (modelIdx))
                 {
-                    CStreaming::RequestModel (Model, 0);
+                    CStreaming::RequestModel (modelIdx, 0);
                     CStreaming::LoadAllObjects (false);
                 }
 
