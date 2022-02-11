@@ -105,6 +105,9 @@ public:
         Rainbomizer::Events ().OnFade +=
             [] { Queue::Add (int ("PLAYER_PED_ID"_n())); };
 
+        "SET_PED_COMPONENT_VARIATION"_n.Hook ([] (scrThread::Info *info) {});
+        "SET_PED_PROP_INDEX"_n.Hook ([] (scrThread::Info *info) {});
+        
         REGISTER_HOOK ("89 44 ? ? e8 ? ? ? ? ? 8b ? ? ? 8b ? ? ? 8d ? ? ? 81 c2", 4,
                        ChangeClothesEvent, void, CPed*, uint32_t, uint8_t, uint32_t*, uint32_t*);
     }
