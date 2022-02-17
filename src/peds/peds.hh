@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "peds_Compatibility.hh"
 #include "peds_Streaming.hh"
@@ -20,7 +21,7 @@ public:
         {
             std::string ForcedPed                = "";
             std::string ForcedClipset            = "";
-            uint32_t    ForcedPedHash            = -1;
+            std::vector<uint32_t> ForcedPedHashes;
             bool        EnableNSFWModels         = false;
             bool        RandomizePlayer          = true;
             bool        RandomizePeds            = true;
