@@ -18,8 +18,8 @@ jobs:
       run: |
         mkdir bin
         cd bin
-        cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ../
-        nmake
+        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ../
+        ninja
         mkdir output
         mkdir output/rainbomizer
         cp V.Rainbomizer.asi output/V.Rainbomizer.asi
