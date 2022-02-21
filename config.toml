@@ -198,3 +198,13 @@ LightShiftFrequency = 1.0
 
 # 0-100, with 0 being lights are never random to 100 being lights are always random.
 RandomizeOdds = 85.0
+
+#######################################################
+[ClothesRandomizer]
+
+# Odds of a certain ped getting random clothes
+RandomizeOdds = 80
+
+# Odds of a certain ped having random mask/parachutes
+MaskOdds = 20
+ParachuteOdds = 20

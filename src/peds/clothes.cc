@@ -3,12 +3,35 @@
 #include <Utils.hh>
 #include <CTheScripts.hh>
 
+#include <array>
+
 #include <common/config.hh>
 #include <common/logger.hh>
 #include <common/minhook.hh>
 #include <common/events.hh>
 
+#ifdef ENABLE_DEBUG_MENU
+#include <debug/base.hh>
+#endif
+
 using namespace NativeLiterals;
+
+enum eComponentType : int32_t
+{
+    CPT_FACE,
+    CPT_MASK,
+    CPT_HAIR,
+    CPT_TORSO,
+    CPT_LEG,
+    CPT_PARACHUTE,
+    CPT_SHOES,
+    CPT_ACCESSORY,
+    CPT_UNDERSHIRT,
+    CPT_KEVLAR,
+    CPT_BADGE,
+    CPT_TORSO2,
+    CPT_NUM_COMPONENTS
+};
 
 class ClothesRandomizer
 {
@@ -25,6 +48,20 @@ class ClothesRandomizer
     static constexpr uint32_t PROP_TEX_NATIVE
         = "GET_NUMBER_OF_PED_PROP_TEXTURE_VARIATIONS"_joaat;
     
+
+    RB_C_CONFIG_START
+    {
+        int RandomizeOdds = 80;
+
+        int MaskOdds      = 20;
+        int ParachuteOdds = 20;
+
+        int ForcedRandomComponent = -1;
+    }
+    RB_C_CONFIG_END
+
+    inline static std::array<int, CPT_NUM_COMPONENTS> m_ComponentOdds
+        = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
     /*******************************************************/
     template <uint32_t NativeHash, typename... Args>
@@ -61,12 +98,31 @@ class ClothesRandomizer
     static bool
     RandomizePedClothes (uint32_t ped)
     {
-        for (int i = 0; i < 12; i++)
-            RandomizeComponent(ped, i);
-        
+        if (!RandomBool (Config ().RandomizeOdds))
+            return true;
+
+        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
+        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
+        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_TORSO2]    = 0;
+
+        if (Config ().ForcedRandomComponent != -1)
+            {
+                RandomizeComponent (ped, Config ().ForcedRandomComponent);
+                return true;
+            }
+
+        for (int i = 0; i < CPT_NUM_COMPONENTS; i++)
+            {
+                if (m_ComponentOdds[i] == -1 || RandomBool (m_ComponentOdds[i]))
+                    RandomizeComponent (ped, i);
+            }
+
         return true;
     }
-    
+
     /*******************************************************/
     static void
     ProcessUpgradesQueue (uint64_t *, uint64_t *, scrProgram *,
@@ -98,12 +154,28 @@ class ClothesRandomizer
     
 public:
     ClothesRandomizer ()
-    {        
-        RB_C_DO_CONFIG_NO_OPTIONS ("ClothesRandomizer");
+    {
+        RB_C_DO_CONFIG ("ClothesRandomizer", RandomizeOdds, MaskOdds,
+                        ParachuteOdds, ForcedRandomComponent);
+
+        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
+        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
+        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
+        m_ComponentOdds[CPT_TORSO2]    = 0;
 
         Rainbomizer::Events ().OnRunThread += ProcessUpgradesQueue;
         Rainbomizer::Events ().OnFade +=
             [] { Queue::Add (int ("PLAYER_PED_ID"_n())); };
+
+#ifdef ENABLE_DEBUG_MENU
+        DebugInterfaceManager::AddAction ("Randomize Player Clothes",
+                                          [] (bool) {
+                                              Queue::Add (
+                                                  int ("PLAYER_PED_ID"_n()));
+                                          });
+#endif
 
         "SET_PED_COMPONENT_VARIATION"_n.Hook ([] (scrThread::Info *info) {});
         "SET_PED_PROP_INDEX"_n.Hook ([] (scrThread::Info *info) {});
