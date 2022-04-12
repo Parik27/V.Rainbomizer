@@ -81,11 +81,12 @@ class PedRandomizer
             return model;
 
         // Forced Ped
-        if (!PR::Config ().ForcedPedHashes.empty ())
+        PR::Config ().ForcedPedHashes = PR::Config ().ForcedPed;
+        if (!PR::Config ().ForcedPedHashes.Get ().empty ())
             {
                 uint32_t id = CStreaming::GetModelIndex (
-                    PR::Config ().ForcedPedHashes [ 0, RandomInt(PR::Config()
-                    .ForcedPedHashes.size() - 1) ]);
+                    PR::Config ().ForcedPedHashes.Get ()[ 0, RandomInt(PR::Config()
+                    .ForcedPedHashes.Get ().size () - 1) ]);
 
                 if (CStreaming::HasModelLoaded (id))
                     return id;
@@ -190,35 +191,6 @@ public:
                 OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible),
                 OPTION (OddsOfPlayerModels)))
             return;
-
-        if (PR::Config ().ForcedPed.size ())
-            {
-                std::string forcedPeds = PR::Config ().ForcedPed;
-
-                while (true)
-                    {
-                        size_t splitPos = forcedPeds.find (',');
-
-                        std::string forcedPed = forcedPeds.substr (0, splitPos);
-
-                        // trimming
-                        forcedPed.erase (0, forcedPed.find_first_not_of (' '));
-                        if (forcedPed.find_last_not_of (' ') != forcedPed.npos)
-                            forcedPed.erase (forcedPed.find_last_not_of (' ') + 1);
-                        
-                        // just in case it was just whitespace
-                        if (forcedPed.size ())
-                            PR::Config ().ForcedPedHashes
-                                .push_back (rage::atStringHash (forcedPed));
-                        
-                        if (splitPos == forcedPeds.npos)
-                            {
-                                break;
-                            }
-                        
-                        forcedPeds.erase (0, splitPos + 1);
-                    }
-            }
 
         InitialiseAllComponents ();
 

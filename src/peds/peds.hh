@@ -11,6 +11,73 @@
 #include "peds_AnimalFixes.hh"
 #include "peds_MainFixes.hh"
 
+class PedRandomizer_PedHashes
+{
+    std::string m_ForcedPedStr;
+    std::vector<uint32_t> m_ForcedPedHashes;
+
+public:
+    /*******************************************************/
+    PedRandomizer_PedHashes () = default;
+
+    /*******************************************************/
+    PedRandomizer_PedHashes (const std::string &forcedPedStr)
+        : m_ForcedPedStr (forcedPedStr)
+    {
+        UpdateHashes (forcedPedStr);
+    }
+
+    /*******************************************************/
+    void
+    operator= (const std::string &forcedPedStr)
+    {
+        if (m_ForcedPedStr != forcedPedStr)
+        {
+            m_ForcedPedStr = forcedPedStr;
+            UpdateHashes (forcedPedStr);
+        }
+    }
+
+    /*******************************************************/
+    void
+    UpdateHashes (std::string forcedPedStr)
+    {
+        m_ForcedPedHashes.clear ();
+
+        if (forcedPedStr.size ())
+            {
+                while (true)
+                    {
+                        auto splitPos = forcedPedStr.find (',');
+                        auto forcedPed = std::string (forcedPedStr.substr (0, splitPos));
+
+                        // trimming
+                        forcedPed.erase (0, forcedPed.find_first_not_of (' '));
+                        if (forcedPed.find_last_not_of (' ') != forcedPed.npos)
+                            forcedPed.erase (forcedPed.find_last_not_of (' ') + 1);
+                        
+                        if (forcedPed.size ())
+                            m_ForcedPedHashes
+                                .push_back (rage::atStringHash (forcedPed));
+                        
+                        if (splitPos == forcedPedStr.npos)
+                            {
+                                break;
+                            }
+                        
+                        forcedPedStr.erase (0, splitPos + 1);
+                    }
+            }
+    }
+
+    /*******************************************************/
+    const std::vector<uint32_t> &
+    Get () const
+    {
+        return m_ForcedPedHashes;
+    }
+};
+
 class PedRandomizer_Components
 {
 public:
@@ -21,7 +88,7 @@ public:
         {
             std::string ForcedPed                = "";
             std::string ForcedClipset            = "";
-            std::vector<uint32_t> ForcedPedHashes;
+            PedRandomizer_PedHashes ForcedPedHashes;
             bool        EnableNSFWModels         = false;
             bool        RandomizePlayer          = true;
             bool        RandomizePeds            = true;
