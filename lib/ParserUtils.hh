@@ -108,6 +108,8 @@ public:
     {
         return hash == ToHash ();
     }
+
+    explicit operator uint32_t () { return ToHash (); }
 };
 
 /*******************************************************/
@@ -230,8 +232,8 @@ public:
         return reinterpret_cast<void *> (static_cast<Class *> (this));
     }
 
-    parStructureStaticData *
-    GetStaticData () const
+    static parStructureStaticData *
+    GetStaticData () 
     {
         if (!pStaticData)
             pStaticData = ParserUtils::FindStaticData (GetHash ());
@@ -277,5 +279,11 @@ public:
     Set (uint32_t fieldHash, T value)
     {
         Get<T> (fieldHash) = value;
+    }
+
+    static uint64_t
+    GetSize ()
+    {
+        return GetStaticData ()->Structure->nSize;
     }
 };

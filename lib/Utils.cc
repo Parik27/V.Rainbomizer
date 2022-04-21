@@ -22,6 +22,7 @@
 #include "CModelIndices.hh"
 #include "CCredits.hh"
 #include "CAmbientModelSets.hh"
+#include "CShaderLib.hh"
 
 #include "Utils.hh"
 
@@ -142,7 +143,8 @@ InitialiseAllComponents ()
     CModelIndices::InitialisePatterns ();
     CCreditArray::InitialisePatterns ();
     CAmbientModelSetsManager::InitialisePatterns ();
-
+    CShaderLib::InitialisePatterns ();
+    
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();
 #endif
