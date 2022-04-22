@@ -6,6 +6,8 @@
 #include <string_view>
 #include <type_traits>
 
+#include "atArray.hh"
+
 namespace rage {
 
 constexpr char
@@ -218,110 +220,6 @@ constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
 }
 
 #pragma pack(push, 1)
-
-template <typename T> struct atArrayBase
-{
-    T Data;
-
-    using ElemType = std::decay_t<decltype (Data[0])>;
-
-    ElemType &
-    operator[] (size_t ix)
-    {
-        return Data[ix];
-    }
-
-    const ElemType &
-    operator[] (size_t ix) const
-    {
-        return Data[ix];
-    }
-
-    constexpr ElemType *
-    begin ()
-    {
-        return &Data[0];
-    }
-
-    constexpr const ElemType *
-    begin () const
-    {
-        return &(*this)[0];
-    }
-};
-
-template <typename T> struct atArrayGetSizeWrapperObject
-{
-    T *Data;
-
-    T &
-    operator[] (size_t ix)
-    {
-        return *reinterpret_cast<T *> (reinterpret_cast<char *> (Data)
-                                       + T::GetSize () * ix);
-    }
-
-    const T &
-    operator[] (size_t ix) const
-    {
-        return *reinterpret_cast<T *> (reinterpret_cast<char *> (Data)
-                                       + T::GetSize () * ix);
-    }
-};
-
-template <typename T = void *>
-struct atArrayGetSizeWrapper
-    : public atArrayBase<atArrayGetSizeWrapperObject<T>>
-{
-    uint16_t Size;
-    uint16_t Capacity;
-
-    constexpr T *
-    end ()
-    {
-        return &(*this)[Size];
-    }
-
-    constexpr const T *
-    end () const
-    {
-        return &(*this)[Size];
-    }
-};
-
-template <typename T = void *> struct atArray : public atArrayBase<T *>
-{
-    uint16_t Size;
-    uint16_t Capacity;
-
-    constexpr T *
-    end ()
-    {
-        return &(*this)[Size];
-    }
-
-    constexpr const T *
-    end () const
-    {
-        return &(*this)[Size];
-    }
-};
-
-template <typename T, uint32_t Size>
-struct atFixedArray : public atArrayBase<T[Size]>
-{
-    constexpr T *
-    end ()
-    {
-        return &(*this)[Size];
-    }
-
-    constexpr const T *
-    end () const
-    {
-        return &(*this)[Size];
-    }
-};
 
 struct atString
 {
