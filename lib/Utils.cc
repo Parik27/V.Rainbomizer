@@ -23,6 +23,7 @@
 #include "CCredits.hh"
 #include "CAmbientModelSets.hh"
 #include "CShaderLib.hh"
+#include "fiAssetMgr.hh"
 
 #include "Utils.hh"
 
@@ -144,7 +145,8 @@ InitialiseAllComponents ()
     CCreditArray::InitialisePatterns ();
     CAmbientModelSetsManager::InitialisePatterns ();
     CShaderLib::InitialisePatterns ();
-    
+    fiAssetMgr::InitialisePatterns ();
+
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();
 #endif

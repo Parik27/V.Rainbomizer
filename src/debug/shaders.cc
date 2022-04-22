@@ -2,12 +2,12 @@
 #include "Utils.hh"
 #include "base.hh"
 #include "common/common.hh"
+#include "fiAssetMgr.hh"
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
 
 #include <filesystem>
 #include <fstream>
-#include <misc/worldPS.h>
 
 #include <common/minhook.hh>
 #include <common/logger.hh>
@@ -42,14 +42,19 @@ class ShaderDebugInterface : public DebugInterface
         char *str = _strdup (sm_Uncache.c_str ());
         char *pch = strtok (str, ",");
 
+        fiAssetMgr::sm_Instance->PushFolder ("common:/shaders");
+
         while (pch)
             {
-                DeleteShader (rage::atStringHash(pch));
+                auto shader
+                    = CShaderLib::LookupShader (rage::atStringHash (pch));
+                if (shader)
+                    assert(shader->LoadFile (pch));
+
                 pch = strtok(nullptr, ",");
             }
-        
-        ReloadShaders ();
 
+        fiAssetMgr::sm_Instance->PopFolder ();
         free(str);
     }
 

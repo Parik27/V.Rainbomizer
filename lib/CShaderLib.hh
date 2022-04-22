@@ -6,6 +6,8 @@ class sgaShaderGroup : public sysUseAllocator
 {
 public:
     ~sgaShaderGroup ();
+
+    bool LoadFile (char* shaderName);
 };
 
 class CShaderLib

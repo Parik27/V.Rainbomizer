@@ -4,18 +4,29 @@
 
 sgaShaderGroup *(*rage_sgaShader_ResolveShader) (uint32_t);
 void (*rage_sgaShader_destructor) (sgaShaderGroup *);
+bool (*rage_sgaShader__LoadShader) (sgaShaderGroup *, char *);
 
 sgaShaderGroup::~sgaShaderGroup () { rage_sgaShader_destructor (this); }
 
-sgaShaderGroup*
-CShaderLib::LookupShader(uint32_t hash)
+bool
+sgaShaderGroup::LoadFile (char *shaderName)
 {
-  return rage_sgaShader_ResolveShader (hash);
+    return rage_sgaShader__LoadShader (this, shaderName);
+}
+
+sgaShaderGroup *CShaderLib::LookupShader (uint32_t hash)
+{
+    return rage_sgaShader_ResolveShader (hash);
 }
 
 void
 CShaderLib::InitialisePatterns ()
 {
+    ReadCall (hook::get_pattern ("0f b7 05 ? ? ? ? ? 8b d7 ? 8b cb 66 89 ? ? ? "
+                                 "? ? e8 ? ? ? ? ? 8b cb 84 c0 74 ?",
+                                 20),
+              rage_sgaShader__LoadShader);
+
     ReadCall (
         hook::get_pattern (
             "? 8b cb 84 c0 74 ? e8 ? ? ? ? eb ? e8 ? ? ? ? ? 8b cb e8 ? ? ? ?",
