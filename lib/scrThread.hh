@@ -141,7 +141,8 @@ enum YscOpCode : uint8_t
     PUSH_CONST_F4,
     PUSH_CONST_F5,
     PUSH_CONST_F6,
-    PUSH_CONST_F7
+    PUSH_CONST_F7,
+    IS_BIT_SET
 };
 
 class scrThreadContext

@@ -149,7 +149,7 @@ Store_N_WriteFunction (FILE *file, uint8_t *bytes, uint64_t *SP, uint64_t *FSP)
     WriteStackArgs (file, SP - 2, numItems);
 }
 
-static constexpr std::array<WriteFunction, 127> Opcodes = {{
+static constexpr std::array<WriteFunction, 128> Opcodes = {{
     BasicOpcodeWrite,                              // NOP
     BasicOpcodeWrite<2>,                           // IADD
     BasicOpcodeWrite<2>,                           // ISUB
@@ -277,6 +277,7 @@ static constexpr std::array<WriteFunction, 127> Opcodes = {{
     BasicOpcodeWrite,                              // PUSH_CONST_F5
     BasicOpcodeWrite,                              // PUSH_CONST_F6
     BasicOpcodeWrite,                              // PUSH_CONST_F7
+    BasicOpcodeWrite<2>                            // IS_BIT_SET
 }};
 
 class TTDFile
@@ -529,7 +530,7 @@ class TimeTravelDebugInterface : public DebugInterface
             0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
         };
 
-        void *addr = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 7e 0f 87");
+        void *addr = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 ? 0f 87");
         auto trampoline = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
                               ->Pointer<decltype (Instructions)> ();
 
