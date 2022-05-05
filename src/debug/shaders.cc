@@ -3,6 +3,7 @@
 #include "Utils.hh"
 #include "base.hh"
 #include "common/common.hh"
+#include "debug/backend.hh"
 #include "fiAssetMgr.hh"
 #include "imgui.h"
 #include "misc/cpp/imgui_stdlib.h"
@@ -25,11 +26,12 @@ void (*ReloadShaders)();
 
 class ShaderDebugInterface : public DebugInterface
 {
-    inline static bool sm_Enabled = false;
+    inline static bool        sm_Enabled    = false;
     inline static std::string sm_ShaderFile = "mirrored.fxc";
     inline static int32_t     sm_MatchType  = -1;
     inline static std::string sm_RegexMatch = ".*PS_LensDistortion.*";
     inline static std::string sm_Uncache    = "postfx,postfxms,postfxms0";
+    inline static bool        sm_Reload     = false;
 
     static void
     DeleteShader (uint32_t hash)
@@ -52,13 +54,22 @@ class ShaderDebugInterface : public DebugInterface
                 auto shader
                     = CShaderLib::LookupShader (rage::atStringHash (pch));
                 if (shader)
-                    assert(shader->LoadFile (pch));
+                    assert (shader->LoadFile (pch));
 
-                pch = strtok(nullptr, ",");
+                pch = strtok (nullptr, ",");
             }
 
         fiAssetMgr::sm_Instance->PopFolder ();
-        free(str);
+        free (str);
+    }
+
+    void
+    Update () override
+    {
+        if (sm_Reload)
+            FreeAndReloadShaders ();
+
+        sm_Reload = false;
     }
 
     void
@@ -66,10 +77,10 @@ class ShaderDebugInterface : public DebugInterface
     {
         ImGui::Checkbox ("Enabled", &sm_Enabled);
 
-        
         ImGui::InputText ("Shader file", &sm_ShaderFile);
-        ImGui::SameLine();
-        if (ImGui::BeginCombo("Shader file list", "", ImGuiComboFlags_NoPreview))
+        ImGui::SameLine ();
+        if (ImGui::BeginCombo ("Shader file list", "",
+                               ImGuiComboFlags_NoPreview))
             {
                 std::string path
                     = Rainbomizer::Common::GetRainbomizerFileName ("",
@@ -83,18 +94,18 @@ class ShaderDebugInterface : public DebugInterface
                             {
                                 sm_ShaderFile
                                     = entry.path ().filename ().u8string ();
-                                FreeAndReloadShaders ();
+                                sm_Reload = true;
                             }
 
-                ImGui::EndCombo();
+                ImGui::EndCombo ();
             }
 
-        ImGui::InputText("Uncache", &sm_Uncache);
+        ImGui::InputText ("Uncache", &sm_Uncache);
         ImGui::InputText ("Replace Shader", &sm_RegexMatch);
         ImGui::InputInt ("Match Type", &sm_MatchType);
 
         if (ImGui::Button ("Reload"))
-            FreeAndReloadShaders ();
+            sm_Reload = true;
     }
 
 public:
@@ -162,10 +173,14 @@ public:
 
         Rainbomizer::Logger::LogMessage ("%s", sm_ShaderFile.c_str ());
         Rainbomizer::Logger::LogMessage ("%s", info->GetArg<const char *> (1));
-        
+
         sm_Uncache    = "postfx,postfxms,postfxms0";
         sm_RegexMatch = ".*PS_LensDistortion.*";
-        FreeAndReloadShaders ();
+
+        sm_Reload = true;
+        
+        // BackendWalkieTalkie::sm_Functions.push_back (
+        //     [] { FreeAndReloadShaders (); });
     }
 
     ShaderDebugInterface ()

@@ -2,13 +2,13 @@
 
 template <typename T> struct Vector2_t
 {
-    T x;
-    T y;
+    T x = 0;
+    T y = 0;
 };
 
 template <typename T> struct Vector3_t : public Vector2_t<T>
 {
-    T z;
+    T z = 0;
 
     inline Vector3_t<T> &
     operator+= (const Vector3_t<T> &rhs)
@@ -59,5 +59,5 @@ typedef Vector3_t<float> Vector3;
 
 struct Vector4 : Vector3
 {
-    float w;
+    float w = 0;
 };

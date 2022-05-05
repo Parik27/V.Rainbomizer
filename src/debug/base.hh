@@ -11,6 +11,7 @@ class DebugInterface
     bool m_bOpen = false;
 
     virtual void Draw () = 0;
+    virtual void Update (){};
 
     friend class DebugInterfaceManager;
 
@@ -109,6 +110,15 @@ public:
                 if (ImGui::Begin (i->GetName (), &i->m_bOpen))
                     i->Draw ();
                 ImGui::End ();
+            }
+    }
+
+    static void
+    UpdateAll ()
+    {
+        for (auto i : GetDebugInterfaces ())
+            {
+                i->Update ();
             }
     }
 

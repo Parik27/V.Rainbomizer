@@ -1,4 +1,5 @@
 #include "common/logger.hh"
+#include "debug/backend.hh"
 #include "injector/calling.hpp"
 #include <cstdio>
 #include <mutex>
@@ -169,8 +170,15 @@ class DebugServerBackend
                     }
             }
 
+        for (const auto &i : BackendWalkieTalkie::sm_Functions)
+            i ();
+
+        BackendWalkieTalkie::sm_Functions.clear ();
+
         if (bIsOpen)
             UpdateInterfaces ();
+
+        DebugInterfaceManager::UpdateAll ();
     }
 
 public:
