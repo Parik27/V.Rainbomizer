@@ -60,6 +60,13 @@ private:
         return List;
     }
 
+    static auto &
+    GetAddedNativesList ()
+    {
+        static std::unordered_map<uint64_t, NativeFunc> List;
+        return List;
+    }
+
     static size_t FindNativesTableWidth (uint64_t *);
     static size_t FindNativesVersionOffset (uint64_t *, size_t);
     static void   InitialiseNativeCmdsFromTable (uint64_t *table, size_t step,
@@ -80,6 +87,12 @@ public:
                 bool HookScriptHook = false)
     {
         GetHookedNativesList ()[hash] = {hookedFunc, HookScriptHook};
+    }
+
+    static void
+    AddNative (uint64_t hash, NativeFunc native)
+    {
+        GetAddedNativesList ()[hash] = native;
     }
 
     static inline void

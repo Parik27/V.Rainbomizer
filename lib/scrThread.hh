@@ -292,6 +292,11 @@ public:
             m_Argc = 0;
             (..., PushArg (args));
         }
+
+        uint32_t GetNumArgs ()
+        {
+            return m_Argc;
+        }
     };
 
     static scrThread **      sm_pActiveThread;

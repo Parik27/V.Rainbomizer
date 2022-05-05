@@ -15,8 +15,8 @@ class ScriptHookCompatibility
     struct Context
     {
         bool                      Valid = false;
-        scrThread::Info           info;
-        NativeManager::NativeFunc func = nullptr;
+        std::unique_ptr<scrThread::Info> info  = nullptr;
+        NativeManager::NativeFunc        func  = nullptr;
 
         Context (){};
 
@@ -24,11 +24,11 @@ class ScriptHookCompatibility
         Reset ()
         {
             Valid = false;
-            info  = scrThread::Info ();
-            func  = nullptr;
+            info.reset (new scrThread::Info);
+            func = nullptr;
         }
 
-    } inline static sm_Ctx;
+    } inline static thread_local sm_Ctx;
 
     template <auto &nativeInit>
     static void
@@ -37,7 +37,6 @@ class ScriptHookCompatibility
         uint32_t joaatHash = NativeManager::GetJoaatHashFromCmdHash (hash);
         sm_Ctx.Reset ();
 
-#if (0)
         if (auto hook
             = LookupMap (NativeManager::GetHookedNativesList (), joaatHash))
             {
@@ -46,7 +45,16 @@ class ScriptHookCompatibility
 
                 return;
             }
-#endif
+
+        if (auto added
+            = LookupMap (NativeManager::GetAddedNativesList (), hash))
+            {
+                sm_Ctx.Valid = true;
+                sm_Ctx.func  = *added;
+
+                return;
+            }
+
         nativeInit (hash);
     }
 
@@ -58,7 +66,7 @@ class ScriptHookCompatibility
         if (!sm_Ctx.Valid)
             return nativePush64 (value);
 
-        sm_Ctx.info.PushArg (value);
+        sm_Ctx.info->PushArg (value);
     }
 
     /*******************************************************/
@@ -71,9 +79,9 @@ class ScriptHookCompatibility
 
         if (!sm_Ctx.Valid)
             return nativeCall ();
-
-        sm_Ctx.func (&sm_Ctx.info);
-        ret = sm_Ctx.info.GetReturn () & 0xFFFFFFFF;
+        
+        sm_Ctx.func (sm_Ctx.info.get());
+        ret = sm_Ctx.info->GetReturn () & 0xFFFFFFFF;
 
         return &ret;
     }

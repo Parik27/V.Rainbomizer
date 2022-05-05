@@ -65,6 +65,12 @@ public:
             }
     }
 
+    void
+    Clear ()
+    {
+        Vars::ClearNamespace (m_Namespace);
+    }
+
     template <typename T>
     void
     operator() (const std::string &key, const T &value)

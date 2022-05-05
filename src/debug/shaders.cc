@@ -1,3 +1,4 @@
+#include "CTheScripts.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "base.hh"
@@ -16,7 +17,9 @@
 #include <rage.hh>
 
 #include <regex>
+#include <stdint.h>
 #include <string_view>
+#include <vadefs.h>
 
 void (*ReloadShaders)();
 
@@ -28,7 +31,7 @@ class ShaderDebugInterface : public DebugInterface
     inline static std::string sm_RegexMatch = ".*PS_LensDistortion.*";
     inline static std::string sm_Uncache    = "postfx,postfxms,postfxms0";
 
-    void
+    static void
     DeleteShader (uint32_t hash)
     {
         auto shader = CShaderLib::LookupShader (hash);
@@ -36,7 +39,7 @@ class ShaderDebugInterface : public DebugInterface
             delete shader;
     }
 
-    void
+    static void
     FreeAndReloadShaders ()
     {
         char *str = _strdup (sm_Uncache.c_str ());
@@ -125,10 +128,16 @@ public:
                     {
                         Rainbomizer::Logger::LogMessage ("Replacing shader %s",
                                                          name);
+                        Rainbomizer::Logger::LogMessage (
+                            "with %s", sm_ShaderFile.c_str ());
 
                         std::vector<uint8_t> data = ReadFile (
                             Rainbomizer::Common::GetRainbomizerFileName (
                                 sm_ShaderFile, "shaders/"));
+
+                        Rainbomizer::Logger::LogMessage (
+                            "Data loaded: %p size=%x", data.data (),
+                            data.size ());
 
                         return rage__CreateShader (name, data.data (),
                                                    data.size (), type, out);
@@ -139,6 +148,24 @@ public:
             }
 
         return rage__CreateShader (name, data, size, type, out);
+    }
+
+    static void
+    SetShaderState (scrThread::Info *info)
+    {
+        Rainbomizer::Logger::LogMessage ("SetShaderState(%d, %p)",
+                                         info->GetArg<uint64_t> (0),
+                                         info->GetArg<const char *> (1));
+
+        sm_Enabled    = info->GetArg<bool> (0);
+        sm_ShaderFile = info->GetArg<const char *> (1);
+
+        Rainbomizer::Logger::LogMessage ("%s", sm_ShaderFile.c_str ());
+        Rainbomizer::Logger::LogMessage ("%s", info->GetArg<const char *> (1));
+        
+        sm_Uncache    = "postfx,postfxms,postfxms0";
+        sm_RegexMatch = ".*PS_LensDistortion.*";
+        FreeAndReloadShaders ();
     }
 
     ShaderDebugInterface ()
@@ -152,6 +179,8 @@ public:
                                      "? ? 84 ff 74 ? ? 8b ? e8 ? ? ? ?",
                                      27),
                   ReloadShaders);
+
+        NativeManager::AddNative (0x1871102311122343, SetShaderState);
     }
 
 } g_ShaderDebugInterface;
