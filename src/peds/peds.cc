@@ -29,10 +29,19 @@ class PedRandomizer
 
     inline static std::mutex CreatePedMutex;
 
+    /*******************************************************/
+    static bool
+    IsValidPedModel (uint32_t hash)
+    {
+        return CStreaming::GetModelByHash (hash)
+               && (PR::Config ().EnableNSFWModels
+                   || !PR::Streaming::IsPedNSFW (hash));
+    }
+
     constexpr static const char PedsFileName[] = "CutsceneModelsPeds.txt";
     using CutsPedsRandomizer
         = DataFileBasedModelRandomizer<PedsFileName,
-                                       CStreaming::GetModelByHash<>>;
+                                       IsValidPedModel>;
 
     /*******************************************************/
     static bool
