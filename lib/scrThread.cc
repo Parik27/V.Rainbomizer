@@ -12,7 +12,7 @@
 class gBaseScriptDirectory;
 
 // Instruction set for disassembly later :P
-std::array<std::pair<const char *, const char *>, 127> mOpcodes
+std::array<std::pair<const char *, const char *>, 128> mOpcodes
     = {{{"NOP", ""},
         {"IADD", ""},
         {"ISUB", ""},
@@ -139,7 +139,8 @@ std::array<std::pair<const char *, const char *>, 127> mOpcodes
         {"PUSH_CONST_F4", ""},
         {"PUSH_CONST_F5", ""},
         {"PUSH_CONST_F6", ""},
-        {"PUSH_CONST_F7", ""}}};
+        {"PUSH_CONST_F7", ""},
+        {"IS_BIT_SET", ""}}};
 
 gBaseScriptDirectory *scrProgramDirectory;
 scrProgram *(*scrProgramRegistry__FindProgramByHash) (gBaseScriptDirectory *,

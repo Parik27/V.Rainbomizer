@@ -57,6 +57,15 @@ VehicleModelInfoCacheMgr::GenerateCache ()
                     deleteModel = true;
                 }
 
+            // Set bounds for the vehicle
+            auto [bounds, added]
+                = mBoundsCache.try_emplace (hash, modelInfo->m_vecMax
+                                                      - modelInfo->m_vecMin);
+
+            Rainbomizer::Logger::LogMessage (
+                "Initialised bounds for vehicle %x: %f %f %f", hash,
+                bounds->second.x, bounds->second.y, bounds->second.z);
+
             if (deleteModel)
                 CStreaming::DeleteModel (modelId);
         }
@@ -117,5 +126,7 @@ VehicleModelInfoCacheMgr::GetVehicleBounds (uint32_t vehicle)
         "Vehicle %x not in cache, regenerating cache", vehicle);
 
     GenerateCache ();
-    return GetVehicleBounds (vehicle);
+
+    // Return the generated bounds or 0,0,0 in case the bounds thing failed.
+    return mBoundsCache[vehicle];
 }

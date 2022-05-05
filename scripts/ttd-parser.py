@@ -259,6 +259,7 @@ SIMPLE_OPS = {
     124: [""],                                     # PUSH_CONST_F5
     125: [""],                                     # PUSH_CONST_F6
     126: [""],                                     # PUSH_CONST_F7
+    127: ["<I4xI4x"],                              # IS_BIT_SET
 }
 
 class Opcode:
