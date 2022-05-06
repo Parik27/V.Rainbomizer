@@ -211,4 +211,5 @@ MaskOdds = 20
 ParachuteOdds = 20
 
 # Whether to enable randomization into NSFW clothes
-EnableNSFWComponents = false)";
+EnableNSFWComponents = false
+)";

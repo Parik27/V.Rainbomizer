@@ -20,18 +20,18 @@ using namespace NativeLiterals;
 
 enum eComponentType : int32_t
 {
-    CPT_FACE,
-    CPT_MASK,
-    CPT_HAIR,
-    CPT_TORSO,
-    CPT_LEG,
-    CPT_PARACHUTE,
-    CPT_SHOES,
-    CPT_ACCESSORY,
-    CPT_UNDERSHIRT,
-    CPT_KEVLAR,
-    CPT_BADGE,
-    CPT_TORSO2,
+    PED_COMP_HEAD     = 0,
+    PED_COMP_BERD     = 1,
+    PED_COMP_HAIR     = 2,
+    PED_COMP_TORSO    = 3,
+    PED_COMP_LEG      = 4,
+    PED_COMP_HAND     = 5,
+    PED_COMP_FEET     = 6,
+    PED_COMP_TEETH    = 7,
+    PED_COMP_SPECIAL  = 8,
+    PED_COMP_SPECIAL2 = 9,
+    PED_COMP_DECL     = 10,
+    PED_COMP_JBIB     = 11,
     CPT_NUM_COMPONENTS
 };
 
@@ -136,12 +136,11 @@ class ClothesRandomizer
         if (!RandomBool (Config ().RandomizeOdds))
             return true;
 
-        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_TORSO2]    = 0;
+        //m_ComponentOdds[CPT_FACE]          = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL2] = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_JBIB]     = 0;
 
         if (Config ().ForcedRandomComponent != -1)
             {
@@ -226,12 +225,10 @@ public:
                         ParachuteOdds, ForcedRandomComponent,
                         EnableNSFWComponents);
 
-        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_TORSO2]    = 0;
+        m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL2] = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_JBIB]     = 0;
 
         Rainbomizer::Events ().OnRunThread += ProcessUpgradesQueue;
         Rainbomizer::Events ().OnFade +=
