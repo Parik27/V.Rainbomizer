@@ -208,4 +208,7 @@ RandomizeOdds = 80
 
 # Odds of a certain ped having random mask/parachutes
 MaskOdds = 20
-ParachuteOdds = 20)";
+ParachuteOdds = 20
+
+# Whether to enable randomization into NSFW clothes
+EnableNSFWComponents = false)";
