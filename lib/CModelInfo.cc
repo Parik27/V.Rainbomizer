@@ -28,10 +28,8 @@ InitialiseTypeTranslationMap ()
                 || typeEnumMap[i].value == -1)
                 continue;
 
-#ifndef NDEBUG
             if (i > MAX_IDS)
                 assert (!"Type ID greater than expected");
-#endif
 
             translationMap[typeEnumMap[i].value] = typeEnumMap[i].hash;
         }
@@ -44,8 +42,7 @@ uint32_t
 CVehicleModelInfo::GetVehicleType ()
 {
     static uint32_t nTypeIndex = *hook::get_pattern<uint32_t> (
-        "e8 ? ? ? ? 85 c0 74 ? 8b ? ? ? ? ? ? 8b cd", 11);
-
+        "8b ? ? ? ? ? ? 8b cd ? 8b c6 ? 8b cb e8 ? ? ? ? ? 8b f0 ? 85 c0", 2);
     static uint32_t *aTranslationTypeMap = InitialiseTypeTranslationMap ();
 
     // Should be safe since we have asserts for stuff
