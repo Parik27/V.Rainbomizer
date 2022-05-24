@@ -209,6 +209,7 @@ MissionRandomizer_Flow::HandleHeistCrewRandomization (scrThreadContext *ctx)
     *MR::sm_Globals.Crew_Unlocked_Bitset = 0xFFFFFFFF; // unlock all
 
     MR::sm_Globals.g_BoardInitStateBitset.Init ();
+    MR::sm_Globals.g_BoardInitStateBitset2612.Init ();
 
     for (int heist = int (eHeistId::HEIST_JEWELRY);
          heist <= int (eHeistId::HEIST_FINALE); heist++)
@@ -434,6 +435,7 @@ MissionRandomizer_Flow::SetHeistFlowControlVariablesForMission ()
     // Set the board init state to 0xFF to set all the bits to true for
     // jewelry_heist and rural_bank_heist.
     MR::sm_Globals.g_BoardInitStateBitset.Set (0xFFFF);
+    MR::sm_Globals.g_BoardInitStateBitset2612.Set (0xFFFF);
 }
 
 /*******************************************************/

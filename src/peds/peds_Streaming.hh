@@ -162,6 +162,16 @@ public:
     }
 
     /*******************************************************/
+    static bool
+    IsPedNSFW (uint32_t hash)
+    {
+        ReadModelsList ("NSFW_Models.txt", sm_NsfwModels,
+                        sm_NsfwModelsInitialised);
+
+        return DoesElementExist (sm_NsfwModels, hash);
+    }
+
+    /*******************************************************/
     static uint32_t
     GetRandomLoadedPed (bool includeNsfw = false, bool includePlayer = true)
     {

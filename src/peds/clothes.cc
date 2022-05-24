@@ -1,5 +1,7 @@
 #include "CPed.hh"
+#include "common/common.hh"
 #include "peds/clothes_Queue.hh"
+#include "rage.hh"
 #include <Utils.hh>
 #include <CTheScripts.hh>
 
@@ -18,18 +20,18 @@ using namespace NativeLiterals;
 
 enum eComponentType : int32_t
 {
-    CPT_FACE,
-    CPT_MASK,
-    CPT_HAIR,
-    CPT_TORSO,
-    CPT_LEG,
-    CPT_PARACHUTE,
-    CPT_SHOES,
-    CPT_ACCESSORY,
-    CPT_UNDERSHIRT,
-    CPT_KEVLAR,
-    CPT_BADGE,
-    CPT_TORSO2,
+    PED_COMP_HEAD     = 0,
+    PED_COMP_BERD     = 1,
+    PED_COMP_HAIR     = 2,
+    PED_COMP_TORSO    = 3,
+    PED_COMP_LEG      = 4,
+    PED_COMP_HAND     = 5,
+    PED_COMP_FEET     = 6,
+    PED_COMP_TEETH    = 7,
+    PED_COMP_SPECIAL  = 8,
+    PED_COMP_SPECIAL2 = 9,
+    PED_COMP_DECL     = 10,
+    PED_COMP_JBIB     = 11,
     CPT_NUM_COMPONENTS
 };
 
@@ -47,7 +49,15 @@ class ClothesRandomizer
         = "GET_NUMBER_OF_PED_PROP_DRAWABLE_VARIATIONS"_joaat;
     static constexpr uint32_t PROP_TEX_NATIVE
         = "GET_NUMBER_OF_PED_PROP_TEXTURE_VARIATIONS"_joaat;
-    
+
+    struct NSFWComponentData
+    {
+        uint32_t       modelHash;
+        eComponentType component;
+        uint32_t       variation;
+    };
+
+    inline static std::vector<NSFWComponentData> sm_NsfwComponents;
 
     RB_C_CONFIG_START
     {
@@ -56,7 +66,8 @@ class ClothesRandomizer
         int MaskOdds      = 20;
         int ParachuteOdds = 20;
 
-        int ForcedRandomComponent = -1;
+        int  ForcedRandomComponent = -1;
+        bool EnableNSFWComponents  = false;
     }
     RB_C_CONFIG_END
 
@@ -75,11 +86,35 @@ class ClothesRandomizer
     }
 
     /*******************************************************/
+    static bool
+    IsVariationAllowed (int comp, uint32_t drawable, uint32_t ped)
+    {
+        if (Config ().EnableNSFWComponents)
+            return true;
+
+        ReadNSFWComponentsData ();
+        
+        uint32_t modelHash = "GET_ENTITY_MODEL"_n(ped);
+        for (auto &i : sm_NsfwComponents)
+            {
+                if (i.modelHash == modelHash && i.component == comp
+                    && i.variation == drawable)
+                    return false;
+            }
+
+        return true;
+    }
+
+    /*******************************************************/
     static void
     RandomizeComponent (uint32_t ped, int comp)
     {
-        
         int drawable = Random<DRAWABLE_NATIVE> (ped, comp);
+
+        // NSFW check
+        if (!IsVariationAllowed(comp, drawable, ped))
+            return;
+
         int texture  = Random<TEXTURE_NATIVE> (ped, comp, drawable);
 
         "SET_PED_COMPONENT_VARIATION"_n(ped, comp, drawable, texture,
@@ -101,12 +136,11 @@ class ClothesRandomizer
         if (!RandomBool (Config ().RandomizeOdds))
             return true;
 
-        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_TORSO2]    = 0;
+        //m_ComponentOdds[CPT_FACE]          = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL2] = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_JBIB]     = 0;
 
         if (Config ().ForcedRandomComponent != -1)
             {
@@ -133,7 +167,7 @@ class ClothesRandomizer
 
         std::lock_guard guard (Queue::mMutex);
 
-        if (!Queue::mData.size())
+        if (!Queue::mData.size ())
             return;
 
         m_CurrentlyRandomizing = true;
@@ -143,27 +177,58 @@ class ClothesRandomizer
     }
 
     /*******************************************************/
-    template<auto& CPed__GetComponentVariation>
-    static void ChangeClothesEvent (CPed* p1, uint32_t p2, uint8_t p3, uint32_t* p4, uint32_t* p5)
+    template <auto &CPed__GetComponentVariation>
+    static void
+    ChangeClothesEvent (CPed *p1, uint32_t p2, uint8_t p3, uint32_t *p4,
+                        uint32_t *p5)
     {
         if (!m_CurrentlyRandomizing)
             Queue::Add (p1);
-        
+
         CPed__GetComponentVariation (p1, p2, p3, p4, p5);
     }
-    
+
+    /*******************************************************/
+    static void
+    ReadNSFWComponentsData ()
+    {
+        static bool sm_Initialised = false;
+        if (std::exchange (sm_Initialised, true))
+            return;
+
+        FILE *f = Rainbomizer::Common::GetRainbomizerDataFile (
+            "NSFW_Components.txt");
+
+        if (!f)
+            return;
+
+        char line[512] = {0};
+        while (fgets(line, 512, f))
+            {
+                char model[64] = {0};
+                NSFWComponentData data;
+
+                if (sscanf (line, "%s %d %d", model, &data.component,
+                            &data.variation)
+                    != 3)
+                    continue;
+
+                data.modelHash = rage::atStringHash (model);
+                sm_NsfwComponents.push_back (data);
+            }
+    }
+
 public:
     ClothesRandomizer ()
     {
         RB_C_DO_CONFIG ("ClothesRandomizer", RandomizeOdds, MaskOdds,
-                        ParachuteOdds, ForcedRandomComponent);
+                        ParachuteOdds, ForcedRandomComponent,
+                        EnableNSFWComponents);
 
-        m_ComponentOdds[CPT_FACE]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_MASK]      = Config ().MaskOdds;
-        m_ComponentOdds[CPT_PARACHUTE] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_KEVLAR]    = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_ACCESSORY] = Config ().ParachuteOdds;
-        m_ComponentOdds[CPT_TORSO2]    = 0;
+        m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_SPECIAL2] = Config ().ParachuteOdds;
+        m_ComponentOdds[PED_COMP_JBIB]     = 0;
 
         Rainbomizer::Events ().OnRunThread += ProcessUpgradesQueue;
         Rainbomizer::Events ().OnFade +=

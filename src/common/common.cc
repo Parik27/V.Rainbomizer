@@ -19,18 +19,10 @@ namespace Rainbomizer {
 void
 Common::InitialiseHashes ()
 {
-    constexpr static std::array m_BlacklistedModels = {
-        "arbitergt"_joaat,
-        "astron2"_joaat,
-        "cyclone2"_joaat,
-        "ignus2"_joaat,
-        "s95"_joaat
-    };
-
     for (size_t i = 0; i < CStreaming::ms_aModelPointers->m_nAllocated; i++)
         {
             auto info = CStreaming::ms_aModelPointers->m_pData[i];
-            if (!info || DoesElementExist (m_BlacklistedModels, info->m_nHash))
+            if (!info)
                 continue;
 
             auto type = info->GetType ();

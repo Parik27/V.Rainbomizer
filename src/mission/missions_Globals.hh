@@ -505,6 +505,10 @@ public:
         "2d 01 03 00 ? 5f ? ? ? 38 ? 2c ? ? ? 2e 01 01", 6,
         "jewelry_heist"_joaat};
 
+    YscUtils::ScriptGlobal<uint32_t> g_BoardInitStateBitset2612{
+        "2d 01 03 00 ? 5f ? ? ? 38 ? 7f 2e 01 01", 6,
+        "jewelry_heist"_joaat};
+
     // Used for finalec1 (we don't want that :eye:)
     YscUtils::ScriptGlobal<uint32_t> g_SkipNextMissionPassScreen{
         "2d 01 07 00 ? 6e 39 03 38 ? 25 1a 57 ? ? 6f 54", 17,
@@ -581,6 +585,7 @@ public:
     Process (scrProgram *program, scrThreadContext *ctx)
     {
         g_BoardInitStateBitset.Init (program);
+        g_BoardInitStateBitset2612.Init (program);
         g_CurrentMission.Init (program);
         g_LastPassedMission.Init (program);
         g_LastPassedMissionTime.Init (program);
