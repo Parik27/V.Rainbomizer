@@ -70,7 +70,7 @@ private:
     static size_t FindNativesTableWidth (uint64_t *);
     static size_t FindNativesVersionOffset (uint64_t *, size_t);
     static void   InitialiseNativeCmdsFromTable (uint64_t *table, size_t step,
-                                                 size_t offset);
+                                                 size_t offset, int totalNatives = 5253);
 
     static std::unique_ptr<NativeFunc[]>
     GetCmdsFromHashes (const std::vector<uint64_t> &hashes);

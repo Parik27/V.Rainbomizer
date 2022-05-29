@@ -2,10 +2,17 @@
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "NativeTranslationTable.hh"
+
 #include "common/events.hh"
+#include "common/logger.hh"
+#include "common/common.hh"
+
 #include <cstdint>
 #include <memory>
+#include <fstream>
 
+#include <sstream>
+#include <string>
 #include <windows.h>
 
 CEntity *(*fwScriptGuid_GetBaseFromGuid) (uint32_t) = nullptr;
@@ -69,14 +76,13 @@ NativeManager::GetJoaatHashFromCmdHash (uint64_t hash)
 /*******************************************************/
 void
 NativeManager::InitialiseNativeCmdsFromTable (uint64_t *table, size_t step,
-                                              size_t offset)
+                                              size_t offset, int totalNatives)
 {
     std::vector<uint64_t> tmpHashes;
     std::vector<uint64_t> origHashes;
     std::vector<uint64_t> newHashes;
 
-    const int TOTAL_NATIVES = 5253;
-    for (int i = 0; i < TOTAL_NATIVES; i++)
+    for (int i = 0; i < totalNatives; i++)
         {
             if (!table[i * step])
                 continue;
@@ -112,13 +118,13 @@ NativeManager::ProcessNativeHooks (scrProgram *program)
                     for (size_t i = 0; i < program->m_nNativesCount; i++)
                         {
                             uint64_t funcHash = reinterpret_cast<uint64_t &> (
-                                program->m_pNativesPointer[i]);
+                                                                              program->m_pNativesPointer[i]);
 
                             if (funcHash == orig.newHash)
                                 m_Operations.push_back (
-                                    {reinterpret_cast<NativeFunc *> (
-                                         &program->m_pNativesPointer[i]),
-                                     hooked.Cb});
+                                                        {reinterpret_cast<NativeFunc *> (
+                                                                                         &program->m_pNativesPointer[i]),
+                                                         hooked.Cb});
                         }
                 }
         }
@@ -165,6 +171,70 @@ NativeManager::Initialise ()
             InitialiseNativeHooks ();
 
             FreeLibrary (scriptHook);
+        }
+
+    std::ifstream crosstableFile("Crossmap.txt");
+    if (!m_ScriptHookInfo.bAvailable && crosstableFile)
+        {
+            std::vector<std::vector<uint64_t>> crosstable;
+            
+            std::string line;
+            int tableWidth = -1;
+
+            // Read cross table file
+            while (std::getline (crosstableFile, line))
+                {
+                    auto &nativeEntry = crosstable.emplace_back ();
+
+                    std::istringstream ss (line);
+                    std::string        hashEntry;
+
+                    while (getline (ss, hashEntry, ' '))
+                        {
+                            nativeEntry.push_back (
+                                                   std::stoull (hashEntry, nullptr, 16));
+                        }
+
+                    if (tableWidth == -1)
+                        tableWidth = nativeEntry.size ();
+
+                    tableWidth
+                        = std::min (tableWidth, int (nativeEntry.size ()));
+                }
+
+            Rainbomizer::Logger::LogMessage ("Num natives in crosstable: %x", crosstable.size());
+            
+            // Convert crosstable vector to something the existing functions can read.
+            if (crosstable.size() == 0)
+                return;
+
+            Rainbomizer::Logger::LogMessage ("Native %llx -> %llx", crosstable[20][0], crosstable[20][1]);
+            
+            m_ScriptHookInfo.bAvailable = true;
+
+            auto tableMem
+                = std::make_unique<uint64_t[]> (crosstable.size () * tableWidth);
+
+            for (int i = 0; i < crosstable.size (); i++)
+                {
+                    memcpy (tableMem.get () + i * tableWidth,
+                            crosstable[i].data (), tableWidth * 8);
+                }
+
+            size_t verOffset
+                = 1;
+
+            m_ScriptHookInfo.bAvailable = true;
+
+            Rainbomizer::Logger::LogMessage ("Table width: %d (%llx -> %llx)", verOffset, tableMem.get()[20*tableWidth + 1], tableMem.get()[20*tableWidth]);
+            
+            InitialiseNativeCmdsFromTable (tableMem.get (), tableWidth,
+                                           verOffset, crosstable.size());
+            InitialiseNativeHooks ();
+        }
+    else
+        {
+            Rainbomizer::Logger::LogMessage ("Crossmap.txt file not found or ScriptHook available");
         }
 }
 

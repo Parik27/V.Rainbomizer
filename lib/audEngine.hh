@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <rage.hh>
 #include <cstdint>
 #include <cstddef>
@@ -171,6 +172,15 @@ struct audMetadataChunk
                       + m_pObjectMap[index].m_nObjectOffset);
     }
 
+    uint32_t
+    FindObjectHashFromOffset (uint32_t offset)
+    {
+        for (uint32_t i = 0; i < m_nObjectMapSize; i++)
+            if (m_pObjectMap[i].m_nObjectOffset == offset)
+                return m_pObjectMap[i].m_nObjectName;
+        return -1;
+    }
+
     bool
     DoesObjectExist (uint32_t name)
     {
@@ -226,6 +236,21 @@ struct audMetadataMgr
     FindObjectPtr (audMetadataRef ref)
     {
         return (T *) FindObjectPtr (ref);
+    }
+
+    uint32_t
+    FindObjectHashFromOffset (uint32_t offset)
+    {
+        if ((offset & 0xffffff) == 0xffffff)
+            return -1;
+
+        for (auto &i : Chunks)
+            {
+                uint32_t hash = i.FindObjectHashFromOffset (offset);
+                if (hash != -1)
+                    return hash;
+            }
+        return -1;
     }
 
     // CRITICAL_SECTION m_Mutex;
