@@ -2,7 +2,6 @@
 #include "Parser.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
-#include "common/logger.hh"
 #include <cstdint>
 #include <stdexcept>
 #include <stdio.h>
@@ -60,8 +59,6 @@ ParserUtils::FindFieldPtr (parStructureStaticData *data, void *ptr,
 
             if (!data)
                 {
-                    Rainbomizer::Logger::LogMessage ("Failed to find field: %x",
-                                                     hash);
                     return nullptr;
                 }
 

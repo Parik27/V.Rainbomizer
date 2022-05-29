@@ -1,3 +1,4 @@
+#ifdef MUSIC
 #include "ModUtils/Trampoline.h"
 #include "Patterns/Patterns.hh"
 #include "imgui.h"
@@ -150,3 +151,4 @@ public:
 music
 #endif
     ;
+#endif
