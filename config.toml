@@ -23,6 +23,7 @@
 [Randomizers]
 
 RainbomizerCredits = true
+RainbomizerNews = true
 
 CarGeneratorRandomizer = true
 ClothesRandomizer = true

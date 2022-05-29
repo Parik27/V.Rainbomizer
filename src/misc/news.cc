@@ -1,5 +1,6 @@
 #include <common/config.hh>
 
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 
 #include "common/logger.hh"
@@ -25,21 +26,11 @@ class NewsRandomizer
                 if (strstr (prefix, "/news/"))
                     {
                         buff = out;
-                        strncpy (buff, "news.rainbomizer.com", outLen);
+                        strncpy (buff, "news.parik.eu.org/3.3", outLen);
                     }
             }
 
         return buff;
-    }
-
-    /*******************************************************/
-    template <auto &rage__formatf>
-    static void
-    MoveCloudCache (char *out, int len, char *format, char *, char *file)
-    {
-        static std::string s_CachePath
-            = Rainbomizer::Common::GetRainbomizerFileName ("", "cloudcache/");
-        rage__formatf (out, len, format, s_CachePath.c_str (), file);
     }
 
 public:
@@ -48,15 +39,13 @@ public:
         if (!ConfigManager::ReadConfig ("RainbomizerNews"))
             return;
 
+        char *cloudPath = hook::get_pattern<char> (
+            "63 6c 6f 75 64 5f 25 30 31 36 49 36 34 78 2e 64 61 74 00");
+
+        if (cloudPath)
+            strcpy (cloudPath, "rbcld_%016I64x.dat");
+
         REGISTER_HOOK ("41 b8 80 00 00 00 ? 8b ce e8 ? ? ? ? ? 8b f8 ", 9,
                        SetRainbowDomain, char *, char *, char *, uint32_t);
-
-        REGISTER_HOOK (
-            "0f 44 ca 41 8b d0 ? 8d 05 ? ? ? ? e8 ? ? ? ? ? 83 c4 38 c3 ", 13,
-            MoveCloudCache, void, char *, int, char *, const char *, char *);
     }
-}
-#ifdef BUILD_NEWS_RANDOMIZER
-news
-#endif
-    ;
+} news;

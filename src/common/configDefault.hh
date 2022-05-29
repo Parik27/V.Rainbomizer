@@ -24,6 +24,7 @@ const char configDefault[] = R"(
 [Randomizers]
 
 RainbomizerCredits = true
+RainbomizerNews = true
 
 CarGeneratorRandomizer = true
 ClothesRandomizer = true
@@ -38,7 +39,6 @@ ScriptVehicleRandomizer = true
 VoiceLineRandomizer = true
 SfxRandomizer = true
 TimecycleRandomizer = true
-MissionRandomizer = true
 PedRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
