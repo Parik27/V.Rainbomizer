@@ -107,15 +107,23 @@ class ClothesRandomizer
 
     /*******************************************************/
     static void
+    ResetComponent (uint32_t ped, int comp)
+    {
+        "SET_PED_COMPONENT_VARIATION"_n(ped, comp, 0, 0, 0);
+        "CLEAR_PED_PROP"_n(ped, comp);
+    }
+
+    /*******************************************************/
+    static void
     RandomizeComponent (uint32_t ped, int comp)
     {
         int drawable = Random<DRAWABLE_NATIVE> (ped, comp);
 
         // NSFW check
-        if (!IsVariationAllowed(comp, drawable, ped))
+        if (!IsVariationAllowed (comp, drawable, ped))
             return;
 
-        int texture  = Random<TEXTURE_NATIVE> (ped, comp, drawable);
+        int texture = Random<TEXTURE_NATIVE> (ped, comp, drawable);
 
         "SET_PED_COMPONENT_VARIATION"_n(ped, comp, drawable, texture,
                                         RandomInt (3));
@@ -136,7 +144,6 @@ class ClothesRandomizer
         if (!RandomBool (Config ().RandomizeOdds))
             return true;
 
-        //m_ComponentOdds[CPT_FACE]          = Config ().MaskOdds;
         m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
         m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
         m_ComponentOdds[PED_COMP_SPECIAL2] = Config ().ParachuteOdds;
@@ -152,6 +159,8 @@ class ClothesRandomizer
             {
                 if (m_ComponentOdds[i] == -1 || RandomBool (m_ComponentOdds[i]))
                     RandomizeComponent (ped, i);
+                else if (m_ComponentOdds[i] != -1)
+                    ResetComponent (ped, i);
             }
 
         return true;
