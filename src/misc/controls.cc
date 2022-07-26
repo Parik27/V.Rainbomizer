@@ -433,7 +433,7 @@ class ControlsRandomizer
         SWAP_NONE,
         SWAP_HORIZONTAL,
         SWAP_ALL
-    } sm_InputSwapPreset = SWAP_HORIZONTAL;
+    } sm_InputSwapPreset = SWAP_NONE;
 
     static void
     AdjustControls (ControlSettings *settings)
@@ -442,26 +442,26 @@ class ControlsRandomizer
         if (sm_InputSwapPreset == SWAP_HORIZONTAL)
             {
                 InputsToSwap = {
-                    // {"INPUT_MOVE_LEFT_ONLY"_joaat,
-                    //              "INPUT_MOVE_RIGHT_ONLY"_joaat},
-                    //             {"INPUT_SCALED_LOOK_LEFT_ONLY"_joaat,
-                    //              "INPUT_SCALED_LOOK_RIGHT_ONLY"_joaat},
-                    //             {"INPUT_LOOK_LEFT_ONLY"_joaat,
-                    //              "INPUT_LOOK_RIGHT_ONLY"_joaat},
-                    //             {"INPUT_VEH_MOVE_LEFT_ONLY"_joaat,
-                    //              "INPUT_VEH_MOVE_RIGHT_ONLY"_joaat},
+                    {"INPUT_MOVE_LEFT_ONLY"_joaat,
+                                 "INPUT_MOVE_RIGHT_ONLY"_joaat},
+                                {"INPUT_SCALED_LOOK_LEFT_ONLY"_joaat,
+                                 "INPUT_SCALED_LOOK_RIGHT_ONLY"_joaat},
+                                {"INPUT_LOOK_LEFT_ONLY"_joaat,
+                                 "INPUT_LOOK_RIGHT_ONLY"_joaat},
+                                {"INPUT_VEH_MOVE_LEFT_ONLY"_joaat,
+                                 "INPUT_VEH_MOVE_RIGHT_ONLY"_joaat},
                     {"INPUT_VEH_FLY_YAW_LEFT"_joaat,
                      "INPUT_VEH_FLY_YAW_RIGHT"_joaat},
 
-                    // {"INPUT_VEH_FLY_ROLL_LEFT_ONLY"_joaat,
-                    //  "INPUT_VEH_FLY_ROLL_RIGHT_ONLY"_joaat},
-                    // {"INPUT_VEH_SUB_TURN_LEFT_ONLY"_joaat,
-                    //  "INPUT_VEH_SUB_TURN_RIGHT_ONLY"_joaat},
+                    {"INPUT_VEH_FLY_ROLL_LEFT_ONLY"_joaat,
+                     "INPUT_VEH_FLY_ROLL_RIGHT_ONLY"_joaat},
+                    {"INPUT_VEH_SUB_TURN_LEFT_ONLY"_joaat,
+                     "INPUT_VEH_SUB_TURN_RIGHT_ONLY"_joaat},
                     {"INPUT_VEH_SUB_TURN_HARD_LEFT"_joaat,
                      "INPUT_VEH_SUB_TURN_HARD_RIGHT"_joaat},
 
-                    // {"INPUT_PARACHUTE_TURN_LEFT_ONLY"_joaat,
-                    //  "INPUT_PARACHUTE_TURN_RIGHT_ONLY"_joaat
+                    {"INPUT_PARACHUTE_TURN_LEFT_ONLY"_joaat,
+                     "INPUT_PARACHUTE_TURN_RIGHT_ONLY"_joaat}
                 };
             }
         else if (sm_InputSwapPreset == SWAP_ALL)
@@ -539,13 +539,13 @@ class ControlsRandomizer
     AdjustControls4 (CControls *p1)
     {
         O (p1);
-        p1->GetIoValue (INPUT_LOOK_LR)->fMultiplier           = -1;
-        p1->GetIoValue (INPUT_MOVE_LR)->fMultiplier           = -1;
-        p1->GetIoValue (INPUT_SCALED_LOOK_LR)->fMultiplier    = -1;
-        p1->GetIoValue (INPUT_VEH_MOVE_LR)->fMultiplier       = -1;
-        p1->GetIoValue (INPUT_VEH_FLY_ROLL_LR)->fMultiplier   = -1;
-        p1->GetIoValue (INPUT_VEH_SUB_TURN_LR)->fMultiplier   = -1;
-        p1->GetIoValue (INPUT_PARACHUTE_TURN_LR)->fMultiplier = -1;
+        //p1->GetIoValue (INPUT_LOOK_LR)->fMultiplier           = -1;
+        //p1->GetIoValue (INPUT_MOVE_LR)->fMultiplier           = -1;
+        //p1->GetIoValue (INPUT_SCALED_LOOK_LR)->fMultiplier    = -1;
+        //p1->GetIoValue (INPUT_VEH_MOVE_LR)->fMultiplier       = -1;
+        //p1->GetIoValue (INPUT_VEH_FLY_ROLL_LR)->fMultiplier   = -1;
+        //p1->GetIoValue (INPUT_VEH_SUB_TURN_LR)->fMultiplier   = -1;
+        //p1->GetIoValue (INPUT_PARACHUTE_TURN_LR)->fMultiplier = -1;
     }
 
     static void
@@ -557,6 +557,14 @@ class ControlsRandomizer
         sm_InputSwapPreset = SWAP_NONE;
     }
 
+    template <auto& O>
+    static void
+    DelayControls ()
+    {
+        Sleep (1000);
+        O ();
+    }
+
 public:
     ControlsRandomizer ()
     {
@@ -565,34 +573,37 @@ public:
                       "39 05 ? ? ? ? 74 ? 89 05 ? ? ? ? e8 ? ? ? ?", 14),
                   ReloadControls);
 
-        // REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-        //                "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-        //                0, AdjustControls2, void, CControls *, ControlSettings *,
-        //                int);
+        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
+                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
+                       0, AdjustControls2, void, CControls *, ControlSettings
+                       *, int);
 
-        // REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-        //                "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-        //                18, AdjustControls2, void, CControls *,
-        //                ControlSettings *, int);
+        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
+                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
+                       18, AdjustControls2, void, CControls *,
+                       ControlSettings *, int);
 
-        // REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-        //                "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-        //                33, AdjustControls, void, CControls *,
-        //                ControlSettings *);
+        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
+                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
+                       33, AdjustControls, void, CControls *,
+                       ControlSettings *);
 
-        // REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-        //                "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-        //                48, AdjustControls, void, CControls *,
-        //                ControlSettings*);
+        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
+                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
+                       48, AdjustControls, void, CControls *,
+                       ControlSettings*);
 
-        REGISTER_HOOK (
-            "72 ? ? 8b ce e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8d ? ? ? ? ? ?", 5,
-            AdjustControls4, void, CControls *);
+        // REGISTER_HOOK ("eb ? ? 8b 0d ? ? ? ? ba 01 00 00 00 e8 ? ? ? ? e8 ? ? ? ?",
+        //                19, DelayControls, void);
 
-        REGISTER_MH_HOOK_BRANCH (
-            "e8 ? ? ? ? bf fc ff ff ff ? 8d ? ? ? ? ? ? 8b ce ", 0,
-            AdjustControls3, void, CControls *, const char *, bool,
-            ControlSettings *);
+        // REGISTER_HOOK (
+        //     "72 ? ? 8b ce e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8d ? ? ? ? ? ?", 5,
+        //     AdjustControls4, void, CControls *);
+
+        // REGISTER_MH_HOOK_BRANCH (
+        //     "e8 ? ? ? ? bf fc ff ff ff ? 8d ? ? ? ? ? ? 8b ce ", 0,
+        //     AdjustControls3, void, CControls *, const char *, bool,
+        //     ControlSettings *);
 
         // REGISTER_MH_HOOK_BRANCH (
         //     "e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
@@ -601,5 +612,4 @@ public:
 
         NativeManager::AddNative (0xC00510201122022, SetControlSwapState);
     }
-};
-//controls;
+} controls;
