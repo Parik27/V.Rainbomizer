@@ -186,15 +186,15 @@ class ClothesRandomizer
     }
 
     /*******************************************************/
-    template <auto &CPed__GetComponentVariation>
-    static void
-    ChangeClothesEvent (CPed *p1, uint32_t p2, uint8_t p3, uint32_t *p4,
-                        uint32_t *p5)
+    template <auto &CPed__SetClothes>
+    static bool
+    ChangeClothesEvent (CPed *p1, uint32_t p2, uint32_t p3, uint32_t p4,
+                        uint32_t p5, uint32_t p6, uint32_t p7, bool p8)
     {
         if (!m_CurrentlyRandomizing)
             Queue::Add (p1);
 
-        CPed__GetComponentVariation (p1, p2, p3, p4, p5);
+        return CPed__SetClothes (p1, p2, p3, p4, p5, p6, p7, p8);
     }
 
     /*******************************************************/
@@ -253,8 +253,10 @@ public:
 
         "SET_PED_COMPONENT_VARIATION"_n.Hook ([] (scrThread::Info *info) {});
         "SET_PED_PROP_INDEX"_n.Hook ([] (scrThread::Info *info) {});
-        
-        REGISTER_HOOK ("89 44 ? ? e8 ? ? ? ? ? 8b ? ? ? 8b ? ? ? 8d ? ? ? 81 c2", 4,
-                       ChangeClothesEvent, void, CPed*, uint32_t, uint8_t, uint32_t*, uint32_t*);
+
+        REGISTER_MH_HOOK_BRANCH (
+            "83 64 ? ? 00 89 44 ? ? 8b ? ? ? 8b cb 89 44 ? ? e8 ? ? ? ? ", 19,
+            ChangeClothesEvent, bool, CPed *, uint32_t, uint32_t, uint32_t,
+            uint32_t, uint32_t, uint32_t, bool)
     }
 } g_ClothesRandomizer;
