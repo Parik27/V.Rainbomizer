@@ -234,7 +234,7 @@ class ScriptVehicleRandomizer
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "
                         "%.2f %s",
-                        scrThread::GetActiveThread ()->m_szScriptName,
+                        scrThread::GetActiveThread ()->GetName (),
                         scrThread::GetActiveThread ()->m_Context.m_nIp, hash,
                         CStreaming::GetModelByHash<CVehicleModelInfo> (hash)
                             ->GetGameName (),

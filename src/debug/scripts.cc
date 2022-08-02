@@ -299,7 +299,7 @@ class TTDFile
         char MagicNumber[] = "RBTTD";
         fwrite (MagicNumber, 1, sizeof (MagicNumber), m_File);
 
-        fwrite (thread->m_szScriptName, 1, 64, m_File);
+        fwrite (thread->GetName (), 1, 64, m_File);
         fwrite (&thread->m_Context.m_nThreadId, 4, 1, m_File);
         fwrite (&thread->m_pStack, 8, 1, m_File);
 
@@ -343,7 +343,7 @@ class TTDFile
             return;
 
         m_File = Rainbomizer::Common::GetRainbomizerFile (
-            fmt::format ("{}_{}.{}.ttd", thread->m_szScriptName,
+            fmt::format ("{}_{}.{}.ttd", thread->GetName (),
                          thread->m_Context.m_nThreadId, time (nullptr)),
             "wb", "ttd/");
 
@@ -368,7 +368,7 @@ public:
             return true;
 
         Rainbomizer::Logger::LogMessage ("Starting capture thread: %s",
-                                         thread->m_szScriptName);
+                                         thread->GetName ());
 
         if (CFlowOnly)
             m_eState = CAPTURING_CFLOW;
@@ -594,7 +594,7 @@ class TimeTravelDebugInterface : public DebugInterface
                         m_Files.erase (ctx->m_nScriptHash);
                         Rainbomizer::Logger::LogMessage (
                             "Finished tracing thread: %s",
-                            scrThread::GetActiveThread ()->m_szScriptName);
+                            scrThread::GetActiveThread ()->GetName ());
                     }
             }
     }
