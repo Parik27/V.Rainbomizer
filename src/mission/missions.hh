@@ -75,6 +75,7 @@ public:
             bool        EnableFastSkips;
 
             std::string ForcedMission;
+            std::string ForcedOrder;
 
         } m_Config;
 

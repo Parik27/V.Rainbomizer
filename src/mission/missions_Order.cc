@@ -24,16 +24,22 @@ MissionRandomizer_OrderManager::GetSaveStructure ()
 }
 
 bool
-MissionRandomizer_OrderManager::Process (scrProgram *      program,
+MissionRandomizer_OrderManager::Process (scrProgram       *program,
                                          scrThreadContext *ctx)
 {
+    auto Initialise = [this] (uint32_t Seed) {
+        if (!MR::Config ().ForcedOrder.size ()
+            || !InitialiseMissionsMap (MR::Config ().ForcedOrder))
+            InitialiseMissionsMap (Seed);
+
+        Update_gMissions ();
+        bInitialised = true;
+    };
+
     if (program->m_nScriptHash == "initial"_joaat
         && ctx->m_nState == eScriptState::KILLED)
         {
-            InitialiseMissionsMap (GetSeed ());
-            Update_gMissions ();
-
-            bInitialised = true;
+            Initialise (GetSeed ());
         }
 
     if (program->m_nScriptHash == "flow_controller"_joaat && ctx->m_nIp == 0)
@@ -45,8 +51,7 @@ MissionRandomizer_OrderManager::Process (scrProgram *      program,
             uint32_t seed = static_cast<uint32_t> (
                 std::hash<std::string>{}(MR::Config ().Seed));
 
-            InitialiseMissionsMap (seed);
-            Update_gMissions ();
+            Initialise (seed);
         }
 #endif
 
@@ -65,6 +70,54 @@ MissionRandomizer_OrderManager::GetSeed ()
         *save = SaveStructure (configSeed == 0 ? randomSeed : configSeed);
 
     return MR::Config ().ForceSeedOnSaves ? configSeed : save->Seed;
+}
+
+bool
+MissionRandomizer_OrderManager::ValidateOrderString (std::string_view order)
+{
+    const int NUM_CHOICES = 4;
+
+    if (order.size () != MR::sm_Data.GetMissionDataMap ().size () + NUM_CHOICES)
+        return false;
+
+    for (int i = 0; i < order.size () - 4; i++)
+        {
+            if (order[i] < ORD_STRING_START || order[i] > ORD_STRING_END)
+                return false;
+        }
+
+    return true;
+}
+
+bool
+MissionRandomizer_OrderManager::InitialiseMissionsMap (std::string_view order)
+{
+    if (!ValidateOrderString (order))
+        {
+            Rainbomizer::Logger::LogMessage (
+                "Failed to validate order string: %s", order.data ());
+            return false;
+        }
+
+    auto &orderMap = MR::sm_Data.GetMissionOrderMap ();
+
+    for (unsigned int i = 0; i < orderMap.size (); i++)
+        {
+            m_MissionsMap[orderMap[i]]
+                = MR::sm_Data.GetMissionHashFromOrderChar (order[i]
+                                                           - ORD_STRING_START);
+        }
+
+    m_Choices.AgencyFiretruck = order[order.size () - 1] == '1';
+    m_Choices.DocksBlowUpBoat = order[order.size () - 2] == '1';
+    m_Choices.FinaleHeli      = order[order.size () - 3] == '1';
+    m_Choices.JewelStealth    = order[order.size () - 4] == '1';
+
+    Rainbomizer::Logger::LogMessage ("Mission Randomizer Initialised.");
+    Rainbomizer::Logger::LogMessage ("Applied Forced Order: %s",
+                                     GenerateOrderString ().c_str ());
+
+    return true;
 }
 
 void
@@ -110,6 +163,28 @@ MissionRandomizer_OrderManager::InitialiseMissionsMap (unsigned int seed)
     PRINT_CHOICE (JewelStealth, "JEWEL_STEALTH", "JEWEL_HIGH_IMPACT");
 
 #undef PRINT_CHOICE
+    
+    Rainbomizer::Logger::LogMessage ("Order String: %s",
+                                     GenerateOrderString ().c_str ());
+}
+
+std::string
+MissionRandomizer_OrderManager::GenerateOrderString ()
+{
+    std::string order;
+    auto       &orderMap = MR::sm_Data.GetMissionOrderMap ();
+
+    for (unsigned int i = 0; i < orderMap.size (); i++)
+        order += MR::sm_Data.GetOrderCharFromMissionHash (
+                     m_MissionsMap[orderMap[i]])
+                 + ORD_STRING_START;
+
+    order += m_Choices.JewelStealth ? '1' : '0';
+    order += m_Choices.FinaleHeli ? '1' : '0';
+    order += m_Choices.DocksBlowUpBoat ? '1' : '0';
+    order += m_Choices.AgencyFiretruck ? '1' : '0';
+
+    return order;
 }
 
 void
