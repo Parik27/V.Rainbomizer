@@ -23,6 +23,8 @@
 #include "debug/base.hh"
 #endif
 
+using namespace NativeLiterals;
+
 CEntity *(*CPools__GetAtEntity) (int);
 bool (*CVehicle__IsVehDriveable4137) (void *, bool, bool, bool);
 
@@ -34,8 +36,9 @@ class ScriptVehicleRandomizer
 
     RB_C_CONFIG_START
     {
-        bool        LogSpawnedVehicles = false;
-        std::string ForcedVehicle      = "";
+        bool        LogSpawnedVehicles   = false;
+        bool        FixBrokenHelicopters = true;
+        std::string ForcedVehicle        = "";
     }
     RB_C_CONFIG_END
 
@@ -231,7 +234,7 @@ class ScriptVehicleRandomizer
                         "{%s:%d}: Spawning %x (%s) instead of %x (%s) at %.2f "
                         "%.2f "
                         "%.2f %s",
-                        scrThread::GetActiveThread ()->m_szScriptName,
+                        scrThread::GetActiveThread ()->GetName (),
                         scrThread::GetActiveThread ()->m_Context.m_nIp, hash,
                         CStreaming::GetModelByHash<CVehicleModelInfo> (hash)
                             ->GetGameName (),
@@ -371,6 +374,22 @@ class ScriptVehicleRandomizer
         return true;
     }
 
+    /*******************************************************/
+    static void
+    FixBrokenHelicopters (scrThread::Info *info)
+    {
+        // 7 is the extra id for the entire tail (that causes helicopters to no
+        // longer be flyable). Last argument = 1 means that the extra is to be
+        // removed.
+        if (Config ().FixBrokenHelicopters
+            && "IS_THIS_MODEL_A_HELI"_n("GET_ENTITY_MODEL"_n(info->GetArg (0)))
+            && info->GetArg (1) == 7 && info->GetArg (2) == 1)
+            return;
+
+        "SET_VEHICLE_EXTRA"_n(info->GetArg (0), info->GetArg (1),
+                              info->GetArg (2));
+    }
+
 public:
     /*******************************************************/
     ScriptVehicleRandomizer ()
@@ -380,12 +399,14 @@ public:
     NativeCallbackMgr::Add<native##_joaat, func, false> ()
 
         RB_C_DO_CONFIG ("ScriptVehicleRandomizer", LogSpawnedVehicles,
-                        ForcedVehicle);
+                        ForcedVehicle, FixBrokenHelicopters);
 
         HOOK ("ATTACH_ENTITY_TO_ENTITY", FixFinaleHeistPrepdHelicopter);
         HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
         HOOK_A ("IS_VEHICLE_MODEL", RemoveTriathlonFailState);
         HOOK_A ("IS_PED_IN_MODEL", RemoveTriathlonFailState);
+
+        "SET_VEHICLE_EXTRA"_n.Hook (FixBrokenHelicopters);
 
         InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();

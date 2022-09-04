@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstdint>
 #include <string>
 
 enum class eScriptState : uint32_t
@@ -246,7 +247,8 @@ public:
     scrThreadContext m_Context;
     uint64_t *       m_pStack           = nullptr;
     uint8_t          field_0xb8[24]     = {0};
-    char             m_szScriptName[64] = {0}; // TODO: Move to GtaThread
+
+    char m_ScriptName[64] = {0};
 
     class Info
     {
@@ -353,6 +355,19 @@ public:
     GetActiveThread ()
     {
         return *sm_pActiveThread;
+    }
+
+    const char *
+    GetName ()
+    {
+        // Hacky Compatibility for b2699+ builds which have additional field
+        // before script name to store the hash.
+        uint32_t scriptHash = *reinterpret_cast<uint32_t *> (m_ScriptName);
+
+        if (scriptHash == m_Context.m_nScriptHash)
+            return &m_ScriptName[4];
+
+        return m_ScriptName;
     }
 
     static bool

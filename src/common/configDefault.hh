@@ -40,6 +40,7 @@ VoiceLineRandomizer = true
 SfxRandomizer = true
 TimecycleRandomizer = true
 PedRandomizer = true
+MissionRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
 RespawnRandomizer = true

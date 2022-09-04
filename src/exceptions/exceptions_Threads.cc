@@ -29,7 +29,7 @@ class ExceptionHandler_Threads : public ExceptionHandler
     void
     DumpStatics (scrThread *thread)
     {
-        FILE *f = Common::GetRainbomizerFile (thread->m_szScriptName
+        FILE *f = Common::GetRainbomizerFile (thread->GetName ()
                                                   + std::string (".stack.bin"),
                                               "w", "logs/threads/");
 
@@ -62,7 +62,7 @@ class ExceptionHandler_Threads : public ExceptionHandler
                     "%s %s, Hash: %x, SP: %x, IP: "
                     "%x, FSP: %x, State: %s",
                     thread == scrThread::GetActiveThread () ? "=>" : "  ",
-                    thread->m_szScriptName, thread->m_Context.m_nScriptHash,
+                    thread->GetName (), thread->m_Context.m_nScriptHash,
                     thread->m_Context.m_nSP, thread->m_Context.m_nIp,
                     thread->m_Context.m_nFrameSP,
                     GetStateName (thread->m_Context.m_nState));

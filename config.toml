@@ -39,6 +39,7 @@ VoiceLineRandomizer = true
 SfxRandomizer = true
 TimecycleRandomizer = true
 PedRandomizer = true
+MissionRandomizer = true
 HandlingRandomizer = false
 SwitchSceneRandomizer = false
 RespawnRandomizer = true
@@ -157,6 +158,8 @@ Seed = ""
 ForceSeedOnSaves = false
 
 ForcedMission = "" # All missions will start this instead of a random mission.
+
+ForcedOrder = "" # https://parik.eu.org/order.html
 
 EnableFastSkips = false # Mission skips will be enabled after failing the mission once. Useful for testing
 

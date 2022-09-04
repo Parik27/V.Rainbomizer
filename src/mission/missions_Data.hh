@@ -69,6 +69,7 @@ struct MissionData
 class MissionRandomizer_Data
 {
     std::map<uint32_t, MissionData> m_MissionData;
+    std::vector<uint32_t> m_MissionOrderMap; // Used to implement ForcedOrder
 
 public:
     bool
@@ -84,15 +85,40 @@ public:
     }
 
     const auto &
+    GetMissionOrderMap ()
+    {
+        return m_MissionOrderMap;
+    }
+    
+    const auto &
     GetMissionData (uint32_t hash)
     {
         return m_MissionData.at (hash);
+    }
+
+    uint32_t
+    GetMissionHashFromOrderChar (char ord)
+    {
+        if (ord < m_MissionOrderMap.size ())
+            return m_MissionOrderMap[ord];
+        return -1u;
+    }
+
+    uint32_t
+    GetOrderCharFromMissionHash (uint32_t hash)
+    {
+        for (unsigned int i = 0; i < m_MissionOrderMap.size (); i++)
+            if (m_MissionOrderMap[i] == hash)
+                return i;
+        return -1u;
     }
 
     MissionRandomizer_Data (FILE *file)
     {
         if (!file)
             return;
+
+        m_MissionOrderMap.clear ();
 
         char line[1024] = {0};
         while (fgets (line, 1024, file))
@@ -103,7 +129,11 @@ public:
                 // Read Mission Data
                 MissionData m;
                 if (m.Read (line))
-                    m_MissionData[rage::atStringHash (m.sName)] = m;
+                    {
+                        m_MissionData[rage::atStringHash (m.sName)] = m;
+                        m_MissionOrderMap.push_back (
+                            rage::atStringHash (m.sName));
+                    }
                 else
                     Rainbomizer::Logger::LogMessage (
                         "Error reading Missions.txt line: %s", line);

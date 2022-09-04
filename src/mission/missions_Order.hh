@@ -20,12 +20,21 @@ struct MissionInfo
 
 class MissionRandomizer_OrderManager
 {
+    char ORD_STRING_START = ',';
+    char ORD_STRING_END   = 'z';
+
     std::map<uint32_t, uint32_t> m_MissionsMap; // Original -> Randomized
 
     std::map<uint32_t, MissionInfo> m_MissionInfos;
     // To convert a gMissions index to original hash.
 
+    bool ValidateOrderString (std::string_view orderString);
+    
+    bool InitialiseMissionsMap (std::string_view orderString);
     void InitialiseMissionsMap (unsigned int seed);
+
+    std::string GenerateOrderString ();
+
     void Update_gMissions ();
 
     bool bInitialised = false;

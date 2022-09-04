@@ -1,0 +1,232 @@
+<!doctype html>
+<html>
+    <header>
+	<title>Mission Randomizer Order Editor</title>
+    </header>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+     body
+     {
+	 padding: 32px;
+	 background: white;
+     }
+
+     html
+     {
+	 background: blue;
+     }
+    </style>
+    
+    <script>
+     var missions = ["Cleaning Out the Bureau",
+		     "Architect's Plans",
+		     "The Bureau Raid (Covert)",
+		     "The Bureau Raid (Roof)",
+		     "Franklin and Lamar",
+		     "Repossession",
+		     "Complications",
+		     "The Bus Assassination",
+		     "The Construction Assassination",
+		     "The Vice Assassination",
+		     "The Multi Target Assassination",
+		     "The Hotel Assassination",
+		     "I Fought the Law...",
+		     "Eye in the Sky",
+		     "Deep Inside",
+		     "Pack Man",
+		     "Trevor Philips Industries",
+		     "Crystal Maze",
+		     "The Merryweather Heist (Freighter)",
+		     "The Merryweather Heist (Offshore)",
+		     "Minisub",
+		     "Cargobob",
+		     "Scouting the Port",
+		     "Minor Turbulence",
+		     "Predator",
+		     "Derailed",
+		     "Father/Son",
+		     "Daddy's Little Girl",
+		     "Marriage Counseling",
+		     "Fame or Shame",
+		     "Did Somebody Say Yoga?",
+		     "Reuniting the Family",
+		     "Dead Man Walking",
+		     "Three's Company",
+		     "By the Book",
+		     "Blitz Play",
+		     "Trash Truck",
+		     "Tow Truck",
+		     "Masks",
+		     "Boiler Suits",
+		     "Monkey Business",
+		     "Stingers",
+		     "Driller",
+		     "Sidetracked",
+		     "Surveying the Score",
+		     "The Big Score (Subtle)",
+		     "The Big Score (Obvious)",
+		     "Finale (Cutscene)",
+		     "Something Sensible",
+		     "The Time's Come",
+		     "The Third Way (Part 1)",
+		     "The Third Way (Part 2)",
+		     "Chop",
+		     "Hood Safari",
+		     "Lamar Down",
+		     "The Jewel Store Job",
+		     "Bugstars Equipment",
+		     "Carbine Rifles",
+		     "BZ Gas Grenades",
+		     "Casing the Jewel Store",
+		     "The Long Stretch",
+		     "Friend Request",
+		     "Caida Libre",
+		     "Bury the Hatchet",
+		     "Fresh Meat",
+		     "The Wrap Up",
+		     "Meltdown",
+		     "Prologue",
+		     "The Paleto Score",
+		     "Military Hardware",
+		     "Paleto Score Setup",
+		     "Mr. Richards",
+		     "The Ballad of Rocco",
+		     "Legal Trouble",
+		     "Mr. Philips",
+		     "Nervous Ron",
+		     "Friends Reunited",
+		     "Hang Ten"];
+
+     var choices = [true, true, true, true];
+     
+     function generateDefaultMissMap () {
+	 let arr = []
+	 for (let mission in missions) {
+	     arr[mission] = parseInt(mission);
+	 }
+	 return arr;
+     }
+
+     var missMap = generateDefaultMissMap ();
+     
+     function generateMissionsDataList (elem) {
+	 for (let mission in missions) {
+	     elem.append(`<option value="${mission}">${missions[mission]}</option>`);
+	 }
+	 return elem;
+     }
+
+     function updateMap(missId, value) {
+	 missMap[missId] = parseInt(value);
+	 updateOrderString();
+     }
+
+     function updateOrderString () {
+	 let str = ""
+	 for (let mission of missMap) {
+	     str += String.fromCharCode(parseInt(mission)+44);
+	 }
+	 str += $("#jewel").val();
+	 str += $("#finale").val();
+	 str += $("#docks").val();
+	 str += $("#agency").val();
+	 
+	 $("#generated").val(str);
+     }
+
+     function refreshMainDiv () {
+	 for (let mission in missMap) {
+	     $(`#selection_${mission}`).val(missMap[mission]);
+	 }
+     }
+     
+     function updateMissMapFromOrderString () {
+	 let orderStr = $("#generated").val();
+	 if (orderStr.length != missMap.length+4) {
+	     updateOrderString ();
+	     return;
+	 }
+
+	 for (let i = 0; i < orderStr.length-4; i++) {
+	     if (orderStr.charCodeAt (i) < 44 || orderStr.charCodeAt (i) >= 44 + missMap.length)
+	     {
+		 console.log(orderStr.charCodeAt(i));
+		 updateOrderString ();
+		 refreshMainDiv ();
+		 return;
+	     }
+
+	     missMap[i] = orderStr.charCodeAt (i) - 44;
+	 }
+
+	 $("#jewel").val(orderStr[missMap.length]);
+	 $("#finale").val(orderStr[missMap.length+1]);
+	 $("#docks").val(orderStr[missMap.length+2]);
+	 $("#agency").val(orderStr[missMap.length+3]);
+	 
+	 refreshMainDiv();
+     }
+
+     function generateMainDiv () {
+	 for (let mission in missions) {
+	     let row = $(`<tr></tr>`);
+	     row.append(`<td> ${mission}. </td>`);
+	     row.append(`<td> ${missions[mission]}</td>`);
+	     row.append($(`<td></td>`).append(generateMissionsDataList(
+		 $(`<select list="missions" id="selection_${mission}" onchange="updateMap(${mission},this.value)">`))));
+	     $('#main').append(row);
+	 }
+	 updateOrderString ();
+	 refreshMainDiv ();
+     }
+    </script>
+    
+    <body onload="generateMainDiv()">
+	<h2>Mission Randomizer - Order Editor</h2>
+	Generated order: <input style="width:78ch" id="generated" onchange="updateMissMapFromOrderString ()"></input>
+
+	<p>
+	  <table>  
+	      <tr>
+		  <td>Bureau Raid Approach: </td>
+		  <td>
+		      <select onchange="updateOrderString ()" id="agency">
+			  <option value="1">Covert</option>
+			  <option value="0">Roof</option>
+		      </select>
+		  </td>
+	      </tr>
+	      <tr>
+		  <td>Merryweather Heist Approach: </td>
+		  <td>
+		      <select onchange="updateOrderString ()" id="docks">
+			  <option value="1">Freighter</option>
+			  <option value="0">Offshore</option>
+		      </select>
+		  </td>
+	      </tr>
+	      <tr>
+		  <td>The Big Score Approach: </td>
+		  <td>
+		      <select onchange="updateOrderString ()" id="finale">
+			  <option value="0">Subtle</option>
+			  <option value="1">Obvious</option>
+		      </select>
+		  </td>
+	      </tr>
+	      <tr>
+		  <td>Jewelry Heist Approach: </td>
+		  <td>
+		      <select onchange="updateOrderString ()" id="jewel">
+			  <option value="0">Loud</option>
+			  <option value="1">Smart</option>
+		      </select>
+		  </td>
+	      </tr>
+	  </table>
+	<p>
+	    <table id="main">
+	    </table>
+	</p>
+    </body>
