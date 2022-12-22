@@ -44,6 +44,15 @@ public:
 
     template <typename O, typename F>
     static void
+    RegisterHookOperand (const std::string &pattern, int32_t off, O &origFunc,
+                         F hookedFunc, bool enable = true)
+    {
+        RegisterHook (GetRelativeReference (pattern, off, off + 4), origFunc,
+                      hookedFunc, enable);
+    }
+
+    template <typename O, typename F>
+    static void
     RegisterHookApi (const wchar_t *moduleName, const char *moduleProc,
                      O &origFunc, F hookedFunc, bool enable = true)
     {
@@ -70,6 +79,13 @@ public:
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         MinHookWrapper::HookBranchDestination (pattern, off, F, function<F>);  \
+    }
+
+/*******************************************************/
+#define REGISTER_MH_HOOK_OPERAND(pattern, off, function, ret, ...)             \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        MinHookWrapper::RegisterHookOperand (pattern, off, F, function<F>);    \
     }
 
 /*******************************************************/

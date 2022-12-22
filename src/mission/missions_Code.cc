@@ -47,16 +47,16 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleAB (YscUtilsOps &utils)
 
     utils.Init ("50 ? ? 6e 57 ? ? 2c ? ? ? 61 ? ? ? 59 ? ?");
     utils.NOP (/*Offset=*/0, /*Size=*/4);
-    utils.Write (/*Offset=*/4, YscOpCode::J);
+    utils.Write (/*Offset=*/4, utils.OpCode(J));
 
     utils.Init ("59 ? ? 2c ? ? ? 06 56 ? ? 43 88 13 2c 04 ? ? 2c ? ? ? 56");
     utils.NOP (/*Offset=*/0, /*Size=*/25);
 
     utils.Init ("2d 00 02 00 ? 2c ? ? ? 06 56 ? ? 6e 2c 04");
-    utils.Write (/*Offset=*/10, YscOpCode::J);
+    utils.Write (/*Offset=*/10, utils.OpCode (J));
 
     utils.Init ("5f ? ? ? 6e 57 ? ? 2c ? ? ? 61 ? ? ? 59 ? ?");
-    utils.Write (/*Offset=*/5, YscOpCode::J);
+    utils.Write (/*Offset=*/5, utils.OpCode (J));
 
     return true;
 }
@@ -65,7 +65,7 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleAB (YscUtilsOps &utils)
 bool
 MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
 {
-    static constexpr uint8_t j_0x24[] = {0x55, 0x16, 0x00};
+    static uint8_t j_0x24[] = {utils.OpCode (J), 0x16, 0x00};
 
     if (!utils.IsAnyOf ("finalec2"_joaat))
         return false;
@@ -74,7 +74,7 @@ MissionRandomizer_CodeFixes::ApplyCreditsFix_FinaleC2 (YscUtilsOps &utils)
     utils.WriteBytes (/*Offset=*/5, j_0x24);
 
     utils.Init ("5f ? ? ? 06 56 ? ? 2c ? ? ? 61");
-    utils.Write (/*Offset=*/5, YscOpCode::J);
+    utils.Write (/*Offset=*/5, utils.OpCode(J));
 
     utils.Init ("5a ? ? 43 88 13 2c 04 ? ? 2c ? ? ? 06 56 ? ? 6e 2c 04 ? ? 55");
     utils.NOP (/*Offset=*/0, /*Size=*/26);
@@ -94,9 +94,9 @@ MissionRandomizer_CodeFixes::ApplyTriggererWaitFix (YscUtilsOps &utils)
     // missions that wait for the triggerer, but you would need to go through
     // all the missions and find out which ones are broken.
 
-    static constexpr uint8_t return_1[] = {
-        0x6f,          // PUSH_CONST_1
-        0x2e, 0x1, 0x1 // LEAVE 0x1, 0x1
+    static uint8_t return_1[] = {
+        utils.OpCode (PUSH_CONST_1),   // PUSH_CONST_1
+        utils.OpCode (LEAVE), 0x1, 0x1 // LEAVE 0x1, 0x1
     };
 
     if (!MR::sm_Data.IsValidMission (utils.GetProgram ()->m_nScriptHash))
@@ -130,7 +130,7 @@ MissionRandomizer_CodeFixes::ApplyPrepNoRepeatFix (YscUtilsOps &utils)
         return false;
 
     utils.Init ("2d 00 03 00 ? 6e 5d ? ? ? 06 56 ? ? 5d ? ? ? 6f");
-    utils.Write (/*Offset=*/11, YscOpCode::J);
+    utils.Write (/*Offset=*/11, utils.OpCode(J));
 
     return true;
 }
@@ -208,7 +208,7 @@ MissionRandomizer_CodeFixes::ApplyReplayControllerFix (YscUtilsOps &utils)
         return false;
 
     uint8_t shellCode[]
-        = {uint8_t (YscOpCode::GLOBAL_U24_LOAD), 0x00, 0x00, 0x00};
+        = {utils.OpCode(GLOBAL_U24_LOAD), 0x00, 0x00, 0x00};
 
     utils.Init (
         "2d 00 ? ? ? 5d ? ? ? 56 ? ? 5e ? ? ? 40 ? 6e 5d ? ? ? 39 ? 38");

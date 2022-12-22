@@ -25,8 +25,13 @@ class YscUtils
 public:
     YscUtils (scrProgram *program) : m_pProgram (program){};
 
+    // Given a pattern, finds occurrances of it in the program and calls
+    // function CB with the pattern matches. If translate is true, it will
+    // convert the pattern from an old version pattern to support the latest
+    // version.
     void FindCodePattern (std::string_view                          pattern,
-                          std::function<void (hook::pattern_match)> CB);
+                          std::function<void (hook::pattern_match)> CB,
+                          bool translate = true);
 
     void FindString (const char *str, void (*CB) (char *));
 
@@ -46,6 +51,21 @@ public:
     GetProgram ()
     {
         return m_pProgram;
+    }
+
+    bool GetShouldTranslateOpcodes ()
+    {
+        return Rainbomizer::Logger::GetGameBuild() >= 2802;
+    }
+
+    // Translates version 1 opcodes to version 2 and above
+    uint8_t
+    OpCode (YscOpCode op)
+    {
+        if (op > YscOpCode::CALL && GetShouldTranslateOpcodes ())
+            return uint8_t (op) + 3;
+
+        return op;
     }
 
     /* Make sure the script doesn't call WAIT or a native that changes the
@@ -358,7 +378,7 @@ public:
 
     /* Initialise the UtilsOps to a certain pattern for further operations */
     void
-    Init (std::string_view pattern)
+    Init (std::string_view pattern, bool translate = true)
     {
         uint8_t *ptr = nullptr;
         FindCodePattern (pattern, [&ptr] (hook::pattern_match m) {

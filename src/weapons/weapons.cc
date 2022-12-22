@@ -119,10 +119,9 @@ class WeaponRandomizer
         for (auto &info : CWeaponInfoManager::sm_Instance->aItemInfos)
             {
                 static_assert ("cweaponinfo"_joaat == 0x861905b4);
-                uint32_t outHash = 0;
 
                 if (info->Model && !DoesElementExist (mExceptions, info->Name)
-                    && info->GetClassId (outHash) == "cweaponinfo"_joaat
+                    && info->GetClassId () == "cweaponinfo"_joaat
                     && IsValidWeapon (*static_cast<CWeaponInfo *> (info)))
                     {
                         mValidWeapons.push_back (info->Name);

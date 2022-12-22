@@ -363,9 +363,9 @@ class ScriptVehicleRandomizer
         if (!ops.IsAnyOf ("fanatic3"_joaat))
             return false;
 
-        static constexpr uint8_t return_1[] = {
-            0x6f,          // PUSH_CONST_1
-            0x2e, 0x1, 0x1 // LEAVE 0x1, 0x1
+        static uint8_t return_1[] = {
+            ops.OpCode (PUSH_CONST_1), // PUSH_CONST_1
+            0x2e, 0x1, 0x1             // LEAVE 0x1, 0x1
         };
 
         ops.Init ("2d 01 03 00 ? 38 ? 28 54 9c 77 43 08 ");

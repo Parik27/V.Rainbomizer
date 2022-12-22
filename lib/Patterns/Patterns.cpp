@@ -143,32 +143,37 @@ void pattern::Initialize(std::string_view pattern)
 	m_hash = fnv_1()(pattern);
 #endif
 
-	// transform the base pattern from IDA format to canonical format
-	TransformPattern(pattern, m_bytes, m_mask);
+	static FILE* file = fopen("patterns.txt", "w");
+        fprintf (file, "%s\n", pattern.data ());
+	fflush (file);
+
+        // transform the base pattern from IDA format to canonical format
+        TransformPattern (pattern, m_bytes, m_mask);
 
 #if PATTERNS_USE_HINTS
-	// if there's hints, try those first
+        // if there's hints, try those first
 #if PATTERNS_CAN_SERIALIZE_HINTS
-	if (m_rangeStart == reinterpret_cast<uintptr_t>(GetModuleHandle(nullptr)))
+        if (m_rangeStart
+            == reinterpret_cast<uintptr_t> (GetModuleHandle (nullptr)))
 #endif
-	{
-		auto range = getHints().equal_range(m_hash);
+            {
+                auto range = getHints ().equal_range (m_hash);
 
-		if (range.first != range.second)
-		{
-			std::for_each(range.first, range.second, [&] (const auto& hint)
-			{
-				ConsiderHint(hint.second);
-			});
+                if (range.first != range.second)
+                    {
+                        std::for_each (range.first, range.second,
+                                       [&] (const auto &hint) {
+                                           ConsiderHint (hint.second);
+                                       });
 
-			// if the hints succeeded, we don't need to do anything more
+                        // if the hints succeeded, we don't need to do anything more
 			if (!m_matches.empty())
 			{
 				m_matched = true;
 				return;
 			}
-		}
-	}
+                    }
+            }
 #endif
 }
 

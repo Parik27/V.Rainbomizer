@@ -1,15 +1,30 @@
 #include "missions_YscUtils.hh"
 #include <scrThread.hh>
 
+#include "common/logger.hh"
+
 /*******************************************************/
 void
 YscUtils::FindCodePattern (std::string_view pattern_str,
-                           std::function<void (hook::pattern_match)> CB)
+                           std::function<void (hook::pattern_match)> CB,
+                           bool                                      translate)
 {
     m_pProgram->ForEachCodePage ([&] (int, uint8_t *block, size_t size) {
         auto pattern
             = hook::make_range_pattern (uintptr_t (block),
                                         uintptr_t (block) + size, pattern_str);
+
+        // Translate patterns to new version
+        auto& bytes = pattern.getBytes ();
+        for (size_t offset = 0; translate && offset < bytes.size (); offset++)
+            {
+                auto instSize = scrThread::FindInstSize (bytes.data () + offset,
+                                                         bytes.size ());
+
+                bytes[offset] = OpCode (YscOpCode (bytes[offset]));
+
+                offset += instSize - 1;
+            }
 
         pattern.for_each_result (
             [CB] (hook::pattern_match match) { CB (match); });

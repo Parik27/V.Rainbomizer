@@ -148,10 +148,13 @@ class PedRandomizer_PlayerFixes
         if (!ops.IsAnyOf ("mission_triggerer_a"_joaat))
             return false;
 
-        uint8_t return_0x1[] = {0x6f, 0x2e, 0x00, 0x01};
+        static uint8_t return_1[] = {
+            ops.OpCode (PUSH_CONST_1),   // PUSH_CONST_1
+            ops.OpCode (LEAVE), 0x0, 0x1 // LEAVE 0x0, 0x1
+        };
 
         ops.Init ("2d 00 03 00 ? 2c ? ? ? ? 5d ? ? ? 39 02 38 02 6e");
-        ops.WriteBytes (/*Offset=*/5, return_0x1);
+        ops.WriteBytes (/*Offset=*/5, return_1);
 
         return true;
     }
@@ -163,11 +166,14 @@ class PedRandomizer_PlayerFixes
         if (!ops.IsAnyOf ("michael4"_joaat))
             return false;
 
-        uint8_t return_0x1[] = {0x6f, 0x2e, 0x03, 0x01};
+        static uint8_t return_1[] = {
+            ops.OpCode (PUSH_CONST_1),   // PUSH_CONST_1
+            ops.OpCode (LEAVE), 0x3, 0x1 // LEAVE 0x0, 0x1
+        };
 
         ops.Init ("26 0c 10 5d ? ? ? 06 56 ? ? 28 c9 14 71 0d");
         ops.FollowBranchDestination (/*Offset=*/3);
-        ops.WriteBytes (/*Offset=*/5, return_0x1);
+        ops.WriteBytes (/*Offset=*/5, return_1);
 
         return true;
     }

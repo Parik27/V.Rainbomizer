@@ -174,6 +174,22 @@ RegisterHook (const std::string &pattern, int offset, F hookedFunc)
 }
 
 /*******************************************************/
+template<typename F, typename O>
+void
+RegisterHookOperand (const std::string &pattern, int offset, F hookedFunc, O& originalFunc)
+{
+    hook::pattern p (pattern);
+    auto result = p.get_one ();
+
+    injector::WriteMemory (originalFunc, result.get<char> (offset + 4)
+                                             + *result.get<int32_t> (offset));
+
+    *result.get<int32_t> (offset)
+        = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
+        ->Jump (hookedFunc) - result.get<char>(offset + 4);
+}
+
+/*******************************************************/
 void RegisterJmpHook (void *addr, void *dst, void **outOrignal, int size);
 
 template <int size, typename F, typename O>
@@ -252,6 +268,12 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         RegisterHook (pattern, offset, F, function<F>);                        \
+    }
+
+#define REGISTER_HOOK_OPERAND(pattern, offset, function, ret, ...)             \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterHookOperand (pattern, offset, F, function<F>);                 \
     }
 
 /*******************************************************/

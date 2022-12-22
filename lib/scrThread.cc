@@ -1,6 +1,7 @@
 #include "scrThread.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
+#include <cstdint>
 #include <utility>
 #include <array>
 #include <sstream>
@@ -198,23 +199,22 @@ scrThread::FindCurrentFunctionBounds (scrProgram *program)
 
 /*******************************************************/
 uint16_t
-scrThread::FindInstSize (scrProgram *program, uint32_t offset)
+scrThread::FindInstSize(uint8_t* bytes, int64_t bytesLen)
 {
-    auto getByteAt = [program] (uint32_t offset) -> uint8_t & {
-        return program->GetCodeByte<uint8_t> (offset);
-    };
-
-    uint8_t  opcode = getByteAt (offset);
+    uint8_t  opcode = bytes[0];
     uint16_t size   = 1;
 
     auto params = mOpcodes[opcode].second;
     for (size_t i = 0; i < strlen (params); ++i)
         {
+            if (bytesLen != -1 && size >= bytesLen)
+                return 0xFFFF;
+
             switch (params[i])
                 {
-                case '$': size += getByteAt (offset + size) + 1; break;
+                case '$': size += bytes[size] + 1; break;
                 case 'R': size += 2; break;
-                case 'S': size += getByteAt (offset + size) * 6 + 1; break;
+                case 'S': size += bytes[size] * 6 + 1; break;
                 case 'a': size += 3; break;
                 case 'b': size += 1; break;
                 case 'd':
@@ -225,6 +225,13 @@ scrThread::FindInstSize (scrProgram *program, uint32_t offset)
         }
 
     return size;
+}
+
+/*******************************************************/
+uint16_t
+scrThread::FindInstSize (scrProgram *program, uint32_t offset)
+{
+    return FindInstSize(&program->GetCodeByte<uint8_t>(offset));
 }
 
 #ifdef ENABLE_DEBUG_SERVER

@@ -8,8 +8,8 @@
 #ifndef NDEBUG
 #define RAINBOMIZER_BUILD "Debug Build: " __DATE__ " " __TIME__
 #else
-#define RAINBOMIZER_BUILD "Release v3.3.1: " __DATE__ " " __TIME__
-#define RAINBOMIZER_BUILD_SHORT "Release v3.3.1"
+#define RAINBOMIZER_BUILD "Release v3.3.3: " __DATE__ " " __TIME__
+#define RAINBOMIZER_BUILD_SHORT "Release v3.3.3"
 #endif
 
 constexpr int RAINBOMIZER_BUILD_NUMBER =
@@ -25,6 +25,8 @@ char *(*rage__formatf6eb9) (char *, char const *, ...);
 #endif
 
 namespace Rainbomizer {
+
+static uint32_t sg_GameBuild = 0;
 
 /*******************************************************/
 std::string
@@ -91,6 +93,12 @@ Logger::LogMessage (const char *format, ...)
     fflush (file);
 }
 
+uint32_t
+Logger::GetGameBuild ()
+{
+    return sg_GameBuild;
+}
+
 /*******************************************************/
 class DisplayBuildVersion
 {
@@ -99,6 +107,9 @@ class DisplayBuildVersion
                         char *version)
     {
 #ifndef NDEBUG
+        sg_GameBuild = std::stoi (version);
+        Logger::LogMessage("Set Game Build to %d", sg_GameBuild);
+
         return rage__formatf6eb9 (out, "Rainbomizer Build %d   Build %s",
                                   RAINBOMIZER_BUILD_NUMBER + 1, version);
 #else

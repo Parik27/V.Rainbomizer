@@ -32,7 +32,7 @@ audEngine::InitialisePatterns ()
         "? 8d 2d ? ? ? ? ? 8b f0 85 d2 74 ? ", 3, 7);
 
     ConvertCall (hook::get_pattern (
-                     "8d 42 01 ? 8b c9 a9 fe ff ff ff 75 ? 33 c0"),
+                     "8d ? ? ? 8b ? a9 fe ff ff ff 75 ? 33 ? c3 "),
                  audMetadataManager_GetObjectByRef);
 
     ConvertCall (hook::get_pattern (

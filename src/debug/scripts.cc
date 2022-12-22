@@ -617,7 +617,7 @@ public:
     TimeTravelDebugInterface ()
     {
         InitialiseAllComponents ();
-        InitialisePerOpcodeHook ();
+        //InitialisePerOpcodeHook ();
     }
 };
 

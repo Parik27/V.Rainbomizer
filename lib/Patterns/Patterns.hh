@@ -101,6 +101,17 @@ namespace hook
 		}
 
 	public:
+
+		auto& getMask ()
+		{
+			return m_mask;
+		}
+
+		auto& getBytes ()
+		{
+			return m_bytes;
+		}
+
 		pattern(std::string_view pattern)
 			: hook::pattern(getRVA(0))
 		{

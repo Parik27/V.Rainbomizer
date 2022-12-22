@@ -105,8 +105,8 @@ class RespawnRandomizer
 
         if (Config ().MiddleOfNowhere)
             {
-                ops.Write (16, YscOpCode::PUSH_CONST_0);
-                ops.Write (17, YscOpCode::NOP);
+                ops.Write (16, ops.OpCode (PUSH_CONST_0));
+                ops.Write (17, ops.OpCode (NOP));
             }
 
         sm_Initialised = true;
@@ -135,7 +135,7 @@ class RespawnRandomizer
         else
             {
                 ops.Init (m_Offsets[0].Switch);
-                ops.Write (16, YscOpCode::PUSH_CONST_U8);
+                ops.Write (16, ops.OpCode(PUSH_CONST_U8));
                 ops.Write (17, RandomInt (6));
             }
     }

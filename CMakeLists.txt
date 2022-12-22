@@ -32,7 +32,6 @@ file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
   lib/Patterns/*.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES} )
-add_library(Mirrored SHARED lib/Patterns/Patterns.cpp lib/ParserUtils.cc src/misc/mirrored.cc)
 
 if (ENABLE_DEBUG_MENU)
   include(cmake/DebugImgui.cmake)
@@ -41,8 +40,5 @@ endif()
 # Properties
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".asi")
 target_link_libraries(${PROJECT_NAME} PUBLIC dbghelp minhook)
-
-target_link_libraries(Mirrored PUBLIC minhook)
-target_compile_definitions(Mirrored PUBLIC NOMINMAX)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC NOMINMAX)

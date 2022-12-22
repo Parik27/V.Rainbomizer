@@ -13,42 +13,39 @@ class SwitchSceneRandomizer
         if (!utils.IsAnyOf ("player_controller_b"_joaat))
             return false;
 
-        static constexpr uint8_t SHELL_CODE[]
+        static uint8_t SHELL_CODE[]
             = {// PUSH_CONST_0
-               uint8_t (YscOpCode::PUSH_CONST_0),
+               utils.OpCode (PUSH_CONST_0),
 
                // PUSH_CONST_S16 314 (total number of thingies)
-               uint8_t (YscOpCode::PUSH_CONST_S16), 0x3a, 0x1,
+               utils.OpCode (PUSH_CONST_S16), 0x3a, 0x1,
 
                // NATIVE (GET_RANDOM_INT_IN_RANGE)
-               uint8_t (YscOpCode::NATIVE), 0x2, 0x0, 0x0,
+               utils.OpCode (NATIVE), 0x2, 0x0, 0x0,
 
                // LOCAL_U8_LOAD 0x4
-               uint8_t (YscOpCode::LOCAL_U8_LOAD), 0x1,
+               utils.OpCode (LOCAL_U8_LOAD), 0x1,
 
                // STORE
-               uint8_t (YscOpCode::STORE),
+               utils.OpCode (STORE),
 
                // PUSH_CONST_FM1
-               uint8_t (YscOpCode::PUSH_CONST_FM1),
+               utils.OpCode (PUSH_CONST_FM1),
 
                // LOCAL_U8_LOAD 0x8
-               uint8_t (YscOpCode::LOCAL_U8_LOAD), 0x2,
+               utils.OpCode (LOCAL_U8_LOAD), 0x2,
 
                // STORE
-               uint8_t (YscOpCode::STORE),
+               utils.OpCode (STORE),
 
                // PUSH_CONST_1
-               uint8_t (YscOpCode::PUSH_CONST_1),
+               utils.OpCode (PUSH_CONST_1),
 
                // LEAVE 0x6, 0x1
-               uint8_t (YscOpCode::LEAVE), 0x6, 0x1};
+               utils.OpCode (LEAVE), 0x6, 0x1};
 
         constexpr uint32_t NATIVE_OPCODE_OFFSET = 4;
         constexpr uint32_t NATIVE_OPCODE_SIZE   = 4;
-
-        static_assert (SHELL_CODE[NATIVE_OPCODE_OFFSET] == YscOpCode::NATIVE,
-                       "Native Opcode Offset Incorrect");
 
         // // Generate dynamic shellcode
         uint8_t shellCode[sizeof (SHELL_CODE)];

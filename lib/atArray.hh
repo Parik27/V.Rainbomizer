@@ -97,6 +97,15 @@ struct atArrayGetSizeWrapper
     uint16_t Size;
     uint16_t Capacity;
 
+    atArrayGetSizeWrapper () = default;
+
+    atArrayGetSizeWrapper (uint8_t *data, uint16_t size)
+    {
+        this->Data     = *reinterpret_cast<decltype (this->Data) *> (&data);
+        this->Size     = size;
+        this->Capacity = size;
+    }
+
     constexpr Iterator
     end ()
     {

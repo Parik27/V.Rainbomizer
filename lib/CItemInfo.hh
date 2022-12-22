@@ -3,6 +3,8 @@
 #include <cstdint>
 #include "ParserUtils.hh"
 
+#include <common/logger.hh>
+
 class CItemInfo
 {
 public:
@@ -12,14 +14,12 @@ public:
     uint32_t Audio;
     uint32_t Slot;
 
+private:
     virtual void Destructor ();
     virtual bool GetIsClassId (uint32_t hash);
 
     // virtual uint32_t* GetClassId (); (older versions)
-    virtual uint32_t &GetClassId (uint32_t &out);
-
-    // Do not use the following virtual functions for compatibility reasons.
-    //*******************************************************
+    virtual uint32_t *_GetClassId (uint32_t *out);
 
     // Not present in older versions of GTA V
     virtual uint32_t *_GetBaseClassId (uint32_t &out);
@@ -29,7 +29,19 @@ public:
 
     virtual parStructure *_parser_GetStructure ();
 
+public:
     //*******************************************************
+    uint32_t
+    GetClassId ()
+    {
+        uint32_t tmp;
+
+        // Later versions return hash directly
+        if (Rainbomizer::Logger::GetGameBuild () >= 2802)
+            return static_cast<uint32_t> (uintptr_t (_GetClassId (nullptr)));
+        else
+            return *_GetClassId(&tmp);
+    }
 };
 
 class CAmmoInfo : public ParserWrapper<CAmmoInfo>, public CItemInfo

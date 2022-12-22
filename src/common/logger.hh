@@ -12,6 +12,8 @@ class Logger
 
 public:
     static void LogMessage (const char *format, ...);
+
+    static uint32_t GetGameBuild ();
 };
 
 } // namespace Rainbomizer

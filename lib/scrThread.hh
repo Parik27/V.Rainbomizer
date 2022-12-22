@@ -394,6 +394,7 @@ public:
 
     scrProgram *GetProgram ();
 
+    static uint16_t    FindInstSize (uint8_t* code, int64_t size = -1);
     static uint16_t    FindInstSize (scrProgram *program, uint32_t offset);
     static std::string DisassemblInsn (scrProgram *program, uint32_t offset);
 

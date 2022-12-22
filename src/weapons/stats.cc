@@ -104,10 +104,9 @@ public:
 
                 std::uint32_t hash;
                 if (sample)
-                    sm_ItemInfoRandomizer.AddSample (i, i->GetClassId (hash));
+                    sm_ItemInfoRandomizer.AddSample (i, i->GetClassId ());
                 else
-                    sm_ItemInfoRandomizer.RandomizeObject (i, i->GetClassId (
-                                                                  hash));
+                    sm_ItemInfoRandomizer.RandomizeObject (i, i->GetClassId ());
             }
 
         return true;

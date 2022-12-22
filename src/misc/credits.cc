@@ -1,9 +1,13 @@
+#include "Patterns/Patterns.hh"
+#include "atArray.hh"
 #include <common/config.hh>
 #include <common/logger.hh>
+#include <common/minhook.hh>
 
 #include <Utils.hh>
 #include <cstdint>
 
+#include <memory>
 #include <utility>
 #include <vector>
 #include <array>
@@ -12,32 +16,45 @@
 
 class CText;
 
+struct CreditItem
+{
+    eCreditLineType type;
+    std::string     title;
+};
+
 static std::array g_RainbomizerCreditsList
-    = {CCreditItem{eCreditLineType::JOB_BIG, "Rainbomizer"},
-       CCreditItem{eCreditLineType::SPACE_BIG},
-       CCreditItem{eCreditLineType::JOB_MED, "Lead Developer"},
-       CCreditItem{eCreditLineType::NAME_BIG, "Parik"},
-       CCreditItem{eCreditLineType::SPACE_MED},
-       CCreditItem{eCreditLineType::JOB_MED, "Major Contributors"},
-       CCreditItem{eCreditLineType::NAME_BIG, "Fryterp23"},
-       CCreditItem{eCreditLineType::NAME_BIG, "123robot"},
-       CCreditItem{eCreditLineType::SPACE_MED},
-       CCreditItem{eCreditLineType::JOB_MED, "Beta Testers"},
-       CCreditItem{eCreditLineType::NAME_BIG, "Gibstack"},
-       CCreditItem{eCreditLineType::NAME_BIG, "Hugo_One"},
-       CCreditItem{eCreditLineType::NAME_BIG, "mo_xi"},
-       CCreditItem{eCreditLineType::NAME_BIG, "SpeedyFolf"},
-       CCreditItem{eCreditLineType::SPACE_MED},
-       CCreditItem{eCreditLineType::SPACE_BIG}};
+    = {CreditItem{eCreditLineType::JOB_BIG, "Rainbomizer"},
+       CreditItem{eCreditLineType::SPACE_BIG},
+       CreditItem{eCreditLineType::JOB_MED, "Lead Developer"},
+       CreditItem{eCreditLineType::NAME_BIG, "Parik"},
+       CreditItem{eCreditLineType::SPACE_MED},
+       CreditItem{eCreditLineType::JOB_MED, "Major Contributors"},
+       CreditItem{eCreditLineType::NAME_BIG, "Fryterp23"},
+       CreditItem{eCreditLineType::NAME_BIG, "123robot"},
+       CreditItem{eCreditLineType::SPACE_MED},
+       CreditItem{eCreditLineType::JOB_MED, "Beta Testers"},
+       CreditItem{eCreditLineType::NAME_BIG, "Gibstack"},
+       CreditItem{eCreditLineType::NAME_BIG, "Hugo_One"},
+       CreditItem{eCreditLineType::NAME_BIG, "mo_xi"},
+       CreditItem{eCreditLineType::NAME_BIG, "SpeedyFolf"},
+       CreditItem{eCreditLineType::SPACE_MED},
+       CreditItem{eCreditLineType::SPACE_BIG}};
 
 class RainbomizerCredits
 {
     class NewCredits
     {
-        CCreditItem *            pOrigArrData = 0;
-        uint32_t                 nOrigArrSize = 0;
-        uint32_t                 nOrigArrCapa = 0;
-        std::vector<CCreditItem> aNewArray;
+        uint8_t *pOrigArrData = 0;
+        uint32_t nOrigArrSize = 0;
+        uint32_t nOrigArrCapa = 0;
+
+        std::unique_ptr<uint8_t[]> pCreditItemData;
+        atArrayGetSizeWrapper<CCreditItem> aEditedCredits;
+
+        auto GetCreditItems ()
+        {
+            return CCreditArray::sm_Instance->GetCreditItems();
+        }
 
     public:
         NewCredits (){};
@@ -45,7 +62,23 @@ class RainbomizerCredits
         bool
         ShouldRegenerate ()
         {
-            return nOrigArrSize != CCreditArray::sm_Instance->CreditItems.Size;
+            return nOrigArrSize != GetCreditItems ().Size;
+        }
+
+        size_t
+        GetTotalCreditLinesAfterEditing ()
+        {
+            return g_RainbomizerCreditsList.size () + GetCreditItems ().Size;
+        }
+
+        void
+        ResetEditedCreditsData (size_t size)
+        {
+            pCreditItemData
+                = std::make_unique<uint8_t[]> (size * CCreditItem::GetSize ());
+
+            aEditedCredits
+                = decltype (aEditedCredits) (pCreditItemData.get (), size);
         }
 
         void
@@ -54,56 +87,71 @@ class RainbomizerCredits
             if (!ShouldRegenerate ())
                 return;
 
-            aNewArray.clear ();
-
-            if (CCreditArray::sm_Instance->CreditItems.Size == 0)
+            if (GetCreditItems().Size == 0)
                 return;
 
-            for (const auto &i : g_RainbomizerCreditsList)
-                aNewArray.push_back (i);
+            ResetEditedCreditsData (GetTotalCreditLinesAfterEditing ());
+            auto &arr = aEditedCredits;
 
-            for (const auto &i : CCreditArray::sm_Instance->CreditItems)
-                aNewArray.push_back (i);
+            size_t idx = 0;
+            for (const auto &i : g_RainbomizerCreditsList)
+                {
+                    arr[idx] = CCreditArray::sm_Instance->GetCreditItems ()[3];
+
+                    arr[idx].Get<eCreditLineType> ("LineType"_joaat) = i.type;
+
+                    if (Rainbomizer::Logger::GetGameBuild () >= 2802)
+                        arr[idx].Get<bool> ("bLiteral"_joaat) = true;
+
+                    arr[idx].Get<atString> ("cTextId1"_joaat)
+                        = i.title.c_str ();
+
+                    idx++;
+                }
+
+            for (const auto &i : CCreditArray::sm_Instance->GetCreditItems ())
+                {
+                    arr[idx] = i;
+                    idx++;
+                }
         }
 
         void
         Replace ()
         {
-            auto &arr = CCreditArray::sm_Instance->CreditItems;
+            auto &arr = CCreditArray::sm_Instance->GetCreditItems();
 
-            pOrigArrData = std::exchange (arr.Data, aNewArray.data ());
-            nOrigArrSize = std::exchange (arr.Size, aNewArray.size ());
+            pOrigArrData
+                = std::exchange (*reinterpret_cast<uint8_t **> (&arr.Data),
+                                 pCreditItemData.get ());
+
+            nOrigArrSize = std::exchange (arr.Size, aEditedCredits.Size);
             nOrigArrCapa = std::exchange (arr.Capacity, arr.Size);
         }
 
         void
         Restore ()
         {
-            auto &arr    = CCreditArray::sm_Instance->CreditItems;
-            arr.Data     = pOrigArrData;
-            arr.Size     = nOrigArrSize;
-            arr.Capacity = nOrigArrCapa;
+            auto &arr    = CCreditArray::sm_Instance->GetCreditItems();
+
+            *reinterpret_cast<uint8_t **> (&arr.Data) = pOrigArrData;
+            arr.Size                                  = nOrigArrSize;
+            arr.Capacity                              = nOrigArrCapa;
         }
     };
 
     inline static NewCredits sm_NewCredits;
 
-    template <auto &EnterCriticalSection_92>
+    template <auto &CCredits__Draw>
     static void
-    ReplaceCreditsArray (void *section)
+    ReplaceCreditsArray (bool a1)
     {
-        EnterCriticalSection_92 (section);
-
         sm_NewCredits.Regenerate ();
         sm_NewCredits.Replace ();
-    }
 
-    template <auto &LeaveCriticalSection_93>
-    static void
-    RestoreCreditsArray (void *section)
-    {
+        CCredits__Draw (a1);
+
         sm_NewCredits.Restore ();
-        LeaveCriticalSection_93 (section);
     }
 
     template <auto &CText__GetText>
@@ -119,10 +167,9 @@ class RainbomizerCredits
     }
 
     void
-    InitialiseFixJobTitleHooks ()
+    InitialiseFixJobTitleHooks (std::string_view pattern)
     {
-        hook::pattern p ("74 ? ? 8b 54 03 08 eb ? ? 8d 15 ? ? ? ? ? 8d 0d ? ? "
-                         "? ? e8 ? ? ? ?");
+        hook::pattern p (pattern);
 
         using CText_GetText_Prototype = char *(*) (CText *, char *);
         static CText_GetText_Prototype orig;
@@ -133,6 +180,7 @@ class RainbomizerCredits
     }
 
 public:
+
     RainbomizerCredits ()
     {
         if (!ConfigManager::ReadConfig ("RainbomizerCredits"))
@@ -140,14 +188,17 @@ public:
 
         InitialiseAllComponents ();
 
-        REGISTER_HOOK ("8a d9 0f 29 ? ? ? 8d 0d ? ? ? ? 0f 29 ? ? e8 ? ? ? ?",
-                       17, ReplaceCreditsArray, void, void *);
+        REGISTER_MH_HOOK_OPERAND (
+            "? 8d ? ? ? ? ? 33 ? ? 88 ? ? e8 ? ? ? ? ? 8d ? ? ? ? "
+            "? 33 ? e8 ? ? ? ? ? 8d ? ? ? 8d ? ? ? ? ?",
+            3, ReplaceCreditsArray, void, bool);
 
-        InitialiseFixJobTitleHooks ();
+        InitialiseFixJobTitleHooks (
+            "74 ? ? 8b 54 18 28 eb ? ? 8d 15 ? ? ? ? ? 8d 0d ? ? ? ? e8 ? ? ? "
+            "? eb ? 66 39 ? ? ? ");
 
-        REGISTER_HOOK_JMP (
-            "8d 0d ? ? ? ? ? 8d ? ? ? 01 00 00 ? 8b ? ? 41 0f 28 ? ? 41 0f 28 "
-            "? ? ? 8b e3 41 5f 41 5e 41 5d 41 5c 5f 5e 5d e9",
-            42, RestoreCreditsArray, void, void *);
+        InitialiseFixJobTitleHooks (
+            "74 ? ? 8b 54 03 08 eb ? ? 8d 15 ? ? ? ? ? 8d 0d ? ? "
+            "? ? e8 ? ? ? ?");
     }
 } _rbcredits;

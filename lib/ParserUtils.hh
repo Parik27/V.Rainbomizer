@@ -214,6 +214,18 @@ protected:
 public:
     using Type = Class;
 
+    ParserWrapper () = default;
+    ParserWrapper (const ParserWrapper &other)
+    {
+        memcpy (this, &other, GetSize ());
+    }
+
+    void
+    operator= (const ParserWrapper &other)
+    {
+        memcpy (this, &other, GetSize ());
+    }
+
     inline static constexpr uint32_t
     GetHash ()
     {
@@ -285,5 +297,11 @@ public:
     GetSize ()
     {
         return GetStaticData ()->Structure->nSize;
+    }
+
+    void
+    CopyTo (uint8_t *out)
+    {
+        memcpy (out, this, GetSize ());
     }
 };
