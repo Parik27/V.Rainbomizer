@@ -106,10 +106,10 @@ class DisplayBuildVersion
     AppendBuildVersion (char *out, char const *format, char *build,
                         char *version)
     {
-#ifndef NDEBUG
         sg_GameBuild = std::stoi (version);
         Logger::LogMessage("Set Game Build to %d", sg_GameBuild);
 
+#ifndef NDEBUG
         return rage__formatf6eb9 (out, "Rainbomizer Build %d   Build %s",
                                   RAINBOMIZER_BUILD_NUMBER + 1, version);
 #else
