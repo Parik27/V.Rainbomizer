@@ -143,10 +143,6 @@ void pattern::Initialize(std::string_view pattern)
 	m_hash = fnv_1()(pattern);
 #endif
 
-	static FILE* file = fopen("patterns.txt", "w");
-        fprintf (file, "%s\n", pattern.data ());
-	fflush (file);
-
         // transform the base pattern from IDA format to canonical format
         TransformPattern (pattern, m_bytes, m_mask);
 
