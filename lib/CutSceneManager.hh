@@ -4,6 +4,8 @@
 #include <CMath.hh>
 #include <rage.hh>
 
+#include <common/logger.hh>
+
 struct cutfObject;
 struct cutfNamedObject;
 struct cutfModelObject;
@@ -87,10 +89,20 @@ struct cutfObject
     uint8_t              field_0x37;
     void *               cutfAttributes;
 
+    cutfObject__vftable*
+    GetVft ()
+    {
+        // Additional 6 functions in vftable in 2802+ because of vft changes
+        if (Rainbomizer::Logger::GetGameBuild () >= 2802)
+            return (cutfObject__vftable*)(uintptr_t(vft)+8*6);
+
+        return vft;
+    }
+
     inline eCutfObjectType
     GetType ()
     {
-        return vft->GetType (this);
+        return GetVft()->GetType (this);
     }
 };
 
