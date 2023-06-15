@@ -16,7 +16,7 @@ std::set<uint32_t>
 VehicleRandomizerHelper::GetLoadedVehSet ()
 {
     std::set<uint32_t> cars;
-    auto               groups = CStreaming::sm_Instance;
+    auto               groups = CStreaming::GetModelSets();
 
     groups->mAppropriateCarsSet.for_each (
         [&cars] (int val) { cars.insert (val); });

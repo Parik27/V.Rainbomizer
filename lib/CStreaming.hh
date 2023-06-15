@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common/logger.hh"
 #include <CModelInfo.hh>
 
 struct modelInfoArray
@@ -46,27 +47,48 @@ public:
 };
 
 // + CStreaming_Population
+
+class CStreamingModelSets
+{
+public:
+    CModelList mAppropriateCarsSet;
+    CModelList mInappropriateCarsSet;
+    CModelList mSpecialVehiclesSet;
+    CModelList mBoatsSet;
+    CModelList mMultiplayerAppropriateSet;
+    CModelList mVehiclesSet6;
+    bool       m_bSpawnBoats;
+    uint8_t    field_0x4501;
+    uint8_t    field_0x4502;
+    uint8_t    field_0x4503;
+    CModelList mAppropriatePedsSet;
+    CModelList mInAppropriatePedsSet;
+    CModelList mCopsSet;
+    CModelList mMultiplayerPedsSet;
+    CModelList mPedsSet5;
+};
+
 class CStreaming
 {
 public:
-    CStreaming_LoadedModel mLoadedModels[480];
-    CModelList             mAppropriateCarsSet;
-    CModelList             mInappropriateCarsSet;
-    CModelList             mSpecialVehiclesSet;
-    CModelList             mBoatsSet;
-    CModelList             mMultiplayerAppropriateSet;
-    CModelList             mVehiclesSet6;
-    bool                   m_bSpawnBoats;
-    uint8_t                field_0x4501;
-    uint8_t                field_0x4502;
-    uint8_t                field_0x4503;
-    CModelList             mAppropriatePedsSet;
-    CModelList             mInAppropriatePedsSet;
-    CModelList             mCopsSet;
-    CModelList             mMultiplayerPedsSet;
-    CModelList             mPedsSet5;
-    int                    field_0x5904;
-    int                    field_0x5908;
+    union
+    {
+
+        struct // and above
+        {
+            CStreaming_LoadedModel mLoadedModels[576];
+            CStreamingModelSets    mModelSets;
+            int                    field_0x5d04;
+            int                    field_0x5d08;
+        } b2944;
+
+        struct {
+            CStreaming_LoadedModel mLoadedModels[480];
+            CStreamingModelSets    mModelSets;
+            int                    field_0x5904;
+            int                    field_0x5908;
+        };
+    };
 
     static void InitialisePatterns ();
 
@@ -77,6 +99,13 @@ public:
 
     static CBaseModelInfo *GetModelAndIndexByHash (uint32_t  hash,
                                                    uint32_t &outIndex);
+
+    static CStreamingModelSets* GetModelSets()
+    {
+        if (Rainbomizer::Logger::GetGameBuild() >= 2944)
+            return &sm_Instance->b2944.mModelSets;
+        return &sm_Instance->mModelSets;
+    }
 
     static inline uint32_t
     GetModelIndex (uint32_t hash)

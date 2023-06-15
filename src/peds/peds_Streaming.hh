@@ -90,7 +90,7 @@ class PedRandomizer_Streaming
     PopulateLoadedPedsSet (std::set<uint32_t> &peds, bool includeNsfw,
                            bool includePlayers = true)
     {
-        auto groups = CStreaming::sm_Instance;
+        auto groups = CStreaming::GetModelSets();
 
         // Add loaded peds
         groups->mAppropriatePedsSet.for_each (
