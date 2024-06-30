@@ -29,7 +29,7 @@ void
 audEngine::InitialisePatterns ()
 {
     audSpeechManager::sm_MetadataMgr = GetRelativeReference<audMetadataMgr> (
-        "? 8d 2d ? ? ? ? ? 8b f0 85 d2 74 ? ", 3, 7);
+        "? 8d 0d ? ? ? ? 8b d0 e8 ? ? ? ? ? 85 c0 74 ? 33 c9 ", 3, 7);
 
     ConvertCall (hook::get_pattern (
                      "8d ? ? ? 8b ? a9 fe ff ff ff 75 ? 33 ? c3 "),
