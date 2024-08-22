@@ -10,6 +10,7 @@
 #include <common/mods.hh>
 
 #include <scrThread.hh>
+#include <Random.hh>
 
 #include "CModelInfo.hh"
 #include "Utils.hh"
@@ -89,10 +90,12 @@ class PedRandomizer
             return model;
 
         // Forced Ped
-        if (!PR::Config ().ForcedPed.empty ())
+        PR::Config ().ForcedPedHashes = PR::Config ().ForcedPed;
+        if (!PR::Config ().ForcedPedHashes.Get ().empty ())
             {
                 uint32_t id = CStreaming::GetModelIndex (
-                    rage::atStringHash (PR::Config ().ForcedPed));
+                    PR::Config ().ForcedPedHashes.Get ()[ 0, RandomInt(PR::Config()
+                    .ForcedPedHashes.Get ().size () - 1) ]);
 
                 if (CStreaming::HasModelLoaded (id))
                     return id;
@@ -185,7 +188,6 @@ public:
     /*******************************************************/
     PedRandomizer ()
     {
-        std::string ForcedPed;
 #define OPTION(option) std::pair (#option, &PR::Config ().option)
 
         if (!ConfigManager::ReadConfig (
@@ -198,10 +200,6 @@ public:
                 OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible),
                 OPTION (OddsOfPlayerModels)))
             return;
-
-        if (PR::Config ().ForcedPed.size ())
-            PR::Config ().ForcedPedHash
-                = rage::atStringHash (PR::Config ().ForcedPed);
 
         InitialiseAllComponents ();
 
