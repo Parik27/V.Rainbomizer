@@ -5,6 +5,7 @@
 
 #include "CModelInfo.hh"
 #include "ParserUtils.hh"
+#include "common/minhook.hh"
 #include "mission/missions_YscUtils.hh"
 #include "peds_Compatibility.hh"
 
@@ -210,13 +211,10 @@ public:
         // Hook to reset the saved player model during saving to make sure
         // you don't get a random player on loading without Rainbomizer and
         // (more importantly) to prevent softlocks and crashes this causes.
-        // Pattern from Robot (don't insert u word here)
-        REGISTER_JMP_HOOK (12,
-                           "? 89 5c ? ? 55 56 57 41 54 41 55 41 56 41 57 ? 8d "
-                           "? ? d9 ? 81 ec 90 00 00 00 ? 8b ? ? ? ? ? 33 f6 ? "
-                           "8b f1 ? 8b ? ? ? 85 ff 0f 84 ? ? ? ? ? 8b",
-                           0, FixSavedPlayerModel, void,
-                           CPlayerPedSaveStructure *);
+        // Pattern from Parik (don't insert u word here)
+        REGISTER_MH_HOOK_BRANCH (
+            "89 ? c8 00 00 00 eb ? ? 8b ? ? 8b c8 ? 89 ? e8 ? ? ? ? ", 17,
+            FixSavedPlayerModel, void, CPlayerPedSaveStructure *);
 
         // This patch enables phone models for all ped models
         injector::MakeNOP (
