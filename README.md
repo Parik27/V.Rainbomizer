@@ -3,7 +3,9 @@
 
 # Rainbomizer: V 🌈
 
-<a href="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg"> <img src="https://media.discordapp.net/attachments/806946194433376296/835847069511188490/20210425131911_1.jpg?width=933&height=513"></a>
+<p align="center">
+  <a href="https://ibb.co/t4YmNQk"><img src="https://i.ibb.co/f2r1KqB/image.png" alt="image" border="0"></a>
+</p>
 
 A modification for Grand Theft Auto V that randomizes various aspects of the game from vehicles and sounds to missions and weapons.
 <hr>
