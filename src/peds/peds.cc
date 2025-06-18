@@ -196,7 +196,7 @@ public:
                 OPTION (EnableAnimalMotionFixes), OPTION (EnableAnimalFixes),
                 OPTION (EnablePlayerFixes), OPTION (EnableMainFixes),
                 OPTION (EnableNoLowBudget), OPTION (EnableBlipsAlwaysVisible),
-                OPTION (OddsOfPlayerModels)))
+                OPTION (OddsOfPlayerModels), OPTION (RandomizePeds)))
             return;
 
         if (PR::Config ().ForcedPed.size ())

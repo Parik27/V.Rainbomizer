@@ -88,7 +88,7 @@ public:
     Initialise (bool peds, bool vehs)
     {
         sm_RandomizePeds = peds ? true : sm_RandomizePeds;
-        sm_RandomizeVehs = peds ? true : sm_RandomizeVehs;
+        sm_RandomizeVehs = vehs ? true : sm_RandomizeVehs;
 
         if (peds || vehs)
             {
