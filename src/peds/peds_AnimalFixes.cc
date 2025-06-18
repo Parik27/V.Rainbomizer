@@ -109,9 +109,14 @@ PedRandomizer_AnimalFixes::FixLadderClimbAsAnimal ()
         0x66, 0x0f, 0x6e, 0xc0        // movd   xmm0,eax
     };
 
-    void *ptr = hook::get_pattern (
+    auto pattern = hook::pattern (
         "f3 0f 10 40 64 8a 42 0c fe c8 3c 01 0f 96 ? f6 d9 ? 1b c0 ? 23 c2 "
         "f3 0f 5c 40 40 f3 0f 58 f8 ");
+
+    if (pattern.size())
+        return;
+
+    void* ptr = pattern.get_first();
     injector::MakeNOP (ptr, 28);
     injector::WriteMemoryRaw (ptr, xmm0_0p57, sizeof (xmm0_0p57), true);
 }
