@@ -112,7 +112,8 @@ VehicleModelInfoCacheMgr::InitCache ()
     if (!cacheFile || !ReadCacheFile (cacheFile))
         GenerateCache ();
 
-    fclose (cacheFile);
+    if (cacheFile)
+        fclose (cacheFile);
 }
 
 /*******************************************************/
