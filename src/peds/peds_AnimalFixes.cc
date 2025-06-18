@@ -113,7 +113,7 @@ PedRandomizer_AnimalFixes::FixLadderClimbAsAnimal ()
         "f3 0f 10 40 64 8a 42 0c fe c8 3c 01 0f 96 ? f6 d9 ? 1b c0 ? 23 c2 "
         "f3 0f 5c 40 40 f3 0f 58 f8 ");
 
-    if (pattern.size())
+    if (!pattern.size())
         return;
 
     void* ptr = pattern.get_first();
