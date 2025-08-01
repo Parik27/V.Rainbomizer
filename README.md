@@ -50,7 +50,7 @@ Features
 <span id="installation"></span>
 ## Installation
 
-Rainbomizer requires an **ASI-Loader** to function. It works with **all** versions of the game. Additionally, you require **ScriptHook** for certain features.
+Rainbomizer requires an **ASI-Loader** to function. Additionally, you require **ScriptHook** for certain features. All versions of GTA V Legacy are supported, however older versions of the game may require the Car Generator Randomizer and the Credits Randomizer to be disabled. **The Enhanced edition is not supported**
 
 1. Install **ScriptHook** (includes an ASI Loader) from [here](http://www.dev-c.com/gtav/scripthookv)
 2. Download Rainbomizer from [Releases](https://github.com/Parik27/V.Rainbomizer/releases) and **extract the archive** to the root directory of GTA V. 
