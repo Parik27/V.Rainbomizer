@@ -53,7 +53,7 @@ class RainbomizerCredits
 
         auto GetCreditItems ()
         {
-            return CCreditArray::sm_Instance->GetCreditItems();
+            return CCreditArray::sm_Instance->GetCreditItems ();
         }
 
     public:

@@ -205,9 +205,15 @@ public:
     {
         NativeManager::HookNative (hash, func);
     }
+
+    void
+    Disable ()
+    {
+        NativeManager::HookNative (hash, [] (scrThread::Info *) {});
+    }
 };
 
-inline NativeWrapper operator"" _n (char const *s, size_t len)
+inline NativeWrapper operator""_n (char const *s, size_t len)
 {
     return NativeWrapper (
         rage::atLiteralStringHash (std::string_view (s, len)));

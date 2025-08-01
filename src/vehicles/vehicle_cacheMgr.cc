@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 const uint32_t CacheVersion = 1;
+std::unique_ptr<VehicleModelInfoCacheMgr> VehicleModelInfoCacheMgr::sm_Instance;
 
 /*******************************************************/
 bool

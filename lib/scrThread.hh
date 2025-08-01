@@ -201,6 +201,12 @@ struct scrProgram
         return *(T *) &(m_pCodeBlocks[offset / PAGE_SIZE][offset % PAGE_SIZE]);
     }
 
+    uint32_t
+    GetPageSizeLeft (uint32_t offset)
+    {
+        return PAGE_SIZE - (offset % PAGE_SIZE);
+    }
+
     static inline int
     GetTotalPages (uint32_t size)
     {

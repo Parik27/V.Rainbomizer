@@ -11,7 +11,7 @@
 class VehicleModelInfoCacheMgr
 {
     std::unordered_map<uint32_t, Vector3>                   mBoundsCache;
-    static inline std::unique_ptr<VehicleModelInfoCacheMgr> sm_Instance;
+    static std::unique_ptr<VehicleModelInfoCacheMgr>        sm_Instance;
 
 public:
     void GenerateCache ();

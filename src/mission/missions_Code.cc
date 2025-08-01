@@ -129,8 +129,13 @@ MissionRandomizer_CodeFixes::ApplyPrepNoRepeatFix (YscUtilsOps &utils)
     if (!utils.IsAnyOf ("replay_controller"_joaat))
         return false;
 
+    uint8_t shellCode[]
+        = {utils.OpCode(PUSH_CONST_1), utils.OpCode(LEAVE), 0x0, 0x1};
+
     utils.Init ("2d 00 03 00 ? 6e 5d ? ? ? 06 56 ? ? 5d ? ? ? 6f");
-    utils.Write (/*Offset=*/11, utils.OpCode(J));
+    utils.WriteBytes (/*Offset=*/5, shellCode);
+
+    //utils.Write (/*Offset=*/11, utils.OpCode(J));
 
     return true;
 }
@@ -166,13 +171,13 @@ MissionRandomizer_CodeFixes::ApplySolomonCamFix (YscUtilsOps &utils)
         return false;
 
     utils.Init ("5d ? ? ? 2c ? ? ? 51 ? ? 50");
-    auto nopEnd = utils.Get<uint8_t> (11);
+    auto nopEnd = utils.GetWorkingIp () + 11;
 
     utils.Init ("29 00 00 48 42 6e 70 2c");
-    utils.NOP (/*Offset=*/7, /*Size=*/nopEnd - utils.Get<uint8_t> (7));
+    utils.NOP (/*Offset=*/7, /*Size=*/nopEnd - utils.GetWorkingIp() + 7);
 
     Rainbomizer::Logger::LogMessage ("solomon1 nop size: %d",
-                                     nopEnd - utils.Get<uint8_t> (7));
+                                     nopEnd - utils.GetWorkingIp() + 7);
 
     return true;
 }

@@ -33,6 +33,10 @@ public:
                           std::function<void (hook::pattern_match)> CB,
                           bool translate = true);
 
+    void FindCodePattern (std::string_view               pattern,
+                          std::function<void (uint32_t)> CB,
+                          bool                           translate = true);
+
     void FindString (const char *str, void (*CB) (char *));
 
     template <typename... Args>
@@ -371,7 +375,7 @@ public:
 class YscUtilsOps : public YscUtils
 {
     bool     bOperationFailed = false;
-    uint8_t *pPatternResult   = nullptr;
+    uint32_t nPatternResultIp   = -1u;
 
 public:
     using YscUtils::YscUtils;
@@ -380,29 +384,24 @@ public:
     void
     Init (std::string_view pattern, bool translate = true)
     {
-        uint8_t *ptr = nullptr;
-        FindCodePattern (pattern, [&ptr] (hook::pattern_match m) {
-            if (!ptr)
-                ptr = m.get<uint8_t> (0);
-        });
-
-        pPatternResult = ptr;
+        nPatternResultIp = -1u;
+        FindCodePattern (pattern, [this] (uint32_t match) {
+            if (nPatternResultIp == -1u)
+                nPatternResultIp = match;
+        }, translate);
     }
 
     /* Initialise the UtilsOps to a certain pattern for further operations */
     void
     Init (uint32_t ip)
     {
-        uint8_t *ptr   = &GetProgram ()->GetCodeByte<uint8_t> (ip);
-        pPatternResult = ptr;
+        nPatternResultIp = ip;
     }
 
     uint32_t
     GetWorkingIp ()
     {
-        if (pPatternResult)
-            return GetCodeOffset (pPatternResult);
-        return -1u;
+        return nPatternResultIp;
     }
 
     /* Reinitialises the UtilsOps to the branch destination at offset of stored
@@ -414,8 +413,7 @@ public:
             {
                 // Absolute offset
             case YscOpCode::CALL:
-                pPatternResult = &GetProgram ()->GetCodeByte<uint8_t> (
-                    (*Get<uint32_t> (offset) >> 8));
+                nPatternResultIp = (*Get<uint32_t> (offset) >> 8);
                 break;
 
                 // Relative offset
@@ -427,7 +425,7 @@ public:
             case YscOpCode::IGE_JZ:
             case YscOpCode::ILT_JZ:
             case YscOpCode::ILE_JZ:
-                pPatternResult += *Get<uint16_t> (offset + 1) + (offset + 3);
+                nPatternResultIp += *Get<uint16_t> (offset + 1) + (offset + 3);
                 break;
 
             default: bOperationFailed = true; break;
@@ -439,16 +437,29 @@ public:
     T *
     Get (int64_t offset)
     {
-        return reinterpret_cast<T *> (pPatternResult + offset);
+        return &GetProgram ()->GetCodeByte<T> (nPatternResultIp + offset);
     }
 
     /* Makes a NOP at offset of size */
     void
     NOP (int64_t offset, size_t size)
     {
-        if (!pPatternResult)
+        if (nPatternResultIp == -1u)
             return void (bOperationFailed = true);
-        memset (pPatternResult + offset, uint8_t (YscOpCode::NOP), size);
+
+        while (size != 0)
+            {
+                size_t nopSize
+                    = std::min (size_t (GetProgram ()->GetPageSizeLeft (
+                                    nPatternResultIp + offset)),
+                                size);
+
+                memset (Get<uint8_t> (offset), uint8_t (YscOpCode::NOP),
+                        nopSize);
+
+                size -= nopSize;
+                offset += nopSize;
+            }
     }
 
     /* Writes a value of type T at offset */
@@ -456,7 +467,7 @@ public:
     void
     Write (int64_t offset, T value)
     {
-        if (!pPatternResult)
+        if (nPatternResultIp == -1u)
             return void (bOperationFailed = true);
         *Get<T> (offset) = value;
     }
@@ -465,13 +476,13 @@ public:
     void
     WriteBytes (int64_t offset, const T &bytes)
     {
-        if (!pPatternResult)
+        if (nPatternResultIp == -1u)
             return void (bOperationFailed = true);
-        memcpy (pPatternResult + offset, &bytes[0], std::size (bytes));
+        memcpy (Get<uint8_t> (offset), &bytes[0], std::size (bytes));
     }
 
     explicit operator bool () const
     {
-        return bOperationFailed || !pPatternResult;
+        return bOperationFailed || nPatternResultIp == -1u;
     }
 };

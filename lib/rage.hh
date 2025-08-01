@@ -187,6 +187,14 @@ public:
     Vec4V pos;
 };
 
+class Mat43V
+{
+public:
+    Vec4V right;
+    Vec4V up;
+    Vec4V at;
+};
+
 } // namespace rage
 
 /* Not a part of rage */
@@ -214,7 +222,7 @@ public:
     }
 };
 
-constexpr std::uint32_t operator"" _joaat (char const *s, size_t len)
+constexpr std::uint32_t operator""_joaat (char const *s, size_t len)
 {
     return rage::atLiteralStringHash (std::string_view (s, len), 0);
 }

@@ -11,6 +11,7 @@ class YscCodeEdits
     {
         std::string      Name;
         CodeEditFunction Function;
+        bool             Enabled;
     };
 
     static std::vector<CodeEdit> &
@@ -30,6 +31,9 @@ class YscCodeEdits
 
         for (const auto &i : GetEdits ())
             {
+                if (!i.Enabled)
+                    continue;
+
                 if (!i.Function (utils))
                     continue;
 
@@ -43,10 +47,10 @@ class YscCodeEdits
 
 public:
     static void
-    Add (std::string_view name, CodeEditFunction f)
+    Add (std::string_view name, CodeEditFunction f, bool enabled = true)
     {
         Initialise ();
-        GetEdits ().push_back ({std::string (name), f});
+        GetEdits ().push_back ({std::string (name), f, enabled});
     }
 
     static void
@@ -57,4 +61,6 @@ public:
             REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff",
                            2, ApplyCodeFixes, bool, scrProgram *);
     }
+
+    friend class CodeEditDebugInterface;
 };
