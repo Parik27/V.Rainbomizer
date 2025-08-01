@@ -129,13 +129,8 @@ MissionRandomizer_CodeFixes::ApplyPrepNoRepeatFix (YscUtilsOps &utils)
     if (!utils.IsAnyOf ("replay_controller"_joaat))
         return false;
 
-    uint8_t shellCode[]
-        = {utils.OpCode(PUSH_CONST_1), utils.OpCode(LEAVE), 0x0, 0x1};
-
     utils.Init ("2d 00 03 00 ? 6e 5d ? ? ? 06 56 ? ? 5d ? ? ? 6f");
-    utils.WriteBytes (/*Offset=*/5, shellCode);
-
-    //utils.Write (/*Offset=*/11, utils.OpCode(J));
+    utils.Write (/*Offset=*/11, utils.OpCode(J));
 
     return true;
 }
