@@ -245,8 +245,8 @@ CTheScripts::InitialisePatterns ()
     aThreads = GetRelativeReference<atArray<scrThread *>> (
         "8b 0d ? ? ? ? 3b ca 7d ? ? 8b 0d ", 13, 17);
 
-    ConvertCall (hook::get_pattern ("48 8b fa c6 44 24 ? ? e8", 8),
-                 fwScriptGuid_GetBaseFromGuid);
+    ReadCall (hook::get_pattern ("48 8b fa c6 44 24 ? ? e8", 8),
+              fwScriptGuid_GetBaseFromGuid);
 
     ConvertCall (hook::get_pattern (
                      "48 F7 F9 49 8B 48 08 48 63 D0 C1 E0 08 0F B6 1C 11 03 D8",
