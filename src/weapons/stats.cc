@@ -2,12 +2,14 @@
 #include "CItemInfo.hh"
 #include "CModelInfo.hh"
 #include "CStreaming.hh"
+#include "Patterns/Patterns.hh"
 #include "Utils.hh"
 #include "common/events.hh"
 #include "common/config.hh"
 #include "common/minhook.hh"
 #include "common/parser.hh"
 #include "common/logger.hh"
+#include "injector/injector.hpp"
 #include "scrThread.hh"
 #include <cstdint>
 #include <ctime>
@@ -198,6 +200,13 @@ public:
         REGISTER_MH_HOOK (
             "? 0f 28 e1 ? 8b 41 30 b9 ff ff 00 00 66 39 48 18 75 ?", -0x56,
             ProjectilePhysicsFix, int, CEntity *, float, bool, int);
+
+        // Make light bone = -1 for all projectiles to prevent crash.
+        injector::MakeNOP (
+            hook::get_pattern ("? 8b ? ? ? 85 d2 74 ? ? 8b 0e ? 81 c1 ? ? ? ? "
+                               "e8 ? ? ? ? 89 ? ? ? ? ? ",
+                               24),
+            6);
 
         InitialiseAllComponents ();
     }
