@@ -353,7 +353,7 @@ public:
 
         "IS_PED_IN_COVER"_n.Hook (FixTakeCoverCheck);
 
-        REGISTER_HOOK ("? 8b 52 08 45 8a c1 e8 ? ? ? ? ? 8b c0 ? 8b c0 ", 7,
+        REGISTER_HOOK (100023,
                        ImproveAnimalMotion, aiTask *, CPed *, sMotionTaskData *,
                        bool);
     }

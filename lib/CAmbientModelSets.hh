@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <rage.hh>
 
@@ -39,12 +40,12 @@ struct CAmbientModelSetsManager
     uint8_t                  field_0x0[16];
     struct CAmbientModelSets aSets[3];
 
-    inline static CAmbientModelSetsManager **sm_Instance;
+    inline static GameVariable<CAmbientModelSetsManager*, 100142> sm_Instance{};
 
     static CAmbientModelSetsManager *
     Get ()
     {
-        return *sm_Instance;
+        return sm_Instance;
     }
 
     static void InitialisePatterns ();

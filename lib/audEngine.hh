@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <algorithm>
 #include <rage.hh>
 #include <cstdint>
@@ -78,13 +79,6 @@ struct Sound
     uint8_t      field_0x4a;
 };
 } // namespace rage
-
-class audSound
-{
-public:
-    static void *DecompressMetadata_Untyped (rage::Sound *inp,
-                                             rage::Sound *out);
-};
 
 struct audMetadataObjectMapItem
 {
@@ -187,7 +181,12 @@ struct audMetadataChunk
         return FindObjectPtrFromHash<void> (name) != nullptr;
     }
 
-    static uint32_t GetSize ();
+    static uint32_t
+    GetSize ()
+    {
+        static GameVariable<uint32_t, 100127> size{};
+        return size;
+    }
 };
 
 struct audMetadataMgr
@@ -229,7 +228,10 @@ struct audMetadataMgr
         return ret;
     }
 
-    void *FindObjectPtr (audMetadataRef ref);
+    void *FindObjectPtr (audMetadataRef ref)
+    {
+        return GameFunction<100129, void*(audMetadataMgr*, audMetadataRef)>::Call (this, ref);
+    }
 
     template <typename T>
     T *
@@ -260,12 +262,6 @@ struct audMetadataMgr
     int32_t  m_Suffix;
     int32_t  m_nType;
     bool     field_0x74;
-};
-
-class audSpeechManager
-{
-public:
-    static audMetadataMgr *sm_MetadataMgr;
 };
 
 class audEngine

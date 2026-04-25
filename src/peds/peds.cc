@@ -206,18 +206,18 @@ public:
         InitialiseAllComponents ();
 
         // Hooks
-        RegisterHook ("8b c0 ? 8b ? ? 8b ? ? 88 7c ? ? e8 ? ? ? ? eb ?", 13,
+        RegisterHook ((void*) GAMEADDR(100008),
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
 
         if (PR::Config ().UseCutsceneModelsFile)
-            REGISTER_HOOK ("85 ff 75 ? 45 8a c4 e8 ? ? ? ? 45 84 e4 74", 7,
+            REGISTER_HOOK (100009,
                            RandomizeCutscenePeds, void,
                            class CCutsceneAnimatedActorEntity *, uint32_t,
                            bool);
 
         REGISTER_HOOK (
-            "88 44 ? ? 40 88 7c ? ? e8 ? ? ? ? ? 8b d8 ? 85 c0 0f 84", 9,
+            100010,
             RandomizePed, CPed *, CPedFactory *, uint8_t *, uint32_t, uint64_t,
             uint8_t);
 

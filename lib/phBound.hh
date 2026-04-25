@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <rage.hh>
 
@@ -55,7 +56,10 @@ public:
     uint16_t      NumBounds;
     uint64_t      field_0xa8;
 
-    void AllocateTypeAndIncludeFlags ();
+    void AllocateTypeAndIncludeFlags ()
+    {
+        return GameFunction<100139, void (phBoundComposite*)>::Call (this);
+    }
 };
 
 static_assert (sizeof (phBoundComposite) == 176, "phBoundComposite wrong size");

@@ -1,13 +1,21 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 class fiAssetMgr
 {
 public:
+    inline static GameVariable<fiAssetMgr, 100146> sm_Instance{};
 
-  inline static fiAssetMgr* sm_Instance = nullptr;
+    void
+    PushFolder (const char *folder)
+    {
+        return GameFunction<100148, void (fiAssetMgr *, const char *)>::Call (
+            this, folder);
+    }
 
-  void PushFolder (const char *folder);
-  void PopFolder ();
-
-  static void InitialisePatterns ();
+    void
+    PopFolder ()
+    {
+        return GameFunction<100147, void (fiAssetMgr *)>::Call (this);
+    }
 };

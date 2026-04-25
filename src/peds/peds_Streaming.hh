@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <array>
 #include <cstdint>
 #include <Utils.hh>
@@ -133,16 +134,10 @@ public:
             return;
 
         REGISTER_HOOK (
-            "83 ec 20 80 3d ? ? ? ? 00 ? 8b f1 74 ? e8 ? ? ? ? eb ? e8", 22,
+            100013,
             RandomizePedToLoad, uint32_t, CStreaming *, bool);
 
-        injector::MakeNOP (
-            hook::get_pattern (
-                "e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8d ? ? ? ? ? ? 3b df 74 ? 0f b7 "
-                "47 08 66 39 43 08 74 ? 66 39 73 0a 74 ? ? 8b 0b e8 ? ? ? ? ? "
-                "8b d7 ? 8b cb e8 ? ? ? ? 66 41 39 ? ? ? ? ? 77 ? 66 41 39 ? ? "
-                "? ? ? 0f 86 ? ? ? ?"),
-            5);
+        GameAddress<100012>::Nop (5);
 
 #ifdef RANDOMIZE_PED_GROUPS
         ModelsListRandomizer::Initialise(true, false);

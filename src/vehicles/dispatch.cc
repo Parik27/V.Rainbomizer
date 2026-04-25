@@ -2,6 +2,7 @@
 #include "Patterns/Patterns.hh"
 #include "common/common.hh"
 #include "injector/injector.hpp"
+#include "memory/GameAddress.hh"
 #include "vehicles/vehicle_common.hh"
 #include <Utils.hh>
 #include "common/config.hh"
@@ -133,27 +134,17 @@ public:
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
 
         // Randomize Dispatch service
-        RegisterJmpHook<15> (
-            injector::GetBranchDestination (
-                hook::get_pattern ("8d ? 58 89 ? ? e8 ? ? ? ? 84 c0 0f 84", 6))
-                .get<void> (),
-            CDispatchService_GetVehicleSetModels98c,
-            RandomizeDispatchVehicleSet);
+        RegisterJmpHook<15> ((void *) GAMEADDR (100073),
+                             CDispatchService_GetVehicleSetModels98c,
+                             RandomizeDispatchVehicleSet);
 
         // Disable SWAT vehicle check (so that you can spawn SWAT on non-normal
         // vehicles)
-        injector::MakeNOP (
-            hook::get_pattern (
-                "74 ? 3b 05 ? ? ? ? 74 ? 3b 05 ? ? ? ? 75 ? ? b0 01", 16),
-            2);
+        GameAddress<100074>::Nop (2);
 
         // Disable vehicle law enforcement check to allow peds to be spawned on
         // the vehicles.
-        injector::WriteMemory<uint8_t> (
-            hook::get_pattern (
-                "8b ? ? ? ? ? 41 8b f1 45 8a d0 c1 e8 1f 40 8a ea 41 84 c4 75",
-                21),
-            0xeb);
+        GameAddress<100075>::WriteMemory<uint8_t> (0xeb);
     }
 
 } disp;

@@ -141,8 +141,7 @@ NativeManager::ProcessNativeHooks (scrProgram *program)
 void
 NativeManager::InitialiseNativeHooks ()
 {
-    REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2,
-                   ProcessNativeHooks, bool, scrProgram *);
+    REGISTER_HOOK (100085, ProcessNativeHooks, bool, scrProgram *);
 }
 
 /*******************************************************/
@@ -242,33 +241,6 @@ NativeManager::Initialise ()
 void
 CTheScripts::InitialisePatterns ()
 {
-    aThreads = GetRelativeReference<atArray<scrThread *>> (
-        "8b 0d ? ? ? ? 3b ca 7d ? ? 8b 0d ", 13, 17);
-
-    ReadCall (hook::get_pattern ("48 8b fa c6 44 24 ? ? e8", 8),
-              fwScriptGuid_GetBaseFromGuid);
-
-    ConvertCall (hook::get_pattern (
-                     "48 F7 F9 49 8B 48 08 48 63 D0 C1 E0 08 0F B6 1C 11 03 D8",
-                     -0x68),
-                 fwScriptGuid_CreateGuid);
-
     Rainbomizer::Events ().OnInit +=
         [] (bool) { NativeManager::Initialise (); };
 }
-
-/*******************************************************/
-uint32_t
-fwScriptGuid::CreateGuid (CEntity *entity)
-{
-    return fwScriptGuid_CreateGuid (entity);
-}
-
-/*******************************************************/
-CEntity *
-fwScriptGuid::GetBaseFromGuid (uint32_t guid)
-{
-    return fwScriptGuid_GetBaseFromGuid (guid);
-}
-
-atArray<scrThread *> *CTheScripts::aThreads;

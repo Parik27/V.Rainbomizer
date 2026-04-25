@@ -58,8 +58,7 @@ public:
     {
         static bool sm_Initialised = false;
         if (!std::exchange (sm_Initialised, true))
-            REGISTER_HOOK ("8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff",
-                           2, ApplyCodeFixes, bool, scrProgram *);
+            REGISTER_HOOK (100035, ApplyCodeFixes, bool, scrProgram *);
     }
 
     friend class CodeEditDebugInterface;

@@ -254,8 +254,8 @@ public:
         "SET_PED_COMPONENT_VARIATION"_n.Hook ([] (scrThread::Info *info) {});
         "SET_PED_PROP_INDEX"_n.Hook ([] (scrThread::Info *info) {});
 
-        REGISTER_MH_HOOK_BRANCH (
-            "83 64 ? ? 00 89 44 ? ? 8b ? ? ? 8b cb 89 44 ? ? e8 ? ? ? ? ", 19,
+        REGISTER_MH_HOOK (
+            100011,
             ChangeClothesEvent, bool, CPed *, uint32_t, uint32_t, uint32_t,
             uint32_t, uint32_t, uint32_t, bool)
     }

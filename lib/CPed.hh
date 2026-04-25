@@ -4,6 +4,7 @@
 #include <rage.hh>
 #include "CEntity.hh"
 #include "ParserUtils.hh"
+#include "memory/GameAddress.hh"
 
 class CInventoryItem;
 class CPed;
@@ -26,7 +27,10 @@ struct CInventoryItemRepository
     CPedWeaponManager *m_pManagers[2];
     int                m_nNumManagers;
 
-    CInventoryItem *FindWeapon (uint32_t hash);
+    CInventoryItem *FindWeapon (uint32_t hash)
+    {
+        return GameFunction<100097, CInventoryItem*(CInventoryItemRepository*, uint32_t)>::Call (this, hash);
+    }
 };
 
 typedef enum eCombatBehaviourFlag
@@ -127,7 +131,11 @@ typedef enum eCombatBehaviourFlag
 class CPedIntelligence
 {
 public:
-    rage::bitset<BF_TOTAL_FLAGS> &GetCombatBehaviourFlags ();
+    rage::bitset<BF_TOTAL_FLAGS> &
+    GetCombatBehaviourFlags ()
+    {
+        return GameOffset<100089>::Get<rage::bitset<BF_TOTAL_FLAGS>> (this);
+    }
 };
 
 class sMotionTaskData : public ParserWrapper<sMotionTaskData>
@@ -143,7 +151,7 @@ class CMotionTaskDataManager
 public:
     atArray<CMotionTaskDataSet *> aMotionTaskData;
 
-    static CMotionTaskDataSet *FindByName (uint32_t name);
+    inline static GameFunction<100098, CMotionTaskDataSet*(uint32_t)> FindByName{};
 };
 
 struct CPedInventory
@@ -167,22 +175,55 @@ public:
     uint8_t                  field_0x78;
     uint8_t                  field_0x79[7];
 
-    void *AddWeapon (uint32_t hash, uint32_t ammo);
-
-    static void InitialisePatterns ();
+    void *AddWeapon (uint32_t hash, uint32_t ammo)
+    {
+        return GameFunction<100095, void *(CPedInventory *, uint32_t,
+                                           uint32_t)>::Call (this, hash, ammo);
+    }
 };
 
 class CPed : public CEntity
 {
 public:
-    static CPed *GetFromHandle (uint32_t handle);
+    inline static GameFunction<100096, CPed*(uint32_t)> GetFromHandle{};
 
-    CPedInventory *   GetInventory ();
-    CPedIntelligence *GetIntelligence ();
-    aiTask *          CreateMotionTask (sMotionTaskData *set, bool lowLod);
-    CVehicle *        GetVehicle ();
-    uint32_t          GetMotionState ();
-    bool              SetMotionState (uint32_t motionState, bool now);
+    CPedInventory *
+    GetInventory ()
+    {
+        return GameOffset<100087>::Get<CPedInventory *> (this);
+    }
+
+    CPedIntelligence *
+    GetIntelligence ()
+    {
+        return GameOffset<100088>::Get<CPedIntelligence *> (this);
+    }
+
+    aiTask *
+    CreateMotionTask (sMotionTaskData *set, bool lowLod)
+    {
+        return GameFunction<100091, aiTask *(CPed *, sMotionTaskData *,
+                                             bool)>::Call (this, set, lowLod);
+    }
+
+    CVehicle *
+    GetVehicle ()
+    {
+        return GameOffset<100092>::Get<CVehicle *> (this);
+    }
+
+    uint32_t
+    GetMotionState ()
+    {
+        return GameOffset<100093>::Get<uint32_t> (this);
+    }
+
+    bool
+    SetMotionState (uint32_t motionState, bool now)
+    {
+        return GameFunction<100094, bool (CPed *, uint32_t, bool)>::Call (
+            this, motionState, now);
+    }
 };
 
 class CPedFactory
@@ -191,11 +232,11 @@ public:
     void *vft;
     CPed *pPlayer;
 
-    inline static CPedFactory **sm_Instance = nullptr;
+    inline static GameVariable<CPedFactory*, 100090> sm_Instance{};
 
     static CPedFactory *
     Get ()
     {
-        return *sm_Instance;
+        return sm_Instance;
     }
 };

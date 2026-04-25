@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 
 //
@@ -51,7 +52,5 @@ public:
     struct CWeatherType aWeatherTypes[14];
     // Has a lot more elements, but that's all I need for now.
 
-    inline static CWeather *g_Weather;
-
-    static void InitialisePatterns ();
+    inline static GameVariable<CWeather, 100130> g_Weather{};
 };

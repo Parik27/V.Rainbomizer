@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <cstdint>
 #include <string>
@@ -308,9 +309,9 @@ public:
         }
     };
 
-    static scrThread **      sm_pActiveThread;
-    static inline uint64_t **sm_Globals;     // sm_Globals[64]
-    static inline uint32_t * sm_GlobalSizes; // sm_GlobalSizes[64]
+    inline static GameVariable<scrThread*, 100109> sm_pActiveThread{};
+    inline static GameVariable<uint64_t*, 100110> sm_Globals{};
+    inline static GameVariable<uint32_t*, 100111> sm_GlobalSizes{};
 
     static bool
     IsCurrentScriptAddon ()
@@ -333,7 +334,7 @@ public:
     static inline uint64_t *&
     GetGlobals ()
     {
-        return *sm_Globals;
+        return sm_Globals;
     }
 
     template <typename T = uint64_t>
@@ -360,7 +361,7 @@ public:
     static inline scrThread *&
     GetActiveThread ()
     {
-        return *sm_pActiveThread;
+        return sm_pActiveThread;
     }
 
     const char *
@@ -407,8 +408,8 @@ public:
     std::pair<uint32_t, uint32_t> FindCurrentFunctionBounds (scrProgram *program
                                                              = nullptr);
 
-    static eScriptState Run (uint64_t *stack, uint64_t **globals,
-                             scrProgram *program, scrThreadContext *ctx);
-
-    static void InitialisePatterns ();
+    inline static GameFunction<100112,
+                               eScriptState (uint64_t *, uint64_t **,
+                                             scrProgram *, scrThreadContext *)>
+        Run{};
 };

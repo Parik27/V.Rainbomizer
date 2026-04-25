@@ -126,8 +126,8 @@ class PatchFilterDLC2612
 public:
     PatchFilterDLC2612 ()
     {
-        MinHookWrapper::HookBranchDestination (
-            "48 8D 0C 40 48 8D 0C CE E8 ? ? ? ? FF C3", 8, _applyChangeSetEntry,
-            ApplyChangeSetEntryStub);
+        MinHookWrapper::RegisterHook ((void *) GAMEADDR (100033),
+                                      _applyChangeSetEntry,
+                                      ApplyChangeSetEntryStub);
     }
 } patchfilterdlc2612;

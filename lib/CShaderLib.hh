@@ -1,21 +1,26 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <sysMemoryAllocator.hh>
 
 class sgaShaderGroup : public sysUseAllocator
 {
 public:
-    ~sgaShaderGroup ();
+    ~sgaShaderGroup ()
+    {
+        GameFunction<100145, void(sgaShaderGroup*)>::Call (this);
+    }
 
-    bool LoadFile (char* shaderName);
+    bool
+    LoadFile (char *shaderName)
+    {
+        return GameFunction<100144, bool (sgaShaderGroup *, char *)>::Call (
+            this, shaderName);
+    }
 };
 
 class CShaderLib
 {
 public:
-    // ? 8b cb 84 c0 74 ? e8 ? ? ? ? eb ? e8 ? ? ? ? ? 8b cb e8 ? ? ? ? (operator delete)
-    // e8 ? ? ? ? 8b c8 e8 ? ? ? ? ? 85 c0 75 ? 81 3d ? ? ? ? 00 02 00 00 (second call, Resolve)
-    static void InitialisePatterns ();
-
-    static sgaShaderGroup *LookupShader (uint32_t hash);
+    inline static GameFunction<100143, sgaShaderGroup*(uint32_t)> LookupShader{};
 };

@@ -89,9 +89,7 @@ public:
     {
         RB_C_DO_CONFIG ("CarGeneratorRandomizer", Enable, Vehicle, ForceOnRandomGens);
 
-        REGISTER_HOOK ("f3 0f 11 7c ? ? f3 0f 11 74 ? ? e8 ? ? ? ? ? 01 25 ? ? "
-                       "? ? ? 84 f6 74 ?",
-                       12, RandomizeCarGenerator, void, CCarGen *, float, float,
+        REGISTER_HOOK (100072, RandomizeCarGenerator, void, CCarGen *, float, float,
                        float, float, float, float, uint32_t, int32_t, int32_t,
                        int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint64_t, uint64_t, uint64_t,
                        uint32_t *, uint64_t, uint64_t, uint64_t, uint64_t);

@@ -121,9 +121,7 @@ class DisplayBuildVersion
 public:
     DisplayBuildVersion ()
     {
-        RegisterHook ("8d ? ? ? ? ? ? 8d ? ? ? ? 8b c0 e8 ? ? ? ? ? 8d ? ? ? "
-                      "b2 01 e8 ? ? ? ? ? 8d ",
-                      14, rage__formatf6eb9, AppendBuildVersion);
+        RegisterHook ((void*) GAMEADDR(100032), rage__formatf6eb9, AppendBuildVersion);
     }
 } _display;
 

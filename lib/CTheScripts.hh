@@ -12,16 +12,15 @@
 class CTheScripts
 {
 public:
-    static atArray<scrThread *> *aThreads;
+    inline static GameVariable<atArray<scrThread *>, 100119> aThreads{};
     static void                  InitialisePatterns ();
 };
 
 class fwScriptGuid
 {
 public:
-    static CEntity *GetBaseFromGuid (uint32_t guid);
-
-    static uint32_t CreateGuid (CEntity *entity);
+    inline static GameFunction<100120, CEntity*(uint32_t)> GetBaseFromGuid{};
+    inline static GameFunction<100121, uint32_t (CEntity*)> CreateGuid{};
 };
 
 /* Utility Classes */

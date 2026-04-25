@@ -90,8 +90,7 @@ public:
         Components::sm_Globals.Initialise ();
         Components::sm_CodeFixes.Initialise ();
 
-        RegisterHook ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
-                      scrThread_Runff6, RunThreadHook);
+        RegisterHook ((void*) GAMEADDR(100062), scrThread_Runff6, RunThreadHook);
 
         Rainbomizer::Events ().OnInit +=
             [] (bool) { Components::sm_Flow.Reset (); };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include "memory/GameAddress.hh"
 #include "rage.hh"
 
 struct tcVarInfo
@@ -15,23 +16,23 @@ static_assert (sizeof (tcVarInfo) == 0x20);
 class tcConfig
 {
 private:
-    inline static uint32_t *  ms_numVars;
-    inline static tcVarInfo **ms_pVarInfos;
+    inline static GameVariable<uint32_t, 100131> ms_numVars{};
+    inline static GameVariable<tcVarInfo*, 100132> ms_pVarInfos{};
 
 public:
     inline static uint32_t &
     GetNumVars ()
     {
-        return *ms_numVars;
+        return ms_numVars;
     }
 
     inline static tcVarInfo *&
     GetVarInfos ()
     {
-        return *ms_pVarInfos;
+        return ms_pVarInfos;
     }
 
-    inline static atArray<char[64]> *ms_cycleInfo;
+    inline static GameVariable<atArray<char[64]>, 100133> ms_cycleInfo{};
 
     friend class tcManager;
 };
@@ -58,7 +59,5 @@ public:
     uint8_t field_0x0[104]; // contains apModifiers, aModifierHashMap and stuff
     tcCycleInfo *pTimecycles;
 
-    inline static tcManager *g_timeCycle;
-
-    static void InitialisePatterns ();
+    inline static GameVariable<tcManager, 100134> g_timeCycle{};
 };

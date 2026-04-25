@@ -8,6 +8,7 @@
 #include <utility>
 #include <optional>
 #include <algorithm>
+#include <memory/GameAddress.hh>
 
 template <typename Func, typename Addr>
 void
@@ -264,30 +265,30 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
    REGISTER_HOOK (Pattern, Offset, HookedFunction, Signature);
 */
 /*******************************************************/
-#define REGISTER_HOOK(pattern, offset, function, ret, ...)                     \
+#define REGISTER_HOOK(pattern_id, function, ret, ...)                          \
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
-        RegisterHook (pattern, offset, F, function<F>);                        \
+        RegisterHook ((void*) GAMEADDR (pattern_id), F, function<F>);    \
     }
 
-#define REGISTER_HOOK_OPERAND(pattern, offset, function, ret, ...)             \
+#define REGISTER_HOOK_OPERAND(pattern_id, function, ret, ...)                  \
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
-        RegisterHookOperand (pattern, offset, F, function<F>);                 \
-    }
-
-/*******************************************************/
-#define REGISTER_HOOK_JMP(pattern, offset, function, ret, ...)                 \
-    {                                                                          \
-        static ret (*F) (__VA_ARGS__);                                         \
-        RegisterHook<true> (pattern, offset, F, function<F>);                  \
+        RegisterHookOperand ((void*) GAMEADDR (pattern_id), F, function<F>); \
     }
 
 /*******************************************************/
-#define REGISTER_JMP_HOOK(size, pattern, offset, function, ret, ...)           \
+#define REGISTER_HOOK_JMP(pattern_id, function, ret, ...)                      \
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
-        RegisterJmpHook<size> (pattern, offset, F, function<F>);               \
+        RegisterHook<true> ( (void*) GAMEADDR (pattern_id), F, function<F>); \
+    }
+
+/*******************************************************/
+#define REGISTER_JMP_HOOK(size, pattern_id, function, ret, ...)                \
+    {                                                                          \
+        static ret (*F) (__VA_ARGS__);                                         \
+        RegisterJmpHook<size> ((void*) GAMEADDR (pattern_id), F, function<F>); \
     }
 
 /*******************************************************/

@@ -66,8 +66,8 @@ public:
                         RandomizeCarUpgrades, RandomizeHornOdds,
                         RandomizeArmourOdds, RandomizeLicensePlateOdds);
 
-        MinHookWrapper::HookBranchDestination (
-            "85 c9 74 ? ? 8b d3 e8 ? ? ? ? 84 c0 74 ? ? 84 ff 74", 7,
+        MinHookWrapper::RegisterHook (
+            (void *) GAMEADDR (100071),
             CCustomShaderEffectVehicle_SetForVehicle_134,
             RandomizeVehicleAppearance);
 

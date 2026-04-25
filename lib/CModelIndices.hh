@@ -1,16 +1,17 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 
 struct CModelIndices
 {
-    inline static CModelIndices **sm_Head = nullptr;
+    inline static GameVariable<CModelIndices*, 100140> sm_Head{};
 
     static void InitialisePatterns ();
     static CModelIndices *
     GetHead ()
     {
-        return *sm_Head;
+        return sm_Head;
     }
 
     uint32_t       nHash;

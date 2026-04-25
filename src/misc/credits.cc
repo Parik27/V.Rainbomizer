@@ -167,16 +167,10 @@ class RainbomizerCredits
     }
 
     void
-    InitialiseFixJobTitleHooks (std::string_view pattern)
+    InitialiseFixJobTitleHooks ()
     {
-        hook::pattern p (pattern);
-
-        using CText_GetText_Prototype = char *(*) (CText *, char *);
-        static CText_GetText_Prototype orig;
-
-        p.for_each_result ([] (hook::pattern_match res) {
-            RegisterHook (res.get<void> (23), orig, FixJobTitles<orig>);
-        });
+        REGISTER_HOOK (100051, FixJobTitles, char*, CText*, char*);
+        REGISTER_HOOK (100052, FixJobTitles, char*, CText*, char*);
     }
 
 public:
@@ -188,12 +182,9 @@ public:
 
         InitialiseAllComponents ();
 
-        REGISTER_MH_HOOK_OPERAND (
-            "? 8d ? ? ? ? ? 33 ? ? 88 ? ? e8 ? ? ? ? ? 8d ? ? ? ? "
-            "? 33 ? e8 ? ? ? ? ? 8d ? ? ? 8d ? ? ? ? ?",
-            3, ReplaceCreditsArray, void, bool);
+        REGISTER_MH_HOOK (
+            100053, ReplaceCreditsArray, void, bool);
 
-        InitialiseFixJobTitleHooks (
-            "74 ? ? 8b ? ? ? eb ? ? 8d ? ? ? ? ? ? 8d ? ? ? ? ? e8 ? ? ? ?");
+        InitialiseFixJobTitleHooks ();
     }
 } _rbcredits;

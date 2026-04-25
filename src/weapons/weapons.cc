@@ -11,6 +11,7 @@
 #include "common/logger.hh"
 #include "common/mods.hh"
 #include "exceptions/exceptions_Mgr.hh"
+#include "memory/GameAddress.hh"
 #include "peds/peds_Compatibility.hh"
 
 #include "weapons_equipMgr.hh"
@@ -220,35 +221,21 @@ class WeaponRandomizer
     }
 
     /*******************************************************/
-    inline static void *
-    GetGiveWeaponFuncAddress ()
-    {
-        // TODO: This is wrong, change it - the order can change in any update
-        // causing it to not work anymore.
-        hook::pattern pattern (
-            "57 ? 83 ec 20 ? 8b ? 8b ? ? 8b ? e8 ? ? ? ? ? 8b e8 ? 85 c0 74 ?");
-
-        return pattern.get (1).get<void *> (-15);
-    }
-
-    /*******************************************************/
     static void
     InitialiseRandomWeaponsHook ()
     {
         // Hook to actually replace the weapons
-        RegisterJmpHook<15> (GetGiveWeaponFuncAddress (),
+        RegisterJmpHook<15> ((void *) GAMEADDR (100083),
                              CPedInventory_GiveWeapon2d8, RandomizeWeapon);
 
         // Hook to make the game make the ped equip the correct weapon.
-        RegisterJmpHook<15> (
-            "? 8b ? ? ? ? ? ? 85 c9 0f 84 ? ? ? ? ? 83 c1 18 8b d7", -37,
-            SET_CURRENT_PED_WEAPON784, CorrectSetCurrentWeapon);
+        RegisterJmpHook<15> ((void *) GAMEADDR (100082),
+                             SET_CURRENT_PED_WEAPON784,
+                             CorrectSetCurrentWeapon);
 
         // NOP JZ instruction to ensure that a weapon is always equipped by the
         // ped (weapons given by script only)
-        injector::WriteMemory<uint16_t> (
-            hook::get_pattern ("0f 84 ? ? ? ? 80 7c ? ? 00 74 ? 8b", 11),
-            0x9090, true);
+        GameAddress<100084>::WriteMemory<uint16_t>(0x9090);
     }
 
 public:

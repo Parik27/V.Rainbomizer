@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <iterator>
 
@@ -150,21 +151,21 @@ struct CVehicleStreamRequestGfx;
 class CPools
 {
 public:
-    inline static CPool<CVehicleStruct> **g_pVehicleStructPool;
-    inline static CPool<CVehicleStreamRequestGfx> *
-        *g_pVehicleStreamRequestGfxPool;
+    inline static GameVariable<CPool<CVehicleStruct> *, 100117>
+        g_pVehicleStructPool{};
+
+    inline static GameVariable<CPool<CVehicleStreamRequestGfx> *, 100118>
+        g_pVehicleStreamRequestGfxPool{};
 
     inline static CPool<CVehicleStruct> *&
     GetVehicleStructPool ()
     {
-        return *g_pVehicleStructPool;
+        return g_pVehicleStructPool;
     };
 
     inline static auto *&
     GetVehicleStreamRequestGxtPool ()
     {
-        return *g_pVehicleStreamRequestGfxPool;
+        return g_pVehicleStreamRequestGfxPool.Get();
     };
-
-    static void InitialisePatterns ();
 };

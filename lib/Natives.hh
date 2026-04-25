@@ -1,12 +1,10 @@
 #pragma once
 
 #include "CMath.hh"
+#include "memory/GameAddress.hh"
 #include <cstdint>
 
-int  CREATE_CAR (uint32_t hash, Vector3_native *coords, double heading,
-                 bool isNetwork, bool thisScriptCheck);
-void REQUEST_MODEL (uint32_t hash);
-void LOAD_ALL_OBJECTS_NOW ();
-unsigned short GET_VEHICLE_MODEL_NUMBER_OF_SEATS (uint32_t vehicleHash);
+static GameFunction<100149, void (uint32_t)> REQUEST_MODEL{};
+static GameFunction<100150, unsigned short(uint32_t)> GET_VEHICLE_MODEL_NUMBER_OF_SEATS{};
 
 void InitialiseNatives ();

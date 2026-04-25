@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common/config.hh"
+#include "memory/GameAddress.hh"
 #include "vehicle_common.hh"
 #include "common/streaming.hh"
 
@@ -119,13 +120,9 @@ public:
         ModelsListRandomizer::Initialise (false, true);
 
         // Actuall spawning of the vehicle
-        MakeJMP64 (hook::get_pattern (
-                       "? 8b c4 ? 88 ? ? ? 89 ? ? ? 89 ? ? ? 89 ? ? 55 53"),
-                   RandomizeCarToSpawn);
+        MakeJMP64 (GAMEADDR(100078), RandomizeCarToSpawn);
 
         // To load new vehicles (that would probably not be loaded by the game)
-        MakeJMP64 (hook::get_pattern ("? 89 5c ? ? ? 89 6c ? ? ? 89 74 ? ? 57 "
-                                      "? 81 ec 30 04 00 00 8a 81 ? ? 00 00"),
-                   RandomizeCarToLoad);
+        MakeJMP64 (GAMEADDR(100079), RandomizeCarToLoad);
     }
 } _traf;

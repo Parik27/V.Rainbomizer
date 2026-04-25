@@ -210,14 +210,13 @@ class HandlingRandomizer
          * being read from the parser, so there needs to be a hook that samples
          * them before they're post processed */
 
-        auto InstallHook = [] (auto pattern, auto offset) {
-            REGISTER_HOOK (pattern, offset, AddRandomizationSamples, parTree *,
+        REGISTER_HOOK (100076, AddRandomizationSamples, parTree *,
                            parManager *, fiStream *, parStructure *,
                            CHandlingDataMgr *, bool, void *);
-        };
 
-        InstallHook ("8b d8 c6 44 ? ? 01 e8 ? ? ? ? ? 8b cb", 7);
-        InstallHook ("89 ? ? ? 89 ? ? c6 44 ? ? 01 e8", 12);
+        REGISTER_HOOK (100077, AddRandomizationSamples, parTree *,
+                           parManager *, fiStream *, parStructure *,
+                           CHandlingDataMgr *, bool, void *);
     }
 
 public:

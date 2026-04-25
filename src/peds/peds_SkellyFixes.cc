@@ -1,5 +1,6 @@
 #include "CPed.hh"
 #include "Patterns/Patterns.hh"
+#include "memory/GameAddress.hh"
 #include "rage.hh"
 #include <Utils.hh>
 #include <cstdint>
@@ -7,38 +8,6 @@
 #include "common/logger.hh"
 
 struct crSkeleton;
-
-/*******************************************************/
-/* These are here because of a bug in clang            */
-/*******************************************************/
-template <auto &crSkeleton_PartialUpdate>
-static void
-Fix_crSkeleton_PartialUpdate (crSkeleton *skelly, uint32_t id, bool fullUpdate)
-{
-    if (id == -1)
-        id = 0;
-
-    crSkeleton_PartialUpdate (skelly, id, fullUpdate);
-}
-/*******************************************************/
-template <size_t i>
-void
-RegisterPartialUpdateHook ()
-{
-    using f_crSkeleton_PartialUpdate = void (*) (crSkeleton *, uint32_t, bool);
-
-    static hook::pattern p (
-        "? 8b c4 ? 89 ? ? ? 89 ? ? ? 89 ? ? 55 41 56 41 57 ? "
-        "8d ? a1 ? 81 ec d0 00 00 00 ? 8b 31");
-
-    if (p.size () <= i)
-        return;
-
-    static f_crSkeleton_PartialUpdate s_PartialUpdateFunc;
-
-    RegisterJmpHook<15> (p.get (i).get<void> (), s_PartialUpdateFunc,
-                         Fix_crSkeleton_PartialUpdate<s_PartialUpdateFunc>);
-}
 
 class PedRandomizerSkeletonFixes
 {
@@ -85,18 +54,14 @@ class PedRandomizerSkeletonFixes
     void
     RegisterTorsoIkProcessFix ()
     {
-        hook::pattern p (
-            "e8 ? ? ? ? ? 8b ? ? ba 01 5c 00 00 8b ? e8 ? ? ? ? ? 8b ? ? ? 8b "
-            "? ba f0 60 00 00 ? 89 ? ? ? ? ? e8 ? ? ? ? ? 8b ? ? ba f1 60 00 "
-            "00 ? 8b ? 89 ? ? ? ? ? e8 ? ? ? ? ? 8b ? ? ba f2 60 00 00 ? 8b ? "
-            "89 ? ? ? ? ? e8 ? ? ? ?");
+        uintptr_t p = GameAddress<100022>::Get();
 
         static uint32_t (*CPed_GetBoneIndex) (CPed *, uint16_t);
 
         // Folks over at R* didn't check if a ped has a spine before doing
         // operations with their matrices, so this one does it for them.
         for (size_t offset : {0, 16, 40, 63, 86})
-            RegisterHook (p.get_first (offset), CPed_GetBoneIndex,
+            RegisterHook ((void*) (p + offset), CPed_GetBoneIndex,
                           FixSkeletonBoneCrashes<CPed_GetBoneIndex>);
     }
 
@@ -106,21 +71,12 @@ public:
         // SetGlobalMtx
         REGISTER_JMP_HOOK (
             18,
-            "40 55 ? 8d ? ? a9 ? 81 ec d0 00 00 00 ? 8b 41 08 ? 8b c9 ? 85 c0",
-            0, Fix_crSkeleton_SetGlobalMtx, void, crSkeleton *, uint32_t,
+            100020, Fix_crSkeleton_SetGlobalMtx, void, crSkeleton *, uint32_t,
             rage::Mat34V *);
-
-// PartialUpdate
-#ifdef PARTIAL_UPDATE_CRASH_FIX
-        RegisterPartialUpdateHook<0> ();
-        RegisterPartialUpdateHook<1> ();
-#endif
 
         // GetGlobalMtx
         REGISTER_JMP_HOOK (17,
-                           "40 55 ? 8d ? ? a9 ? 81 ec d0 00 00 00 ? 8b d0 ? 8b "
-                           "41 08 8b c2 ? c1 e0 06 ? 03 41 18 ",
-                           0, Fix_crSkeleton_GetGlobalMtx, void, crSkeleton *,
+                           100021, Fix_crSkeleton_GetGlobalMtx, void, crSkeleton *,
                            uint32_t, rage::Mat34V *);
 
         RegisterTorsoIkProcessFix ();

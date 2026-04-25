@@ -6,6 +6,7 @@
 #include "CModelInfo.hh"
 #include "ParserUtils.hh"
 #include "common/minhook.hh"
+#include "memory/GameAddress.hh"
 #include "mission/missions_YscUtils.hh"
 #include "peds_Compatibility.hh"
 
@@ -43,13 +44,13 @@ class PedRandomizer_PlayerFixes
         static unsigned int numSpecialAbilities = 0;
         if (numSpecialAbilities == 0)
             {
-                static struct parEnumTranslationMap
+                struct parEnumTranslationMap
                 {
                     uint32_t hash;
                     int32_t  value;
-                } *enumTranslationTable
-                    = hook::get_pattern<parEnumTranslationMap> (
-                        "c0 24 e0 31 ff ff ff ff 64 d0 6a 7f 00 00 00 00");
+                };
+
+                static GameVariable<parEnumTranslationMap*, 100015> enumTranslationTable{};
 
                 while (enumTranslationTable[++numSpecialAbilities].hash != 0)
                     ;
@@ -205,23 +206,19 @@ public:
 
         // Hook for cutscenes to properly get the object model to register for
         // the cutscene.
-        REGISTER_HOOK ("8b d9 40 38 3d ? ? ? ? 75 ? e8", 11,
+        REGISTER_HOOK (100016,
                        CorrectPlayerObjIdx, void, CutSceneManager *);
 
         // Hook to reset the saved player model during saving to make sure
         // you don't get a random player on loading without Rainbomizer and
         // (more importantly) to prevent softlocks and crashes this causes.
         // Pattern from Parik (don't insert u word here)
-        REGISTER_MH_HOOK_BRANCH (
-            "89 ? c8 00 00 00 eb ? ? 8b ? ? 8b c8 ? 89 ? e8 ? ? ? ? ", 17,
+        REGISTER_MH_HOOK (
+            100017,
             FixSavedPlayerModel, void, CPlayerPedSaveStructure *);
 
         // This patch enables phone models for all ped models
-        injector::MakeNOP (
-            hook::get_pattern (
-                "8b ? ? ? ? ? 44 38 70 09 74 ? 40 84 f6 75 ? b9 30 00 00 00 ",
-                10),
-            2);
+        GameAddress<100018>::Nop (2);
 
         // To make UpdatePlayerHash also be called after a call to
         // CHANGE_PLAYER_PED (and several other functions). Can also be extended
@@ -229,7 +226,7 @@ public:
         // UpdatePlayerHash is also called by Ped Randomizer to catch those
         // cases.
         REGISTER_HOOK (
-            "? 8d ? 08 ? 8b cf ? 89 ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ? 8b d7", 11,
+            100019,
             UpdatePlayerHash_Trampoline, void, fwRefAwareBase *, void *);
 
         YscCodeEdits::Add ("Remove Lester1 Clothes Requirement",

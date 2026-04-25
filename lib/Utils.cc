@@ -1,29 +1,9 @@
 #include <random>
 #include <ctime>
 
-#include "CHud.hh"
-#include "CStreaming.hh"
-#include "CPed.hh"
-#include "Natives.hh"
-#include "scrThread.hh"
-#include "CItemInfo.hh"
-#include "CutSceneManager.hh"
-#include "CPools.hh"
 #include "CTheScripts.hh"
-#include "CText.hh"
-#include "audEngine.hh"
-#include "CWeather.hh"
-#include "CTimecycle.hh"
-#include "sysMemoryAllocator.hh"
 #include "ParserUtils.hh"
-#include "CHandlingDataMgr.hh"
-#include "phBound.hh"
-#include "CTask.hh"
-#include "CModelIndices.hh"
-#include "CCredits.hh"
-#include "CAmbientModelSets.hh"
-#include "CShaderLib.hh"
-#include "fiAssetMgr.hh"
+#include "memory/Memory.hh"
 
 #include "Utils.hh"
 
@@ -125,33 +105,14 @@ InitialiseAllComponents ()
     if (initialised)
         return;
 
-    CHud::InitialisePatterns ();
-    CStreaming::InitialisePatterns ();
-    CPedInventory::InitialisePatterns ();
-    CWeaponInfoManager::InitialisePatterns ();
-    scrThread::InitialisePatterns ();
-    cutfCutsceneFile2::InitialisePatterns ();
-    CPools::InitialisePatterns ();
+    MemoryManager::Get ().Init ();
+
+    // Do not remove
     CTheScripts::InitialisePatterns ();
-    CText::InitialisePatterns ();
-    audEngine::InitialisePatterns ();
-    CWeather::InitialisePatterns ();
-    tcManager::InitialisePatterns ();
-    sysUseAllocator::InitialisePatterns ();
-    CHandlingDataMgr::InitialisePatterns ();
-    phBound::InitialisePatterns ();
-    aiTask::InitialisePatterns ();
-    CModelIndices::InitialisePatterns ();
-    CCreditArray::InitialisePatterns ();
-    CAmbientModelSetsManager::InitialisePatterns ();
-    CShaderLib::InitialisePatterns ();
-    fiAssetMgr::InitialisePatterns ();
 
 #ifndef NO_PARSER_UTILS
     ParserUtils::Register ();
 #endif
-
-    InitialiseNatives ();
 
     initialised = true;
 }

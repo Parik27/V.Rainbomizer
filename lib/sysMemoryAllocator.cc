@@ -1,8 +1,8 @@
 #include "sysMemoryAllocator.hh"
-#include "Utils.hh"
+#include "memory/GameAddress.hh"
 
-void (*sysUseAllocator__operator_delete) (void *);
-void *(*sysUseAllocator__operator_new) (size_t);
+static GameFunction<100135, void*(void*)> sysUseAllocator__operator_delete{};
+static GameFunction<100136, void*(size_t)> sysUseAllocator__operator_new{};
 
 void
 sysUseAllocator::operator delete (void *p)
@@ -26,16 +26,4 @@ void *
 sysUseAllocator::operator new[] (size_t size)
 {
     return sysUseAllocator__operator_new (size);
-}
-
-void
-sysUseAllocator::InitialisePatterns ()
-{
-    ConvertCall (hook::get_pattern (
-                     "? 83 ec 28 ? 8b c1 ? 85 c9 74 ? 8b 15 ? ? ? ? "),
-                 sysUseAllocator__operator_delete);
-
-    ReadCall (
-        hook::get_pattern ("0f 40 c1 ? 8b c8 e8 ? ? ? ? ? 33 c9 ? 85 c0 74", 6),
-        sysUseAllocator__operator_new);
 }

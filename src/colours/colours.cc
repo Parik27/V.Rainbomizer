@@ -54,7 +54,7 @@ public:
         InitialiseAllComponents ();
 
         // Hud Colours
-        RegisterHook ("8b ? ? ? ? ? 8b ? ? ? ? ? 8b cb 89 44 ? ? e8", 18,
+        RegisterHook ((void*) GAMEADDR(100024),
                       CHud__SetHudColour, SetNewHudColour);
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;

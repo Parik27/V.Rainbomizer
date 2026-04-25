@@ -101,7 +101,7 @@ public:
         (..., thread.Push64 (args));
         thread.Push64 (0); // Returning to 0 terminates the script.
 
-        thread.Run (stack.get (), scrThread::sm_Globals, m_pProgram,
+        thread.Run (stack.get (), &scrThread::sm_Globals, m_pProgram,
                     &thread.m_Context);
 
         scrThread::GetActiveThread ()     = prevActiveThread;
@@ -185,7 +185,7 @@ public:
         ThreadExists ()
         {
             uint32_t programHash = GetProgramHash ();
-            for (auto i : *CTheScripts::aThreads)
+            for (auto i : CTheScripts::aThreads.Get())
                 {
                     if (i->m_Context.m_nThreadId == 0
                         || i->m_Context.m_nState == eScriptState::KILLED)

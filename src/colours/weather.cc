@@ -7,6 +7,7 @@
 #include "CTimecycle.hh"
 #include <common/config.hh>
 #include <mutex>
+#include "memory/GameAddress.hh"
 #include "weather_Timecycle.hh"
 #include <future>
 
@@ -150,12 +151,9 @@ class WeatherRandomizer
     void
     InitialiseSnowHooks ()
     {
-        constexpr const char *Pattern
-            = "? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? ? ? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? "
-              "? ? 8d 0d ? ? ? ? 33 d2 e8 ? ? ? ? ? 8d ? ? ? 8d ? ? ? 8d 0d";
+        CRenderer_SnowPass = GameVariable<void*, 100027>{};
 
-        CRenderer_SnowPass = GetRelativeReference<void> (Pattern, 3, 7);
-        REGISTER_HOOK (Pattern, 23, SnowHook, void, void *);
+        REGISTER_HOOK (100028, SnowHook, void, void *);
     }
 
 public:

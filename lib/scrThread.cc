@@ -12,6 +12,8 @@
 
 class gBaseScriptDirectory;
 
+static GameVariable<gBaseScriptDirectory*, 100113> scrProgramDirectory{};
+
 // Instruction set for disassembly later :P
 std::array<std::pair<const char *, const char *>, 128> mOpcodes
     = {{{"NOP", ""},
@@ -143,23 +145,18 @@ std::array<std::pair<const char *, const char *>, 128> mOpcodes
         {"PUSH_CONST_F7", ""},
         {"IS_BIT_SET", ""}}};
 
-gBaseScriptDirectory *scrProgramDirectory;
-scrProgram *(*scrProgramRegistry__FindProgramByHash) (gBaseScriptDirectory *,
-                                                      uint32_t);
-bool (*scrProgram_InitNativesTable) (scrProgram *);
-
 /*******************************************************/
 scrProgram *
 scrProgram::FindProgramByHash (uint32_t hash)
 {
-    return scrProgramRegistry__FindProgramByHash (scrProgramDirectory, hash);
+    return GameFunction<100114, scrProgram*(gBaseScriptDirectory*, uint32_t)>::Call (scrProgramDirectory, hash);
 }
 
 /*******************************************************/
 bool
 scrProgram::InitNativesTable ()
 {
-    return scrProgram_InitNativesTable (this);
+    return GameFunction<100115, bool*(scrProgram*)>::Call (this);
 }
 
 /*******************************************************/
@@ -351,50 +348,3 @@ scrThread::DisassemblInsn (scrProgram *program, uint32_t offset)
     return out;
 }
 #endif
-
-/*******************************************************/
-eScriptState (*scrThread__Run) (uint64_t *, uint64_t **, scrProgram *,
-                                scrThreadContext *);
-eScriptState
-scrThread::Run (uint64_t *stack, uint64_t **globals, scrProgram *program,
-                scrThreadContext *ctx)
-{
-    return scrThread__Run (stack, globals, program, ctx);
-}
-
-/*******************************************************/
-void
-scrThread::InitialisePatterns ()
-{
-    sm_pActiveThread = GetRelativeReference<scrThread *> (
-        "? 89 2d ? ? ? ? e8 ? ? ? ? ? 8b 8d b0 00 00 00 ? 8d 4d 08", 3, 7);
-
-    // 8b d9 33 d2 ?? 8d 15 ?? ?? ?? ?? ?? 8d 05
-    sm_Globals = GetRelativeReference<uint64_t *> (
-        "8b d9 33 d2 ? 8d 15 ? ? ? ? ? 8d 05", 14, 18);
-    sm_GlobalSizes
-        = GetRelativeReference<uint32_t> ("8b d9 33 d2 ? 8d 15 ? ? ? ? ? 8d 05",
-                                          7, 11);
-
-    ReadCall (hook::get_pattern (
-                  "8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9),
-              scrThread__Run);
-
-    // scrProgram related
-    {
-        scrProgramDirectory = GetRelativeReference<gBaseScriptDirectory> (
-            "? 8d 0d ? ? ? ? ? 89 2d ? ? ? ? e8 ? ? ? ? ? 8b 8d b0 00 00 00 ",
-            3, 7);
-
-        ReadCall (hook::get_pattern ("? 8d 0d ? ? ? ? ? 89 2d ? ? ? ? e8 ? ? ? "
-                                     "? ? 8b 8d b0 00 00 00",
-                                     14),
-                  scrProgramRegistry__FindProgramByHash);
-
-        ReadCall (hook::get_pattern (
-                      "8b cb e8 ? ? ? ? 8b 43 70 ? 03 c4 a9 00 c0 ff ff", 2),
-                  scrProgram_InitNativesTable);
-    }
-}
-
-scrThread **scrThread::sm_pActiveThread = nullptr;

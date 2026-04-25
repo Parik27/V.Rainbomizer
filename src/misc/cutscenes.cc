@@ -84,7 +84,6 @@ public:
 
         InitialiseAllComponents ();
 
-        RegisterHook ("8d ? ? 20 0f ba e8 10 89 44 ? ? e8", 12,
-                      VisitTopLevelStructure_37027e, RandomizeCutScene);
+        RegisterHook ((void*) GAMEADDR(100054), VisitTopLevelStructure_37027e, RandomizeCutScene);
     }
 } _cuts;

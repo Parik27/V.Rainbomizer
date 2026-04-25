@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <CMath.hh>
 #include <rage.hh>
@@ -260,13 +261,12 @@ struct cutfCutsceneFile2
     atArray<>             discardFrameList;
     uint8_t               field_0xd3c[4];
 
-    static cutfCutsceneFile2 **sm_pCurrentFile;
-    static void                InitialisePatterns ();
+    inline static GameVariable<cutfCutsceneFile2 *, 100116> sm_pCurrentFile{};
 
     static cutfCutsceneFile2 *&
     GetCurrentFile ()
     {
-        return *sm_pCurrentFile;
+        return sm_pCurrentFile;
     }
 };
 

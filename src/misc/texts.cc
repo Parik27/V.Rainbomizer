@@ -1,3 +1,4 @@
+#include "memory/GameAddress.hh"
 #include <cstdio>
 #include <Utils.hh>
 #include <cctype>
@@ -17,7 +18,7 @@ uint64_t (*pgStreamer_Request) (uint32_t, pgRequestInitParams *, uint32_t,
                                 uint32_t, pgRequestCallback, void *, uint32_t,
                                 uint32_t, uint64_t, uint32_t);
 
-pgRequestCallback CB_sysIpcSignalSema;
+GameVariable<pgRequestCallback, 100058> CB_sysIpcSignalSema{};
 
 /*******************************************************/
 /* Text Case Randomizer - randomizes the case of each letter for all texts
@@ -152,18 +153,8 @@ public:
         if (RandomInt (m_Config.Odds) != 0)
             return;
 
-        CB_sysIpcSignalSema = (pgRequestCallback) GetRelativeReference (
-            "? 89 44 ? ? ? 8d 05 ? ? ? ? ? 89 ? ? ? e8 ? ? ? ? ? 83 c4 58", 8,
-            12);
-
-        RegisterHook ("? 89 5c ? ? ? 89 ? ? ? e8 ? ? ? ? ? 85 c0 74 ?", 10,
-                      pgStreamer_Request, TextOnRequestAsyncHook);
-
-        auto pattern
-            = hook::pattern ("? 8b c6 8b cf e8 ? ? ? ? ? 85 c0 74 ?").count (2);
-
-        pattern.for_each_result ([] (hook::pattern_match m) {
-            RegisterHook (m.get<void> (5), TextOnRequestSyncHook);
-        });
+        RegisterHook ((void*) GAMEADDR(100059), pgStreamer_Request, TextOnRequestAsyncHook);
+        RegisterHook ((void*) GAMEADDR(100060), TextOnRequestSyncHook);
+        RegisterHook ((void*) GAMEADDR(100061), TextOnRequestSyncHook);
     }
 } _texts;

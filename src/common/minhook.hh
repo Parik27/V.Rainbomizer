@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <MinHook.h>
 #include <string_view>
 #include <utility>
@@ -20,17 +21,6 @@ class MinHookWrapper
 public:
     template <typename O, typename F>
     static void
-    HookBranchDestination (std::string_view pattern, uint32_t off, O &origFunc,
-                           F hookedFunc, bool enable = true)
-    {
-        void *addr = hook::get_pattern (pattern, off);
-        addr       = injector::GetBranchDestination (addr).get<void> ();
-
-        RegisterHook (addr, origFunc, hookedFunc, enable);
-    }
-
-    template <typename O, typename F>
-    static void
     RegisterHook (void *addr, O &origFunc, F hookedFunc, bool enable = true)
     {
         InitialiseMinHook ();
@@ -40,15 +30,6 @@ public:
 
         if (enable)
             MH_EnableHook (MH_ALL_HOOKS);
-    }
-
-    template <typename O, typename F>
-    static void
-    RegisterHookOperand (const std::string &pattern, int32_t off, O &origFunc,
-                         F hookedFunc, bool enable = true)
-    {
-        RegisterHook (GetRelativeReference (pattern, off, off + 4), origFunc,
-                      hookedFunc, enable);
     }
 
     template <typename O, typename F>
@@ -75,23 +56,9 @@ public:
     }
 
 /*******************************************************/
-#define REGISTER_MH_HOOK_BRANCH(pattern, off, function, ret, ...)              \
+#define REGISTER_MH_HOOK(pattern_id, function, ret, ...)                       \
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
-        MinHookWrapper::HookBranchDestination (pattern, off, F, function<F>);  \
-    }
-
-/*******************************************************/
-#define REGISTER_MH_HOOK_OPERAND(pattern, off, function, ret, ...)             \
-    {                                                                          \
-        static ret (*F) (__VA_ARGS__);                                         \
-        MinHookWrapper::RegisterHookOperand (pattern, off, F, function<F>);    \
-    }
-
-/*******************************************************/
-#define REGISTER_MH_HOOK(pattern, off, function, ret, ...)                     \
-    {                                                                          \
-        static ret (*F) (__VA_ARGS__);                                         \
-        MinHookWrapper::RegisterHook (hook::get_pattern (pattern, off), F,     \
+        MinHookWrapper::RegisterHook ((void *) GAMEADDR (pattern_id), F,       \
                                       function<F>);                            \
     }

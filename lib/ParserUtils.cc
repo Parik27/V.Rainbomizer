@@ -25,8 +25,7 @@ ParserUtils::Register ()
     if (std::exchange (bRegistered, true))
         return;
 
-    REGISTER_HOOK ("8b 4a 10 e8 ? ? ? ? ? 8b 43 10 ? 83 c4 20", 3,
-                   BuildStructureHook, void, parStructure *,
+    REGISTER_HOOK (100086, BuildStructureHook, void, parStructure *,
                    parStructureStaticData *);
 }
 

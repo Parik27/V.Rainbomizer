@@ -1,5 +1,6 @@
 #include <cstdint>
 #include "CARGB.hh"
+#include "memory/GameAddress.hh"
 
 #pragma once
 
@@ -7,10 +8,8 @@ class CHud
 {
 public:
     // aColours[66]
-    static CARGB *aColours;
+    inline static GameVariable<CARGB*, 100099> aColours;
 
     // aColourNameHashes
-    static int *aColourNameHashes;
-
-    static void InitialisePatterns ();
+    inline static GameVariable<int*, 100100> aColourNameHashes;
 };

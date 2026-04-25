@@ -6,6 +6,7 @@
 #include "common/logger.hh"
 #include "fmt/core.h"
 #include "imgui.h"
+#include "memory/GameAddress.hh"
 #include "misc/cpp/imgui_stdlib.h"
 #include "rage.hh"
 #include "scrThread.hh"
@@ -530,7 +531,7 @@ class TimeTravelDebugInterface : public DebugInterface
             0xe9, 0x00, 0x00, 0x00, 0x00  // JMP     0x0
         };
 
-        void *addr = hook::get_pattern ("48 ff c7 0f b6 07 83 f8 ? 0f 87");
+        void *addr = (void*) GAMEADDR(100041);
         auto trampoline = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
                               ->Pointer<decltype (Instructions)> ();
 

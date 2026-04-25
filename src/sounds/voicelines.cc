@@ -1,5 +1,6 @@
 #include "Utils.hh"
 #include "UtilsHooking.hh"
+#include "memory/GameAddress.hh"
 #include <unordered_map>
 #include <vector>
 #include <rage.hh>
@@ -294,15 +295,11 @@ class VoiceLineRandomizer
     static const char *
     CorrectSubtitle (CText *p1, const char *label)
     {
-        // It's an offset to CText::TheText->LabelFoundAt and stuff
-        static uint32_t &CText__LabelFoundAt = *hook::get_pattern<uint32_t> (
-            "8b 35 ? ? ? ? ? 38 ? ? ? ? ? 0f 84", 2);
-
         uint32_t labelHash = rage::atStringHash (label);
 
         if (mSubtitles.count (labelHash))
             {
-                CText__LabelFoundAt = 6;
+                CText::LabelFoundAt.Get () = 6;
                 return mSubtitles[labelHash].c_str ();
             }
 
@@ -318,33 +315,26 @@ class VoiceLineRandomizer
                                  uint32_t, uint32_t, char *, const char *,
                                  uint32_t, uint8_t, uint8_t, uint8_t, uint8_t,
                                  uint8_t, uint32_t, uint8_t, uint8_t, uint8_t> (
-            hook::get_pattern ("? 8b c4 ? 89 ? ? 89 ? ? ? 89 ? ? 55 53 56 57 ? "
-                               "54 ? 55 ? 56 ? 57 ? 8d ? f8 fc ff ff"),
+            (void*) GAMEADDR(100066),
             RandomizeConversationLine)
             .Activate ();
 
         // To correct the random variation the audio engine gets for the sounds.
         // <true> = JMP instruction
-        RegisterHook<true> ("8b ce 8b d3 ? 8b c0 ? 8b cf ? 8b 5c ? ? ? 8b 74 ? "
-                            "? ? 83 c4 30 5f e9",
-                            25,
+        RegisterHook<true> ((void*) GAMEADDR(100067),
                             FindRandomValidVariationForVoiceAndContext_93837,
                             CorrectFindRandomVariation);
 
         // To correct the actual sound name it uses for initialising the speech
         // sound.
-        RegisterHook ("8b cd 8b d0 ? 89 7c ? ? ? 89 74 ? ? e8 ? ? ? ? ? 8b 5c "
-                      "? ? ? 8b 6c",
-                      14, audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
+        RegisterHook ((void*) GAMEADDR(100067), audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
 
         // This hook is used to ensure that the game uses the correct subtitle
         // for a multiple-variation voice line. Game checks if "%s_02d" exists,
         // if not use the normal subtitle.
-        RegisterHook ("8d ? ? 70 ? 8b ? e8 ? ? ? ? ? 8b cf 84 c0 74", 7,
-                      CorrectDoesTextLabelExist);
+        RegisterHook ((void*) GAMEADDR(100067), CorrectDoesTextLabelExist);
 
-        RegisterHook ("e8 ? ? ? ? ? 8b e8 ? 85 c0 74 ? ? 84 e4 75 ? ?", 0,
-                      CText__GetText6f8e13, CorrectSubtitle);
+        RegisterHook ((void*) GAMEADDR(100067), CText__GetText6f8e13, CorrectSubtitle);
     }
 
     /*******************************************************/

@@ -152,14 +152,10 @@ public:
                                  char *);
 #endif
 
-        REGISTER_MH_HOOK ("? 8d ? a1 ? 81 ec a0 00 00 00 0f 29 ? ? 45 33 e4 0f "
-                          "29 ? ? 44 38 25",
-                          -24, RandomizeLightCone, bool, LightConeInfo *,
+        REGISTER_MH_HOOK (100025, RandomizeLightCone, bool, LightConeInfo *,
                           void *, bool);
 
-        REGISTER_MH_HOOK ("44 89 4c ? ? ? 83 ec ? 0f 29 74 ? ? 0f 57 c0 "
-                          "0f 29 3c ? ? 8b d2 ? 8b c9 0f 28 fa 0f 2e f8 ",
-                          0, RandomizeCorona, void, CCoronas *, rage::Vec3V *,
+        REGISTER_MH_HOOK (100026, RandomizeCorona, void, CCoronas *, rage::Vec3V *,
                           float, CARGB, float, float, float *, uint32_t, float,
                           float, uint16_t);
 

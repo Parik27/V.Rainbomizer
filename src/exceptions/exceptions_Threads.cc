@@ -46,10 +46,10 @@ class ExceptionHandler_Threads : public ExceptionHandler
         if (std::exchange (printed, true))
             return;
 
-        if (!CTheScripts::aThreads || !CTheScripts::aThreads->Data)
+        if (!&CTheScripts::aThreads || !CTheScripts::aThreads->Data)
             return;
 
-        for (auto thread : *CTheScripts::aThreads)
+        for (auto thread : CTheScripts::aThreads.Get())
             {
                 if (thread->m_Context.m_nThreadId == 0
                     || thread->m_Context.m_nState == eScriptState::KILLED)

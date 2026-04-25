@@ -150,7 +150,7 @@ public:
         ;
 
         InitialiseAllComponents ();
-        REGISTER_HOOK ("89 74 ? ? e8 ? ? ? ? ? 8b cd ? 8b d0 e8", 4,
+        REGISTER_HOOK (100057,
                        RandomizeScaleformMethod, void *, void *, int, uint64_t,
                        uint64_t, char *, ScaleformMethodStruct::ParamStruct *,
                        uint32_t, bool, bool, int, int);

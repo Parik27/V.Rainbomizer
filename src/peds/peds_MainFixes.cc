@@ -106,7 +106,7 @@ PedRandomizer_MainFixes::Initialise ()
 #undef HOOK
 
     REGISTER_HOOK (
-        "c6 44 ? ? 00 ? 8d ? f0 ? 8d ? f4 ? 8b c8 e8 ? ? ? ? ? 8b 5c", 16,
+        100014,
         CorrectRegisterEntity, void, CutSceneManager *, CEntity *, uint32_t *,
         uint32_t *, bool, bool, bool, uint32_t);
 }

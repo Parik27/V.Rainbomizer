@@ -1,9 +1,10 @@
 #include "Utils.hh"
 #include "common/config.hh"
+#include "memory/GameAddress.hh"
 #include <audEngine.hh>
 #include <array>
 
-audMetadataMgr *audMetadataMgr_GameObjects;
+GameVariable<audMetadataMgr *, 100063> audMetadataMgr_GameObjects{};
 
 class SfxRandomizer
 {
@@ -86,20 +87,7 @@ public:
         // Function that returns the game object metadata for a specific type
         // and hash. Also read the GameObjects metadata manager because the
         // function is also used for other metadata managers.
-        audMetadataMgr_GameObjects = GetRelativeReference<audMetadataMgr> (
-            "8d 3d ? ? ? ? 85 d2 74 ? ? 8d 40 03 ? 8b ? e8", 2, 6);
-
-        MakeJMP64 (injector::GetBranchDestination (
-                       hook::get_pattern (
-                           "8d 3d ? ? ? ? 85 d2 74 ? ? 8d 40 03 ? 8b ? e8", 17))
-                       .get<void> (),
-                   RandomizeSfx<uint32_t>);
-
-        MakeJMP64 (injector::GetBranchDestination (
-                       hook::get_pattern (
-                           "8d 0d ? ? ? ? ? b8 11 00 00 00 8b 54 c7 10 e8 ",
-                           16))
-                       .get<void> (),
-                   RandomizeSfx<audMetadataRef>);
+        MakeJMP64 (GAMEADDR(100064), RandomizeSfx<uint32_t>);
+        MakeJMP64 (GAMEADDR(100065), RandomizeSfx<audMetadataRef>);
     }
 } sfx;

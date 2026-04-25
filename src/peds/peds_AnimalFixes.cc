@@ -2,6 +2,7 @@
 #include "CStreaming.hh"
 #include "Patterns/Patterns.hh"
 #include "injector/injector.hpp"
+#include "memory/GameAddress.hh"
 #include "phBound.hh"
 #include <Utils.hh>
 #include <CPed.hh>
@@ -109,16 +110,8 @@ PedRandomizer_AnimalFixes::FixLadderClimbAsAnimal ()
         0x66, 0x0f, 0x6e, 0xc0        // movd   xmm0,eax
     };
 
-    auto pattern = hook::pattern (
-        "f3 0f 10 40 64 8a 42 0c fe c8 3c 01 0f 96 ? f6 d9 ? 1b c0 ? 23 c2 "
-        "f3 0f 5c 40 40 f3 0f 58 f8 ");
-
-    if (!pattern.size())
-        return;
-
-    void* ptr = pattern.get_first();
-    injector::MakeNOP (ptr, 28);
-    injector::WriteMemoryRaw (ptr, xmm0_0p57, sizeof (xmm0_0p57), true);
+    GameAddress<100005>::Nop (28);
+    GameAddress<100005>::WriteMemoryRaw (xmm0_0p57, sizeof (xmm0_0p57), true);
 }
 
 /*******************************************************/
@@ -126,36 +119,26 @@ void
 PedRandomizer_AnimalFixes::Initialise ()
 {
     // Hook to prevent peds with flag (DiesOnRagdoll) from dying
-    injector::MakeNOP (
-        hook::get_pattern ("75 ? ? 8b ? ? ? ? ? ? 85 c0 74 ? 44 38 60 0f 75",
-                           18),
-        2);
+    GameAddress<100000>::Nop (2);
 
     // Birds don't die immediately on hitting anything
-    injector::WriteMemory<uint16_t> (
-        hook::get_pattern (
-            "? 83 ? ? ? ? ? 00 0f 84 ? ? ? ? ? 8b cf e8 ? ? ? ? 8a 4f 36", 8),
-        0xe948);
+    GameAddress<100001>::WriteMemory(0xe948);
 
     // This hook fixes a crash in CTaskUseScenario, where the ped bounds
     // type and include flags are accessed; In case of fish bounds, these
     // type and include flags are not allocated causing a crash.
-    REGISTER_HOOK ("0f 29 18 0f 29 50 10 0f 29 48 20 0f 29 40 30 e8", 15,
+    REGISTER_HOOK (100002,
                    AllocateTypeAndIncludeFlagsForFishBounds, void,
                    phBoundComposite *, bool, bool);
 
-    REGISTER_HOOK ("? 83 c6 08 3b f1 7c ? ? 8b ? ? ? ? ? ? 85 c9 74 ? e8 ? "
-                   "? ? ? ? 8b ? ? ? ? ? ? 8b 03 ",
-                   20, FixPoodleCrash, void, CPedWeaponManager *);
+    REGISTER_HOOK (100003, FixPoodleCrash, void, CPedWeaponManager *);
 
-    REGISTER_HOOK ("? 8b cf ? 8b c7 e8 ? ? ? ? ? 8b d0 ? 85 c0 74 ?", 6,
+    REGISTER_HOOK (100006,
                    FixFallingPeds, aiTask *, CPed *, CPed *, bool *);
 
     // This patch fixes CTaskExitVehicle from crashing the game if the ped
     // exiting the vehicle doesn't have a helmet.
-    injector::MakeNOP (
-        hook::get_pattern ("44 38 70 0a 74 ? 40 84 f6 75 ? b9 ? ? ? ? e8", 4),
-        2);
+    GameAddress<100007>::Nop(2);
 
     FixLadderClimbAsAnimal ();
 }

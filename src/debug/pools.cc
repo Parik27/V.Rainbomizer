@@ -4,6 +4,7 @@
 #include "imgui.h"
 
 #include "common/logger.hh"
+#include "memory/GameAddress.hh"
 
 #include <deque>
 
@@ -221,16 +222,12 @@ class PoolsDebugInterface : public DebugInterface
     static std::pair<int, int>
     GetCollidersUsage ()
     {
-        static char **phInstance = GetRelativeReference<char *> (
-            "? 8B 0D ? ? ? ? ? 83 64 ? ? 00 ? 0F B7 D1 ? 33 C9 E8", 3, 7);
+        static GameVariable<char*, 100038> phInstance{};
 
-        static auto [usedCollidersOffset, maxCollidersOffset] = [] {
-            auto pattern = hook::pattern (
-                "? 63 ? ? ? ? ? 3B ? ? ? ? ? 0F 8D ? ? ? ? ? 8B C8");
-
-            return std::make_tuple (*pattern.get_one ().get<int> (3),
-                                    *pattern.get_one ().get<int> (9));
-        }();
+        static auto [usedCollidersOffset, maxCollidersOffset] = {
+            GameVariable<uint32_t, 100039>{},
+            GameVariable<uint32_t, 100040>{}
+        };
 
         if (!*phInstance)
             return {0, 0};
@@ -285,13 +282,10 @@ public:
 
     PoolsDebugInterface ()
     {
-        REGISTER_MH_HOOK_BRANCH ("ba 67 ee cc f8 ? b8 10 00 00 00 e8 ? ? ? ?",
-                                 11, GetNextPoolName, uint32_t, void *,
+        REGISTER_MH_HOOK_BRANCH (100036, GetNextPoolName, uint32_t, void *,
                                  uint32_t, uint32_t);
 
-        REGISTER_MH_HOOK ("? 53 ? 83 ec 20 ? 83 39 00 ? 8b d9 75 ? 8b 41 14 0f "
-                          "af 41 10 ? 63 c8 ",
-                          0, RegisterPool, void, CPool<void> *);
+        REGISTER_MH_HOOK (100037, RegisterPool, void, CPool<void> *);
     }
 
 } inline g_PoolsDebugInterface;

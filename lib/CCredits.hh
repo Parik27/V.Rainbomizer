@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include "rage.hh"
 #include "ParserUtils.hh"
 #include <cstdint>
@@ -36,7 +37,5 @@ public:
         return Get<atArrayGetSizeWrapper<CCreditItem>> ("CreditItems"_joaat);
     }
 
-    inline static CCreditArray *sm_Instance = nullptr;
-
-    static void InitialisePatterns ();
+    inline static GameVariable<CCreditArray, 100141> sm_Instance{};
 };

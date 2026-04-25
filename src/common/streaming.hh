@@ -78,7 +78,7 @@ class ModelsListRandomizer
         if (std::exchange(s_Initialised, true))
             return;
 
-        REGISTER_HOOK ("ba fc 76 c4 68 e8", 5, RandomizePedGroups, bool,
+        REGISTER_HOOK (100034, RandomizePedGroups, bool,
                        CPopGroupList *, uint32_t, uint32_t *);
     }
 

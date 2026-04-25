@@ -2,6 +2,7 @@
 #include "Patterns/Patterns.hh"
 #include "common/logger.hh"
 #include "injector/hooking.hpp"
+#include "memory/GameAddress.hh"
 #include "rage.hh"
 #include <Utils.hh>
 #include <ParserUtils.hh>
@@ -10,7 +11,7 @@
 #include <common/minhook.hh>
 #include <vadefs.h>
 
-void (*ReloadControls)();
+static GameFunction<100043, void()> ReloadControls{};
 
 struct ioValue
 {
@@ -568,29 +569,16 @@ class ControlsRandomizer
 public:
     ControlsRandomizer ()
     {
-        // Reload function
-        ReadCall (hook::get_pattern (
-                      "39 05 ? ? ? ? 74 ? 89 05 ? ? ? ? e8 ? ? ? ?", 14),
-                  ReloadControls);
-
-        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-                       0, AdjustControls2, void, CControls *, ControlSettings
+        REGISTER_HOOK (100044, AdjustControls2, void, CControls *, ControlSettings
                        *, int);
 
-        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-                       18, AdjustControls2, void, CControls *,
+        REGISTER_HOOK (100045, AdjustControls2, void, CControls *,
                        ControlSettings *, int);
 
-        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-                       33, AdjustControls, void, CControls *,
+        REGISTER_HOOK (100046, AdjustControls, void, CControls *,
                        ControlSettings *);
 
-        REGISTER_HOOK ("e8 ? ? ? ? ? 8d ? ? ? ? ? ? 8b c7 ? 8b ce e8 ? ? ? ? ? "
-                       "8d ? ? ? ? ? ? 8b ce e8 ? ? ? ?",
-                       48, AdjustControls, void, CControls *,
+        REGISTER_HOOK (100047, AdjustControls, void, CControls *,
                        ControlSettings*);
 
         // REGISTER_HOOK ("eb ? ? 8b 0d ? ? ? ? ba 01 00 00 00 e8 ? ? ? ? e8 ? ? ? ?",

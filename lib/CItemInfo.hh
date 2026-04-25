@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include "ParserUtils.hh"
+#include "memory/GameAddress.hh"
 
 #include <common/logger.hh>
 
@@ -72,13 +73,11 @@ public:
     uint64_t                 field_0x88;
     uint32_t                 field_0x90;
 
-    static CWeaponInfoManager *sm_Instance;
+    inline static GameVariable<CWeaponInfoManager*, 100108> sm_Instance;
 
     inline static CItemInfo *
     GetInfoFromIndex (int index)
     {
         return sm_Instance->aItemInfos[index];
     }
-
-    static void InitialisePatterns ();
 };

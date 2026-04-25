@@ -22,8 +22,6 @@
 #include <string_view>
 #include <vadefs.h>
 
-void (*ReloadShaders)();
-
 class ShaderDebugInterface : public DebugInterface
 {
     inline static bool        sm_Enabled    = false;
@@ -186,14 +184,9 @@ public:
     ShaderDebugInterface ()
     {
         REGISTER_MH_HOOK_BRANCH (
-            "e8 ? ? ? ? ? 89 ? ? ? ? ? 8b 44 ? ? 89 ? ? ? ? ?", 0,
+            100042,
             RandomizeShader, void *, char *, const uint8_t *, uint32_t, uint32_t,
             void *);
-
-        ReadCall (hook::get_pattern ("89 ? ? ? ? ? e8 ? ? ? ? ? 8b ? e8 ? ? ? "
-                                     "? ? 84 ff 74 ? ? 8b ? e8 ? ? ? ?",
-                                     27),
-                  ReloadShaders);
 
         NativeManager::AddNative (0x1871102311122343, SetShaderState);
     }

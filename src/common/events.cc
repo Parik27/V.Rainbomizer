@@ -121,16 +121,12 @@ class EventTriggerer
 public:
     EventTriggerer ()
     {
-        REGISTER_HOOK ("e8 ? ? ? ? e8 ? ? ? ? ? 8d 0d ? ? ? ? ba 04 00 00 00",
-                       22, ProcessInitCallbacks, void, gameSkeleton *,
+        REGISTER_HOOK (100029, ProcessInitCallbacks, void, gameSkeleton *,
                        uint32_t);
 
-        REGISTER_HOOK (
-            "? 8d 0d ? ? ? ? ba 08 00 00 00 e8 ? ? ? ? c6 05 ? ? ? ? 01 ", 12,
-            ProcessInitCallbacks, void, gameSkeleton *, uint32_t);
+        REGISTER_HOOK (100030, ProcessInitCallbacks, void, gameSkeleton *, uint32_t);
 
-        REGISTER_HOOK ("8d 15 ? ? ? ? ? 8b c0 e8 ? ? ? ? ? 85 ff ? 89 1d", 9,
-                       RunThreadHook, eScriptState, uint64_t *, uint64_t *,
+        REGISTER_HOOK (100031, RunThreadHook, eScriptState, uint64_t *, uint64_t *,
                        scrProgram *, scrThreadContext *);
     }
 

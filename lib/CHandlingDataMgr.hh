@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include "rage.hh"
 #include "ParserUtils.hh"
 
@@ -33,14 +34,17 @@ DEFINE_SUB_HANDLING_CLASS (CSpecialFlightHandlingData);
 class CHandlingData : public ParserWrapper<CHandlingData>
 {
 public:
-    void InitValues ();
+    void InitValues ()
+    {
+        return GameFunction<100138, void()>::Call ();
+    }
 };
 
 /*******************************************************/
 class CHandlingDataMgr
 {
 public:
-    inline static CHandlingDataMgr *sm_Instance = nullptr;
+    inline static GameVariable<CHandlingDataMgr, 100137> sm_Instance{};
 
     atArray<CHandlingData *> pData;
 
