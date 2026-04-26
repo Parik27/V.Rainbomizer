@@ -36,7 +36,7 @@ class CHandlingData : public ParserWrapper<CHandlingData>
 public:
     void InitValues ()
     {
-        return GameFunction<100138, void()>::Call ();
+        return GameFunction<100138, void(CHandlingData*)>::Call (this);
     }
 };
 

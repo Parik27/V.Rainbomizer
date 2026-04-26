@@ -26,8 +26,8 @@ InitialisePattern (MemoryManager &manager)
     if (GameAddress<currentPattern.address>::IsResolved ())
         return;
 
-    uintptr_t addr = uintptr_t (
-        hook::get_pattern (currentPattern.pattern_str));
+    auto pattern = hook::pattern (currentPattern.pattern_str);
+    uintptr_t addr = uintptr_t (pattern.get (currentPattern.matchIdx).get<void*>());
 
     addr = currentPattern.resolver (addr);
 

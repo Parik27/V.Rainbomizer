@@ -190,7 +190,7 @@ class NativeWrapper
 public:
     uint32_t hash;
 
-    NativeWrapper (uint32_t hash) : hash (hash) {}
+    constexpr NativeWrapper (uint32_t hash) : hash (hash) {}
 
     template <typename... Args>
     inline ReturnType
@@ -212,7 +212,7 @@ public:
     }
 };
 
-inline NativeWrapper operator""_n (char const *s, size_t len)
+inline consteval NativeWrapper operator""_n (char const *s, size_t len)
 {
     return NativeWrapper (
         rage::atLiteralStringHash (std::string_view (s, len)));

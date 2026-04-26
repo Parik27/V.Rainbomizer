@@ -18,7 +18,7 @@ uint64_t (*pgStreamer_Request) (uint32_t, pgRequestInitParams *, uint32_t,
                                 uint32_t, pgRequestCallback, void *, uint32_t,
                                 uint32_t, uint64_t, uint32_t);
 
-GameVariable<pgRequestCallback, 100058> CB_sysIpcSignalSema{};
+GameFunction<100058, void (void*)> CB_sysIpcSignalSema{};
 
 /*******************************************************/
 /* Text Case Randomizer - randomizes the case of each letter for all texts
@@ -135,7 +135,7 @@ class TextCaseRandomizer
                            uint32_t p8, uint32_t p10)
     {
         return TextOnRequestAsyncHook (collectionId, request, numBuffers, p4,
-                                       CB_sysIpcSignalSema, Sema, 1, p8, 0,
+                                       &CB_sysIpcSignalSema, Sema, 1, p8, 0,
                                        p10);
     }
 

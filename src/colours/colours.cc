@@ -4,7 +4,6 @@
 #include <Utils.hh>
 
 #include <HSL.hh>
-#include <CHud.hh>
 #include <CARGB.hh>
 
 #include "common/logger.hh"

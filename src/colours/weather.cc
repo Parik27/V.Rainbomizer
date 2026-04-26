@@ -151,7 +151,7 @@ class WeatherRandomizer
     void
     InitialiseSnowHooks ()
     {
-        CRenderer_SnowPass = GameVariable<void*, 100027>{};
+        CRenderer_SnowPass = (void*) GAMEADDR(100027);
 
         REGISTER_HOOK (100028, SnowHook, void, void *);
     }

@@ -11,7 +11,7 @@ struct Pattern
     uintptr_t        address;
     std::string_view pattern_str;
     resolver_type    resolver = Offset<0> ();
-    uint32_t         matchIdx;
+    uint32_t         matchIdx = 0;
 
     template<int32_t offset>
     consteval static resolver_type Offset ()

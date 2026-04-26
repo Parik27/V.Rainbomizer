@@ -40,10 +40,10 @@ public:
         if (!ConfigManager::ReadConfig ("RainbomizerNews"))
             return;
 
-        static GameVariable<char*, 100055> cloudPath{};
+        static GameVariable<char, 100055> cloudPath{};
 
         if (cloudPath)
-            strcpy (cloudPath, "rbcld_%016I64x.dat");
+            strcpy (&cloudPath, "rbcld_%016I64x.dat");
 
         REGISTER_HOOK (100056, SetRainbowDomain, char *, char *, char *, uint32_t);
     }

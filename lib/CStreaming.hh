@@ -91,10 +91,10 @@ public:
         };
     };
 
-    inline static GameFunction<100103, bool(uint32_t)> HasModelLoaded{};
-    inline static GameFunction<100104, void(uint32_t, uint32_t)> RequestModel{};
+    inline static GameFunction<100103, bool(const uint32_t&)> HasModelLoaded{};
+    inline static GameFunction<100104, void(const uint32_t&, uint32_t)> RequestModel{};
     inline static GameFunction<100105, void(bool)> LoadAllObjects{};
-    inline static GameFunction<100106, void(uint32_t)> DeleteModel{};
+    inline static GameFunction<100106, void(const uint32_t&)> DeleteModel{};
 
     static CStreamingModelSets* GetModelSets()
     {
@@ -143,6 +143,6 @@ public:
         return static_cast<T *> (ms_aModelPointers->m_pData[index]);
     }
 
-    inline static GameVariable<modelInfoArray*, 100101> ms_aModelPointers;
-    inline static GameVariable<CStreaming*, 100102> sm_Instance;
+    inline static GameVariable<modelInfoArray, 100101> ms_aModelPointers;
+    inline static GameVariable<CStreaming, 100102> sm_Instance;
 };

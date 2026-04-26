@@ -222,7 +222,7 @@ public:
     }
 };
 
-constexpr std::uint32_t operator""_joaat (char const *s, size_t len)
+consteval std::uint32_t operator""_joaat (char const *s, size_t len)
 {
     return rage::atLiteralStringHash (std::string_view (s, len), 0);
 }

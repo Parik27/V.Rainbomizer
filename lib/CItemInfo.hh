@@ -73,7 +73,7 @@ public:
     uint64_t                 field_0x88;
     uint32_t                 field_0x90;
 
-    inline static GameVariable<CWeaponInfoManager*, 100108> sm_Instance;
+    inline static GameVariable<CWeaponInfoManager, 100108> sm_Instance;
 
     inline static CItemInfo *
     GetInfoFromIndex (int index)

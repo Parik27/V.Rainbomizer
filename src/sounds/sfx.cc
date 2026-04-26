@@ -4,7 +4,7 @@
 #include <audEngine.hh>
 #include <array>
 
-GameVariable<audMetadataMgr *, 100063> audMetadataMgr_GameObjects{};
+GameVariable<audMetadataMgr, 100063> audMetadataMgr_GameObjects{};
 
 class SfxRandomizer
 {
@@ -65,7 +65,7 @@ class SfxRandomizer
     static uint8_t *
     RandomizeSfx (audMetadataMgr *mgr, T data, uint32_t type)
     {
-        if (mgr == audMetadataMgr_GameObjects)
+        if (mgr == &audMetadataMgr_GameObjects)
             {
                 uint8_t *obj = GetRandomGameObjectOfType (mgr, type);
                 if (obj)

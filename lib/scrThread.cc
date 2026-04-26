@@ -12,7 +12,7 @@
 
 class gBaseScriptDirectory;
 
-static GameVariable<gBaseScriptDirectory*, 100113> scrProgramDirectory{};
+static GameVariable<gBaseScriptDirectory, 100113> scrProgramDirectory{};
 
 // Instruction set for disassembly later :P
 std::array<std::pair<const char *, const char *>, 128> mOpcodes
@@ -149,7 +149,7 @@ std::array<std::pair<const char *, const char *>, 128> mOpcodes
 scrProgram *
 scrProgram::FindProgramByHash (uint32_t hash)
 {
-    return GameFunction<100114, scrProgram*(gBaseScriptDirectory*, uint32_t)>::Call (scrProgramDirectory, hash);
+    return GameFunction<100114, scrProgram*(gBaseScriptDirectory*, uint32_t)>::Call (&scrProgramDirectory, hash);
 }
 
 /*******************************************************/

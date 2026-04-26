@@ -59,10 +59,10 @@ public:
     }
 
     template<typename T>
-    static T*
+    static T
     GetAs ()
     {
-        return reinterpret_cast<T*>(resolvedAddress);
+        return reinterpret_cast<T>(resolvedAddress);
     }
 
     template <typename T>
@@ -176,6 +176,12 @@ public:
     {
         return Call (args...);
     }
+
+    auto
+    operator& ()
+    {
+        return GameAddress<Address>::template GetAs <Ret (*) (Args...)> ();
+    }
 };
 
 template <typename T, uintptr_t Address> class GameVariable
@@ -192,7 +198,7 @@ public:
     auto
     operator& ()
     {
-        return GameAddress<Address>::template GetAs <T> ();
+        return GameAddress<Address>::template GetAs <T*> ();
     }
 
     auto
