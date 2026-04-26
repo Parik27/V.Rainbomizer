@@ -104,7 +104,7 @@ public:
     {
         if constexpr (Check)
             {
-                if (!Get ())
+                if (!IsResolved ())
                     return;
             }
 
@@ -117,7 +117,7 @@ public:
     {
         if constexpr (Check)
             {
-                if (!Get ())
+                if (!IsResolved ())
                     return;
             }
 
@@ -130,7 +130,7 @@ public:
     {
         if constexpr (Check)
             {
-                if (!Get ())
+                if (!IsResolved ())
                     return;
             }
 

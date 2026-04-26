@@ -327,14 +327,14 @@ class VoiceLineRandomizer
 
         // To correct the actual sound name it uses for initialising the speech
         // sound.
-        RegisterHook ((void*) GAMEADDR(100067), audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
+        RegisterHook ((void*) GAMEADDR(100068), audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
 
         // This hook is used to ensure that the game uses the correct subtitle
         // for a multiple-variation voice line. Game checks if "%s_02d" exists,
         // if not use the normal subtitle.
-        RegisterHook ((void*) GAMEADDR(100067), CorrectDoesTextLabelExist);
+        RegisterHook ((void*) GAMEADDR(100069), CorrectDoesTextLabelExist);
 
-        RegisterHook ((void*) GAMEADDR(100067), CText__GetText6f8e13, CorrectSubtitle);
+        RegisterHook ((void*) GAMEADDR(100070), CText__GetText6f8e13, CorrectSubtitle);
     }
 
     /*******************************************************/

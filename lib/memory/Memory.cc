@@ -27,6 +27,13 @@ InitialisePattern (MemoryManager &manager)
         return;
 
     auto pattern = hook::pattern (currentPattern.pattern_str);
+    if (pattern.size() < currentPattern.matchIdx + 1)
+        {
+            Rainbomizer::Logger::LogMessage (
+                "[PATTERN] Failed to find pattern for address %x", currentPattern.address);
+            return;
+        }
+
     uintptr_t addr = uintptr_t (pattern.get (currentPattern.matchIdx).get<void*>());
 
     addr = currentPattern.resolver (addr);

@@ -50,9 +50,9 @@ class PedRandomizer_PlayerFixes
                     int32_t  value;
                 };
 
-                static GameVariable<parEnumTranslationMap*, 100015> enumTranslationTable{};
+                static GameVariable<parEnumTranslationMap, 100015> enumTranslationTable{};
 
-                while (enumTranslationTable[++numSpecialAbilities].hash != 0)
+                while ((&enumTranslationTable)[++numSpecialAbilities].hash != 0)
                     ;
             }
 

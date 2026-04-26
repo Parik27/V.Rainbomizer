@@ -184,7 +184,7 @@ struct audMetadataChunk
     static uint32_t
     GetSize ()
     {
-        static GameVariable<uint32_t, 100127> size{};
+        static GameVariable<uint8_t, 100127> size{};
         return size;
     }
 };
