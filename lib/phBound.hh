@@ -56,6 +56,7 @@ public:
     uint16_t      NumBounds;
     uint64_t      field_0xa8;
 
+    GAME_ADDR_WRAPPER
     void AllocateTypeAndIncludeFlags ()
     {
         return GameFunction<100139, void (phBoundComposite*)>::Call (this);

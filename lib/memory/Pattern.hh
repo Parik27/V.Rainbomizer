@@ -55,3 +55,28 @@ struct Pattern
         };
     }
 };
+
+#if defined(_MSC_VER) && !defined(__clang__)
+    #pragma section(".pat_ids$a", read)
+    #pragma section(".pat_ids$m", read)
+    #pragma section(".pat_ids$z", read)
+    // Markers to find the start and end of the integer array
+    __declspec(allocate(".pat_ids$a")) inline const uint32_t pat_ids_start = 0;
+    __declspec(allocate(".pat_ids$z")) inline const uint32_t pat_ids_end = 0;
+
+    #define EMBED_ID(id) \
+        __declspec(allocate(".pat_ids$m")) \
+        inline static const uintptr_t entry = id
+#else
+    extern "C" const uintptr_t __start_pat_ids[];
+    extern "C" const uintptr_t __stop_pat_ids[];
+
+    #define EMBED_ID(id) \
+        __attribute__((used, section(".pat_ids"), aligned(4))) \
+        inline static const uintptr_t entry = id
+#endif
+
+template<uintptr_t ID>
+struct PatternTracker {
+    EMBED_ID(ID);
+};

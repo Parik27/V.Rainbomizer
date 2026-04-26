@@ -20,12 +20,14 @@ private:
     inline static GameVariable<tcVarInfo*, 100132> ms_pVarInfos{};
 
 public:
+    GAME_ADDR_WRAPPER
     inline static uint32_t &
     GetNumVars ()
     {
         return ms_numVars;
     }
 
+    GAME_ADDR_WRAPPER
     inline static tcVarInfo *&
     GetVarInfos ()
     {

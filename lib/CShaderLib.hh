@@ -11,6 +11,7 @@ public:
         GameFunction<100145, void(sgaShaderGroup*)>::Call (this);
     }
 
+    GAME_ADDR_WRAPPER
     bool
     LoadFile (char *shaderName)
     {

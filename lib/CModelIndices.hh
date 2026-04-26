@@ -8,6 +8,8 @@ struct CModelIndices
     inline static GameVariable<CModelIndices*, 100140> sm_Head{};
 
     static void InitialisePatterns ();
+
+    GAME_ADDR_WRAPPER
     static CModelIndices *
     GetHead ()
     {

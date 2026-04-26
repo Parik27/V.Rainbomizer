@@ -131,6 +131,7 @@ typedef enum eCombatBehaviourFlag
 class CPedIntelligence
 {
 public:
+    GAME_ADDR_WRAPPER
     rage::bitset<BF_TOTAL_FLAGS> &
     GetCombatBehaviourFlags ()
     {
@@ -175,6 +176,7 @@ public:
     uint8_t                  field_0x78;
     uint8_t                  field_0x79[7];
 
+    GAME_ADDR_WRAPPER
     void *AddWeapon (uint32_t hash, uint32_t ammo)
     {
         return GameFunction<100095, void *(CPedInventory *, uint32_t,
@@ -187,18 +189,21 @@ class CPed : public CEntity
 public:
     inline static GameFunction<100096, CPed*(uint32_t)> GetFromHandle{};
 
+    GAME_ADDR_WRAPPER
     CPedInventory *
     GetInventory ()
     {
         return GameOffset<100087>::Get<CPedInventory *> (this);
     }
 
-    CPedIntelligence *
+    GAME_ADDR_WRAPPER
+    inline CPedIntelligence *
     GetIntelligence ()
     {
         return GameOffset<100088>::Get<CPedIntelligence *> (this);
     }
 
+    GAME_ADDR_WRAPPER
     aiTask *
     CreateMotionTask (sMotionTaskData *set, bool lowLod)
     {
@@ -206,18 +211,21 @@ public:
                                              bool)>::Call (this, set, lowLod);
     }
 
+    GAME_ADDR_WRAPPER
     CVehicle *
     GetVehicle ()
     {
         return GameOffset<100092>::Get<CVehicle *> (this);
     }
 
+    GAME_ADDR_WRAPPER
     uint32_t
     GetMotionState ()
     {
         return GameOffset<100093>::Get<uint32_t> (this);
     }
 
+    GAME_ADDR_WRAPPER
     bool
     SetMotionState (uint32_t motionState, bool now)
     {

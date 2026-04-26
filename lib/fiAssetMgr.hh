@@ -6,6 +6,7 @@ class fiAssetMgr
 public:
     inline static GameVariable<fiAssetMgr, 100146> sm_Instance{};
 
+    GAME_ADDR_WRAPPER
     void
     PushFolder (const char *folder)
     {
@@ -13,6 +14,7 @@ public:
             this, folder);
     }
 
+    GAME_ADDR_WRAPPER
     void
     PopFolder ()
     {

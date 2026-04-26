@@ -157,12 +157,14 @@ public:
     inline static GameVariable<CPool<CVehicleStreamRequestGfx> *, 100118>
         g_pVehicleStreamRequestGfxPool{};
 
+    GAME_ADDR_WRAPPER
     inline static CPool<CVehicleStruct> *&
     GetVehicleStructPool ()
     {
         return g_pVehicleStructPool;
     };
 
+    GAME_ADDR_WRAPPER
     inline static auto *&
     GetVehicleStreamRequestGxtPool ()
     {

@@ -181,6 +181,7 @@ struct audMetadataChunk
         return FindObjectPtrFromHash<void> (name) != nullptr;
     }
 
+    GAME_ADDR_WRAPPER
     static uint32_t
     GetSize ()
     {
@@ -228,6 +229,7 @@ struct audMetadataMgr
         return ret;
     }
 
+    GAME_ADDR_WRAPPER
     void *FindObjectPtr (audMetadataRef ref)
     {
         return GameFunction<100129, void*(audMetadataMgr*, audMetadataRef)>::Call (this, ref);

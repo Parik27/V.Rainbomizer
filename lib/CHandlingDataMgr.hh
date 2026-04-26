@@ -34,6 +34,7 @@ DEFINE_SUB_HANDLING_CLASS (CSpecialFlightHandlingData);
 class CHandlingData : public ParserWrapper<CHandlingData>
 {
 public:
+    GAME_ADDR_WRAPPER
     void InitValues ()
     {
         return GameFunction<100138, void(CHandlingData*)>::Call (this);

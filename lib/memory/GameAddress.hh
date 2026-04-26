@@ -13,6 +13,7 @@
 
 #include <cstdint>
 
+#include "Pattern.hh"
 #include "PatternList.hh"
 
 template <uintptr_t pointer>
@@ -42,6 +43,8 @@ public:
     Get ()
         requires (DoesPatternExist<Address> ())
     {
+        (void)PatternTracker<Address>::entry;
+
 #ifdef DEBUG_GAME_ADDRESSES
         if (!resolved && !std::exchange (unresolvedMessagePrinted, true))
             Rainbomizer::Logger::LogMessage (
@@ -57,6 +60,7 @@ public:
     {
         return resolvedAddress;
     }
+
 
     template<typename T>
     static T
@@ -225,3 +229,4 @@ public:
 };
 
 #define GAMEADDR(x) GameAddress<(uintptr_t) x>::Get ()
+#define GAME_ADDR_WRAPPER template <int UNUSED_EVAL_PARAM = 0>

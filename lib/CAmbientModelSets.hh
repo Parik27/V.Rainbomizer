@@ -42,6 +42,7 @@ struct CAmbientModelSetsManager
 
     inline static GameVariable<CAmbientModelSetsManager*, 100142> sm_Instance{};
 
+    GAME_ADDR_WRAPPER
     static CAmbientModelSetsManager *
     Get ()
     {
