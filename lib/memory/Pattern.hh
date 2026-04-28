@@ -12,6 +12,7 @@ struct Pattern
     std::string_view pattern_str;
     resolver_type    resolver = Offset<0> ();
     uint32_t         matchIdx = 0;
+    bool             critical = true;
 
     template<int32_t offset>
     consteval static resolver_type Offset ()
@@ -80,3 +81,12 @@ template<uintptr_t ID>
 struct PatternTracker {
     EMBED_ID(ID);
 };
+
+#define CONCAT_IMPL(a, b) a ## b
+#define CONCAT(a, b) CONCAT_IMPL(a, b)
+
+inline static bool VerifyLocalPatterns()
+{
+    extern bool CONCAT(VerifyPatterns_, TU_NAME)();
+    return CONCAT(VerifyPatterns_, TU_NAME)();
+}

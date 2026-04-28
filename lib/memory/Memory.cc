@@ -1,8 +1,11 @@
 #include "Memory.hh"
+#include "GameVersion.hh"
+#include "common/common.hh"
 #include "injector/injector.hpp"
 #include "memory/GameAddress.hh"
 #include "memory/MemorySignature.hh"
 #include "memory/Pattern.hh"
+#include "memory/RuntimePattern.hh"
 #include <cstring>
 #include <string_view>
 #include <utility>
@@ -14,6 +17,8 @@
 #include <Patterns/Patterns.hh>
 
 #define GAME_INTERNAL_NAME "GTA3"
+
+void ResolveGameAddresses (const Rainbomizer::RuntimePatternManager &manager);
 
 template <std::size_t NUM = 0>
 inline void
@@ -27,14 +32,16 @@ InitialisePattern (MemoryManager &manager)
         return;
 
     auto pattern = hook::pattern (currentPattern.pattern_str);
-    if (pattern.size() < currentPattern.matchIdx + 1)
+    if (pattern.size () < currentPattern.matchIdx + 1)
         {
             Rainbomizer::Logger::LogMessage (
-                "[PATTERN] Failed to find pattern for address %x", currentPattern.address);
+                "[PATTERN] Failed to find pattern for address %x",
+                currentPattern.address);
             return;
         }
 
-    uintptr_t addr = uintptr_t (pattern.get (currentPattern.matchIdx).get<void*>());
+    uintptr_t addr
+        = uintptr_t (pattern.get (currentPattern.matchIdx).get<void *> ());
 
     addr = currentPattern.resolver (addr);
 
@@ -59,9 +66,27 @@ MemoryManager::InitialiseAllPatterns ()
 {
     // Rainbomizer::Logger::FunctionBenchmark benchmark;
 
-    [this]<std::size_t... I> (std::index_sequence<I...>) {
-        (..., InitialisePattern<I> (*this));
-    }(std::make_index_sequence<std::size (s_Patterns)>{});
+    FILE *patternsFile;
+
+    if (GameVersion::IsEnhanced ())
+        patternsFile = Rainbomizer::Common::GetRainbomizerDataFile (
+            "patterns_enhanced.bin");
+    else
+        patternsFile = Rainbomizer::Common::GetRainbomizerDataFile (
+            "patterns_legacy.bin");
+
+    Rainbomizer::RuntimePatternManager manager;
+    manager.ReadFromFile (patternsFile);
+    manager.ResolvePatterns ();
+
+    ResolveGameAddresses (manager);
+
+    if constexpr (false)
+        {
+            [this]<std::size_t... I> (std::index_sequence<I...>) {
+                (..., InitialisePattern<I> (*this));
+            }(std::make_index_sequence<std::size (s_Patterns)>{});
+        }
 }
 
 void

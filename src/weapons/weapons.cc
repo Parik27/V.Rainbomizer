@@ -235,7 +235,7 @@ class WeaponRandomizer
 
         // NOP JZ instruction to ensure that a weapon is always equipped by the
         // ped (weapons given by script only)
-        GameAddress<100084>::WriteMemory<uint16_t>(0x9090);
+        GameAddress<100084>::WriteMemory<uint16_t> (0x9090);
     }
 
 public:
@@ -246,6 +246,11 @@ public:
             return;
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "WeaponRandomizer"))
+            return;
+
         InitialiseRandomWeaponsHook ();
     }
 } _weap;

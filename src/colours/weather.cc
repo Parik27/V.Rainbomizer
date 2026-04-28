@@ -10,6 +10,7 @@
 #include "memory/GameAddress.hh"
 #include "weather_Timecycle.hh"
 #include <future>
+#include "common/common.hh"
 
 #ifdef ENABLE_DEBUG_MENU
 #include <debug/base.hh>
@@ -44,8 +45,7 @@ class WeatherRandomizer
     static void
     RandomizeWeather ()
     {
-        auto GetRandomWeather = []() -> auto &
-        {
+        auto GetRandomWeather = [] () -> auto & {
             return CWeather::g_Weather->aWeatherTypes[RandomInt (
                 CWeather::g_Weather->nTotalTypes - 1)];
         };
@@ -151,7 +151,7 @@ class WeatherRandomizer
     void
     InitialiseSnowHooks ()
     {
-        CRenderer_SnowPass = (void*) GAMEADDR(100027);
+        CRenderer_SnowPass = (void *) GAMEADDR (100027);
 
         REGISTER_HOOK (100028, SnowHook, void, void *);
     }
@@ -166,6 +166,10 @@ public:
                         ThunderstormOdds, RandomSnow, SnowOdds);
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "TimecycleRandomizer"))
+            return;
 
 #ifdef ENABLE_DEBUG_MENU
         DebugInterfaceManager::AddAction ("Randomize Weather",

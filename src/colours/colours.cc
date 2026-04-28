@@ -9,6 +9,7 @@
 #include "common/logger.hh"
 #include "common/events.hh"
 #include "common/config.hh"
+#include "common/common.hh"
 
 void (*CHud__SetHudColour) (int, int, int, int, int);
 
@@ -52,9 +53,12 @@ public:
 
         InitialiseAllComponents ();
 
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("HudRandomizer"))
+            return;
+
         // Hud Colours
-        RegisterHook ((void*) GAMEADDR(100024),
-                      CHud__SetHudColour, SetNewHudColour);
+        RegisterHook ((void *) GAMEADDR (100024), CHud__SetHudColour,
+                      SetNewHudColour);
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;
     }

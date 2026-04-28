@@ -20,11 +20,12 @@ class ConfigManager
     void WriteDefaultConfig (const std::string &file);
     std::shared_ptr<cpptoml::table> ParseDefaultConfig ();
 
+    bool GetIsEnabled (const std::string &name);
+
     template <typename T>
     void ReadValue (const std::string &tableName, const std::string &key,
                     T &out, bool tmp = false);
 
-    bool GetIsEnabled (const std::string &name);
 
 public:
     /// Returns the static instance for ConfigManager.
@@ -43,4 +44,6 @@ public:
         (GetInstance ()->ReadValue (table, params.first, *params.second), ...);
         return true;
     }
+
+    static bool ReadGlobalBool (const std::string &name, bool default_value = true);
 };

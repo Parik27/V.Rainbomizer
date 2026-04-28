@@ -13,7 +13,11 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1.5.0
       with:
         arch: x64
-        
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
     - name: Compile
       run: |
         mkdir bin
@@ -27,10 +31,9 @@ jobs:
         rm output/rainbomizer/data/update.sh
         rm output/rainbomizer/data/README.md
         cp ../config.toml output/rainbomizer/
-        
+
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
         name: "V.Rainbomizer"
         path: bin/output
-        

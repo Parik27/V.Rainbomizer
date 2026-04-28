@@ -25,6 +25,7 @@ const char configDefault[] = R"(
 
 RainbomizerCredits = true
 RainbomizerNews = true
+VerifyPatterns = true
 
 CarGeneratorRandomizer = true
 ClothesRandomizer = true

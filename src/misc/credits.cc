@@ -3,6 +3,7 @@
 #include <common/config.hh>
 #include <common/logger.hh>
 #include <common/minhook.hh>
+#include <common/common.hh>
 
 #include <Utils.hh>
 #include <cstdint>
@@ -48,16 +49,17 @@ class RainbomizerCredits
         uint32_t nOrigArrSize = 0;
         uint32_t nOrigArrCapa = 0;
 
-        std::unique_ptr<uint8_t[]> pCreditItemData;
+        std::unique_ptr<uint8_t[]>         pCreditItemData;
         atArrayGetSizeWrapper<CCreditItem> aEditedCredits;
 
-        auto GetCreditItems ()
+        auto
+        GetCreditItems ()
         {
             return CCreditArray::sm_Instance->GetCreditItems ();
         }
 
     public:
-        NewCredits (){};
+        NewCredits () {};
 
         bool
         ShouldRegenerate ()
@@ -87,7 +89,7 @@ class RainbomizerCredits
             if (!ShouldRegenerate ())
                 return;
 
-            if (GetCreditItems().Size == 0)
+            if (GetCreditItems ().Size == 0)
                 return;
 
             ResetEditedCreditsData (GetTotalCreditLinesAfterEditing ());
@@ -119,7 +121,7 @@ class RainbomizerCredits
         void
         Replace ()
         {
-            auto &arr = CCreditArray::sm_Instance->GetCreditItems();
+            auto &arr = CCreditArray::sm_Instance->GetCreditItems ();
 
             pOrigArrData
                 = std::exchange (*reinterpret_cast<uint8_t **> (&arr.Data),
@@ -132,7 +134,7 @@ class RainbomizerCredits
         void
         Restore ()
         {
-            auto &arr    = CCreditArray::sm_Instance->GetCreditItems();
+            auto &arr = CCreditArray::sm_Instance->GetCreditItems ();
 
             *reinterpret_cast<uint8_t **> (&arr.Data) = pOrigArrData;
             arr.Size                                  = nOrigArrSize;
@@ -169,12 +171,11 @@ class RainbomizerCredits
     void
     InitialiseFixJobTitleHooks ()
     {
-        REGISTER_HOOK (100051, FixJobTitles, char*, CText*, char*);
-        REGISTER_HOOK (100052, FixJobTitles, char*, CText*, char*);
+        REGISTER_HOOK (100051, FixJobTitles, char *, CText *, char *);
+        REGISTER_HOOK (100052, FixJobTitles, char *, CText *, char *);
     }
 
 public:
-
     RainbomizerCredits ()
     {
         if (!ConfigManager::ReadConfig ("RainbomizerCredits"))
@@ -182,8 +183,11 @@ public:
 
         InitialiseAllComponents ();
 
-        REGISTER_MH_HOOK (
-            100053, ReplaceCreditsArray, void, bool);
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "RainbomizerCredits"))
+            return;
+
+        REGISTER_MH_HOOK (100053, ReplaceCreditsArray, void, bool);
 
         InitialiseFixJobTitleHooks ();
     }

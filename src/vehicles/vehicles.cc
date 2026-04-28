@@ -401,6 +401,12 @@ public:
         RB_C_DO_CONFIG ("ScriptVehicleRandomizer", LogSpawnedVehicles,
                         ForcedVehicle, FixBrokenHelicopters);
 
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "ScriptVehicleRandomizer"))
+            return;
+
         HOOK ("ATTACH_ENTITY_TO_ENTITY", FixFinaleHeistPrepdHelicopter);
         HOOK ("APPLY_FORCE_TO_ENTITY", FixFinaleC2Physics);
         HOOK_A ("IS_VEHICLE_MODEL", RemoveTriathlonFailState);
@@ -408,7 +414,6 @@ public:
 
         "SET_VEHICLE_EXTRA"_n.Hook (FixBrokenHelicopters);
 
-        InitialiseAllComponents ();
         InitialiseRandomVehiclesHook ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
 

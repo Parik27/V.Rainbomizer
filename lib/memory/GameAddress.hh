@@ -27,6 +27,17 @@ DoesPatternExist ()
     return false;
 }
 
+template <uintptr_t pointer>
+consteval bool
+IsPatternCritical ()
+{
+    for (auto i : s_Patterns)
+        if (i.address == pointer)
+            return i.critical;
+
+    return false;
+}
+
 /* A class that will store the addresses after pattern resolution and contains
  * helper function to interact with the said addresses */
 template <uintptr_t Address> class GameAddress
@@ -43,7 +54,8 @@ public:
     Get ()
         requires (DoesPatternExist<Address> ())
     {
-        (void)PatternTracker<Address>::entry;
+        if constexpr (IsPatternCritical <Address> ())
+            (void)PatternTracker<Address>::entry;
 
 #ifdef DEBUG_GAME_ADDRESSES
         if (!resolved && !std::exchange (unresolvedMessagePrinted, true))
@@ -98,8 +110,11 @@ public:
     static void
     SetResolvedAddress (uintptr_t addr)
     {
-        resolvedAddress = addr;
-        resolved        = true;
+        if (addr != 0)
+            {
+                resolvedAddress = addr;
+                resolved        = true;
+            }
     }
 
     template <bool Check = true>

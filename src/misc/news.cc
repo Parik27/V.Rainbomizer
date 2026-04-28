@@ -40,11 +40,17 @@ public:
         if (!ConfigManager::ReadConfig ("RainbomizerNews"))
             return;
 
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("RainbomizerNews"))
+            return;
+
         static GameVariable<char, 100055> cloudPath{};
 
         if (cloudPath)
             strcpy (&cloudPath, "rbcld_%016I64x.dat");
 
-        REGISTER_HOOK (100056, SetRainbowDomain, char *, char *, char *, uint32_t);
+        REGISTER_HOOK (100056, SetRainbowDomain, char *, char *, char *,
+                       uint32_t);
     }
 } news;

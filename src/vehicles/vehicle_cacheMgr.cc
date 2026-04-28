@@ -37,6 +37,9 @@ VehicleModelInfoCacheMgr::WriteCacheFile ()
 void
 VehicleModelInfoCacheMgr::GenerateCache ()
 {
+    if (!Rainbomizer::Common::VerifyAndValidatePatterns("VehicleModelInfoCacheMgr"))
+        return;
+
     auto  timestamp = clock ();
     auto &hashes    = Rainbomizer::Common::GetVehicleHashes ();
 

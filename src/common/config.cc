@@ -105,6 +105,12 @@ ConfigManager::GetIsEnabled (const std::string &name)
     return enabled;
 }
 
+bool
+ConfigManager::ReadGlobalBool (const std::string &name, bool default_value)
+{
+    return GetInstance()->m_pConfig->get_as <bool> (name).value_or(default_value);
+}
+
 template <typename T>
 void
 ConfigManager::ReadValue (const std::string &tableName, const std::string &key,

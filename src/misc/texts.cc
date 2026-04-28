@@ -5,11 +5,12 @@
 #include <common/logger.hh>
 #include <exceptions/exceptions_Mgr.hh>
 #include <common/config.hh>
+#include <common/common.hh>
 
 struct pgRequestInitParams
 {
     uint64_t field_0x0;
-    void *   pData;
+    void    *pData;
     uint64_t nSizeInMem;
 };
 
@@ -18,7 +19,7 @@ uint64_t (*pgStreamer_Request) (uint32_t, pgRequestInitParams *, uint32_t,
                                 uint32_t, pgRequestCallback, void *, uint32_t,
                                 uint32_t, uint64_t, uint32_t);
 
-GameFunction<100058, void (void*)> CB_sysIpcSignalSema{};
+GameFunction<100058, void (void *)> CB_sysIpcSignalSema{};
 
 /*******************************************************/
 /* Text Case Randomizer - randomizes the case of each letter for all texts
@@ -34,8 +35,8 @@ class TextCaseRandomizer
     // original data, which is stored in pOriginalData.
     struct CallbackData
     {
-        void *            pOutData;
-        void *            pOriginalData;
+        void             *pOutData;
+        void             *pOriginalData;
         pgRequestCallback pOriginalCb;
 
         CallbackData (void *data, void *origData, pgRequestCallback cb)
@@ -150,11 +151,16 @@ public:
 
         InitialiseAllComponents ();
 
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "TextCaseRandomizer"))
+            return;
+
         if (RandomInt (m_Config.Odds) != 0)
             return;
 
-        RegisterHook ((void*) GAMEADDR(100059), pgStreamer_Request, TextOnRequestAsyncHook);
-        RegisterHook ((void*) GAMEADDR(100060), TextOnRequestSyncHook);
-        RegisterHook ((void*) GAMEADDR(100061), TextOnRequestSyncHook);
+        RegisterHook ((void *) GAMEADDR (100059), pgStreamer_Request,
+                      TextOnRequestAsyncHook);
+        RegisterHook ((void *) GAMEADDR (100060), TextOnRequestSyncHook);
+        RegisterHook ((void *) GAMEADDR (100061), TextOnRequestSyncHook);
     }
 } _texts;

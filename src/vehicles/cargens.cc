@@ -40,7 +40,7 @@ class CarGeneratorRandomizer
     {
         return modelHash != "gauntlet"_joaat;
     }
-    
+
     /*******************************************************/
     template <auto &CCarGen__Init>
     static void
@@ -62,11 +62,12 @@ class CarGeneratorRandomizer
             p20, p21, p22);
 #endif
 
-        if (Config().Enable && ShouldRandomize (modelHash))
+        if (Config ().Enable && ShouldRandomize (modelHash))
             {
                 *vehicleGroup = 0;
 
-                // Remove flags that make it spawn ambulance/firetruck/police car
+                // Remove flags that make it spawn ambulance/firetruck/police
+                // car
                 flags &= (~(0b11001100));
 
                 // 0 to get the engine to randomize them (still need a way to
@@ -79,19 +80,27 @@ class CarGeneratorRandomizer
             }
 
         return CCarGen__Init (p1, x, y, z, rotX, rotY, rotZ, modelHash, colPrim,
-                              colSec, colTert, colQuat, col5, col6, flags, p14, p15, p16,
-                              p17, vehicleGroup, p19, p20, p21, p22);
+                              colSec, colTert, colQuat, col5, col6, flags, p14,
+                              p15, p16, p17, vehicleGroup, p19, p20, p21, p22);
     }
 
 public:
     /*******************************************************/
     CarGeneratorRandomizer ()
     {
-        RB_C_DO_CONFIG ("CarGeneratorRandomizer", Enable, Vehicle, ForceOnRandomGens);
+        RB_C_DO_CONFIG ("CarGeneratorRandomizer", Enable, Vehicle,
+                        ForceOnRandomGens);
 
-        REGISTER_HOOK (100072, RandomizeCarGenerator, void, CCarGen *, float, float,
-                       float, float, float, float, uint32_t, int32_t, int32_t,
-                       int32_t, int32_t, int32_t, int32_t, uint32_t, uint32_t, uint64_t, uint64_t, uint64_t,
-                       uint32_t *, uint64_t, uint64_t, uint64_t, uint64_t);
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "CarGeneratorRandomizer"))
+            return;
+
+        REGISTER_HOOK (100072, RandomizeCarGenerator, void, CCarGen *, float,
+                       float, float, float, float, float, uint32_t, int32_t,
+                       int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t,
+                       uint32_t, uint64_t, uint64_t, uint64_t, uint32_t *,
+                       uint64_t, uint64_t, uint64_t, uint64_t);
     }
 } g_CarGeneratorRandomizer;

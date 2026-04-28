@@ -1,6 +1,7 @@
 #include <Utils.hh>
 #include <common/events.hh>
 #include <common/config.hh>
+#include <common/common.hh>
 #include "CHandlingDataMgr.hh"
 #include <common/parser.hh>
 
@@ -210,13 +211,13 @@ class HandlingRandomizer
          * being read from the parser, so there needs to be a hook that samples
          * them before they're post processed */
 
-        REGISTER_HOOK (100076, AddRandomizationSamples, parTree *,
-                           parManager *, fiStream *, parStructure *,
-                           CHandlingDataMgr *, bool, void *);
+        REGISTER_HOOK (100076, AddRandomizationSamples, parTree *, parManager *,
+                       fiStream *, parStructure *, CHandlingDataMgr *, bool,
+                       void *);
 
-        REGISTER_HOOK (100077, AddRandomizationSamples, parTree *,
-                           parManager *, fiStream *, parStructure *,
-                           CHandlingDataMgr *, bool, void *);
+        REGISTER_HOOK (100077, AddRandomizationSamples, parTree *, parManager *,
+                       fiStream *, parStructure *, CHandlingDataMgr *, bool,
+                       void *);
     }
 
 public:
@@ -227,6 +228,11 @@ public:
             return;
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "HandlingRandomizer"))
+            return;
+
         InitialiseCollectSamplesHooks ();
 
         Rainbomizer::Events ().OnInit += [] (bool session) {

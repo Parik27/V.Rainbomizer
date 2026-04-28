@@ -1,6 +1,7 @@
 #include <common/config.hh>
 #include <common/events.hh>
 #include <common/minhook.hh>
+#include <common/common.hh>
 
 #ifdef ENABLE_DEBUG_MENU
 #include <debug/base.hh>
@@ -142,9 +143,11 @@ public:
                                 &Config ().LightShiftFrequency),
                 std::make_pair ("RandomizeOdds", &Config ().RandomizeOdds)))
             return;
-        ;
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("LightRandomizer"))
+            return;
 
 #ifdef RANDOMIZE_VISUAL_SETTINGS_COLOURS
         REGISTER_MH_HOOK_BRANCH ("0f 45 44 ? ? ? 8d ? ? 40 ? 8b cd e8 ", 13,
@@ -155,9 +158,9 @@ public:
         REGISTER_MH_HOOK (100025, RandomizeLightCone, bool, LightConeInfo *,
                           void *, bool);
 
-        REGISTER_MH_HOOK (100026, RandomizeCorona, void, CCoronas *, rage::Vec3V *,
-                          float, CARGB, float, float, float *, uint32_t, float,
-                          float, uint16_t);
+        REGISTER_MH_HOOK (100026, RandomizeCorona, void, CCoronas *,
+                          rage::Vec3V *, float, CARGB, float, float, float *,
+                          uint32_t, float, float, uint16_t);
 
         Rainbomizer::Events ().OnFade += RandomizeOnFade;
 

@@ -1,5 +1,6 @@
 #include "CMath.hh"
 #include "CStreaming.hh"
+#include "Utils.hh"
 #include "common/logger.hh"
 #include "rage.hh"
 #include "CTheScripts.hh"
@@ -106,6 +107,11 @@ public:
     RampRandomizer ()
     {
         if (!ConfigManager::ReadConfig ("RampRandomizer"))
+            return;
+
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("RampRandomizer"))
             return;
 
         Rainbomizer::Events ().OnScriptStart += HandleScriptStart;

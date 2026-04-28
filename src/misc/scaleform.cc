@@ -82,7 +82,7 @@ class ScaleformRandomizer
 
     /*******************************************************/
     static void
-    RandomizeScaleformMethod (char *                              name,
+    RandomizeScaleformMethod (char                               *name,
                               ScaleformMethodStruct::ParamStruct *params)
     {
         uint32_t hash = rage::atLiteralStringHash (name);
@@ -102,7 +102,7 @@ class ScaleformRandomizer
     template <auto &CScaleformMgr__AddMethodToBuffer>
     static void *
     RandomizeScaleformMethod (void *p1, int p2, uint64_t p3, uint64_t p4,
-                              char *                              name,
+                              char                               *name,
                               ScaleformMethodStruct::ParamStruct *params,
                               uint32_t p7, bool p8, bool p9, int p10, int p11)
     {
@@ -147,12 +147,16 @@ public:
                 "ScaleformRandomizer",
                 std::make_pair ("FailMessageOdds", &Config ().FailMessageOdds)))
             return;
-        ;
 
         InitialiseAllComponents ();
-        REGISTER_HOOK (100057,
-                       RandomizeScaleformMethod, void *, void *, int, uint64_t,
-                       uint64_t, char *, ScaleformMethodStruct::ParamStruct *,
-                       uint32_t, bool, bool, int, int);
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "ScaleformRandomizer"))
+            return;
+
+        REGISTER_HOOK (100057, RandomizeScaleformMethod, void *, void *, int,
+                       uint64_t, uint64_t, char *,
+                       ScaleformMethodStruct::ParamStruct *, uint32_t, bool,
+                       bool, int, int);
     }
 } _scaleform;

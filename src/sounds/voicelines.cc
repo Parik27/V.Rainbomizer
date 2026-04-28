@@ -73,7 +73,7 @@ class VoiceLineRandomizer
             NextTypeUpdate = time (NULL) + duration;
         }
 
-        State (){};
+        State () {};
 
     } inline static sm_State;
 
@@ -315,26 +315,27 @@ class VoiceLineRandomizer
                                  uint32_t, uint32_t, char *, const char *,
                                  uint32_t, uint8_t, uint8_t, uint8_t, uint8_t,
                                  uint8_t, uint32_t, uint8_t, uint8_t, uint8_t> (
-            (void*) GAMEADDR(100066),
-            RandomizeConversationLine)
+            (void *) GAMEADDR (100066), RandomizeConversationLine)
             .Activate ();
 
         // To correct the random variation the audio engine gets for the sounds.
         // <true> = JMP instruction
-        RegisterHook<true> ((void*) GAMEADDR(100067),
+        RegisterHook<true> ((void *) GAMEADDR (100067),
                             FindRandomValidVariationForVoiceAndContext_93837,
                             CorrectFindRandomVariation);
 
         // To correct the actual sound name it uses for initialising the speech
         // sound.
-        RegisterHook ((void*) GAMEADDR(100068), audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
+        RegisterHook ((void *) GAMEADDR (100068),
+                      audSpeechSound_InitSpeech4316c, CorrectInitSpeech);
 
         // This hook is used to ensure that the game uses the correct subtitle
         // for a multiple-variation voice line. Game checks if "%s_02d" exists,
         // if not use the normal subtitle.
-        RegisterHook ((void*) GAMEADDR(100069), CorrectDoesTextLabelExist);
+        RegisterHook ((void *) GAMEADDR (100069), CorrectDoesTextLabelExist);
 
-        RegisterHook ((void*) GAMEADDR(100070), CText__GetText6f8e13, CorrectSubtitle);
+        RegisterHook ((void *) GAMEADDR (100070), CText__GetText6f8e13,
+                      CorrectSubtitle);
     }
 
     /*******************************************************/
@@ -419,6 +420,11 @@ public:
                         OrderedDialogueChangeFrequency);
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "VoiceLineRandomizer"))
+            return;
+
         InitialiseHooks ();
 
         Rainbomizer::Events ().OnInit += [] (bool session) {

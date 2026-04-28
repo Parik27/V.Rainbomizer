@@ -4,6 +4,7 @@
 
 #include <common/ysc.hh>
 #include <common/config.hh>
+#include <common/common.hh>
 
 class SwitchSceneRandomizer
 {
@@ -67,6 +68,12 @@ public:
     SwitchSceneRandomizer ()
     {
         if (!ConfigManager::ReadConfig ("SwitchSceneRandomizer"))
+            return;
+
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "SwitchSceneRandomizer"))
             return;
 
         YscCodeEdits::Add ("Switch Scene Randomizer", InitRandomSwitchScenes);

@@ -1,5 +1,6 @@
 #include "Utils.hh"
 #include "common/config.hh"
+#include "common/common.hh"
 #include "memory/GameAddress.hh"
 #include <audEngine.hh>
 #include <array>
@@ -84,10 +85,13 @@ public:
 
         InitialiseAllComponents ();
 
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("SfxRandomizer"))
+            return;
+
         // Function that returns the game object metadata for a specific type
         // and hash. Also read the GameObjects metadata manager because the
         // function is also used for other metadata managers.
-        MakeJMP64 (GAMEADDR(100064), RandomizeSfx<uint32_t>);
-        MakeJMP64 (GAMEADDR(100065), RandomizeSfx<audMetadataRef>);
+        MakeJMP64 (GAMEADDR (100064), RandomizeSfx<uint32_t>);
+        MakeJMP64 (GAMEADDR (100065), RandomizeSfx<audMetadataRef>);
     }
 } sfx;

@@ -1,5 +1,6 @@
 #include "CPed.hh"
 #include "common/common.hh"
+#include "memory/Pattern.hh"
 #include "peds/clothes_Queue.hh"
 #include "rage.hh"
 #include <Utils.hh>
@@ -40,7 +41,7 @@ class ClothesRandomizer
     using Queue = ClothesRandomizer_Queue;
 
     inline static bool m_CurrentlyRandomizing = false;
-    
+
     static constexpr uint32_t DRAWABLE_NATIVE
         = "GET_NUMBER_OF_PED_DRAWABLE_VARIATIONS"_joaat;
     static constexpr uint32_t TEXTURE_NATIVE
@@ -93,7 +94,7 @@ class ClothesRandomizer
             return true;
 
         ReadNSFWComponentsData ();
-        
+
         uint32_t modelHash = "GET_ENTITY_MODEL"_n(ped);
         for (auto &i : sm_NsfwComponents)
             {
@@ -212,9 +213,9 @@ class ClothesRandomizer
             return;
 
         char line[512] = {0};
-        while (fgets(line, 512, f))
+        while (fgets (line, 512, f))
             {
-                char model[64] = {0};
+                char              model[64] = {0};
                 NSFWComponentData data;
 
                 if (sscanf (line, "%s %d %d", model, &data.component,
@@ -233,6 +234,12 @@ public:
         RB_C_DO_CONFIG ("ClothesRandomizer", RandomizeOdds, MaskOdds,
                         ParachuteOdds, ForcedRandomComponent,
                         EnableNSFWComponents);
+
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "ClothesRandomizer"))
+            return;
 
         m_ComponentOdds[PED_COMP_HEAD]     = Config ().MaskOdds;
         m_ComponentOdds[PED_COMP_SPECIAL]  = Config ().ParachuteOdds;
@@ -254,9 +261,8 @@ public:
         "SET_PED_COMPONENT_VARIATION"_n.Hook ([] (scrThread::Info *info) {});
         "SET_PED_PROP_INDEX"_n.Hook ([] (scrThread::Info *info) {});
 
-        REGISTER_MH_HOOK (
-            100011,
-            ChangeClothesEvent, bool, CPed *, uint32_t, uint32_t, uint32_t,
-            uint32_t, uint32_t, uint32_t, bool)
+        REGISTER_MH_HOOK (100011, ChangeClothesEvent, bool, CPed *, uint32_t,
+                          uint32_t, uint32_t, uint32_t, uint32_t, uint32_t,
+                          bool)
     }
 } g_ClothesRandomizer;

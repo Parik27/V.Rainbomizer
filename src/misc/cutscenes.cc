@@ -84,6 +84,11 @@ public:
 
         InitialiseAllComponents ();
 
-        RegisterHook ((void*) GAMEADDR(100054), VisitTopLevelStructure_37027e, RandomizeCutScene);
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "CutSceneRandomizer"))
+            return;
+
+        RegisterHook ((void *) GAMEADDR (100054), VisitTopLevelStructure_37027e,
+                      RandomizeCutScene);
     }
 } _cuts;

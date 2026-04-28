@@ -8,6 +8,7 @@
 #include <common/config.hh>
 #include <common/parser.hh>
 #include <common/mods.hh>
+#include <common/common.hh>
 
 #include <scrThread.hh>
 
@@ -40,8 +41,7 @@ class PedRandomizer
 
     constexpr static const char PedsFileName[] = "CutsceneModelsPeds.txt";
     using CutsPedsRandomizer
-        = DataFileBasedModelRandomizer<PedsFileName,
-                                       IsValidPedModel>;
+        = DataFileBasedModelRandomizer<PedsFileName, IsValidPedModel>;
 
     /*******************************************************/
     static bool
@@ -199,27 +199,27 @@ public:
                 OPTION (OddsOfPlayerModels), OPTION (RandomizePeds)))
             return;
 
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns ("PedRandomizer"))
+            return;
+
         if (PR::Config ().ForcedPed.size ())
             PR::Config ().ForcedPedHash
                 = rage::atStringHash (PR::Config ().ForcedPed);
 
-        InitialiseAllComponents ();
-
         // Hooks
-        RegisterHook ((void*) GAMEADDR(100008),
+        RegisterHook ((void *) GAMEADDR (100008),
                       CPedFactory_CreateNonCopPed_5c6,
                       RandomizePed<CPedFactory_CreateNonCopPed_5c6>);
 
         if (PR::Config ().UseCutsceneModelsFile)
-            REGISTER_HOOK (100009,
-                           RandomizeCutscenePeds, void,
+            REGISTER_HOOK (100009, RandomizeCutscenePeds, void,
                            class CCutsceneAnimatedActorEntity *, uint32_t,
                            bool);
 
-        REGISTER_HOOK (
-            100010,
-            RandomizePed, CPed *, CPedFactory *, uint8_t *, uint32_t, uint64_t,
-            uint8_t);
+        REGISTER_HOOK (100010, RandomizePed, CPed *, CPedFactory *, uint8_t *,
+                       uint32_t, uint64_t, uint8_t);
 
         PR::Initialise ();
     }

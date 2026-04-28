@@ -1,5 +1,9 @@
 #pragma once
 
+#include "common/config.hh"
+#include "common/logger.hh"
+#include "memory/GameAddress.hh"
+#include "memory/Pattern.hh"
 #include <vector>
 #include <functional>
 #include <cstdio>
@@ -33,5 +37,21 @@ public:
 
     static FILE *GetRainbomizerDataFile (const std::string &name,
                                          const std::string &mode = "r");
+
+    static bool VerifyAndValidatePatterns (const std::string &randomizerName)
+    {
+        if (!ConfigManager::ReadGlobalBool("ValidatePatterns"))
+            return true;
+
+        if (!VerifyLocalPatterns ())
+            {
+                Logger::LogMessage ("Randomizer '%s' will be disabled because "
+                                    "its required patterns failed to resolve",
+                                    randomizerName.c_str ());
+                return false;
+            }
+
+        return false;
+    }
 };
 } // namespace Rainbomizer

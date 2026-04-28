@@ -25,7 +25,7 @@ class TrafficRandomizer
             bool EnableHelis  = true;
             bool EnableBoats  = true;
 
-            bool DisableBigVehicles = false;
+            bool DisableBigVehicles    = false;
             bool DisableLoadingTraffic = false;
         } m_Config;
 
@@ -82,7 +82,8 @@ class TrafficRandomizer
     }
 
     /*******************************************************/
-    static uint32_t __fastcall RandomizeCarToLoad (CStreaming *inst)
+    static uint32_t __fastcall
+    RandomizeCarToLoad (CStreaming *inst)
     {
         if (Config ().DisableLoadingTraffic)
             return 65535;
@@ -112,17 +113,22 @@ public:
         RB_C_DO_CONFIG ("TrafficRandomizer", EnablePlanes, EnableHelis,
                         EnableBoats, DisableBigVehicles, DisableLoadingTraffic);
 
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "TrafficRandomizer"))
+            return;
+
         if (!Config ().EnableBoats)
             Rainbomizer::Logger::LogMessage ("Boat hater detected!!");
 
-        InitialiseAllComponents ();
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
         ModelsListRandomizer::Initialise (false, true);
 
         // Actuall spawning of the vehicle
-        MakeJMP64 (GAMEADDR(100078), RandomizeCarToSpawn);
+        MakeJMP64 (GAMEADDR (100078), RandomizeCarToSpawn);
 
         // To load new vehicles (that would probably not be loaded by the game)
-        MakeJMP64 (GAMEADDR(100079), RandomizeCarToLoad);
+        MakeJMP64 (GAMEADDR (100079), RandomizeCarToLoad);
     }
 } _traf;

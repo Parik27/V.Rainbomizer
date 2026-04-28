@@ -131,6 +131,11 @@ public:
             return;
 
         InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "DispatchRandomizer"))
+            return;
+
         VehicleRandomizerHelper::InitialiseDLCDespawnFix ();
 
         // Randomize Dispatch service

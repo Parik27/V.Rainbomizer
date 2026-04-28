@@ -2,6 +2,7 @@
 #include <exceptions/exceptions_Mgr.hh>
 #include <common/events.hh>
 #include <common/config.hh>
+#include <common/common.hh>
 
 #include <Natives.hh>
 #include <CutSceneManager.hh>
@@ -87,10 +88,15 @@ public:
 
         InitialiseAllComponents ();
 
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "MissionRandomizer"))
+            return;
+
         Components::sm_Globals.Initialise ();
         Components::sm_CodeFixes.Initialise ();
 
-        RegisterHook ((void*) GAMEADDR(100062), scrThread_Runff6, RunThreadHook);
+        RegisterHook ((void *) GAMEADDR (100062), scrThread_Runff6,
+                      RunThreadHook);
 
         Rainbomizer::Events ().OnInit +=
             [] (bool) { Components::sm_Flow.Reset (); };

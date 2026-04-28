@@ -6,6 +6,7 @@
 #include "Utils.hh"
 #include "common/events.hh"
 #include "common/config.hh"
+#include "common/common.hh"
 #include "common/minhook.hh"
 #include "common/parser.hh"
 #include "common/logger.hh"
@@ -191,6 +192,13 @@ public:
         if (!ConfigManager::ReadConfig ("WeaponStatsRandomizer"))
             return;
 
+        InitialiseAllComponents ();
+
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "WeaponStatsRandomizer"))
+            return;
+
         // Randomize on game load
         Rainbomizer::Events ().OnInit += RandomizeWeaponStats;
 
@@ -198,12 +206,10 @@ public:
         DebugInterfaceManager::AddAction ("Randomize Weapon Stats",
                                           RandomizeWeaponStats);
 #endif
-        REGISTER_MH_HOOK (
-            100081,
-            ProjectilePhysicsFix, int, CEntity *, float, bool, int);
+        REGISTER_MH_HOOK (100081, ProjectilePhysicsFix, int, CEntity *, float,
+                          bool, int);
 
         // Make light bone = -1 for all projectiles to prevent crash.
         GameAddress<100080>::Nop (6);
-        InitialiseAllComponents ();
     }
 } _stats;

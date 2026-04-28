@@ -10,6 +10,7 @@
 #include <common/config.hh>
 #include <common/logger.hh>
 #include <common/minhook.hh>
+#include <common/common.hh>
 
 #include <exceptions/exceptions_Vars.hh>
 
@@ -65,6 +66,12 @@ public:
         RB_C_DO_CONFIG ("VehicleAppearanceRandomizer", RandomizeCarColours,
                         RandomizeCarUpgrades, RandomizeHornOdds,
                         RandomizeArmourOdds, RandomizeLicensePlateOdds);
+
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "VehicleAppearanceRandomizer"))
+            return;
 
         MinHookWrapper::RegisterHook (
             (void *) GAMEADDR (100071),

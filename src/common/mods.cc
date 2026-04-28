@@ -4,6 +4,7 @@
 #include <common/minhook.hh>
 #include <common/config.hh>
 #include <common/logger.hh>
+#include <common/common.hh>
 
 #include <CTheScripts.hh>
 #include <Utils.hh>
@@ -14,11 +15,11 @@ class ScriptHookCompatibility
 {
     struct Context
     {
-        bool                      Valid = false;
+        bool                             Valid = false;
         std::unique_ptr<scrThread::Info> info  = nullptr;
         NativeManager::NativeFunc        func  = nullptr;
 
-        Context (){};
+        Context () {};
 
         void
         Reset ()
@@ -79,8 +80,8 @@ class ScriptHookCompatibility
 
         if (!sm_Ctx.Valid)
             return nativeCall ();
-        
-        sm_Ctx.func (sm_Ctx.info.get());
+
+        sm_Ctx.func (sm_Ctx.info.get ());
         ret = sm_Ctx.info->GetReturn () & 0xFFFFFFFF;
 
         return &ret;
@@ -179,6 +180,11 @@ ModCompatibility::ModCompatibility ()
             std::pair ("MenyooConfigEdit", &MenyooConfigObliterator),
             std::pair ("ScriptHookEdit", &ScriptHookHook),
             std::pair ("RandomizeMods", &GetShouldRandomizeMods ())))
+        return;
+
+    InitialiseAllComponents ();
+
+    if (!Rainbomizer::Common::VerifyAndValidatePatterns ("ModCompatibility"))
         return;
 
     if (MenyooConfigObliterator)

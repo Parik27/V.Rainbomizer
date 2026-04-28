@@ -242,6 +242,7 @@ public:
 
     inline static GameVariable<CPedFactory*, 100090> sm_Instance{};
 
+    GAME_ADDR_WRAPPER
     static CPedFactory *
     Get ()
     {

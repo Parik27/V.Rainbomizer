@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <system_error>
 #include <array>
+#include "config.hh"
+#include "memory/Pattern.hh"
 
 void (*gameSkeleton__Init) (gameSkeleton *, uint32_t);
 

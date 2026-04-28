@@ -135,7 +135,7 @@ class RespawnRandomizer
         else
             {
                 ops.Init (m_Offsets[0].Switch);
-                ops.Write (16, ops.OpCode(PUSH_CONST_U8));
+                ops.Write (16, ops.OpCode (PUSH_CONST_U8));
                 ops.Write (17, RandomInt (6));
             }
     }
@@ -144,6 +144,12 @@ public:
     RespawnRandomizer ()
     {
         if (!ConfigManager::ReadConfig ("RespawnRandomizer"))
+            return;
+
+        InitialiseAllComponents ();
+
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "RespawnRandomizer"))
             return;
 
         YscCodeEdits::Add ("Initialise Respawn Randomizer",
