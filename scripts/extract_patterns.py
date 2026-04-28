@@ -9,7 +9,7 @@ import textwrap
 def get_patterns_from_obj(obj_file):
     raw_hex_string = ""
     if shutil.which("dumpbin"):
-        cmd = ['dumpbin', '/RAWDATA', '/SECTION:.pat_ids', obj_file]
+        cmd = ['dumpbin', '/RAWDATA', '/SECTION:.pat_ids$m', obj_file]
         tool = "dumpbin"
     elif shutil.which("llvm-objdump"):
         cmd = ['llvm-objdump', '-s', '-j', '.pat_ids', obj_file]

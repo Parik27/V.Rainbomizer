@@ -4,36 +4,45 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
+
     - name: Setup
       uses: ilammy/msvc-dev-cmd@v1.5.0
       with:
         arch: x64
+
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
 
     - name: Compile
+      shell: pwsh
       run: |
-        mkdir bin
-        cd bin
+        New-Item -ItemType Directory -Force bin | Out-Null
+        Set-Location bin
         cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release ../
         ninja
-        mkdir output
-        mkdir output/rainbomizer
-        cp V.Rainbomizer.asi output/V.Rainbomizer.asi
-        cp -r ../data output/rainbomizer/data/
-        rm output/rainbomizer/data/update.sh
-        rm output/rainbomizer/data/README.md
-        cp ../config.toml output/rainbomizer/
+        New-Item -ItemType Directory -Force output\rainbomizer\data | Out-Null
+        Copy-Item V.Rainbomizer.asi output\V.Rainbomizer.asi
+        Copy-Item ..\data\* output\rainbomizer\data\ -Recurse -Force
+        Remove-Item output\rainbomizer\data\update.sh -Force
+        Remove-Item output\rainbomizer\data\README.md -Force
+        Copy-Item ..\config.toml output\rainbomizer\
 
     - name: Upload
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: "V.Rainbomizer"
         path: bin/output
+
+    - name: Upload on fail
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: "V.Rainbomizer-failed"
+        path: bin/
