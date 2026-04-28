@@ -66,7 +66,7 @@ struct Pattern
     __declspec(allocate(".pat_ids$z")) inline const uint32_t pat_ids_end = 0;
 
     #define EMBED_ID(id) \
-        __declspec(allocate(".pat_ids$m")) \
+        __declspec(dllexport) __declspec(allocate(".pat_ids$m")) \
         inline static const uintptr_t entry = id
 #else
     extern "C" const uintptr_t __start_pat_ids[];

@@ -54,8 +54,9 @@ public:
     Get ()
         requires (DoesPatternExist<Address> ())
     {
-        if constexpr (IsPatternCritical <Address> ())
+        if constexpr (IsPatternCritical <Address> ()) {
             (void)PatternTracker<Address>::entry;
+        }
 
 #ifdef DEBUG_GAME_ADDRESSES
         if (!resolved && !std::exchange (unresolvedMessagePrinted, true))
