@@ -1,5 +1,6 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <CEntity.hh>
 #include <CARGB.hh>
 
@@ -10,7 +11,10 @@ public:
     uint32_t flags;
     // ...
 
-    CARGB *GetColours ();
+    CARGB *GetColours ()
+    {
+        return GameOffset<100152>::Get<CARGB*>(this);
+    }
 };
 
 class CVehicle : public CEntity

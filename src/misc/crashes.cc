@@ -1,3 +1,4 @@
+#include "common/common.hh"
 #include <cstdio>
 #include <CEntity.hh>
 #include <phCollider.hh>
@@ -20,6 +21,9 @@ public:
     void
     RegisterPickupCrash ()
     {
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns("ChaosCrashFixes"))
+            return;
+
         REGISTER_HOOK (100048, FixPickupCrash, phCollider *, CEntity*);
         REGISTER_HOOK (100049, FixPickupCrash, phCollider *, CEntity*);
         REGISTER_HOOK (100050, FixPickupCrash, phCollider *, CEntity*);

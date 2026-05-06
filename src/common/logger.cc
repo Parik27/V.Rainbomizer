@@ -121,6 +121,9 @@ class DisplayBuildVersion
 public:
     DisplayBuildVersion ()
     {
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns("Logger Build Version"))
+            return;
+
         RegisterHook ((void*) GAMEADDR(100032), rage__formatf6eb9, AppendBuildVersion);
     }
 } _display;

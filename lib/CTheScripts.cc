@@ -141,6 +141,9 @@ NativeManager::ProcessNativeHooks (scrProgram *program)
 void
 NativeManager::InitialiseNativeHooks ()
 {
+    if (!Rainbomizer::Common::VerifyAndValidatePatterns("NativeManager::InitialiseNativeHooks"))
+        return;
+
     REGISTER_HOOK (100085, ProcessNativeHooks, bool, scrProgram *);
 }
 

@@ -89,10 +89,6 @@ RuntimePatternManager::ResolvePatterns ()
                                     pattern.resolvedAddress
                                         = pattern.pattern.Resolve (
                                             uintptr_t (start) + pattern.offset);
-
-                                    Rainbomizer::Logger::LogMessage (
-                                        "%d resolved to %x", pattern.id,
-                                        pattern.resolvedAddress);
                                 }
                         }
                 }
@@ -108,10 +104,6 @@ RuntimePatternManager::ResolvePatterns ()
                                     pattern.resolvedAddress
                                         = pattern.pattern.Resolve (
                                             uintptr_t (start) + pattern.offset);
-
-                                    Rainbomizer::Logger::LogMessage (
-                                        "%d resolved to %x", pattern.id,
-                                        pattern.resolvedAddress);
                                 }
                         }
                 }
@@ -222,7 +214,8 @@ RuntimePatternManager::ReadFromFile (FILE *file)
 
         int id;
         ParseInteger (currentId, id);
-        AddPattern (pattern, id);
+        if (pattern.bytes.size () > 1)
+            AddPattern (pattern, id);
 
         currentId.clear ();
         currentPattern.clear ();
@@ -295,7 +288,7 @@ uintptr_t RuntimePatternManager::GetResolvedAddress (int id) const
         {
             for (auto &entry : bucket)
                 {
-                    if (entry.id == id)
+                    if (entry.id == id && entry.resolvedAddress)
                         {
                             return entry.resolvedAddress;
                         }

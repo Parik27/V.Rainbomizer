@@ -48,7 +48,7 @@ add_custom_command(
     COMMAND Python3::Interpreter ${CMAKE_CURRENT_SOURCE_DIR}/scripts/extract_patterns.py
             ${GENERATED_CPP}
             $<TARGET_OBJECTS:RainbomizerObjects>
-    DEPENDS RainbomizerObjects ${CMAKE_CURRENT_SOURCE_DIR}/scripts/extract_patterns.py
+    DEPENDS $<TARGET_OBJECTS:RainbomizerObjects> ${CMAKE_CURRENT_SOURCE_DIR}/scripts/extract_patterns.py
     COMMENT "Extracting pattern requirements from object files..."
     VERBATIM
 )

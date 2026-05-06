@@ -1,5 +1,6 @@
 #include "CPed.hh"
 #include "Patterns/Patterns.hh"
+#include "common/common.hh"
 #include "memory/GameAddress.hh"
 #include "rage.hh"
 #include <Utils.hh>
@@ -68,6 +69,9 @@ class PedRandomizerSkeletonFixes
 public:
     PedRandomizerSkeletonFixes ()
     {
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns("PedRandomizerSkeletonFixes"))
+            return;
+
         // SetGlobalMtx
         REGISTER_JMP_HOOK (
             18,

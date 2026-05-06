@@ -38,12 +38,13 @@ public:
     static FILE *GetRainbomizerDataFile (const std::string &name,
                                          const std::string &mode = "r");
 
-    static bool VerifyAndValidatePatterns (const std::string &randomizerName)
+    template<auto VerifyFunction = GetPatternVerificationFunction ()>
+    inline static bool VerifyAndValidatePatterns (const std::string &randomizerName)
     {
         if (!ConfigManager::ReadGlobalBool("ValidatePatterns"))
             return true;
 
-        if (!VerifyLocalPatterns ())
+        if (!VerifyFunction ())
             {
                 Logger::LogMessage ("Randomizer '%s' will be disabled because "
                                     "its required patterns failed to resolve",
@@ -51,7 +52,7 @@ public:
                 return false;
             }
 
-        return false;
+        return true;
     }
 };
 } // namespace Rainbomizer

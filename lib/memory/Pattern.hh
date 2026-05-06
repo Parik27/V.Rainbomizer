@@ -85,8 +85,8 @@ struct PatternTracker {
 #define CONCAT_IMPL(a, b) a ## b
 #define CONCAT(a, b) CONCAT_IMPL(a, b)
 
-inline static bool VerifyLocalPatterns()
+inline static consteval auto GetPatternVerificationFunction()
 {
     extern bool CONCAT(VerifyPatterns_, TU_NAME)();
-    return CONCAT(VerifyPatterns_, TU_NAME)();
+    return &CONCAT(VerifyPatterns_, TU_NAME);
 }

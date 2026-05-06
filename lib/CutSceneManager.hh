@@ -260,14 +260,6 @@ struct cutfCutsceneFile2
     uint8_t               field_0xd21[15];
     atArray<>             discardFrameList;
     uint8_t               field_0xd3c[4];
-
-    inline static GameVariable<cutfCutsceneFile2 *, 100116> sm_pCurrentFile{};
-
-    static cutfCutsceneFile2 *&
-    GetCurrentFile ()
-    {
-        return sm_pCurrentFile;
-    }
 };
 
 // This class is way too big for me to export a proper structure for :P

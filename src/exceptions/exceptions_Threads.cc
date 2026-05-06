@@ -46,6 +46,9 @@ class ExceptionHandler_Threads : public ExceptionHandler
         if (std::exchange (printed, true))
             return;
 
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns("ExceptionHandler_Threads"))
+            return;
+
         if (!&CTheScripts::aThreads || !CTheScripts::aThreads->Data)
             return;
 

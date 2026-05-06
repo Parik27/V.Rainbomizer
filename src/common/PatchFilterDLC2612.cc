@@ -1,6 +1,7 @@
 // Source:
 // https://github.com/citizenfx/fivem/blob/315653e9b3f712d6b478f143f23ff97017520df3/code/components/gta-core-five/src/PatchFilterDLC.cpp
 
+#include "common/common.hh"
 #include "common/minhook.hh"
 #include <unordered_set>
 
@@ -126,6 +127,10 @@ class PatchFilterDLC2612
 public:
     PatchFilterDLC2612 ()
     {
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns (
+                "PatchFilterDLC2612"))
+            return;
+
         MinHookWrapper::RegisterHook ((void *) GAMEADDR (100033),
                                       _applyChangeSetEntry,
                                       ApplyChangeSetEntryStub);

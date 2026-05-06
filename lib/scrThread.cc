@@ -12,8 +12,6 @@
 
 class gBaseScriptDirectory;
 
-static GameVariable<gBaseScriptDirectory, 100113> scrProgramDirectory{};
-
 // Instruction set for disassembly later :P
 std::array<std::pair<const char *, const char *>, 128> mOpcodes
     = {{{"NOP", ""},
@@ -144,27 +142,6 @@ std::array<std::pair<const char *, const char *>, 128> mOpcodes
         {"PUSH_CONST_F6", ""},
         {"PUSH_CONST_F7", ""},
         {"IS_BIT_SET", ""}}};
-
-/*******************************************************/
-scrProgram *
-scrProgram::FindProgramByHash (uint32_t hash)
-{
-    return GameFunction<100114, scrProgram*(gBaseScriptDirectory*, uint32_t)>::Call (&scrProgramDirectory, hash);
-}
-
-/*******************************************************/
-bool
-scrProgram::InitNativesTable ()
-{
-    return GameFunction<100115, bool*(scrProgram*)>::Call (this);
-}
-
-/*******************************************************/
-scrProgram *
-scrThread::GetProgram ()
-{
-    return scrProgram::FindProgramByHash (this->m_Context.m_nScriptHash);
-}
 
 /*******************************************************/
 std::pair<uint32_t, uint32_t>

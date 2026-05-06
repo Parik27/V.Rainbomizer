@@ -1,4 +1,5 @@
 #include "events.hh"
+#include "common/common.hh"
 #include "logger.hh"
 #include "scrThread.hh"
 
@@ -121,6 +122,9 @@ class EventTriggerer
 public:
     EventTriggerer ()
     {
+        if (!Rainbomizer::Common::VerifyAndValidatePatterns("EventTrigger"))
+            return;
+
         REGISTER_HOOK (100029, ProcessInitCallbacks, void, gameSkeleton *,
                        uint32_t);
 

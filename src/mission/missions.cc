@@ -95,7 +95,7 @@ public:
         Components::sm_Globals.Initialise ();
         Components::sm_CodeFixes.Initialise ();
 
-        RegisterHook ((void *) GAMEADDR (100062), scrThread_Runff6,
+        RegisterHook ((void *) GAMEADDR (100031), scrThread_Runff6,
                       RunThreadHook);
 
         Rainbomizer::Events ().OnInit +=

@@ -2,6 +2,7 @@
 #include "Parser.hh"
 #include "Patterns/Patterns.hh"
 #include "Utils.hh"
+#include "common/common.hh"
 #include <cstdint>
 #include <stdexcept>
 #include <stdio.h>
@@ -23,6 +24,9 @@ ParserUtils::Register ()
 {
     static bool bRegistered = false;
     if (std::exchange (bRegistered, true))
+        return;
+
+    if (!Rainbomizer::Common::VerifyAndValidatePatterns("ParserUtils"))
         return;
 
     REGISTER_HOOK (100086, BuildStructureHook, void, parStructure *,

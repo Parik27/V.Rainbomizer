@@ -21,6 +21,9 @@ namespace Rainbomizer {
 void
 Common::InitialiseHashes ()
 {
+    if (!VerifyAndValidatePatterns ("Common Hashes"))
+        return;
+
     for (size_t i = 0; i < CStreaming::ms_aModelPointers->m_nAllocated; i++)
         {
             auto info = CStreaming::ms_aModelPointers->m_pData[i];

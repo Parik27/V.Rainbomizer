@@ -151,6 +151,7 @@ class scrThreadContext
 {
 public:
     uint32_t     m_nThreadId    = 0;
+    char         _pad[4]        = {};
     uint32_t     m_nScriptHash  = 0;
     eScriptState m_nState       = eScriptState::WAITING;
     uint32_t     m_nIp          = 0;
@@ -243,8 +244,17 @@ struct scrProgram
                   GetPageSize (i, m_nStringSize));
     }
 
-    static scrProgram *FindProgramByHash (uint32_t hash);
-    bool               InitNativesTable ();
+    GAME_ADDR_WRAPPER
+    static scrProgram *FindProgramByHash (uint32_t hash)
+    {
+        return GameFunction<100151, scrProgram*(uint32_t)>::Call (hash);
+    }
+
+    GAME_ADDR_WRAPPER
+    bool InitNativesTable ()
+    {
+        return GameFunction<100115, bool*(scrProgram*)>::Call (this);
+    }
 };
 
 class scrThread
@@ -399,7 +409,11 @@ public:
         return m_pStack[m_Context.m_nSP--];
     }
 
-    scrProgram *GetProgram ();
+    GAME_ADDR_WRAPPER
+    scrProgram *GetProgram ()
+    {
+        return scrProgram::FindProgramByHash (this->m_Context.m_nScriptHash);
+    }
 
     static uint16_t    FindInstSize (uint8_t* code, int64_t size = -1);
     static uint16_t    FindInstSize (scrProgram *program, uint32_t offset);

@@ -5,38 +5,15 @@
 // #define DEBUG_GAME_ADDRESSES
 
 #include "Utils.hh"
+#include "common/logger.hh"
 #include "injector/injector.hpp"
+#include "memory/Pattern.hh"
 #ifdef DEBUG_GAME_ADDRESSES
 #include <utility>
 #include <core/Logger.hh>
 #endif
 
 #include <cstdint>
-
-#include "Pattern.hh"
-#include "PatternList.hh"
-
-template <uintptr_t pointer>
-consteval bool
-DoesPatternExist ()
-{
-    for (auto i : s_Patterns)
-        if (i.address == pointer)
-            return true;
-
-    return false;
-}
-
-template <uintptr_t pointer>
-consteval bool
-IsPatternCritical ()
-{
-    for (auto i : s_Patterns)
-        if (i.address == pointer)
-            return i.critical;
-
-    return false;
-}
 
 /* A class that will store the addresses after pattern resolution and contains
  * helper function to interact with the said addresses */
@@ -52,11 +29,8 @@ template <uintptr_t Address> class GameAddress
 public:
     static uintptr_t
     Get ()
-        requires (DoesPatternExist<Address> ())
     {
-        if constexpr (IsPatternCritical <Address> ()) {
-            (void)PatternTracker<Address>::entry;
-        }
+        (void)PatternTracker<Address>::entry;
 
 #ifdef DEBUG_GAME_ADDRESSES
         if (!resolved && !std::exchange (unresolvedMessagePrinted, true))
@@ -65,15 +39,6 @@ public:
 #endif
         return resolvedAddress;
     }
-
-    [[deprecated ("Pattern does not exist for address")]]
-    static uintptr_t
-    Get ()
-        requires (!DoesPatternExist<Address> ())
-    {
-        return resolvedAddress;
-    }
-
 
     template<typename T>
     static T
@@ -115,6 +80,9 @@ public:
             {
                 resolvedAddress = addr;
                 resolved        = true;
+
+                Rainbomizer::Logger::LogMessage (
+                    "GameAddress %d resolved to %p", Address, resolvedAddress);
             }
     }
 
@@ -156,26 +124,6 @@ public:
 
         injector::WriteMemoryRaw (Get (), value, size, vp);
     }
-
-    // static void
-    // LuiOri (RegisterID reg, float val)
-    // {
-    //     const uintptr_t thing_ieee   = std::bit_cast<uintptr_t> (val);
-    //     const uintptr_t lower_bytes  = (thing_ieee >> 16) & 0xFFFF;
-    //     const uintptr_t higher_bytes = thing_ieee & 0xFFFF;
-
-    //     injector.WriteMemory32 (Get (), lui (reg, lower_bytes));
-    //     injector.WriteMemory32 (Get () + 4, ori (reg, reg, higher_bytes));
-    // }
-
-    // template<typename ... Args>
-    // static void
-    // WriteInstructions (Args ...instructions)
-    // {
-    //     size_t i = 0;
-    //     (..., (injector.WriteMemory32 (Get () + i, instructions), i += 4));
-    // }
-
     GameAddress () = delete;
 };
 

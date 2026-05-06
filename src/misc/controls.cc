@@ -600,4 +600,4 @@ public:
 
         NativeManager::AddNative (0xC00510201122022, SetControlSwapState);
     }
-} controls;
+}; //controls;
