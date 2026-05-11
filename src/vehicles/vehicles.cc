@@ -289,14 +289,12 @@ class ScriptVehicleRandomizer
     static void
     InitialiseRandomVehiclesHook ()
     {
-        RegisterHook ("? 8d ? ? ? ? ? ? 8a c1 ? 8a d1 e8 ? ? ? ? 84 c0 74 ?",
-                      13, CVehicle__IsVehDriveable4137, IsVehDriveableHook);
+        RegisterHook ((void *) GAMEADDR (100153), CVehicle__IsVehDriveable4137,
+                      IsVehDriveableHook);
 
         ReplaceJmpHook__fastcall<0x7c1c0, uint32_t, uint32_t, Vector3_native *,
                                  float, bool, bool> (
-            hook::get_pattern ("8b ec ? 83 ec 50 f3 0f 10 02 f3 0f 10 4a 08 ",
-                               -17),
-            RandomizeScriptVehicle)
+            (void *) GAMEADDR (100154), RandomizeScriptVehicle)
             .Activate ();
     }
 

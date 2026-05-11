@@ -109,6 +109,8 @@ bool
 NativeManager::ProcessNativeHooks (scrProgram *program)
 {
     std::vector<std::pair<NativeFunc *, NativeFunc>> m_Operations;
+    NativeManager::Initialise ();
+
     if (program->m_pCodeBlocks)
         {
             for (auto [hash, hooked] : GetHookedNativesList ())
@@ -118,7 +120,7 @@ NativeManager::ProcessNativeHooks (scrProgram *program)
                     for (size_t i = 0; i < program->m_nNativesCount; i++)
                         {
                             uint64_t funcHash = reinterpret_cast<uint64_t &> (
-                                                                              program->m_pNativesPointer[i]);
+                                program->m_pNativesPointer[i]);
 
                             if (funcHash == orig.newHash)
                                 m_Operations.push_back (
@@ -170,7 +172,6 @@ NativeManager::Initialise ()
             m_ScriptHookInfo.bAvailable = true;
 
             InitialiseNativeCmdsFromTable (table, numVersions, verOffset);
-            InitialiseNativeHooks ();
 
             FreeLibrary (scriptHook);
         }
@@ -232,7 +233,6 @@ NativeManager::Initialise ()
             
             InitialiseNativeCmdsFromTable (tableMem.get (), tableWidth,
                                            verOffset, crosstable.size());
-            InitialiseNativeHooks ();
         }
     else
         {
@@ -244,6 +244,5 @@ NativeManager::Initialise ()
 void
 CTheScripts::InitialisePatterns ()
 {
-    Rainbomizer::Events ().OnInit +=
-        [] (bool) { NativeManager::Initialise (); };
+    NativeManager::InitialiseNativeHooks ();
 }

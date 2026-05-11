@@ -1,4 +1,5 @@
 #include "logger.hh"
+#include "GameVersion.hh"
 #include "common.hh"
 #include <cstdlib>
 #include <ctime>
@@ -108,6 +109,11 @@ class DisplayBuildVersion
     {
         sg_GameBuild = std::stoi (version);
         Logger::LogMessage("Set Game Build to %d", sg_GameBuild);
+
+        // Add 100000 to build count as Enhanced build number might be smaller than
+        // Legacy.
+        if (GameVersion::IsEnhanced ())
+            sg_GameBuild += 100000;
 
 #ifndef NDEBUG
         return rage__formatf6eb9 (out, "Rainbomizer Build %d   Build %s",

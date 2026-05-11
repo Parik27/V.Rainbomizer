@@ -1,8 +1,10 @@
 #pragma once
 
+#include "memory/GameAddress.hh"
 #include <cstdint>
 #include <cstddef>
 #include <CMath.hh>
+#include <rage.hh>
 
 /* Note: offsets in this file are not to be used directly since they might not
  * be correct for all versions of the game. Using the functions makes it easier
@@ -51,9 +53,26 @@ public:
 
 class CVehicleModelInfo : public CBaseModelInfo
 {
+    uint32_t TranslateType (int32_t type);
+
 public:
-    uint32_t GetVehicleType ();
-    char *   GetGameName ();
+    GAME_ADDR_WRAPPER
+    uint32_t GetVehicleType ()
+    {
+        int32_t type = GameOffset<100158>::Get<int32_t> (this);
+
+        if (type == -1)
+            return "VEHICLE_TYPE_NONE"_joaat;
+
+        return TranslateType (type);
+    }
+
+    GAME_ADDR_WRAPPER
+    char *
+    GetGameName ()
+    {
+        return GameOffset<100160>::Get<char *> (this);
+    }
 };
 
 class CPedModelInfo : public CBaseModelInfo
@@ -150,7 +169,11 @@ public:
     uint8_t m_nFlags2;
     uint8_t field_0x281[15];
 
-    InitInfo &GetInitInfo ();
+    GAME_ADDR_WRAPPER
+    InitInfo &GetInitInfo ()
+    {
+        return GameOffset<100159>::Get<InitInfo>(this);
+    }
 };
 
 static_assert (sizeof (CBaseModelInfo) == 176, "Incorect BaseModelInfo size");

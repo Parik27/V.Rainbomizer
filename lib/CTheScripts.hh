@@ -74,9 +74,9 @@ private:
     static std::unique_ptr<NativeFunc[]>
     GetCmdsFromHashes (const std::vector<uint64_t> &hashes);
 
+public:
     static void InitialiseNativeHooks ();
 
-public:
     static uint32_t GetJoaatHashFromCmdHash (uint64_t hash);
 
     static void Initialise ();

@@ -74,36 +74,6 @@ GetAtOffset (C *classInst, O offset)
 }
 
 /*******************************************************/
-template <typename T>
-std::pair<void *, const T &>
-GetPatternsAndData (
-    std::vector<std::tuple<std::string, int, const T &>> patterns)
-{
-    for (auto &[pattern, offset, data] : patterns)
-        {
-            hook::pattern p (pattern);
-            if (p.size ())
-                return std::pair (p.get_first (offset), data);
-        }
-
-    return std::pair (nullptr, T ());
-}
-
-/*******************************************************/
-inline void *
-GetPatterns (std::vector<std::pair<std::string, int>> patterns)
-{
-    for (auto &[pattern, offset] : patterns)
-        {
-            hook::pattern p (pattern);
-            if (p.size ())
-                return p.get_first (offset);
-        }
-
-    return nullptr;
-}
-
-/*******************************************************/
 template <typename T, typename V>
 bool
 DoesElementExist (const T &container, const V val)
@@ -156,41 +126,6 @@ RegisterHookVft (O &originalFunc, F hookedFunc)
 }
 
 /*******************************************************/
-template <bool Jmp = false, typename F, typename O>
-void
-RegisterHook (const std::string &pattern, int offset, O &originalFunc,
-              F hookedFunc)
-{
-    RegisterHook<Jmp> (hook::get_pattern (pattern, offset), originalFunc,
-                       hookedFunc);
-}
-
-/*******************************************************/
-template <bool Jmp = false, typename F>
-void
-RegisterHook (const std::string &pattern, int offset, F hookedFunc)
-{
-    void *addr = hook::get_pattern (pattern, offset);
-    RegisterHook<Jmp> (addr, hookedFunc);
-}
-
-/*******************************************************/
-template<typename F, typename O>
-void
-RegisterHookOperand (const std::string &pattern, int offset, F hookedFunc, O& originalFunc)
-{
-    hook::pattern p (pattern);
-    auto result = p.get_one ();
-
-    injector::WriteMemory (originalFunc, result.get<char> (offset + 4)
-                                             + *result.get<int32_t> (offset));
-
-    *result.get<int32_t> (offset)
-        = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
-        ->Jump (hookedFunc) - result.get<char>(offset + 4);
-}
-
-/*******************************************************/
 void RegisterJmpHook (void *addr, void *dst, void **outOrignal, int size);
 
 template <int size, typename F, typename O>
@@ -204,53 +139,9 @@ RegisterJmpHook (void *addr, O &originalFunc, F hookedFunc)
     RegisterJmpHook (addr, (void *) hookedFunc, (void **) &originalFunc, size);
 }
 
-template <int size, typename F, typename O>
-inline void
-RegisterJmpHook (const std::string &pattern, int offset, O &originalFunc,
-                 F hookedFunc)
-{
-    RegisterJmpHook<size> (hook::get_pattern (pattern, offset), originalFunc,
-                           hookedFunc);
-}
-
 /*******************************************************/
 void MakeJMP64 (injector::memory_pointer_tr  at,
                 injector::memory_pointer_raw dest);
-
-/*******************************************************/
-template <typename T = void>
-void *
-SearchBack (const std::string &pattern, const std::string &pattern2,
-            int max_offset, int offset = 0)
-{
-    puts (pattern.c_str ());
-    injector::memory_pointer_raw addr = hook::get_pattern (pattern);
-
-    return hook::make_range_pattern ((addr - max_offset).as_int (),
-                                     addr.as_int (), pattern2)
-        .get_one ()
-        .get<T> (offset);
-}
-
-/*******************************************************/
-template <typename T = void>
-T *
-GetRelativeReference (const std::string &pattern, int dataOffset,
-                      int nextInstOffset)
-{
-    uint8_t *addr   = hook::get_pattern<uint8_t> (pattern);
-    int32_t  offset = *(int32_t *) (addr + dataOffset);
-    return (T *) (addr + offset + nextInstOffset);
-}
-
-/*******************************************************/
-template <typename T = void>
-T *
-GetRelativeReference (const std::string &pattern, int dataOffset)
-{
-    uint32_t offset = *hook::get_pattern<uint32_t> (pattern, dataOffset);
-    return (T *) (hook::getRVA (offset));
-}
 
 /*******************************************************/
 /* Macro to facilitate a hook
@@ -269,12 +160,6 @@ GetRelativeReference (const std::string &pattern, int dataOffset)
     {                                                                          \
         static ret (*F) (__VA_ARGS__);                                         \
         RegisterHook ((void*) GAMEADDR (pattern_id), F, function<F>);    \
-    }
-
-#define REGISTER_HOOK_OPERAND(pattern_id, function, ret, ...)                  \
-    {                                                                          \
-        static ret (*F) (__VA_ARGS__);                                         \
-        RegisterHookOperand ((void*) GAMEADDR (pattern_id), F, function<F>); \
     }
 
 /*******************************************************/

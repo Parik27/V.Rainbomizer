@@ -1,5 +1,7 @@
 #include "CModelInfo.hh"
+#include "memory/GameAddress.hh"
 #include <Utils.hh>
+#include <cstdint>
 #include <rage.hh>
 #include <cassert>
 
@@ -39,42 +41,8 @@ InitialiseTypeTranslationMap ()
 
 /*******************************************************/
 uint32_t
-CVehicleModelInfo::GetVehicleType ()
+CVehicleModelInfo::TranslateType (int32_t type)
 {
-    static uint32_t nTypeIndex = *hook::get_pattern<uint32_t> (
-        "8b ? ? ? ? ? ? 8b cd ? 8b c6 ? 8b cb e8 ? ? ? ? ? 8b f0 ? 85 c0", 2);
     static uint32_t *aTranslationTypeMap = InitialiseTypeTranslationMap ();
-
-    // Should be safe since we have asserts for stuff
-    int32_t type = *(injector::raw_ptr (this) + nTypeIndex).get<int32_t> ();
-
-    if (type == -1)
-        return "VEHICLE_TYPE_NONE"_joaat;
-
     return aTranslationTypeMap[type];
-}
-
-/*******************************************************/
-CPedModelInfo::InitInfo &
-CPedModelInfo::GetInitInfo ()
-{
-    static uint32_t nPedCapsuleNameIndex = *hook::get_pattern<uint32_t> (
-        "8b ? ? ? ? ? ? 85 d2 74 ? 0f b7 05 ? ? ? ? 8b d6", 2);
-
-    return *GetAtOffset<InitInfo> (this, nPedCapsuleNameIndex
-                                             - offsetof (InitInfo,
-                                                         m_nPedCapsuleName));
-
-    static_assert (offsetof (InitInfo, m_nPedCapsuleName) == 8,
-                   "PedCapsuleName at wrong offset");
-}
-
-/*******************************************************/
-char *
-CVehicleModelInfo::GetGameName ()
-{
-    static uint32_t nGameNameIndex = *hook::get_pattern<uint32_t> (
-        "bb 0c 00 00 00 ? 8d ? ? ? ? ? ? 8d ? d0 ? 8d 05 ? ? ? ? 8b d3 ", 8);
-
-    return (reinterpret_cast<char *> (this) + nGameNameIndex);
 }

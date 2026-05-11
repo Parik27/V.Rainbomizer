@@ -39,11 +39,15 @@ MissionRandomizer_OrderManager::Process (scrProgram       *program,
     if (program->m_nScriptHash == "initial"_joaat
         && ctx->m_nState == eScriptState::KILLED)
         {
+            Rainbomizer::Logger::LogMessage("Attempting to initialise mission randomizer");
             Initialise (GetSeed ());
         }
 
     if (program->m_nScriptHash == "flow_controller"_joaat && ctx->m_nIp == 0)
-        MR::sm_Cmds.AdjustMissionFlowCommands ();
+        {
+            Rainbomizer::Logger::LogMessage("Attempting to addjust mission flow commands");
+            MR::sm_Cmds.AdjustMissionFlowCommands ();
+        }
 
 #ifdef ENABLE_DEBUG_MENU
     if (DebugInterfaceManager::GetAction ("Reload Missions"))
@@ -65,6 +69,12 @@ MissionRandomizer_OrderManager::GetSeed ()
 
     uint32_t randomSeed = RandomSize (UINT_MAX);
     uint32_t configSeed = rage::atLiteralStringHash (MR::Config ().Seed);
+
+    if (!save)
+        {
+            Rainbomizer::Logger::LogMessage("Failed to get save structure");
+            return randomSeed;
+        }
 
     if (!save->ValidateSaveStructure ())
         *save = SaveStructure (configSeed == 0 ? randomSeed : configSeed);

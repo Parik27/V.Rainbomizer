@@ -153,6 +153,7 @@ public:
     uint32_t     m_nThreadId    = 0;
     char         _pad[4]        = {};
     uint32_t     m_nScriptHash  = 0;
+    char         _pad2[4]        = {};
     eScriptState m_nState       = eScriptState::WAITING;
     uint32_t     m_nIp          = 0;
     uint32_t     m_nFrameSP     = 0;

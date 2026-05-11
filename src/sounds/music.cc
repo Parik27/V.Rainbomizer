@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include <debug/base.hh>
+#include "memory/GameAddress.hh"
 
 #define ENABLE_MUSIC_RANDOMIZER
 
@@ -134,16 +135,14 @@ public:
         float *speed = Trampoline::MakeTrampoline (GetModuleHandle (nullptr))
                            ->Pointer<float> ();
         injector::MakeRelativeOffset (
-            hook::get_pattern ("f3 0f 10 05 ? ? ? ? f3 0f 11 ? ? 83 ? ? 00 ? "
-                               "83 ? ? 00 ? 83 ? ? 00 ? 8d ? 6f ? 8d ? cf ",
-                               4),
+            (void *) GAMEADDR (100155),
             speed);
         *speed = 30.0f;
 
-        REGISTER_HOOK ("8b d9 ? 8b f8 e8 ? ? ? ? ? 8b 54", 5, RandomizeMusic,
+        REGISTER_HOOK (100156, RandomizeMusic,
                        rage::Sound *, audMetadataMgr *, uint32_t);
 
-        REGISTER_HOOK ("8b f0 e8 ? ? ? ? 8a 54 ? ? 88 54", 2, RandomizeMusic,
+        REGISTER_HOOK (100157, RandomizeMusic,
                        rage::Sound *, audMetadataMgr *, uint32_t);
     }
 }
